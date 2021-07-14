@@ -6,9 +6,9 @@
 <script lang="ts">
 
 import { defineComponent, watch, ref } from 'vue';
+import * as Animation from './animations';
+import { Frame, rgbToHex } from './color-utilities';
 
-type RGB = [number, number, number];
-type Frame = RGB[];
 
 export default defineComponent({
    props: {
@@ -17,9 +17,13 @@ export default defineComponent({
 
       const can = ref<HTMLCanvasElement>();
 
+      //const animation = new Animation.Rainbow(144);
+      //const animation = new Animation.Umbrella(144);
+      const animation = new Animation.Sparkle(144);
+
       let ctx: CanvasRenderingContext2D | undefined | null;
       let canvasDimensions: [number, number] = [window.innerWidth, window.innerHeight];
-      let frame = createFrame()
+      let frame = animation.nextFrame();
 
       window.addEventListener('resize', () => {
          if (!can.value) { return; }
@@ -43,13 +47,9 @@ export default defineComponent({
 
          setInterval(() => {
             if (!ctx) { return; }
-            const led0 = frame[0];
-            for (let i = 1; i < frame.length; i++) {
-               frame[i - 1] = frame[i];
-            }
-            frame[frame.length - 1] = led0;
+            frame = animation.nextFrame();
             draw(ctx, frame, canvasDimensions);
-         }, 50);
+         }, 100);
 
       });
 
@@ -60,66 +60,7 @@ export default defineComponent({
 const pi2 = Math.PI * 2;
 const lineWidth = 1;
 const padding = 2;
-const numLeds = 144;
 const radius = 10;
-
-function createFrame(): Frame {
-
-   const space = 360 / numLeds;
-
-   const leds: [number, number, number][] = [];
-   for (let i = 0; i < numLeds; i++) {
-      const h = i * space;
-      const rgb = hslToRgb(h, 50, 50);
-      leds.push(rgb);
-   }
-
-   return leds;
-
-}
-
-//https://css-tricks.com/converting-color-spaces-in-javascript/#hsl-to-rgb
-function hslToRgb(h: number, s: number, l: number): RGB {
-   // Must be fractions of 1
-   s /= 100;
-   l /= 100;
-
-   let c = (1 - Math.abs(2 * l - 1)) * s,
-      x = c * (1 - Math.abs((h / 60) % 2 - 1)),
-      m = l - c / 2,
-      r = 0,
-      g = 0,
-      b = 0;
-
-   if (0 <= h && h < 60) {
-      r = c; g = x; b = 0;
-   } else if (60 <= h && h < 120) {
-      r = x; g = c; b = 0;
-   } else if (120 <= h && h < 180) {
-      r = 0; g = c; b = x;
-   } else if (180 <= h && h < 240) {
-      r = 0; g = x; b = c;
-   } else if (240 <= h && h < 300) {
-      r = x; g = 0; b = c;
-   } else if (300 <= h && h < 360) {
-      r = c; g = 0; b = x;
-   }
-   r = Math.round((r + m) * 255);
-   g = Math.round((g + m) * 255);
-   b = Math.round((b + m) * 255);
-
-   return [r, g, b];
-}
-
-//https://css-tricks.com/converting-color-spaces-in-javascript/#hsl-to-rgb
-function rgbToHex(rgb: RGB): string {
-   const r = rgb[0].toString(16);
-   const g = rgb[1].toString(16);
-   const b = rgb[2].toString(16);
-
-   const hex = `#${r.padStart(2, '0')}${g.padStart(2, '0')}${b.padStart(2, '0')}`;
-   return hex;
-}
 
 function draw(ctx: CanvasRenderingContext2D, frame: Frame, canvasDimensions: [number, number]) {
 
