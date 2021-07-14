@@ -17,26 +17,39 @@ export default defineComponent({
 
       const can = ref<HTMLCanvasElement>();
 
+      let ctx: CanvasRenderingContext2D | undefined | null;
+      let canvasDimensions: [number, number] = [window.innerWidth, window.innerHeight];
+      let frame = createFrame()
+
+      window.addEventListener('resize', () => {
+         if (!can.value) { return; }
+         if (!ctx) { return; }
+         can.value.width = window.innerWidth;
+         can.value.height = window.innerHeight;
+         canvasDimensions = [window.innerWidth, window.innerHeight];
+         draw(ctx, frame, canvasDimensions);
+      });
+
       watch(can, () => {
 
          if (!can.value) { return; }
-         const ctx = can.value.getContext('2d');
+         ctx = can.value.getContext('2d');
          if (!ctx) { return; }
 
          can.value.width = window.innerWidth;
          can.value.height = window.innerHeight;
-
-         let frame = createFrame();
-         draw(ctx, frame);
+         ;
+         draw(ctx, frame, canvasDimensions);
 
          setInterval(() => {
+            if (!ctx) { return; }
             const led0 = frame[0];
             for (let i = 1; i < frame.length; i++) {
                frame[i - 1] = frame[i];
             }
             frame[frame.length - 1] = led0;
-            draw(ctx, frame);
-         }, 16);
+            draw(ctx, frame, canvasDimensions);
+         }, 50);
 
       });
 
@@ -46,9 +59,9 @@ export default defineComponent({
 
 const pi2 = Math.PI * 2;
 const lineWidth = 1;
-const padding = 5;
-const numLeds = 75;
-const radius = 12;
+const padding = 2;
+const numLeds = 144;
+const radius = 10;
 
 function createFrame(): Frame {
 
@@ -108,24 +121,68 @@ function rgbToHex(rgb: RGB): string {
    return hex;
 }
 
-function draw(ctx: CanvasRenderingContext2D, frame: Frame) {
+function draw(ctx: CanvasRenderingContext2D, frame: Frame, canvasDimensions: [number, number]) {
+
+   ctx.clearRect(0, 0, canvasDimensions[0], canvasDimensions[1]);
 
    let xPos = radius + lineWidth;
    let yPos = radius + lineWidth;
 
-   ctx.lineWidth = lineWidth;
-   ctx.strokeStyle = '#000';
+   const ledDimension = (radius * 2) + (padding / 2) + (lineWidth * 2);
+
+   const numX = Math.floor(canvasDimensions[0] / ledDimension);
+   const numY = Math.floor(canvasDimensions[1] / ledDimension) - 1;
+
+   if (lineWidth) {
+      ctx.lineWidth = lineWidth;
+      ctx.strokeStyle = '#000';
+   }
+
+   let dir = 1;
+
+   let numDir = 0;
+
+   let outOfRoom = false;
 
    for (const led of frame) {
-      ctx.fillStyle = rgbToHex(led);
+      ctx.fillStyle = outOfRoom ? '#FF0000' : rgbToHex(led);
 
       ctx.beginPath();
       ctx.arc(xPos, yPos, radius, 0, pi2, false);
       ctx.closePath();
       ctx.fill();
-      ctx.stroke();
+      if (lineWidth) { ctx.stroke(); }
 
-      xPos += (radius * 2) + padding;
+      if (outOfRoom) { break; }
+
+      numDir++;
+
+      if (dir === 1) {
+         if (numDir === numX) {
+            yPos = ledDimension + radius + lineWidth;
+            dir = 2;
+            numDir = 1;
+         } else {
+            xPos += ledDimension;
+         }
+      } else if (dir === 2) {
+         yPos += ledDimension;
+         if (numDir === numY) {
+            dir = 3;
+            numDir = 1;
+         }
+      } else if (dir === 3) {
+         xPos -= ledDimension;
+         if (numDir === numX) {
+            dir = 4;
+            numDir = 0;
+         }
+      } else {
+         yPos -= ledDimension;
+         if (numDir === numY) {
+            outOfRoom = true;
+         }
+      }
    }
 
 }
