@@ -1,0 +1,37 @@
+{
+   "compilerOptions": {
+      "target": "ES2020",
+      "module": "esnext",
+      "moduleResolution": "node",
+      "strict": true,
+      "sourceMap": true,
+      "resolveJsonModule": true,
+      "esModuleInterop": true,
+      "noImplicitReturns": true,
+      "noEmitOnError": true,
+      "skipLibCheck": true,
+      "allowSyntheticDefaultImports": true,
+      "forceConsistentCasingInFileNames": true,
+      "importHelpers": true,
+      "removeComments": true,
+      "outDir": "./dist",
+      "rootDirs": [
+         "src",
+      ],
+      "lib": [
+         "esnext",
+         "DOM"
+      ],
+      "baseUrl": ".",
+      "paths": {
+         "@/*": [
+            "src/*"
+         ]
+      },
+      "plugins": [
+         {
+            "name": "@vuedx/typescript-plugin-vue"
+         }
+      ],
+   }
+}
