@@ -1,10 +1,10 @@
 import { Frame } from '../color-utilities';
-import { IAnimation, IConfigMeta } from '.';
+import { IAnimation, IMeta } from '.';
 import { rotateFrame } from '../color-utilities/rotateFrame';
 
 //https://www.tweaking4all.com/hardware/arduino/adruino-led-strip-effects/
 
-export const configMeta: IConfigMeta = {
+const configMeta: IMeta = {
    params: [
       {
          name: 'cooling',
@@ -26,6 +26,8 @@ export const configMeta: IConfigMeta = {
 }
 
 export class Flames implements IAnimation {
+
+   public static meta = configMeta;
 
    private readonly _cooling;
    private readonly _sparking;

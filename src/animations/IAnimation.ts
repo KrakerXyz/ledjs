@@ -4,7 +4,7 @@ export interface IAnimation {
    nextFrame(): Frame
 }
 
-export interface IConfigMeta {
+export interface IMeta {
    params: IConfigMetaParam[];
 }
 
@@ -14,7 +14,7 @@ export interface IConfigMetaParam {
    name: string;
    description: string;
    type: 'string' | 'number' | 'boolean';
-   default?: string | number | boolean;
+   default: string | number | boolean;
    min?: number;
    max?: number;
 }
