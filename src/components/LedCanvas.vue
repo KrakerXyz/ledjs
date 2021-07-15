@@ -6,8 +6,8 @@
 <script lang="ts">
 
 import { defineComponent, watch, ref } from 'vue';
-import * as Animation from './animations';
-import { Frame, rgbToHex } from './color-utilities';
+import * as Animation from '../animations';
+import { Frame, rgbToHex } from '../color-utilities';
 
 
 export default defineComponent({

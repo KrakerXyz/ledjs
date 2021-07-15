@@ -1,6 +1,6 @@
 
 import { createRouter, createWebHistory, NavigationGuardWithThis, RouteLocationNormalized, RouteRecordRaw } from 'vue-router';
-import App from './App.vue';
+import App from './components/App.vue';
 
 const routes: RouteRecordRaw[] = [
    {
