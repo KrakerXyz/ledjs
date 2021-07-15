@@ -1,22 +1,43 @@
 import { Frame } from '../color-utilities';
-import { IAnimation } from '.';
+import { IAnimation, IConfigMeta } from '.';
 import { rotateFrame } from '../color-utilities/rotateFrame';
 
 //https://www.tweaking4all.com/hardware/arduino/adruino-led-strip-effects/
 
+export const configMeta: IConfigMeta = {
+   params: [
+      {
+         name: 'cooling',
+         type: 'number',
+         description: 'Indicates how fast a flame cools down. More cooling means shorter flames.',
+         default: 65,
+         min: 1,
+         max: 255
+      },
+      {
+         name: 'sparking',
+         type: 'number',
+         description: 'Indicates the chance (out of 255) that a spark will ignite. A higher value makes the fire more active.',
+         default: 50,
+         min: 1,
+         max: 255
+      }
+   ]
+}
+
 export class Flames implements IAnimation {
 
-   /** The first one (Cooling) indicates how fast a flame cools down. More cooling means shorter flames, and the recommended values are between 20 and 100. 50 seems the nicest.  */
-   private readonly _cooling = 65;
-
-   /** The Second parameter (Sparking), indicates the chance (out of 255) that a spark will ignite. A higher value makes the fire more active. Suggested values lay between 50 and 200, with my personal preference being 120. */
-   private readonly _sparking = 50;
+   private readonly _cooling;
+   private readonly _sparking;
 
 
    private readonly _heat: number[] = [];
    private readonly _frame: Frame = [];
 
-   public constructor(numLeds: number) {
+   public constructor(numLeds: number, config: { cooling: number, sparking: number }) {
+
+      this._cooling = config.cooling;
+      this._sparking = config.sparking;
 
       for (let i = 0; i < numLeds; i++) {
          this._frame.push([0, 0, 0]);

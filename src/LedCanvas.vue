@@ -20,7 +20,7 @@ export default defineComponent({
       //const animation = new Animation.Rainbow(144);
       //const animation = new Animation.Umbrella(144);
       //const animation = new Animation.Sparkle(144);
-      const animation = new Animation.Flames(144);
+      const animation = new Animation.Flames(144, { cooling: 65, sparking: 50 });
 
       let ctx: CanvasRenderingContext2D | undefined | null;
       let canvasDimensions: [number, number] = [window.innerWidth, window.innerHeight];
