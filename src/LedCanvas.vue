@@ -19,7 +19,8 @@ export default defineComponent({
 
       //const animation = new Animation.Rainbow(144);
       //const animation = new Animation.Umbrella(144);
-      const animation = new Animation.Sparkle(144);
+      //const animation = new Animation.Sparkle(144);
+      const animation = new Animation.Flames(144);
 
       let ctx: CanvasRenderingContext2D | undefined | null;
       let canvasDimensions: [number, number] = [window.innerWidth, window.innerHeight];
@@ -49,7 +50,7 @@ export default defineComponent({
             if (!ctx) { return; }
             frame = animation.nextFrame();
             draw(ctx, frame, canvasDimensions);
-         }, 100);
+         }, 20);
 
       });
 
