@@ -56,7 +56,8 @@
 
          watch(selectedAnimation, async name => {
             const a = await animationService.getContext(name);
-            context.value = a;
+            a.interval = context.value?.interval ?? a.interval;
+            context.value = reactive(a);
          }, { immediate: true });
 
          watch(context, c => {
@@ -68,8 +69,8 @@
                return context.value?.interval ?? 0;
             },
             set(value: number) {
-               //I tried just updating context.value and re-emitting but App is not picking it up unless it's a new reference. I've even tried {...c} but it still saw it as the same instance.
-               animationService.getContext(selectedAnimation.value).then(c => context.value = { ...c, interval: value });
+               if (!context.value) { return; }
+               context.value.interval = value;
             }
          });
 

@@ -25,6 +25,16 @@
          let frame: Frame | undefined;
          let interval: number | undefined | null;
 
+         watch(() => animationContext.value?.interval, i => {
+            if (!interval) { return; }
+            if (interval) { clearInterval(interval); }
+            interval = setInterval(() => {
+               if (!ctx.value || !animationContext.value) { return; }
+               frame = animationContext.value.animation.nextFrame();
+               draw(ctx.value, frame, canvasDimensions);
+            }, i);
+         });
+
          watch([animationContext, ctx], () => {
             if (interval) { clearInterval(interval); }
 
