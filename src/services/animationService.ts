@@ -21,7 +21,8 @@ export function useAnimationService(numLeds: number) {
                   meta,
                   setConfig(c) {
                      this.animation = new Animations[animationName](numLeds, c as any)
-                  }
+                  },
+                  interval: 50
                }
 
                break;
@@ -35,7 +36,8 @@ export function useAnimationService(numLeds: number) {
                   meta: { params: [] },
                   setConfig(c) {
                      this.animation = new Animations[animationName](numLeds);
-                  }
+                  },
+                  interval: 50
                }
                break;
             }
@@ -62,4 +64,5 @@ export interface IAnimationContext {
    meta: Animations.IMeta;
    config: Config;
    setConfig(config: Config): void;
+   interval: number;
 }
