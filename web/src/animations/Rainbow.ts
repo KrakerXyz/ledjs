@@ -10,7 +10,7 @@ export class Rainbow implements Animation<any> {
       const space = 360 / num;
       for (let i = 0; i < num; i++) {
          const h = i * space;
-         const rgb = hslToRgb(h, 50, 50);
+         const rgb = hslToRgb(h, 100, 50);
          this._frame.push(rgb);
       }
    }
