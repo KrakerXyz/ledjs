@@ -22,11 +22,11 @@ rpio.spiSetClockDivider(100);
 
 const rpioDraw = (frame: Frame) => {
 
-    const buffer = Buffer.alloc((frame.length * 4) + 1, '00000000', 'hex');
+    const buffer = Buffer.alloc((frame.length * 4) + 4, '00000000', 'hex');
 
     for (let i = 0; i < frame.length; i++) {
 
-        const buffPos = (i * 4) + 1; //We add in 1 to account for the leading reset byte
+        const buffPos = (i * 4) + 4; //We add in 4 to account for the leading reset bytes
 
         buffer[buffPos] = 224 + 4; //Brightness
         buffer[buffPos + 1] = frame[i][2]; //B
