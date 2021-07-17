@@ -6,6 +6,7 @@ export class Rainbow implements Animation<any> {
    private _frame: Frame = [];
 
    public setNumLeds(num: number) {
+      if (num === this._frame.length) { return; }
       this._frame = [];
       const space = 360 / num;
       for (let i = 0; i < num; i++) {

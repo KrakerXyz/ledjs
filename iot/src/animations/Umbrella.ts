@@ -7,6 +7,7 @@ export class Umbrella implements Animation<any> {
    private _frame: Frame = [];
 
    public setNumLeds(numLeds: number) {
+      if (numLeds === this._frame.length) { return; }
       this._frame = [];
       let lastWasWhite = false;
       for (let i = 0; i < numLeds; i++) {

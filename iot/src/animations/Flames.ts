@@ -41,6 +41,7 @@ export class Flames implements Animation<typeof configMeta> {
    }
 
    public setNumLeds(num: number) {
+      if (num === this._frame.length) { return; }
       this._frame = [];
       for (let i = 0; i < num; i++) {
          this._frame.push([0, 0, 0]);

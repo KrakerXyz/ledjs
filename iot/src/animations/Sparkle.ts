@@ -6,6 +6,7 @@ export class Sparkle implements Animation<any> {
    private _frame: Frame = [];
 
    public setNumLeds(numLeds: number) {
+      if (numLeds === this._frame.length) { return; }
       this._frame = [];
       for (let i = 0; i < numLeds; i++) {
          this._frame.push([0, 0, 0]);

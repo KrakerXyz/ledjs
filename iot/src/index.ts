@@ -2,59 +2,53 @@
 //Taken from https://github.com/Azure-Samples/azure-iot-samples-node/tree/master/iot-hub/Quickstarts/simulated-device-2
 
 import { Client, Message } from 'azure-iot-device';
-import type { DeviceMethodRequest, DeviceMethodResponse } from 'azure-iot-device';
 import { MqttWs } from 'azure-iot-device-mqtt';
 import { useAnimation } from './services/animationService';
-import { Frame } from './color-utilities';
-import rpio from 'rpio';
+import { Leds } from './services/Leds';
+import { AnimationConfig } from 'src/core';
 
 const connectionString = 'HostName=netled-iot-hub.azure-devices.net;DeviceId=raspi-fastled-1;SharedAccessKey=BDM/7c7Ga+CjzKf+PUV5i7zpuLBWVNE2eJdv4+/nuiY=';
+
+let lastAnimationName = 'Rainbow';
+let animation = useAnimation(lastAnimationName);
+animation.setNumLeds(8);
+
+const leds = new Leds();
+leds.setAnimation(animation);
+leds.setInterval(50);
 
 console.log('Initializing IoT Hub');
 const client = Client.fromConnectionString(connectionString, MqttWs);
 client.open().then(v => {
-    console.log('IoT Hub connected');
+    console.log('IoT Hub: Connected');
 });
 
-console.log('Initializing SPI');
-rpio.spiBegin();
-rpio.spiSetClockDivider(100);
+client.onDeviceMethod('setAnimation', (request, response) => {
+    console.log('Incoming IoT: setAnimation');
+    console.debug(`Payload: ${JSON.stringify(request.payload)}`);
 
-const rpioDraw = (frame: Frame) => {
+    const animationConfig: AnimationConfig = request.payload;
 
-    const buffer = Buffer.alloc((frame.length * 4) + 4, '00000000', 'hex');
-
-    for (let i = 0; i < frame.length; i++) {
-
-        const buffPos = (i * 4) + 4; //We add in 4 to account for the leading reset bytes
-
-        buffer[buffPos] = 224 + 4; //Brightness
-        buffer[buffPos + 1] = frame[i][2]; //B
-        buffer[buffPos + 2] = frame[i][1]; //G
-        buffer[buffPos + 3] = frame[i][0]; //R
-
+    if (animationConfig.animationName && animationConfig.animationName !== lastAnimationName) {
+        animation = useAnimation(animationConfig.animationName);
+        leds.setAnimation(animation);
+        lastAnimationName = animationConfig.animationName;
     }
 
-    rpio.spiWrite(buffer, buffer.length);
+    if (animationConfig.animationConfig) {
+        animation.setConfig(animationConfig.animationConfig);
+    }
 
-}
+    animation.setNumLeds(animationConfig.numLeds);
 
-const animation = useAnimation('Rainbow');
-animation.setNumLeds(8);
+    leds.setInterval(animationConfig.numLeds);
 
-let intervalTimeout: NodeJS.Timeout | null = null;
 
-const startAnimation = (interval: number) => {
-    console.log(`Changing animation interval to ${interval}ms`);
-    if (intervalTimeout) { clearInterval(intervalTimeout); }
-    intervalTimeout = setInterval(() => {
+    response.send(200);
+});
 
-        const frame = animation.nextFrame();
-        rpioDraw(frame);
+client.sendEvent(new Message('Connect')).then(() => console.log('IoT Event Sent: Connected'));
 
-    }, interval);
-}
-startAnimation(50);
 
 
 /*

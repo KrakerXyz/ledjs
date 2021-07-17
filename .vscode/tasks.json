@@ -7,7 +7,7 @@
 			"path": "iot/",
 			"group": "build",
 			"problemMatcher": [],
-			"label": "npm: build - iot",
+			"label": "build-iot",
 			"detail": "npm run clean && tsc"
 		}
 	]
