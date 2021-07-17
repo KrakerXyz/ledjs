@@ -2,7 +2,7 @@
 <template>
    <div>
       <div class="row">
-         <div class="col-lg-6 mb-3">
+         <div class="col-lg-4 mb-3">
             <div class="form-floating">
                <select
                   id="c-animation"
@@ -18,7 +18,7 @@
             </div>
          </div>
 
-         <div class="col-lg-6">
+         <div class="col-lg-4 mb-3">
             <label for="c-interval" class="form-label">
                Interval:
                <input class="interval" v-model.number.lazy="interval" />ms
@@ -31,6 +31,18 @@
                max="500"
                v-model.number="interval"
             />
+         </div>
+
+         <div class="col-lg-4 mb-3">
+            <div class="form-floating">
+               <input
+                  id="c-num-leds"
+                  class="form-control"
+                  placeholder="*"
+                  v-model.number.lazy="numLeds"
+               />
+               <label for="c-num-leds">Num Leds</label>
+            </div>
          </div>
       </div>
    </div>
@@ -62,7 +74,7 @@
             context.animation.value?.setNumLeds(leds);
          })
 
-         return { animations, selectedAnimation, interval: context.interval };
+         return { animations, selectedAnimation, interval: context.interval, numLeds };
       }
    });
 
