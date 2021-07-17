@@ -58,11 +58,19 @@
 
          const animations = useAvailableAnimations();
 
-         const selectedAnimation = ref<string>(animations[0]);
+         const modelJson = localStorage.getItem('config');
+         const model: StorageModel = modelJson ? JSON.parse(modelJson) : {
+            animation: animations[0],
+            interval: 50,
+            numLeds: 8
+         }
+
+         const selectedAnimation = ref<string>(model.animation);
 
          const context = useAnimationContext();
+         context.interval.value = model.interval;
 
-         const numLeds = ref(8);
+         const numLeds = ref(model.numLeds);
 
          watch(selectedAnimation, async name => {
             const a = useAnimation(name);
@@ -72,11 +80,26 @@
 
          watch(numLeds, leds => {
             context.animation.value?.setNumLeds(leds);
-         })
+         });
+
+         watch(Object.values(context), () => {
+            const newModel: StorageModel = {
+               animation: selectedAnimation.value,
+               interval: context.interval.value,
+               numLeds: numLeds.value
+            };
+            localStorage.setItem('config', JSON.stringify(newModel));
+         });
 
          return { animations, selectedAnimation, interval: context.interval, numLeds };
       }
    });
+
+   interface StorageModel {
+      animation: string;
+      interval: number;
+      numLeds: number;
+   }
 
 </script>
 
