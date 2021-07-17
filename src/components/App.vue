@@ -1,19 +1,14 @@
 
 <template>
    <div id="app-wrapper" class="">
-      <led-canvas id="convas" :animation="animation"></led-canvas>
-      <controls
-         id="controls"
-         class="border border-dark shadow p-3"
-         @update:animation="(a) => (animation = a)"
-      ></controls>
+      <led-canvas id="convas"></led-canvas>
+      <controls id="controls" class="border border-dark shadow p-3"></controls>
    </div>
 </template>
 
 <script lang="ts">
 
-   import { IAnimationContext } from '@/services/animationService';
-   import { defineComponent, ref, watch } from 'vue';
+   import { defineComponent } from 'vue';
    import Controls from './Controls.vue';
    import LedCanvas from './LedCanvas.vue';
 
@@ -23,12 +18,7 @@
          Controls
       },
       setup() {
-
-         const animation = ref<IAnimationContext>();
-
-         watch(animation, () => console.log('Ani'));
-
-         return { animation };
+         return {};
       }
    });
 

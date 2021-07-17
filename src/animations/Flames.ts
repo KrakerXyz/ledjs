@@ -1,51 +1,59 @@
 import { Frame } from '../color-utilities';
-import { IAnimation, IMeta } from '.';
+import { Animation } from '.';
 import { rotateFrame } from '../color-utilities/rotateFrame';
+import { Config, ConfigMeta } from './IAnimation';
 
 //https://www.tweaking4all.com/hardware/arduino/adruino-led-strip-effects/
 
-const configMeta: IMeta = {
-   params: [
-      {
-         name: 'cooling',
+const configMeta: ConfigMeta = {
+   params: {
+      cooling: {
          type: 'number',
          description: 'Indicates how fast a flame cools down. More cooling means shorter flames.',
          default: 65,
          min: 1,
          max: 255
       },
-      {
-         name: 'sparking',
+      sparking: {
          type: 'number',
          description: 'Indicates the chance (out of 255) that a spark will ignite. A higher value makes the fire more active.',
          default: 50,
          min: 1,
          max: 255
       }
-   ]
+   }
 }
 
-export class Flames implements IAnimation {
+export class Flames implements Animation<typeof configMeta> {
 
    public static meta = configMeta;
 
-   private readonly _cooling;
-   private readonly _sparking;
-
+   private _cooling: number;
+   private _sparking: number;
 
    private readonly _heat: number[] = [];
-   private readonly _frame: Frame = [];
+   private _frame: Frame = [];
 
-   public constructor(numLeds: number, config: { cooling: number, sparking: number }) {
+   public constructor() {
 
-      this._cooling = config.cooling;
-      this._sparking = config.sparking;
+      this._cooling = configMeta.params.cooling.default as number;
+      this._sparking = configMeta.params.sparking.default as number;
 
-      for (let i = 0; i < numLeds; i++) {
+   }
+
+   public setNumLeds(num: number) {
+      this._frame = [];
+      for (let i = 0; i < num; i++) {
          this._frame.push([0, 0, 0]);
          this._heat.push(0);
       }
    }
+
+   public setConfig(config: Config<typeof configMeta>) {
+      this._cooling = config.cooling;
+      this._sparking = config.sparking;
+   }
+
    public nextFrame(): Frame {
 
       const heat = this._heat;

@@ -5,18 +5,13 @@
 
 <script lang="ts">
 
-   import { IAnimationContext } from '@/services/animationService';
+   import { useAnimationContext } from '@/services/animationService';
    import { defineComponent, watch, ref, toRef } from 'vue';
    import { Frame, rgbToHex } from '../color-utilities';
 
 
    export default defineComponent({
-      props: {
-         animation: { type: Object as () => IAnimationContext }
-      },
-      setup(props) {
-
-         const animationContext = toRef(props, 'animation');
+      setup() {
 
          const can = ref<HTMLCanvasElement>();
 
@@ -25,33 +20,16 @@
          let frame: Frame | undefined;
          let interval: number | undefined | null;
 
-         watch(() => animationContext.value?.interval, i => {
-            if (!interval) { return; }
+         const animationContext = useAnimationContext();
+
+         watch(animationContext.interval, i => {
             if (interval) { clearInterval(interval); }
             interval = setInterval(() => {
-               if (!ctx.value || !animationContext.value) { return; }
-               frame = animationContext.value.animation.nextFrame();
+               if (!ctx.value) { return; }
+               if (!animationContext.animation.value) { return; }
+               frame = animationContext.animation.value.nextFrame();
                draw(ctx.value, frame, canvasDimensions);
             }, i);
-         });
-
-         watch([animationContext, ctx], () => {
-            if (interval) { clearInterval(interval); }
-
-            if (!animationContext.value || !ctx.value) {
-               interval = null;
-               return;
-            }
-
-            frame = animationContext.value.animation.nextFrame();
-            draw(ctx.value, frame, canvasDimensions);
-
-            interval = setInterval(() => {
-               if (!ctx.value || !animationContext.value) { return; }
-               frame = animationContext.value.animation.nextFrame();
-               draw(ctx.value, frame, canvasDimensions);
-            }, animationContext.value.interval);
-
          }, { immediate: true });
 
          window.addEventListener('resize', () => {

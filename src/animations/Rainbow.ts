@@ -1,22 +1,22 @@
-import { IAnimation } from '.';
+import { Animation } from '.';
 import { Frame, hslToRgb, rotateFrame } from '../color-utilities';
 
-export class Rainbow implements IAnimation {
+export class Rainbow implements Animation<any> {
 
-   private readonly _frame: Frame;
+   private _frame: Frame = [];
 
-   public constructor(numLeds: number) {
-
-      const space = 360 / numLeds;
-
-      const leds: Frame = [];
-      for (let i = 0; i < numLeds; i++) {
+   public setNumLeds(num: number) {
+      this._frame = [];
+      const space = 360 / num;
+      for (let i = 0; i < num; i++) {
          const h = i * space;
          const rgb = hslToRgb(h, 50, 50);
-         leds.push(rgb);
+         this._frame.push(rgb);
       }
+   }
 
-      this._frame = leds;
+   public setConfig() {
+
    }
 
    public nextFrame(): Frame {

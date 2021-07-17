@@ -1,35 +1,36 @@
 import { Frame } from '../color-utilities';
-import { IAnimation } from '.';
+import { Animation } from '.';
 import { rotateFrame } from '../color-utilities/rotateFrame';
 
-export class Umbrella implements IAnimation {
+export class Umbrella implements Animation<any> {
 
-   private readonly _frame: Frame;
+   private _frame: Frame = [];
 
-   public constructor(numLeds: number) {
-
-      const leds: Frame = [];
+   public setNumLeds(numLeds: number) {
+      this._frame = [];
       let lastWasWhite = false;
       for (let i = 0; i < numLeds; i++) {
          const pct = i / numLeds;
          if (pct < 0.25 || (pct >= 0.5 && pct < 0.75)) {
             if (!lastWasWhite) {
                lastWasWhite = true;
-               leds.push([0, 0, 0]);
+               this._frame.push([0, 0, 0]);
                i++;
             }
-            leds.push([200, 0, 0]);
+            this._frame.push([200, 0, 0]);
          } else {
             if (lastWasWhite) {
                lastWasWhite = false;
-               leds.push([0, 0, 0]);
+               this._frame.push([0, 0, 0]);
                i++;
             }
-            leds.push([255, 255, 255]);
+            this._frame.push([255, 255, 255]);
          }
       }
+   }
 
-      this._frame = leds;
+   public setConfig() {
+
    }
 
    public nextFrame(): Frame {

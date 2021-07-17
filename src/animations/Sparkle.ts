@@ -1,20 +1,19 @@
-import { IAnimation } from '.';
+import { Animation } from '.';
 import { Frame, RGB } from '../color-utilities';
 
-export class Sparkle implements IAnimation {
+export class Sparkle implements Animation<any> {
 
-   private readonly _frame: Frame;
+   private _frame: Frame = [];
 
-   public constructor(numLeds: number) {
-
-      const space = 360 / numLeds;
-
-      const leds: Frame = [];
+   public setNumLeds(numLeds: number) {
+      this._frame = [];
       for (let i = 0; i < numLeds; i++) {
-         leds.push([0, 0, 0]);
+         this._frame.push([0, 0, 0]);
       }
+   }
 
-      this._frame = leds;
+   public setConfig() {
+
    }
 
    private readonly MAX_ADD = 1;

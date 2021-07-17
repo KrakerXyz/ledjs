@@ -1,20 +1,22 @@
 import { Frame } from '../color-utilities';
 
-export interface IAnimation {
+export type Config<TMeta extends ConfigMeta> = Record<keyof TMeta['params'], any>;
+
+export interface Animation<TMeta extends ConfigMeta> {
+   setNumLeds(num: number): void;
+   setConfig(config: Config<TMeta>): void;
    nextFrame(): Frame
 }
 
-export interface IMeta {
-   params: IConfigMetaParam[];
+export interface ConfigMeta {
+   params: ConfigMetaParams;
 }
 
-type DefaultType<TT> = TT extends 'string' ? string : TT extends 'number' ? number : boolean;
-
-export interface IConfigMetaParam {
-   name: string;
+export type ConfigMetaParams = Record<string, {
    description: string;
    type: 'string' | 'number' | 'boolean';
    default: string | number | boolean;
    min?: number;
    max?: number;
 }
+>;

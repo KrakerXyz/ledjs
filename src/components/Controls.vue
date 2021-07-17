@@ -20,7 +20,8 @@
 
          <div class="col-lg-6">
             <label for="c-interval" class="form-label">
-               Interval: {{ interval }}ms
+               Interval:
+               <input class="interval" v-model.number.lazy="interval" />ms
             </label>
             <input
                type="range"
@@ -37,45 +38,38 @@
 
 <script lang="ts">
 
-   import { IAnimationContext, useAnimationService, useAvailableAnimations } from '@/services/animationService';
-   import { computed, defineComponent, reactive, ref, watch } from 'vue';
+   import { useAnimation, useAnimationContext, useAvailableAnimations } from '@/services/animationService';
+   import { defineComponent, ref, watch } from 'vue';
 
    export default defineComponent({
-      emits: {
-         'update:animation': (value: IAnimationContext | undefined) => !!value || true
-      },
-      setup(_, { emit }) {
-
-         const animationService = useAnimationService(144);
+      setup() {
 
          const animations = useAvailableAnimations();
 
          const selectedAnimation = ref<string>(animations[0]);
 
-         const context = ref<IAnimationContext | undefined>();
+         const context = useAnimationContext();
+
+         const numLeds = ref(8);
 
          watch(selectedAnimation, async name => {
-            const a = await animationService.getContext(name);
-            a.interval = context.value?.interval ?? a.interval;
-            context.value = reactive(a);
+            const a = useAnimation(name);
+            a.setNumLeds(numLeds.value);
+            context.animation.value = a;
          }, { immediate: true });
 
-         watch(context, c => {
-            emit('update:animation', c);
-         }, { immediate: true, deep: true });
+         watch(numLeds, leds => {
+            context.animation.value?.setNumLeds(leds);
+         })
 
-         const interval = computed({
-            get() {
-               return context.value?.interval ?? 0;
-            },
-            set(value: number) {
-               if (!context.value) { return; }
-               context.value.interval = value;
-            }
-         });
-
-         return { animations, selectedAnimation, interval };
+         return { animations, selectedAnimation, interval: context.interval };
       }
    });
 
 </script>
+
+<style lang="postcss" scoped>
+   input.interval {
+      width: 5rem;
+   }
+</style>
