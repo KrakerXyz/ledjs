@@ -4,7 +4,7 @@
         "module": "CommonJS",
         "moduleResolution": "node",
         "strict": true,
-        "sourceMap": false,
+        "sourceMap": true,
         "resolveJsonModule": true,
         "esModuleInterop": true,
         "noImplicitReturns": true,
@@ -21,11 +21,6 @@
         "lib": [
             "esnext"
         ],
-        "baseUrl": ".",
-        "paths": {
-            "@/*": [
-                "src/*"
-            ]
-        }
+        "baseUrl": "."
     }
 }

@@ -1,7 +1,11 @@
 {
     "cSpell.words": [
+        "Leds",
+        "cooldown",
         "fastled",
+        "heatramp",
         "netled",
-        "raspi"
+        "raspi",
+        "rpio"
     ]
 }
