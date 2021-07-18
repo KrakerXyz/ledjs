@@ -22,6 +22,19 @@
                <label for="c-interval" class="form-label">
                   Interval:
                   <input class="interval" v-model.number.lazy="interval" />ms
+
+                  <button
+                     class="btn btn-primary py-0 px-2 ms-1"
+                     @click="interval = 33"
+                  >
+                     30fps
+                  </button>
+                  <button
+                     class="btn btn-primary py-0 px-2 ms-1"
+                     @click="interval = 16"
+                  >
+                     60fps
+                  </button>
                </label>
                <input
                   type="range"
@@ -29,7 +42,7 @@
                   id="c-interval"
                   min="1"
                   max="500"
-                  v-model.number="interval"
+                  v-model.number.lazy="interval"
                />
             </div>
             <div class="col-lg-6 col-xl-2 mb-3">
@@ -57,10 +70,12 @@
                />
             </div>
          </div>
+
          <div class="row">
             <div class="col-lg-6 mb-3" v-for="p of paramVms" :key="p.name">
                <div class="form-floating">
                   <input
+                     v-if="p.meta.type === 'number'"
                      :id="`c-param-${p.name}`"
                      class="form-control"
                      placeholder="*"
@@ -99,8 +114,8 @@
 
 <script lang="ts">
 
-import { useAnimation, useAnimationContext, useAvailableAnimations, useWebSocket, useAnimationConfig } from '../services';
-import { ConfigMetaParam } from '../animations';
+import { useAnimation, useAnimationContext, useAvailableAnimations, useWebSocket, useAnimationConfigMeta } from '../services';
+import { Config, ConfigMetaParam } from '../animations';
 import { computed, defineComponent, reactive, Ref, ref, watch } from 'vue';
 
 export default defineComponent({
@@ -111,6 +126,7 @@ export default defineComponent({
       const modelJson = localStorage.getItem('config');
       const model: StorageModel = {
          animation: animations[0],
+         animationConfig: {},
          interval: 50,
          numLeds: 8,
          autoPush: true,
@@ -119,6 +135,13 @@ export default defineComponent({
       }
 
       const selectedAnimation = ref<string>(model.animation);
+
+      const selectedAnimationStoredConfig = computed(() => {
+         const json = localStorage.getItem(`${selectedAnimation.value}-config`);
+         if (!json) { return {}; }
+         const config: Config<any> = JSON.parse(json);
+         return config;
+      });
 
       const context = useAnimationContext();
       context.interval.value = model.interval;
@@ -136,9 +159,38 @@ export default defineComponent({
          context.animation.value?.setNumLeds(leds);
       });
 
+      const animationConfigMeta = computed(() => useAnimationConfigMeta(selectedAnimation.value));
+
+      const paramVms = computed(() => {
+         const params = animationConfigMeta.value?.params ?? {};
+         return reactive(Object.getOwnPropertyNames(params).map(k => {
+            const vm: ParamVm = {
+               name: k,
+               meta: params[k],
+               value: selectedAnimationStoredConfig.value[k] ?? params[k].default
+            };
+            return vm;
+         }));
+      });
+
+      const animationConfig = computed(() => {
+         const config: Record<string, string | number | boolean> = {};
+         for (const v of paramVms.value) {
+            let value: string | number | boolean = v.value;;
+            switch (v.meta.type) {
+               case 'number': value = parseFloat(value); break;
+               case 'boolean': value = value === 'true'; break;
+            }
+            config[v.name] = value;
+         }
+         return config;
+      });
+
+      watch(animationConfig, config => context.animation.value.setConfig(config), { immediate: true });
+
       const autoPush = ref(model.autoPush);
       const ws = useWebSocket();
-      watch([...Object.values(context), numLeds, autoPush, brightness], () => {
+      watch([...Object.values(context), numLeds, autoPush, brightness, animationConfig], () => {
          const newModel: StorageModel = {
             animation: selectedAnimation.value,
             interval: context.interval.value,
@@ -148,30 +200,19 @@ export default defineComponent({
          };
          localStorage.setItem('config', JSON.stringify(newModel));
 
+         localStorage.setItem(`${selectedAnimation.value}-config`, JSON.stringify(animationConfig.value));
+
          if (!autoPush.value) { return; }
          ws.sendMessage({
             type: 'ledSetup',
             setup: {
                animationName: selectedAnimation.value,
+               animationConfig: animationConfig.value,
                numLeds: numLeds.value,
                interval: context.interval.value
             }
          });
 
-      });
-
-      const animationConfig = computed(() => useAnimationConfig(selectedAnimation.value));
-
-      const paramVms = computed(() => {
-         const params = animationConfig.value?.params ?? {};
-         return reactive(Object.getOwnPropertyNames(params).map(k => {
-            const vm: ParamVm = {
-               name: k,
-               meta: params[k],
-               value: params[k].default
-            };
-            return vm;
-         }));
       });
 
       return { animations, selectedAnimation, interval: context.interval, numLeds, autoPush, brightness, paramVms };

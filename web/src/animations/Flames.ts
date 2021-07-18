@@ -1,6 +1,5 @@
 import { Frame } from '../color-utilities';
 import { Animation } from '.';
-import { rotateFrame } from '../color-utilities/rotateFrame';
 import { Config, ConfigMeta } from './IAnimation';
 
 //https://www.tweaking4all.com/hardware/arduino/adruino-led-strip-effects/

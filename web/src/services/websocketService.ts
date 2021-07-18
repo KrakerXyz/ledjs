@@ -1,3 +1,4 @@
+import { Config } from '@/animations';
 
 class WebsocketService {
     private readonly _ws: WebSocket;
@@ -33,7 +34,7 @@ export type WsMessage = {
 
 export interface WsLedsSetup {
     animationName: string;
-    animationConfig?: Record<string, any>;
+    animationConfig?: Config<any>;
     numLeds: number;
     interval: number;
 }
