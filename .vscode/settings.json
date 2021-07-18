@@ -2,9 +2,11 @@
     "cSpell.words": [
         "Leds",
         "cooldown",
+        "fastify",
         "fastled",
         "heatramp",
         "netled",
+        "prestart",
         "raspi",
         "rpio"
     ]

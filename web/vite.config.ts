@@ -12,6 +12,15 @@ const config: UserConfig = {
       //Defaults to 500 but firebase itself is about 475.
       chunkSizeWarningLimit: 600
    },
+   server: {
+      proxy: {
+         '/api': {
+            target: 'http://localhost:3001',
+            changeOrigin: true,
+            ws: true
+         }
+      }
+   }
 };
 
 export default config;

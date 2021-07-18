@@ -9,6 +9,15 @@
 			"problemMatcher": [],
 			"label": "build-iot",
 			"detail": "npm run clean && tsc"
+		},
+		{
+			"type": "npm",
+			"script": "build",
+			"path": "server/",
+			"group": "build",
+			"problemMatcher": [],
+			"label": "build-server",
+			"detail": "npm run clean && tsc"
 		}
 	]
 }

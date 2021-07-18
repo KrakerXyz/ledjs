@@ -7,7 +7,7 @@
         {
             "type": "node",
             "request": "launch",
-            "name": "Launch Program",
+            "name": "Debug IoT",
             "skipFiles": [
                 "<node_internals>/**"
             ],
@@ -15,6 +15,19 @@
             "preLaunchTask": "build-iot",
             "outFiles": [
                 "${workspaceFolder}/iot/dist/**/*.js"
+            ]
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "Debug Server",
+            "skipFiles": [
+                "<node_internals>/**"
+            ],
+            "program": "${workspaceFolder}\\server\\dist\\index.js",
+            "preLaunchTask": "build-server",
+            "outFiles": [
+                "${workspaceFolder}/server/dist/**/*.js"
             ]
         }
     ]
