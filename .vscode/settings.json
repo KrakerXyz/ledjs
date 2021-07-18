@@ -9,5 +9,6 @@
         "prestart",
         "raspi",
         "rpio"
-    ]
+    ],
+    "typescript.tsdk": "node_modules\\typescript\\lib"
 }

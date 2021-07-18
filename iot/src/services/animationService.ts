@@ -8,3 +8,9 @@ export function useAnimation(name: string): Animations.Animation<any> {
    if (!(Animations as any)[name]) { throw new Error('Unknown animation'); }
    return new (Animations as any)[name] as Animations.Animation<any>;
 }
+
+export function useAnimationConfig(name: string): Animations.ConfigMeta | undefined {
+   if (!(Animations as any)[name]) { throw new Error('Unknown animation'); }
+   return new (Animations as any)[name].meta;
+}
+

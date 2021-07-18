@@ -18,6 +18,11 @@ export function useAnimation(name: string): Animations.Animation<any> {
    return new (Animations as any)[name] as Animations.Animation<any>;
 }
 
+export function useAnimationConfig(name: string): Animations.ConfigMeta | undefined {
+   if (!(Animations as any)[name]) { throw new Error('Unknown animation'); }
+   return (Animations as any)[name].meta;
+}
+
 export interface AnimationContext {
    animation: Ref<Animations.Animation<any> | undefined>;
    interval: Ref<number>;

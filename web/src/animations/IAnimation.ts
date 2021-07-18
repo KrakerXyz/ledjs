@@ -12,11 +12,12 @@ export interface ConfigMeta {
    params: ConfigMetaParams;
 }
 
-export type ConfigMetaParams = Record<string, {
+export type ConfigMetaParams = Record<string, ConfigMetaParam>;
+
+export type ConfigMetaParam = {
    description: string;
    type: 'string' | 'number' | 'boolean';
    default: string | number | boolean;
    min?: number;
    max?: number;
-}
->;
+};
