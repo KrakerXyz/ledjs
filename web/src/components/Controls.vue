@@ -50,61 +50,72 @@
 
 <script lang="ts">
 
-   import { useAnimation, useAnimationContext, useAvailableAnimations } from '@/services/animationService';
-   import { defineComponent, ref, watch } from 'vue';
+import { useAnimation, useAnimationContext, useAvailableAnimations, useWebSocket } from '../services';
+import { defineComponent, ref, watch } from 'vue';
 
-   export default defineComponent({
-      setup() {
+export default defineComponent({
+   setup() {
 
-         const animations = useAvailableAnimations();
+      const animations = useAvailableAnimations();
 
-         const modelJson = localStorage.getItem('config');
-         const model: StorageModel = modelJson ? JSON.parse(modelJson) : {
-            animation: animations[0],
-            interval: 50,
-            numLeds: 8
-         }
-
-         const selectedAnimation = ref<string>(model.animation);
-
-         const context = useAnimationContext();
-         context.interval.value = model.interval;
-
-         const numLeds = ref(model.numLeds);
-
-         watch(selectedAnimation, async name => {
-            const a = useAnimation(name);
-            a.setNumLeds(numLeds.value);
-            context.animation.value = a;
-         }, { immediate: true });
-
-         watch(numLeds, leds => {
-            context.animation.value?.setNumLeds(leds);
-         });
-
-         watch(Object.values(context), () => {
-            const newModel: StorageModel = {
-               animation: selectedAnimation.value,
-               interval: context.interval.value,
-               numLeds: numLeds.value
-            };
-            localStorage.setItem('config', JSON.stringify(newModel));
-         });
-
-         return { animations, selectedAnimation, interval: context.interval, numLeds };
+      const modelJson = localStorage.getItem('config');
+      const model: StorageModel = modelJson ? JSON.parse(modelJson) : {
+         animation: animations[0],
+         interval: 50,
+         numLeds: 8
       }
-   });
 
-   interface StorageModel {
-      animation: string;
-      interval: number;
-      numLeds: number;
+      const selectedAnimation = ref<string>(model.animation);
+
+      const context = useAnimationContext();
+      context.interval.value = model.interval;
+
+      const numLeds = ref(model.numLeds);
+
+      watch(selectedAnimation, async name => {
+         const a = useAnimation(name);
+         a.setNumLeds(numLeds.value);
+         context.animation.value = a;
+      }, { immediate: true });
+
+      watch(numLeds, leds => {
+         context.animation.value?.setNumLeds(leds);
+      });
+
+      const ws = useWebSocket();
+      watch([...Object.values(context), numLeds], () => {
+         const newModel: StorageModel = {
+            animation: selectedAnimation.value,
+            interval: context.interval.value,
+            numLeds: numLeds.value
+         };
+         localStorage.setItem('config', JSON.stringify(newModel));
+
+         ws.sendMessage({
+            type: 'ledSetup',
+            setup: {
+               animationName: selectedAnimation.value,
+               numLeds: numLeds.value,
+               interval: context.interval.value
+            }
+         });
+
+      });
+
+      return { animations, selectedAnimation, interval: context.interval, numLeds };
    }
+});
+
+interface StorageModel {
+   animation: string;
+   interval: number;
+   numLeds: number;
+}
 
 </script>
 
 <style lang="postcss" scoped>
-   input.interval {
-      width: 5rem;
-   }
+input.interval {
+   width: 5rem;
+}
 </style>

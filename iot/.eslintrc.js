@@ -20,17 +20,7 @@ module.exports = {
       '@typescript-eslint'
    ],
    'rules': {
-      '@typescript-eslint/naming-convention': [
-         'error',
-         {
-            'selector': 'interface',
-            'format': ['PascalCase'],
-            'custom': {
-               'regex': '^I[A-Z]',
-               'match': true
-            }
-         }
-      ],
+
       '@typescript-eslint/explicit-module-boundary-types': [
          //https://github.com/typescript-eslint/typescript-eslint/blob/master/packages/eslint-plugin/docs/rules/explicit-module-boundary-types.md
          'off'

@@ -1,23 +1,47 @@
 import { Animation } from 'src/animations';
 import { Frame } from 'src/color-utilities';
 import rpio from 'rpio';
+import { useAnimation } from './animationService';
+import { deepEquals } from './deepEquals';
 
 export class Leds {
 
     public constructor() {
-        console.log('Initializing SPI');
         rpio.spiBegin();
         rpio.spiSetClockDivider(100);
     }
 
     private _animation: Animation<any> | undefined;
 
-    public setAnimation(animation: Animation<any>) {
-        this._animation = animation;
+    private _lastSetup: LedsSetup | null = null;
+    public setup(setup: LedsSetup) {
+
+        if (setup.animationName !== this._lastSetup?.animationName) {
+            this._animation = useAnimation(setup.animationName);
+            this._animation.setNumLeds(setup.numLeds);
+            if (setup.animationConfig) { this._animation.setConfig(setup.animationConfig); }
+        } else {
+
+            if (setup.numLeds !== this._lastSetup?.numLeds) {
+                this._animation?.setNumLeds(setup.numLeds);
+            }
+
+            if (setup.animationConfig && !deepEquals(setup.animationConfig, this._lastSetup?.animationConfig)) {
+                this._animation?.setConfig(setup.animationConfig);
+            }
+
+        }
+
+        if (setup.interval !== this._lastSetup?.interval) {
+            this.setInterval(setup.interval);
+        }
+
+        this._lastSetup = setup;
+
     }
 
     private _intervalTimeout: NodeJS.Timeout | undefined;
-    public setInterval(interval: number) {
+    private setInterval(interval: number) {
         if (this._intervalTimeout) { clearInterval(this._intervalTimeout); }
         this._intervalTimeout = setInterval(() => {
             const frame = this._animation?.nextFrame();
@@ -46,4 +70,11 @@ export class Leds {
 
     }
 
+}
+
+export interface LedsSetup {
+    animationName: string;
+    animationConfig?: Record<string, any>;
+    numLeds: number;
+    interval: number;
 }
