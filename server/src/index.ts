@@ -21,7 +21,7 @@ server.ready(() => {
 
 const start = async () => {
     try {
-        await server.listen(3001);
+        await server.listen(3001, '0.0.0.0');
     } catch (err) {
         server.log.error(err);
         process.exit(1);
