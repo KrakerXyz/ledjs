@@ -1,12 +1,16 @@
 
-import { createRouter, createWebHistory, NavigationGuardWithThis, RouteLocationNormalized, RouteRecordRaw } from 'vue-router';
-import App from './components/App.vue';
+import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router';
 
 const routes: RouteRecordRaw[] = [
    {
       name: 'default',
       path: '/',
-      component: App
+      component: () => import('./components/Controls.vue')
+   },
+   {
+      name: 'editor',
+      path: '/editor',
+      component: () => import('./components/Editor.vue')
    }
 ];
 
