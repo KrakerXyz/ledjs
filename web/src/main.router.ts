@@ -10,7 +10,7 @@ const routes: RouteRecordRaw[] = [
    {
       name: 'editor',
       path: '/editor',
-      component: () => import('./components/Editor.vue')
+      component: () => import('./components/editor/Editor.vue')
    }
 ];
 
