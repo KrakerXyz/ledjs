@@ -56,7 +56,18 @@
 
             //We'll need to create a postMessage here because to call the fn directly, we need to add allow-same-origin to sandbox but this also allows the script to access parent frame
 
-            const srcdoc = `<html><body><script>window.fn = () => { console.log('Inside iframe fn'); }<\/script><\/body><\/html>`;
+            const origin = `${window.location.protocol}//${window.location.host}`;
+
+            const srcdoc = `<html><body><script>
+               console.log('registering iframe message listener');
+               window.addEventListener('message', e => { 
+                  if(e.origin !== '${origin}') { throw new Error('Illegal!');}
+                  console.log('Got message from parent', e); 
+               });
+               console.log('sending message in iframe');
+               window.parent.postMessage({foo: 'bar'}, '${origin}');
+               console.log('message sent')   
+            <\/script><\/body><\/html>`;
 
             (window as any).myfn = () => console.log('bad!');
 
@@ -65,13 +76,26 @@
             iframe.sandbox.add('allow-scripts');
             iframe.style.display = 'none';
 
-            document.body.appendChild(iframe);
+            window.addEventListener('message', e => {
+               console.log('Received message from iframe', e);
+
+            });
 
             iframe.onload = () => {
                console.log('iframe loaded');
-               (iframe.contentWindow as any).fn();
-               iframe.remove();
+
+               console.log('Posting message from parent to iframe');
+               iframe.contentWindow!.postMessage({ hello: 'child' }, '*');
+               console.log('Message sent to iframe');
+
+               //Calling remove synchronously with the postMessage will cause the message to never be received
+               setTimeout(() => {
+                  console.log('Removing iframe');
+                  iframe.remove();
+               });
             }
+
+            document.body.appendChild(iframe);
 
          }
 
