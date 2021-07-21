@@ -1,22 +1,37 @@
 
 <template>
    <div class="d-flex flex-column h-100">
-      <div>
-         <button class="btn btn-link p-0 me-3" @click="resetScript()">
-            Reset Script
-         </button>
-         <button class="btn btn-link p-0" @click="testScript()">
-            Test script
-         </button>
-      </div>
       <div id="editor-ide-container" class="flex-grow-1"></div>
-      <div id="editor-status-container" class="mt-3 border border-dark"></div>
+      <div id="editor-status-container" class="mt-3 border border-dark p-2">
+         <div class="row">
+            <div class="col">
+               <div class="list-group" v-if="errorMessages.length">
+                  <div
+                     class="list-group-item bg-danger text-white"
+                     v-for="(e, i) of errorMessages"
+                     :key="i"
+                  >
+                     {{ e }}
+                  </div>
+               </div>
+               <div v-else>No errors</div>
+            </div>
+            <div class="col">
+               <button class="btn btn-link p-0 me-3" @click="resetScript()">
+                  Reset Script
+               </button>
+               <button class="btn btn-link p-0" @click="testScript()">
+                  Test script
+               </button>
+            </div>
+         </div>
+      </div>
    </div>
 </template>
 
 <script lang="ts">
 
-   import { defineComponent, onMounted, Ref, watch } from 'vue';
+   import { defineComponent, onMounted, ref, Ref, watch } from 'vue';
    import { useDefaultScript } from './defaultScript';
    import { useIframeRunner } from './iframeRunner';
    import { useJavascriptLib } from './javascriptLib';
@@ -30,10 +45,11 @@
          const tmpScript = localStorage.getItem('tmp-script') ?? useDefaultScript();
 
          let content: Ref<string> | undefined;
+         let errorMessages = ref<string[]>([]);
 
          onMounted(() => {
 
-            const { content: monacoContent } = useMonacoEditor('editor-ide-container', {
+            const { content: monacoContent, errorMarkers: monacoErrorMarkers } = useMonacoEditor('editor-ide-container', {
                javascriptLib: useJavascriptLib()
             });
 
@@ -43,7 +59,12 @@
 
             watch(content, c => {
                localStorage.setItem('tmp-script', c);
-            })
+            });
+
+            watch(monacoErrorMarkers, e => {
+               const set = new Set(e.map(x => x.message));
+               errorMessages.value = [...set];
+            });
 
          });
 
@@ -60,50 +81,9 @@
             const frame = await frameContext.nextFrame();
             console.log('Got frame', frame);
 
-            //We'll need to create a postMessage here because to call the fn directly, we need to add allow-same-origin to sandbox but this also allows the script to access parent frame
-
-            // const origin = `${window.location.protocol}//${window.location.host}`;
-
-            // const srcdoc = `<html><body><script>
-            //    console.log('registering iframe message listener');
-            //    window.addEventListener('message', e => { 
-            //       if(e.origin !== '${origin}') { throw new Error('Illegal!');}
-            //       console.log('Got message from parent', e); 
-            //    });
-            //    console.log('sending message in iframe');
-            //    window.parent.postMessage({foo: 'bar'}, '${origin}');
-            //    console.log('message sent')   
-            // <\/script><\/body><\/html>`;
-
-            // (window as any).myfn = () => console.log('bad!');
-
-            // const iframe = document.createElement('iframe');
-            // iframe.srcdoc = srcdoc;
-            // iframe.sandbox.add('allow-scripts');
-            // iframe.style.display = 'none';
-
-            // window.addEventListener('message', e => {
-            //    console.log('Received message from iframe', e);
-            // });
-
-            // iframe.onload = () => {
-            //    console.log('iframe loaded');
-
-            //    console.log('Posting message from parent to iframe');
-            //    iframe.contentWindow!.postMessage({ hello: 'child' }, '*');
-            //    console.log('Message sent to iframe');
-
-            //    //Calling remove synchronously with the postMessage will cause the message to never be received
-            //    setTimeout(() => {
-            //       console.log('Removing iframe');
-            //       iframe.remove();
-            //    });
-            // }
-
-
          }
 
-         return { resetScript, testScript };
+         return { resetScript, testScript, errorMessages };
       }
    });
 
@@ -112,5 +92,7 @@
 <style lang="postcss" scoped>
    #editor-status-container {
       min-height: 200px;
+      overflow-y: auto;
+      overflow-x: hidden;
    }
 </style>
