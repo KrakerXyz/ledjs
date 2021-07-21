@@ -18,6 +18,7 @@
 
    import { defineComponent, onMounted, Ref, watch } from 'vue';
    import { useDefaultScript } from './defaultScript';
+   import { useIframeRunner } from './iframeRunner';
    import { useJavascriptLib } from './javascriptLib';
    import { useMonacoEditor } from './monacoEditor';
 
@@ -51,51 +52,54 @@
             content.value = useDefaultScript();
          }
 
-         const testScript = () => {
+         const testScript = async () => {
             if (!content?.value?.trim()) { return; }
+
+            const frameContext = await useIframeRunner(content.value);
+
+            const frame = await frameContext.nextFrame();
+            console.log('Got frame', frame);
 
             //We'll need to create a postMessage here because to call the fn directly, we need to add allow-same-origin to sandbox but this also allows the script to access parent frame
 
-            const origin = `${window.location.protocol}//${window.location.host}`;
+            // const origin = `${window.location.protocol}//${window.location.host}`;
 
-            const srcdoc = `<html><body><script>
-               console.log('registering iframe message listener');
-               window.addEventListener('message', e => { 
-                  if(e.origin !== '${origin}') { throw new Error('Illegal!');}
-                  console.log('Got message from parent', e); 
-               });
-               console.log('sending message in iframe');
-               window.parent.postMessage({foo: 'bar'}, '${origin}');
-               console.log('message sent')   
-            <\/script><\/body><\/html>`;
+            // const srcdoc = `<html><body><script>
+            //    console.log('registering iframe message listener');
+            //    window.addEventListener('message', e => { 
+            //       if(e.origin !== '${origin}') { throw new Error('Illegal!');}
+            //       console.log('Got message from parent', e); 
+            //    });
+            //    console.log('sending message in iframe');
+            //    window.parent.postMessage({foo: 'bar'}, '${origin}');
+            //    console.log('message sent')   
+            // <\/script><\/body><\/html>`;
 
-            (window as any).myfn = () => console.log('bad!');
+            // (window as any).myfn = () => console.log('bad!');
 
-            const iframe = document.createElement('iframe');
-            iframe.srcdoc = srcdoc;
-            iframe.sandbox.add('allow-scripts');
-            iframe.style.display = 'none';
+            // const iframe = document.createElement('iframe');
+            // iframe.srcdoc = srcdoc;
+            // iframe.sandbox.add('allow-scripts');
+            // iframe.style.display = 'none';
 
-            window.addEventListener('message', e => {
-               console.log('Received message from iframe', e);
+            // window.addEventListener('message', e => {
+            //    console.log('Received message from iframe', e);
+            // });
 
-            });
+            // iframe.onload = () => {
+            //    console.log('iframe loaded');
 
-            iframe.onload = () => {
-               console.log('iframe loaded');
+            //    console.log('Posting message from parent to iframe');
+            //    iframe.contentWindow!.postMessage({ hello: 'child' }, '*');
+            //    console.log('Message sent to iframe');
 
-               console.log('Posting message from parent to iframe');
-               iframe.contentWindow!.postMessage({ hello: 'child' }, '*');
-               console.log('Message sent to iframe');
+            //    //Calling remove synchronously with the postMessage will cause the message to never be received
+            //    setTimeout(() => {
+            //       console.log('Removing iframe');
+            //       iframe.remove();
+            //    });
+            // }
 
-               //Calling remove synchronously with the postMessage will cause the message to never be received
-               setTimeout(() => {
-                  console.log('Removing iframe');
-                  iframe.remove();
-               });
-            }
-
-            document.body.appendChild(iframe);
 
          }
 
