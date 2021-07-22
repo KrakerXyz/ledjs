@@ -2,6 +2,7 @@
     "cSpell.words": [
         "Leds",
         "cooldown",
+        "eitmuf",
         "fastify",
         "fastled",
         "heatramp",
@@ -9,7 +10,9 @@
         "prestart",
         "raspi",
         "referrerpolicy",
-        "rpio"
+        "rpio",
+        "ttsc",
+        "ttypescript"
     ],
     "typescript.tsdk": "node_modules\\typescript\\lib"
 }

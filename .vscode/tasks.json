@@ -17,7 +17,6 @@
 			"group": "build",
 			"problemMatcher": [],
 			"label": "build-server",
-			"detail": "npm run clean && tsc"
 		}
 	]
 }

@@ -2,6 +2,15 @@
 import fastify from 'fastify';
 import fastifyWebsocket from 'fastify-websocket';
 import { WebSocketManager } from './services/WebSocketManager';
+import { EnvKey, getRequiredConfig } from './config';
+import { configureDb } from '@krakerxyz/typed-base';
+import * as rest from './rest';
+
+console.log('Configuring db');
+configureDb({
+    dbName: 'netled',
+    uri: getRequiredConfig(EnvKey.DbConnectionString)
+})
 
 console.log('Initializing Fastify');
 
@@ -10,6 +19,9 @@ server.register(fastifyWebsocket, { options: { perMessageDeflate: true } });
 
 const webSocketManager = new WebSocketManager();
 server.get('/api/ws', { websocket: true }, webSocketManager.handler);
+
+server.get('/api/animations', rest.animation.get);
+server.post('/api/animations', rest.animation.post);
 
 server.get('/api', async () => {
     return { hello: 'world2' };

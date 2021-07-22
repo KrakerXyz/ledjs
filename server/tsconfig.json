@@ -16,11 +16,16 @@
         "removeComments": true,
         "outDir": "./dist",
         "rootDirs": [
-            "src",
+            "src"
         ],
         "lib": [
             "esnext"
         ],
-        "baseUrl": "."
+        "plugins": [
+            {
+                "transform": "@krakerxyz/typed-base/dist/cjs/transformer/transformer",
+                "collectionNamingStrategy": "kebab"
+            }
+        ]
     }
 }
