@@ -31,11 +31,12 @@
 
 <script lang="ts">
 
-   import { defineComponent, onMounted, ref, Ref, watch } from 'vue';
+   import { computed, defineComponent, watch } from 'vue';
    import { useDefaultScript } from './defaultScript';
    import { useIframeRunner } from './iframeRunner';
    import { useJavascriptLib } from './javascriptLib';
    import { useMonacoEditor } from './monacoEditor';
+   import { useScriptParser } from './scriptParser';
 
    export default defineComponent({
       props: {
@@ -44,28 +45,24 @@
 
          const tmpScript = localStorage.getItem('tmp-script') ?? useDefaultScript();
 
-         let content: Ref<string> | undefined;
-         let errorMessages = ref<string[]>([]);
+         const { content, errorMarkers: monacoErrorMarkers } = useMonacoEditor('editor-ide-container', {
+            javascriptLib: useJavascriptLib()
+         });
 
-         onMounted(() => {
+         content.value = tmpScript;
 
-            const { content: monacoContent, errorMarkers: monacoErrorMarkers } = useMonacoEditor('editor-ide-container', {
-               javascriptLib: useJavascriptLib()
-            });
+         watch(content, c => {
+            localStorage.setItem('tmp-script', c);
+         });
 
-            content = monacoContent;
+         const errorMessages = computed(() => {
+            const set = new Set(monacoErrorMarkers.value.map(x => x.message));
+            return [...set];
+         });
 
-            content.value = tmpScript;
-
-            watch(content, c => {
-               localStorage.setItem('tmp-script', c);
-            });
-
-            watch(monacoErrorMarkers, e => {
-               const set = new Set(e.map(x => x.message));
-               errorMessages.value = [...set];
-            });
-
+         const scriptParseResult = useScriptParser(content);
+         watch(scriptParseResult, r => {
+            //console.log('parseResult', r);
          });
 
          const resetScript = () => {
