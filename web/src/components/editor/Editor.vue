@@ -36,7 +36,7 @@
    import { useIframeRunner } from './iframeRunner';
    import { useJavascriptLib } from './javascriptLib';
    import { useMonacoEditor } from './monacoEditor';
-   import { useScriptParser } from './scriptParser';
+   import { parseScript } from 'netled';
 
    export default defineComponent({
       props: {
@@ -60,7 +60,7 @@
             return [...set];
          });
 
-         const scriptParseResult = useScriptParser(content);
+         const scriptParseResult = computed(() => parseScript(content.value));
          watch(scriptParseResult, r => {
             //console.log('parseResult', r);
          });
