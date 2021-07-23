@@ -1,34 +1,40 @@
 
 <template>
-   <div class="d-flex flex-column h-100">
-      <div id="editor-ide-container" class="flex-grow-1"></div>
-      <div id="editor-status-container" class="mt-3 border border-dark p-2">
-         <div class="row">
-            <div class="col">
-               <div class="list-group" v-if="errorMessages.length">
-                  <div
-                     class="list-group-item bg-danger text-white"
-                     v-for="(e, i) of errorMessages"
-                     :key="i"
-                  >
-                     {{ e }}
+   <div class="h-100">
+      <led-canvas id="canvas" :frame="frame"></led-canvas>
+
+      <div id="controls" class="d-flex flex-column">
+         <div class="flex-grow-1">
+            <div id="editor-ide-container" class="h-100"></div>
+         </div>
+         <div id="editor-status-container" class="mt-3 border border-dark p-2">
+            <div class="row">
+               <div class="col">
+                  <div class="list-group" v-if="errorMessages.length">
+                     <div
+                        class="list-group-item bg-danger text-white"
+                        v-for="(e, i) of errorMessages"
+                        :key="i"
+                     >
+                        {{ e }}
+                     </div>
                   </div>
+                  <div v-else>No errors</div>
                </div>
-               <div v-else>No errors</div>
-            </div>
-            <div class="col">
-               <button class="btn btn-link p-0" @click="resetScript()">
-                  Reset Script
-               </button>
-               <button class="btn btn-link p-0 ms-3" @click="testScript()">
-                  Test script
-               </button>
-               <button class="btn btn-link p-0 ms-3" @click="saveScript()">
-                  Save script
-               </button>
-               <button class="btn btn-link p-0 ms-3" @click="test()">
-                  Test
-               </button>
+               <div class="col">
+                  <button class="btn btn-link p-0" @click="resetScript()">
+                     Reset Script
+                  </button>
+                  <button class="btn btn-link p-0 ms-3" @click="testScript()">
+                     Test script
+                  </button>
+                  <button class="btn btn-link p-0 ms-3" @click="saveScript()">
+                     Save script
+                  </button>
+                  <button class="btn btn-link p-0 ms-3" @click="test()">
+                     Test
+                  </button>
+               </div>
             </div>
          </div>
       </div>
@@ -108,9 +114,16 @@
 </script>
 
 <style lang="postcss" scoped>
-   #editor-status-container {
-      min-height: 200px;
-      overflow-y: auto;
-      overflow-x: hidden;
+   #controls {
+      --control-padding: 120px;
+      position: absolute;
+      top: var(--control-padding);
+      left: var(--control-padding);
+      width: calc(100vw - var(--control-padding) * 2);
+      height: calc(100vh - var(--control-padding) * 2);
+   }
+
+   #editor-ide-container {
+      resize: vertical;
    }
 </style>

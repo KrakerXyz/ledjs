@@ -28,7 +28,8 @@ export function useMonacoEditor(containerId: string, config?: Partial<EditorConf
                 value: content.value,
                 language: 'javascript',
                 renderValidationDecorations: 'off',
-                theme: 'vs-dark'
+                theme: 'vs-dark',
+                automaticLayout: true
             }) as monaco.editor.IStandaloneCodeEditor
 
             let isOutgoingValue = false;

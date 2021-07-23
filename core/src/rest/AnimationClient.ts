@@ -1,3 +1,4 @@
+import { Id } from '.';
 import { RestClient } from './RestClient';
 
 export class AnimationClient {
@@ -15,15 +16,16 @@ export class AnimationClient {
 }
 
 export interface Animation {
-    id: string;
+    readonly id: Id;
     name: string;
     description?: string | null;
-    version: number;
-    created: number;
-    author: string;
     script: string;
+    readonly published: boolean;
+    readonly version: number;
+    readonly created: number;
+    readonly author: string;
 }
 
 export type AnimationMeta = Omit<Animation, 'script'>;
 
-export type AnimationPost = Omit<Animation, 'version' | 'created' | 'author'>;
+export type AnimationPost = Omit<Animation, 'version' | 'created' | 'author' | 'published'>;

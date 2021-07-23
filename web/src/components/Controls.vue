@@ -201,8 +201,6 @@
 
          watch([model, animationConfig], () => {
 
-            console.log('model updated', model.numLeds);
-
             localStorage.setItem('config', JSON.stringify(model));
             localStorage.setItem(`${model.animationName}-config`, JSON.stringify(animationConfig.value));
 
