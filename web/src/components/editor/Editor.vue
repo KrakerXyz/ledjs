@@ -45,8 +45,6 @@
    import { AnimationClient, AnimationPost, parseScript } from 'netled';
    import { useRestClient } from '../../services';
 
-   declare var require: any;
-
    export default defineComponent({
       props: {
       },
@@ -54,7 +52,7 @@
 
          const tmpScript = localStorage.getItem('tmp-script') ?? useDefaultScript();
 
-         const { content, errorMarkers: monacoErrorMarkers } = useMonacoEditor('editor-ide-container', {
+         const { content } = useMonacoEditor('editor-ide-container', {
             javascriptLib: useJavascriptLib()
          });
 
@@ -100,14 +98,7 @@
          }
 
          const test = () => {
-            const blob = new Blob([content.value], { type: 'text/javascript' });
-            const url = URL.createObjectURL(blob);
-            import(/* @vite-ignore */ url).then(s => {
-               if (!s.default) { throw new Error('default not found'); }
-               const instance = new s.default();
-               if (!instance.nextFrame) { throw new Error('nextFrame not found'); }
-               console.log('It checks out');
-            });
+            //
          }
 
          return { resetScript, testScript, errorMessages, saveScript, test };

@@ -7,28 +7,38 @@ export function useIframeRunner(script: string): Promise<IFrameContext> {
         const origin = `${window.location.protocol}//${window.location.host}`;
 
         const srcdoc = `
-<html><body><script>
 
-${script}
+<html><body><script type="module">
 
-const anim = new MyLedAnimation();
-anim.setNumLeds(8);
+    const scriptBlob = new Blob([${JSON.stringify(script)}], { type: 'text/javascript' });
+    const scriptUrl = URL.createObjectURL(scriptBlob);
 
-window.addEventListener('message', e => { 
-    if(e.origin !== '${origin}') { return; }
-    if(e.data.type === 'nextFrame') {
-        const frame = anim.nextFrame();
-        window.parent.postMessage({
-            messageId: e.data.messageId,
-            response: frame
-        }, '${origin}');
-    } else {
-        console.warn('Received unknown message type from parent - ' + e.data.type);
-    }
-});
-window.parent.postMessage('Initialized', '${origin}');
+    (async () => {
+
+        const script = await import(scriptUrl);
+
+        if (!script.default) { throw new Error('default not found'); }
+        const instance = new script.default();
+        if (!instance.nextFrame) { throw new Error('nextFrame not found'); }
+
+        window.addEventListener('message', e => { 
+            if(e.origin !== '${origin}') { return; }
+            if(e.data.type === 'nextFrame') {
+                const frame = instance.nextFrame();
+                window.parent.postMessage({
+                    messageId: e.data.messageId,
+                    response: frame
+                }, '${origin}');
+            } else {
+                console.warn('Received unknown message type from parent - ' + e.data.type);
+            }
+        });
+        window.parent.postMessage('Initialized', '${origin}');
+
+    })();
  
 <\/script><\/body><\/html>
+
         `;
 
         let messageId = 0;
