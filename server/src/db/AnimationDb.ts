@@ -1,5 +1,5 @@
 import { TypedEntity } from '@krakerxyz/typed-base';
-import { Animation } from 'netled';
+import { Animation, Id } from 'netled';
 
 export class AnimationDb {
 
@@ -9,7 +9,7 @@ export class AnimationDb {
         return this.entity.find({});
     }
 
-    public byId(id: string): Promise<Animation | null> {
+    public byId(id: Id): Promise<Animation | null> {
         return this.entity.findOneAsync({ id });
     }
 

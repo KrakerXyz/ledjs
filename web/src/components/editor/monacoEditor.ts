@@ -1,11 +1,13 @@
 
 import type * as monaco from 'monaco-editor';
-import { onMounted, ref, Ref, watch } from 'vue';
+import { onMounted, onUnmounted, ref, Ref, watch } from 'vue';
 
 export function useMonacoEditor(containerId: string, config?: Partial<EditorConfig>): { content: Ref<string>, errorMarkers: Ref<monaco.editor.IMarker[]> } {
 
     const content = ref('');
     const errorMarkers = ref<monaco.editor.IMarker[]>([]);
+
+    let editor: monaco.editor.IStandaloneCodeEditor | undefined;
 
     onMounted(() => {
 
@@ -24,17 +26,16 @@ export function useMonacoEditor(containerId: string, config?: Partial<EditorConf
                 }
             }
 
-            const editor = thisMonaco.editor.create(ideContainer, {
+            editor = thisMonaco.editor.create(ideContainer, {
                 value: content.value,
                 language: 'javascript',
                 renderValidationDecorations: 'off',
-                theme: 'vs-dark',
-                automaticLayout: true
+                theme: 'vs-dark'
             }) as monaco.editor.IStandaloneCodeEditor
 
             let isOutgoingValue = false;
             editor.onDidChangeModelContent(e => {
-                const newContent = editor.getValue();
+                const newContent = editor!.getValue();
                 isOutgoingValue = true;
                 content.value = newContent;
             });
@@ -46,10 +47,19 @@ export function useMonacoEditor(containerId: string, config?: Partial<EditorConf
 
             watch(content, c => {
                 if (isOutgoingValue) { isOutgoingValue = false; return; }
-                editor.setValue(c);
+                editor!.setValue(c);
             }, { immediate: true });
 
         });
+
+        const windowResized = () => {
+            if (!editor) { return; }
+            editor.layout();
+        };
+
+        window.addEventListener('resize', windowResized);
+
+        onUnmounted(() => window.removeEventListener('resize', windowResized));
 
     });
 

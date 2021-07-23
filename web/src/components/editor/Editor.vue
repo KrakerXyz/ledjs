@@ -3,39 +3,75 @@
    <div class="h-100">
       <led-canvas id="canvas" :frame="frame"></led-canvas>
 
-      <div id="controls" class="d-flex flex-column">
-         <div class="flex-grow-1">
-            <div id="editor-ide-container" class="h-100"></div>
+      <div id="controls" class="row border border-dark shadow g-0">
+         <!-- The positioning here was to get monaco to resize to fill the col. -->
+         <div class="col position-relative">
+            <div
+               id="editor-ide-container"
+               class="h-100 w-100 position-absolute"
+            ></div>
          </div>
-         <div id="editor-status-container" class="mt-3 border border-dark p-2">
-            <div class="row">
-               <div class="col">
-                  <div class="list-group" v-if="errorMessages.length">
-                     <div
-                        class="list-group-item bg-danger text-white"
-                        v-for="(e, i) of errorMessages"
-                        :key="i"
-                     >
-                        {{ e }}
-                     </div>
-                  </div>
-                  <div v-else>No errors</div>
-               </div>
-               <div class="col">
-                  <button class="btn btn-link p-0" @click="resetScript()">
-                     Reset Script
-                  </button>
-                  <button class="btn btn-link p-0 ms-3" @click="testScript()">
-                     Test script
-                  </button>
-                  <button class="btn btn-link p-0 ms-3" @click="saveScript()">
-                     Save script
-                  </button>
-                  <button class="btn btn-link p-0 ms-3" @click="test()">
-                     Test
-                  </button>
+
+         <div class="col-auto col-right p-1">
+            <div class="list-group" v-if="errorMessages.length">
+               <div
+                  class="list-group-item bg-danger text-white p-1"
+                  v-for="(e, i) of errorMessages"
+                  :key="i"
+               >
+                  <small>{{ e }}</small>
                </div>
             </div>
+
+            <template v-else>
+               <button class="btn btn-link p-0 ms-3" @click="testScript()">
+                  Test script
+               </button>
+               <button class="btn btn-link p-0 ms-3" @click="test()">
+                  Test
+               </button>
+
+               <div class="row">
+                  <div class="col">
+                     <div class="form-floating">
+                        <input
+                           id="editor-script-name"
+                           class="form-control"
+                           placeholder="*"
+                           v-model.trim="animationPost.name"
+                        />
+                        <label for="editor-script-name">Animation Name</label>
+                     </div>
+                  </div>
+               </div>
+
+               <div class="row mt-3">
+                  <div class="col">
+                     <div class="form-floating">
+                        <textarea
+                           id="editor-script-description"
+                           class="form-control"
+                           placeholder="*"
+                           v-model.trim="animationPost.description"
+                        ></textarea>
+                        <label for="editor-script-description">
+                           Description
+                        </label>
+                     </div>
+                  </div>
+               </div>
+
+               <div class="row mt-2">
+                  <div class="col">
+                     <button
+                        class="btn btn-primary w-100"
+                        @click="saveScript()"
+                     >
+                        Save Draft
+                     </button>
+                  </div>
+               </div>
+            </template>
          </div>
       </div>
    </div>
@@ -43,16 +79,19 @@
 
 <script lang="ts">
 
-   import { computed, defineComponent, watch } from 'vue';
+   import { computed, defineComponent, reactive, watch } from 'vue';
    import { useDefaultScript } from './defaultScript';
    import { useIframeRunner } from './iframeRunner';
    import { useJavascriptLib } from './javascriptLib';
    import { useMonacoEditor } from './monacoEditor';
    import { AnimationClient, AnimationPost, parseScript } from 'netled';
    import { useRestClient } from '../../services';
+   import LedCanvas from '../LedCanvas.vue';
+   import { Frame } from '../../color-utilities';
 
    export default defineComponent({
-      props: {
+      components: {
+         LedCanvas
       },
       setup() {
 
@@ -75,11 +114,6 @@
             return [];
          });
 
-         const resetScript = () => {
-            if (!content) { return; }
-            content.value = useDefaultScript();
-         }
-
          const testScript = async () => {
             if (!content?.value?.trim()) { return; }
 
@@ -92,14 +126,18 @@
 
          const restClient = useRestClient();
          const animationClient = new AnimationClient(restClient);
+
+         const animationPost: AnimationPost = reactive({
+            id: '768e6520-3f0c-4fb8-8a16-1de5f6fc3577',
+            script: content.value,
+            name: '',
+            description: ''
+         });
+
+         watch(content, s => animationPost.script = s);
+
          const saveScript = async () => {
-            const post: AnimationPost = {
-               id: '768e6520-3f0c-4fb8-8a16-1de5f6fc3577',
-               script: content.value,
-               name: 'Test',
-               description: 'The description'
-            };
-            await animationClient.post(post);
+            await animationClient.post(animationPost);
             console.log('Saved animation');
          }
 
@@ -107,7 +145,9 @@
             //
          }
 
-         return { resetScript, testScript, errorMessages, saveScript, test };
+         const frame: Frame = [];
+
+         return { testScript, errorMessages, saveScript, test, frame, animationPost };
       }
    });
 
@@ -123,7 +163,11 @@
       height: calc(100vh - var(--control-padding) * 2);
    }
 
-   #editor-ide-container {
-      resize: vertical;
+   .col-right {
+      width: 200px;
+   }
+
+   #editor-script-description {
+      height: 200px;
    }
 </style>

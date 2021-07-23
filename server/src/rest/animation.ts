@@ -35,6 +35,7 @@ export const post: RouteHandler = async (req, res) => {
 
     const animation: Animation = {
         ...animationPost,
+        published: false,
         version: (existingAnimation?.version ?? -1) + 1,
         created: Date.now(),
         author: 'TestUser'
