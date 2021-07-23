@@ -27,7 +27,7 @@ export function useMonacoEditor(containerId: string, config?: Partial<EditorConf
             const editor = thisMonaco.editor.create(ideContainer, {
                 value: content.value,
                 language: 'javascript',
-                renderValidationDecorations: 'on',
+                renderValidationDecorations: 'off',
                 theme: 'vs-dark'
             }) as monaco.editor.IStandaloneCodeEditor
 
@@ -38,10 +38,10 @@ export function useMonacoEditor(containerId: string, config?: Partial<EditorConf
                 content.value = newContent;
             });
 
-            editor.onDidChangeModelDecorations(e => {
-                const markers = thisMonaco.editor.getModelMarkers({ owner: 'javascript' });
-                errorMarkers.value = markers.filter(m => m.severity === 8);
-            });
+            // editor.onDidChangeModelDecorations(e => {
+            //     const markers = thisMonaco.editor.getModelMarkers({ owner: 'javascript' });
+            //     errorMarkers.value = markers.filter(m => m.severity === 8);
+            // });
 
             watch(content, c => {
                 if (isOutgoingValue) { isOutgoingValue = false; return; }

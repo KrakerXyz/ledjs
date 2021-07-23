@@ -9,6 +9,10 @@ export class AnimationDb {
         return this.entity.find({});
     }
 
+    public byId(id: string): Promise<Animation | null> {
+        return this.entity.findOneAsync({ id });
+    }
+
     public add(animation: Animation): Promise<void> {
         return this.entity.insertAsync(animation);
     }

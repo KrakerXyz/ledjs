@@ -6,7 +6,6 @@ type Query = Record<string, OrArray<string> | OrArray<boolean> | OrArray<number>
 export class RestClient {
 
     private readonly axios = axios.create({
-        baseURL: 'http://localhost:3001'
     });
 
     public get<T>(path: string, query?: Query): Promise<T> {

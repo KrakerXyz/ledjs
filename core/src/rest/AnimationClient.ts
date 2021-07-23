@@ -17,6 +17,7 @@ export class AnimationClient {
 export interface Animation {
     id: string;
     name: string;
+    description?: string | null;
     version: number;
     created: number;
     author: string;
@@ -25,4 +26,4 @@ export interface Animation {
 
 export type AnimationMeta = Omit<Animation, 'script'>;
 
-export type AnimationPost = Pick<Animation, 'script' | 'id'>;
+export type AnimationPost = Omit<Animation, 'version' | 'created' | 'author'>;

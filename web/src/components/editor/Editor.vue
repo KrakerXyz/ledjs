@@ -17,11 +17,17 @@
                <div v-else>No errors</div>
             </div>
             <div class="col">
-               <button class="btn btn-link p-0 me-3" @click="resetScript()">
+               <button class="btn btn-link p-0" @click="resetScript()">
                   Reset Script
                </button>
-               <button class="btn btn-link p-0" @click="testScript()">
+               <button class="btn btn-link p-0 ms-3" @click="testScript()">
                   Test script
+               </button>
+               <button class="btn btn-link p-0 ms-3" @click="saveScript()">
+                  Save script
+               </button>
+               <button class="btn btn-link p-0 ms-3" @click="test()">
+                  Test
                </button>
             </div>
          </div>
@@ -36,7 +42,10 @@
    import { useIframeRunner } from './iframeRunner';
    import { useJavascriptLib } from './javascriptLib';
    import { useMonacoEditor } from './monacoEditor';
-   import { parseScript } from 'netled';
+   import { AnimationClient, AnimationPost, parseScript } from 'netled';
+   import { useRestClient } from '../../services';
+
+   declare var require: any;
 
    export default defineComponent({
       props: {
@@ -55,14 +64,11 @@
             localStorage.setItem('tmp-script', c);
          });
 
-         const errorMessages = computed(() => {
-            const set = new Set(monacoErrorMarkers.value.map(x => x.message));
-            return [...set];
-         });
-
          const scriptParseResult = computed(() => parseScript(content.value));
-         watch(scriptParseResult, r => {
-            //console.log('parseResult', r);
+
+         const errorMessages = computed(() => {
+            if (scriptParseResult.value.valid === false) { return scriptParseResult.value.errors }
+            return [];
          });
 
          const resetScript = () => {
@@ -80,7 +86,31 @@
 
          }
 
-         return { resetScript, testScript, errorMessages };
+         const restClient = useRestClient();
+         const animationClient = new AnimationClient(restClient);
+         const saveScript = async () => {
+            const post: AnimationPost = {
+               id: '768e6520-3f0c-4fb8-8a16-1de5f6fc3577',
+               script: content.value,
+               name: 'Test',
+               description: 'The description'
+            };
+            await animationClient.post(post);
+            console.log('Saved animation');
+         }
+
+         const test = () => {
+            const blob = new Blob([content.value], { type: 'text/javascript' });
+            const url = URL.createObjectURL(blob);
+            import(/* @vite-ignore */ url).then(s => {
+               if (!s.default) { throw new Error('default not found'); }
+               const instance = new s.default();
+               if (!instance.nextFrame) { throw new Error('nextFrame not found'); }
+               console.log('It checks out');
+            });
+         }
+
+         return { resetScript, testScript, errorMessages, saveScript, test };
       }
    });
 
