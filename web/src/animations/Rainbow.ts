@@ -1,7 +1,7 @@
-import { Animation } from '.';
+import { AnimationInstance } from '.';
 import { Frame, hslToRgb, rotateFrame } from '../color-utilities';
 
-export class Rainbow implements Animation<any> {
+export class Rainbow implements AnimationInstance<any> {
 
    private _frame: Frame = [];
 

@@ -1,5 +1,5 @@
 import { Frame } from '../color-utilities';
-import { Animation } from '.';
+import { AnimationInstance } from '.';
 import { Config, ConfigMeta } from './IAnimation';
 
 //https://www.tweaking4all.com/hardware/arduino/adruino-led-strip-effects/
@@ -23,7 +23,7 @@ const configMeta: ConfigMeta = {
    }
 }
 
-export class Flames implements Animation<typeof configMeta> {
+export class Flames implements AnimationInstance<typeof configMeta> {
 
    public static meta = configMeta;
 

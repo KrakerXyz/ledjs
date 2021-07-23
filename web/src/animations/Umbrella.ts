@@ -1,8 +1,8 @@
 import { Frame } from '../color-utilities';
-import { Animation } from '.';
+import { AnimationInstance } from '.';
 import { rotateFrame } from '../color-utilities/rotateFrame';
 
-export class Umbrella implements Animation<any> {
+export class Umbrella implements AnimationInstance<any> {
 
    private _frame: Frame = [];
 

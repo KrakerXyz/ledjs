@@ -13,9 +13,9 @@ export function useAnimationContext(): AnimationContext {
    return animationContext;
 }
 
-export function useAnimation(name: string): Animations.Animation<any> {
+export function useAnimation(name: string): Animations.AnimationInstance<any> {
    if (!(Animations as any)[name]) { throw new Error('Unknown animation'); }
-   return new (Animations as any)[name] as Animations.Animation<any>;
+   return new (Animations as any)[name] as Animations.AnimationInstance<any>;
 }
 
 export function useAnimationConfigMeta(name: string): Animations.ConfigMeta | undefined {
@@ -24,6 +24,6 @@ export function useAnimationConfigMeta(name: string): Animations.ConfigMeta | un
 }
 
 export interface AnimationContext {
-   animation: Ref<Animations.Animation<any> | undefined>;
+   animation: Ref<Animations.AnimationInstance<any> | undefined>;
    interval: Ref<number>;
 }

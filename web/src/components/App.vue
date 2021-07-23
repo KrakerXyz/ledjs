@@ -1,10 +1,7 @@
 
 <template>
-   <div id="app-wrapper" class="">
-      <led-canvas id="canvas"></led-canvas>
-      <div id="controls" class="border border-dark shadow p-3">
-         <router-view></router-view>
-      </div>
+   <div id="app-wrapper" class="h-100">
+      <router-view></router-view>
    </div>
 </template>
 
@@ -23,17 +20,3 @@
    });
 
 </script>
-
-<style lang="postcss" scoped>
-   #app-wrapper {
-      --control-padding: 120px;
-   }
-
-   #controls {
-      position: absolute;
-      top: var(--control-padding);
-      left: var(--control-padding);
-      width: calc(100vw - var(--control-padding) * 2);
-      height: calc(100vh - var(--control-padding) * 2);
-   }
-</style>

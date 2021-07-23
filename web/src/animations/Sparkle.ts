@@ -1,4 +1,4 @@
-import { Animation } from '.';
+import { AnimationInstance } from '.';
 import { Frame, RGB } from '../color-utilities';
 import { Config, ConfigMeta } from './IAnimation';
 
@@ -28,7 +28,7 @@ const configMeta: ConfigMeta = {
    }
 }
 
-export class Sparkle implements Animation<typeof configMeta> {
+export class Sparkle implements AnimationInstance<typeof configMeta> {
 
    public static meta = configMeta;
 
