@@ -2,6 +2,7 @@
 <template>
    <div class="h-100">
       <led-canvas id="canvas" :frame="frame"></led-canvas>
+
       <div id="controls" class="border border-dark shadow p-3">
          <div class="d-flex flex-column h-100">
             <div class="flex-grow-1">
@@ -26,7 +27,7 @@
                         Interval:
                         <input
                            class="interval"
-                           v-model.number.lazy="model.interval"
+                           v-model.number="model.interval"
                         />ms
 
                         <button
@@ -48,7 +49,7 @@
                         id="c-interval"
                         min="1"
                         max="500"
-                        v-model.number.lazy="model.interval"
+                        v-model.number="model.interval"
                      />
                   </div>
                   <div class="col-lg-6 col-xl-2 mb-3">
@@ -57,7 +58,7 @@
                            id="c-num-leds"
                            class="form-control"
                            placeholder="*"
-                           v-model.number.lazy="model.numLeds"
+                           v-model.number="model.numLeds"
                         />
                         <label for="c-num-leds">Num Leds</label>
                      </div>
@@ -89,7 +90,7 @@
                            :id="`c-param-${p.name}`"
                            class="form-control"
                            placeholder="*"
-                           v-model.lazy.trim="p.value"
+                           v-model="p.value"
                         />
                         <label :for="`c-param-${p.name}`">
                            {{ p.name }}
@@ -128,7 +129,7 @@
 
 <script lang="ts">
 
-   import { useAnimation, useAvailableAnimations, useWebSocket, useAnimationConfigMeta } from '../services';
+   import { useAnimation, useAvailableAnimations, useWebSocket, useAnimationConfigMeta, useThrottledProxy, WsMessage } from '../services';
    import { AnimationInstance, Config, ConfigMetaParam } from '../animations';
    import { computed, defineComponent, reactive, ref, watch } from 'vue';
    import LedCanvas from './LedCanvas.vue';
@@ -162,16 +163,6 @@
 
          const animationInstance = ref<AnimationInstance<any>>();
 
-         watch(() => model.animationName, async name => {
-            const a = useAnimation(name);
-            a.setNumLeds(model.numLeds);
-            animationInstance.value = a;
-         }, { immediate: true });
-
-         watch(() => model.numLeds, leds => {
-            animationInstance.value?.setNumLeds(leds);
-         });
-
          const animationConfigMeta = computed(() => useAnimationConfigMeta(model.animationName));
 
          const paramVms = computed(() => {
@@ -199,17 +190,25 @@
             return config;
          });
 
+         const frame = ref<Frame>([]);
+         for (let i = 0; i < model.numLeds; i++) { frame.value.push([0, 0, 0]); }
+
          watch(animationConfig, config => animationInstance.value?.setConfig(config), { immediate: true });
 
          const ws = useWebSocket();
-         watch([model, animationConfig], () => {
-            localStorage.setItem('config', JSON.stringify(model));
 
+         const wsLedSetupThrottle = useThrottledProxy((msg: WsMessage) => ws.sendMessage(msg), { timeout: 500 });
+
+         watch([model, animationConfig], () => {
+
+            console.log('model updated', model.numLeds);
+
+            localStorage.setItem('config', JSON.stringify(model));
             localStorage.setItem(`${model.animationName}-config`, JSON.stringify(animationConfig.value));
 
             if (!model.autoPush) { return; }
 
-            ws.sendMessage({
+            wsLedSetupThrottle({
                type: 'ledSetup',
                setup: {
                   animationName: model.animationName,
@@ -221,17 +220,29 @@
 
          });
 
-         const frame = ref<Frame>([]);
-         for (let i = 0; i < model.numLeds; i++) { frame.value.push([0, 0, 0]); }
+         watch(() => model.animationName, async name => {
+            const a = useAnimation(name);
+            a.setNumLeds(model.numLeds);
+            animationInstance.value = a;
+         }, { immediate: true });
+
+         watch(() => model.numLeds, leds => {
+            console.log('Num leds changed');
+            if (!animationInstance.value) { }
+            animationInstance.value?.setNumLeds(leds);
+            frame.value = animationInstance.value.nextFrame();
+         });
 
          let intervalTimeout: number | undefined;
-         watch([model, animationInstance], () => {
-            if (animationInstance.value) { frame.value = animationInstance.value.nextFrame(); }
+
+         watch(() => model.interval, interval => {
             if (intervalTimeout) { clearInterval(intervalTimeout); }
+
             intervalTimeout = setInterval(() => {
                if (!animationInstance.value) { return; }
                frame.value = [...animationInstance.value.nextFrame()];
-            }, model.interval);
+            }, interval);
+
          }, { immediate: true });
 
          return { animations, model, paramVms, frame };
