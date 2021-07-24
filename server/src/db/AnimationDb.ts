@@ -1,17 +1,19 @@
 import { Filter, TypedEntity } from '@krakerxyz/typed-base';
-import { Animation } from 'netled';
+import { Animation, AnimationMeta } from 'netled';
+
+type Writeable<T> = { -readonly [P in keyof T]: T[P] };
 
 export class AnimationDb {
 
     private readonly entity = new TypedEntity<Animation>();
 
-    public all(): AsyncGenerator<Animation> {
-        return this.entity.find({});
+    public all(): AsyncGenerator<AnimationMeta> {
+        return this.entity.find({}, c => c.project({ script: false } as any));
     }
 
     public async latestById(id: string, includeDraft: boolean = false): Promise<Animation | null> {
-        const filter: Filter<Animation> = { id };
-        if (!includeDraft) { (filter as any)['published'] = true; }
+        const filter: Filter<Writeable<Animation>> = { id };
+        if (!includeDraft) { filter.published = true; }
 
         const cur = this.entity.find(
             filter,

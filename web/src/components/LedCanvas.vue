@@ -7,8 +7,8 @@
 
 <script lang="ts">
 
+   import { Frame, rgbToHex } from 'netled';
    import { defineComponent, watch, ref, toRef } from 'vue';
-   import { Frame, rgbToHex } from '../color-utilities';
 
 
    export default defineComponent({

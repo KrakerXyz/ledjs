@@ -1,4 +1,4 @@
-import { Config } from '@/animations';
+import { Config } from 'netled';
 
 class WebsocketService {
     private readonly _ws: WebSocket;

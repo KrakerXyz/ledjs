@@ -114,14 +114,13 @@
 
 <script lang="ts">
 
-   import { useWebSocket, useAnimationConfigMeta, useThrottledProxy, WsMessage, useRestClient } from '../../services';
-   import { AnimationInstance, Config, ConfigMetaParam } from '../../animations';
+   import { useWebSocket, useThrottledProxy, WsMessage, useRestClient } from '../../services';
    import { computed, defineComponent, getCurrentInstance, onUnmounted, reactive, ref, watch } from 'vue';
    import { useRoute } from 'vue-router';
    import LedCanvas from '../LedCanvas.vue';
-   import { Frame } from '../../color-utilities';
-   import { AnimationClient } from 'netled';
+   import { AnimationClient, Config, ConfigMetaParam } from 'netled';
    import { useIframeRunner } from '../editor/iframeRunner';
+   import { Frame } from 'netled';
 
    export default defineComponent({
       components: {
@@ -155,6 +154,8 @@
          const frame = ref<Frame>([]);
          frame.value = await iframe.nextFrame();
 
+         const configMeta = await iframe.getConfigMeta();
+
          const selectedAnimationStoredConfig = computed(() => {
             const json = localStorage.getItem(`${animation.name}-config`);
             if (!json) { return {}; }
@@ -162,23 +163,18 @@
             return config;
          });
 
-         const animationConfigMeta = computed(() => useAnimationConfigMeta(animation.name));
-
-         const paramVms = computed(() => {
-            const params = animationConfigMeta.value?.params ?? {};
-            return reactive(Object.getOwnPropertyNames(params).map(k => {
-               const vm: ParamVm = {
-                  name: k,
-                  meta: params[k],
-                  value: selectedAnimationStoredConfig.value[k] ?? params[k].default
-               };
-               return vm;
-            }));
-         });
+         const paramVms = reactive(Object.getOwnPropertyNames(configMeta.params).map(k => {
+            const vm: ParamVm = {
+               name: k,
+               meta: configMeta.params[k],
+               value: selectedAnimationStoredConfig.value[k] ?? configMeta.params[k].default
+            };
+            return vm;
+         }));
 
          const animationConfig = computed(() => {
             const config: Record<string, string | number | boolean> = {};
-            for (const v of paramVms.value) {
+            for (const v of paramVms) {
                let value: string | number | boolean = v.value;;
                switch (v.meta.type) {
                   case 'number': value = parseFloat(value.toString()); break;
@@ -189,7 +185,7 @@
             return config;
          });
 
-         //watch(animationConfig, config => animationInstance.value?.setConfig(config), { immediate: true });
+         watch(animationConfig, config => iframe.setConfig(config), { immediate: true });
 
          const ws = useWebSocket();
 

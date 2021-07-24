@@ -1,17 +1,15 @@
-import { RGB } from '.';
+import { ARGB } from '..';
 
 //https://css-tricks.com/converting-color-spaces-in-javascript/#hsl-to-rgb
-export function hslToRgb(h: number, s: number, l: number): RGB {
+export function hslToRgb(h: number, s: number, l: number): ARGB {
    // Must be fractions of 1
    s /= 100;
    l /= 100;
 
-   let c = (1 - Math.abs(2 * l - 1)) * s,
-      x = c * (1 - Math.abs((h / 60) % 2 - 1)),
-      m = l - c / 2,
-      r = 0,
-      g = 0,
-      b = 0;
+   const c = (1 - Math.abs(2 * l - 1)) * s;
+   const x = c * (1 - Math.abs((h / 60) % 2 - 1));
+   const m = l - c / 2;
+   let r = 0, g = 0, b = 0;
 
    if (0 <= h && h < 60) {
       r = c; g = x; b = 0;
@@ -30,5 +28,5 @@ export function hslToRgb(h: number, s: number, l: number): RGB {
    g = Math.round((g + m) * 255);
    b = Math.round((b + m) * 255);
 
-   return [r, g, b];
+   return [255, r, g, b];
 }

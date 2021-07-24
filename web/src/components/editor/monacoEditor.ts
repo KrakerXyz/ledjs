@@ -35,7 +35,7 @@ export function useMonacoEditor(containerId: string, config?: Partial<EditorConf
             }) as monaco.editor.IStandaloneCodeEditor
 
             let isOutgoingValue = false;
-            editor.onDidChangeModelContent(e => {
+            editor.onDidChangeModelContent(() => {
                 const newContent = editor!.getValue();
                 isOutgoingValue = true;
                 content.value = newContent;

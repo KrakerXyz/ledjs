@@ -1,5 +1,6 @@
 {
     "cSpell.words": [
+        "ARGB",
         "Leds",
         "cooldown",
         "eitmuf",
@@ -12,7 +13,8 @@
         "referrerpolicy",
         "rpio",
         "ttsc",
-        "ttypescript"
+        "ttypescript",
+        "typecheck"
     ],
     "typescript.tsdk": "node_modules\\typescript\\lib"
 }

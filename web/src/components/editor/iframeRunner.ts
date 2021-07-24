@@ -1,8 +1,8 @@
-import { Frame, hslToRgb, rgbToHex, rotateFrame } from '@/color-utilities';
+import { Config, ConfigMeta, Frame, hslToRgb, rgbToHex, rotateFrame } from 'netled';
 
 export function useIframeRunner(script: string): Promise<IFrameContext> {
 
-    return new Promise<IFrameContext>((r, e) => {
+    return new Promise<IFrameContext>(r => {
 
         const origin = `${window.location.protocol}//${window.location.host}`;
 
@@ -44,6 +44,19 @@ export function useIframeRunner(script: string): Promise<IFrameContext> {
             } else if(e.data.type === 'setNumLeds') {
                 instance.setNumLeds(e.data.numLeds);
                 console.log('IFrame: setNumLeds(' + e.data.numLeds + ')');
+            } else if(e.data.type === 'getConfigMeta') {
+                const meta = script.default.configMeta;
+                console.log('IFrame: got configMeta', meta);
+                window.parent.postMessage({
+                    messageId: e.data.messageId,
+                    response: meta ?? {}
+                }, '${origin}');
+            } else if(e.data.type === 'setConfig') {
+                instance.setConfig(e.data.config);
+                console.log('IFrame: setConfig(' + JSON.stringify(e.data.config) + ')');
+                window.parent.postMessage({
+                    messageId: e.data.messageId
+                }, '${origin}');
             } else {
                 console.warn('Received unknown message type from parent - ' + e.data.type);
             }
@@ -81,10 +94,40 @@ export function useIframeRunner(script: string): Promise<IFrameContext> {
                 });
             },
             setNumLeds(numLeds) {
+                if (disposed) { throw new Error('iframe has been disposed'); }
                 iframe.contentWindow!.postMessage({
                     type: 'setNumLeds',
                     numLeds
                 }, '*');
+            },
+            getConfigMeta: () => {
+                if (disposed) { throw new Error('iframe has been disposed'); }
+
+                return new Promise<ConfigMeta>((resolve, reject) => {
+                    awaitingResponse[messageId] = { resolve, reject };
+
+                    iframe.contentWindow!.postMessage({
+                        type: 'getConfigMeta',
+                        messageId,
+                    }, '*');
+
+                    messageId++;
+                });
+            },
+            setConfig: (config) => {
+                if (disposed) { throw new Error('iframe has been disposed'); }
+
+                return new Promise<void>((resolve, reject) => {
+                    awaitingResponse[messageId] = { resolve, reject };
+
+                    iframe.contentWindow!.postMessage({
+                        type: 'setConfig',
+                        messageId,
+                        config
+                    }, '*');
+
+                    messageId++;
+                });
             },
             dispose: () => {
                 if (disposed) { throw new Error('iframe has been disposed'); }
@@ -115,7 +158,11 @@ export function useIframeRunner(script: string): Promise<IFrameContext> {
                 return;
             }
 
-            prom.resolve(evt.data.response);
+            if (evt.data.response) {
+                prom.resolve(evt.data.response);
+            } else {
+                prom.resolve();
+            }
             delete awaitingResponse[messageId];
 
         }
@@ -131,5 +178,7 @@ export function useIframeRunner(script: string): Promise<IFrameContext> {
 export interface IFrameContext {
     setNumLeds(numLeds: number): void;
     nextFrame(): Promise<Frame>;
+    getConfigMeta(): Promise<ConfigMeta>;
+    setConfig(config: Config<any>): Promise<void>;
     dispose(): void;
 }
