@@ -129,11 +129,11 @@
 
 <script lang="ts">
 
-   import { useAnimation, useAvailableAnimations, useWebSocket, useAnimationConfigMeta, useThrottledProxy, WsMessage } from '../services';
-   import { AnimationInstance, Config, ConfigMetaParam } from '../animations';
+   import { useAnimation, useAvailableAnimations, useWebSocket, useAnimationConfigMeta, useThrottledProxy, WsMessage } from '../../services';
+   import { AnimationInstance, Config, ConfigMetaParam } from '../../animations';
    import { computed, defineComponent, reactive, ref, watch } from 'vue';
-   import LedCanvas from './LedCanvas.vue';
-   import { Frame } from '../color-utilities';
+   import LedCanvas from '../LedCanvas.vue';
+   import { Frame } from '../../color-utilities';
 
    export default defineComponent({
       components: {

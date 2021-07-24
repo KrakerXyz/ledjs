@@ -5,7 +5,12 @@ const routes: RouteRecordRaw[] = [
    {
       name: 'default',
       path: '/',
-      component: () => import('./components/Controls.vue')
+      component: () => import('./components/animation-list/AnimationList.vue')
+   },
+   {
+      name: 'config',
+      path: '/config/:animationId',
+      component: () => import('./components/config/Config.vue')
    },
    {
       name: 'editor',

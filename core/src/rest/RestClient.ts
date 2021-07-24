@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 type OrArray<T> = T | T[];
-type Query = Record<string, OrArray<string> | OrArray<boolean> | OrArray<number>> | null | undefined
+type Query = Record<string, OrArray<string> | OrArray<boolean> | OrArray<number> | undefined> | null | undefined
 
 export class RestClient {
 

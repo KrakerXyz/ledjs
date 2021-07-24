@@ -106,17 +106,11 @@
       },
       setup() {
 
-         const tmpScript = localStorage.getItem('tmp-script') ?? useDefaultScript();
-
          const { content } = useMonacoEditor('editor-ide-container', {
             javascriptLib: useJavascriptLib()
          });
 
-         content.value = tmpScript;
-
-         watch(content, c => {
-            localStorage.setItem('tmp-script', c);
-         });
+         content.value = useDefaultScript();
 
          const scriptParseResult = computed(() => parseScript(content.value));
 
