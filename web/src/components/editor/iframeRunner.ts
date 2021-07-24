@@ -1,4 +1,4 @@
-import { Frame } from '@/color-utilities';
+import { Frame, hslToRgb, rgbToHex, rotateFrame } from '@/color-utilities';
 
 export function useIframeRunner(script: string): Promise<IFrameContext> {
 
@@ -15,6 +15,18 @@ export function useIframeRunner(script: string): Promise<IFrameContext> {
 
     (async () => {
 
+        window.netled = {
+            util: {
+                color: {
+                    hslToRgb: ${hslToRgb},
+                    rgbToHex: ${rgbToHex}
+                },
+                frame: {
+                    rotateFrame: ${rotateFrame}
+                }
+            }
+        };
+
         const script = await import(scriptUrl);
 
         if (!script.default) { throw new Error('default not found'); }
@@ -29,6 +41,9 @@ export function useIframeRunner(script: string): Promise<IFrameContext> {
                     messageId: e.data.messageId,
                     response: frame
                 }, '${origin}');
+            } else if(e.data.type === 'setNumLeds') {
+                instance.setNumLeds(e.data.numLeds);
+                console.log('IFrame: setNumLeds(' + e.data.numLeds + ')');
             } else {
                 console.warn('Received unknown message type from parent - ' + e.data.type);
             }
@@ -50,8 +65,10 @@ export function useIframeRunner(script: string): Promise<IFrameContext> {
 
         const awaitingResponse: Record<number, { resolve: (...args: any[]) => void, reject: () => void }> = {};
 
+        let disposed = false;
         const frameContext: IFrameContext = {
             nextFrame: () => {
+                if (disposed) { throw new Error('iframe has been disposed'); }
                 return new Promise<Frame>((resolve, reject) => {
                     awaitingResponse[messageId] = { resolve, reject };
 
@@ -62,8 +79,20 @@ export function useIframeRunner(script: string): Promise<IFrameContext> {
 
                     messageId++;
                 });
+            },
+            setNumLeds(numLeds) {
+                iframe.contentWindow!.postMessage({
+                    type: 'setNumLeds',
+                    numLeds
+                }, '*');
+            },
+            dispose: () => {
+                if (disposed) { throw new Error('iframe has been disposed'); } {
+                    iframe.remove();
+                    disposed = true;
+                }
             }
-        };
+        }
 
         const onMessage = (evt: MessageEvent) => {
             if (evt.origin !== 'null') { return; }
@@ -100,5 +129,7 @@ export function useIframeRunner(script: string): Promise<IFrameContext> {
 }
 
 export interface IFrameContext {
+    setNumLeds(numLeds: number): void;
     nextFrame(): Promise<Frame>;
+    dispose(): void;
 }

@@ -24,14 +24,25 @@
             </div>
 
             <template v-else>
-               <button class="btn btn-link p-0 ms-3" @click="testScript()">
+               <button
+                  v-if="!isRunning"
+                  class="btn btn-link p-0 ms-3"
+                  @click="testScript()"
+               >
                   Test script
+               </button>
+               <button
+                  v-if="isRunning"
+                  class="btn btn-link p-0 ms-3"
+                  @click="stopScript()"
+               >
+                  Stop script
                </button>
                <button class="btn btn-link p-0 ms-3" @click="test()">
                   Test
                </button>
 
-               <div class="row">
+               <div class="row mt-3">
                   <div class="col">
                      <div class="form-floating">
                         <input
@@ -79,9 +90,9 @@
 
 <script lang="ts">
 
-   import { computed, defineComponent, reactive, watch } from 'vue';
+   import { computed, defineComponent, reactive, ref, watch } from 'vue';
    import { useDefaultScript } from './defaultScript';
-   import { useIframeRunner } from './iframeRunner';
+   import { IFrameContext, useIframeRunner } from './iframeRunner';
    import { useJavascriptLib } from './javascriptLib';
    import { useMonacoEditor } from './monacoEditor';
    import { AnimationClient, AnimationPost, parseScript } from 'netled';
@@ -114,14 +125,31 @@
             return [];
          });
 
+         const frame = ref<Frame>([]);
+         const iframeContext = ref<IFrameContext>();
+         const isRunning = computed(() => !!iframeContext.value);
+         let intervalTimeout: number | undefined | null;
+
          const testScript = async () => {
             if (!content?.value?.trim()) { return; }
 
-            const frameContext = await useIframeRunner(content.value);
+            iframeContext.value = await useIframeRunner(content.value);
+            iframeContext.value.setNumLeds(144);
 
-            const frame = await frameContext.nextFrame();
-            console.log('Got frame', frame);
+            frame.value = [...await iframeContext.value.nextFrame()];
 
+            intervalTimeout = setInterval(async () => {
+               frame.value = [...await iframeContext.value.nextFrame()];
+            }, 50);
+
+         }
+
+         const stopScript = () => {
+            if (!iframeContext.value) { return; }
+            iframeContext.value.dispose();
+            iframeContext.value = null;
+            frame.value = [];
+            if (intervalTimeout) { clearInterval(intervalTimeout); intervalTimeout = null; }
          }
 
          const restClient = useRestClient();
@@ -145,9 +173,7 @@
             //
          }
 
-         const frame: Frame = [];
-
-         return { testScript, errorMessages, saveScript, test, frame, animationPost };
+         return { testScript, errorMessages, saveScript, test, frame, animationPost, isRunning, stopScript };
       }
    });
 

@@ -21,7 +21,7 @@ export function useJavascriptLib(): EditorConfig['javascriptLib'] {
             '        * Convert RGB byte array to hex code',
             '        * @param rgb - RGB values',
             '        */',
-            '        rbgToHed(rgb: [number, number, number]): string',
+            '        rbgToHex(rgb: [number, number, number]): string',
             '',
             '     }', //color
             '',
