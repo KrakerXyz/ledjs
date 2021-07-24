@@ -2,4 +2,5 @@
 export * from './RestClient';
 export * from './AnimationClient';
 
-export type Id = `${string}-${string}-${string}-${string}-${string}`;
+//Using this breaks typed-base
+//export type Id = `${string}-${string}-${string}-${string}-${string}`;

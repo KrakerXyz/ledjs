@@ -24,7 +24,12 @@
             "skipFiles": [
                 "<node_internals>/**"
             ],
+            "cwd": "${workspaceFolder}\\server",
             "program": "${workspaceFolder}\\server\\dist\\index.js",
+            "runtimeArgs": [
+                "--unhandled-rejections=strict",
+                "--require=dotenv/config"
+            ],
             "preLaunchTask": "build-server",
             "outFiles": [
                 "${workspaceFolder}/server/dist/**/*.js"

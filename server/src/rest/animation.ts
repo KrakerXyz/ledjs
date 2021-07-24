@@ -31,17 +31,21 @@ export const post: RouteHandler = async (req, res) => {
         return;
     }
 
-    const existingAnimation = await db.byId(animationPost.id);
+    const existingAnimation = await db.lastedById(animationPost.id, true);
 
     const animation: Animation = {
         ...animationPost,
         published: false,
-        version: (existingAnimation?.version ?? -1) + 1,
+        version: existingAnimation?.published ? existingAnimation.version + 1 : (existingAnimation?.version ?? 0),
         created: Date.now(),
         author: 'TestUser'
     };
 
-    await db.add(animation);
+    if (existingAnimation) {
+        await db.replace(animation);
+    } else {
+        await db.add(animation);
+    }
 
     const { script, ...animationMeta } = animation;
 

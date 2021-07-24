@@ -1,4 +1,4 @@
-import { Id } from '.';
+
 import { RestClient } from './RestClient';
 
 export class AnimationClient {
@@ -16,7 +16,7 @@ export class AnimationClient {
 }
 
 export interface Animation {
-    readonly id: Id;
+    readonly id: string;
     name: string;
     description?: string | null;
     script: string;
