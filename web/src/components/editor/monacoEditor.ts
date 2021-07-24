@@ -1,8 +1,8 @@
 
 import type * as monaco from 'monaco-editor';
-import { onMounted, onUnmounted, ref, Ref, watch } from 'vue';
+import { ComponentInternalInstance, onMounted, onUnmounted, ref, Ref, watch } from 'vue';
 
-export function useMonacoEditor(containerId: string, config?: Partial<EditorConfig>): { content: Ref<string>, errorMarkers: Ref<monaco.editor.IMarker[]> } {
+export function useMonacoEditor(containerId: string, config?: Partial<EditorConfig>, componentTarget?: ComponentInternalInstance): { content: Ref<string>, errorMarkers: Ref<monaco.editor.IMarker[]> } {
 
     const content = ref('');
     const errorMarkers = ref<monaco.editor.IMarker[]>([]);
@@ -20,6 +20,7 @@ export function useMonacoEditor(containerId: string, config?: Partial<EditorConf
             if (config?.javascriptLib) {
                 for (const k of Object.getOwnPropertyNames(config.javascriptLib)) {
                     const libUrl = `ts:filename/${k}.d.ts`;
+                    if (thisMonaco.languages.typescript.javascriptDefaults.getExtraLibs()[libUrl]) { continue; }
                     const lib = config.javascriptLib[k];
                     thisMonaco.languages.typescript.javascriptDefaults.addExtraLib(lib, libUrl);
                     thisMonaco.editor.createModel(lib, 'typescript', thisMonaco.Uri.parse(libUrl));
@@ -61,7 +62,7 @@ export function useMonacoEditor(containerId: string, config?: Partial<EditorConf
 
         onUnmounted(() => window.removeEventListener('resize', windowResized));
 
-    });
+    }, componentTarget);
 
     return { content, errorMarkers };
 }

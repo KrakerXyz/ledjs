@@ -87,27 +87,41 @@
 
 <script lang="ts">
 
-   import { computed, defineComponent, onUnmounted, reactive, ref, watch } from 'vue';
+   import { computed, defineComponent, getCurrentInstance, onUnmounted, reactive, ref, watch } from 'vue';
    import { useDefaultScript } from './defaultScript';
    import { IFrameContext, useIframeRunner } from './iframeRunner';
    import { useJavascriptLib } from './javascriptLib';
    import { useMonacoEditor } from './monacoEditor';
-   import { AnimationClient, AnimationPost, parseScript } from 'netled';
+   import { Animation, AnimationClient, AnimationPost, parseScript } from 'netled';
    import { useRestClient } from '../../services';
    import LedCanvas from '../LedCanvas.vue';
    import { Frame } from '../../color-utilities';
+   import { useRoute, useRouter } from 'vue-router';
+   import { v4 } from 'uuid';
 
    export default defineComponent({
       components: {
          LedCanvas
       },
-      setup() {
+      async setup() {
+
+         const componentInstance = getCurrentInstance();
+         const route = useRoute();
+         const router = useRouter();
+
+         const restClient = useRestClient();
+         const animationClient = new AnimationClient(restClient);
+
+         const animation: Partial<Animation> = route.params['animationId'] !== 'new' ? await animationClient.byId(route.params['animationId'] as string, true) : {
+            id: v4(),
+            script: useDefaultScript()
+         };
 
          const { content } = useMonacoEditor('editor-ide-container', {
             javascriptLib: useJavascriptLib()
-         });
+         }, componentInstance);
 
-         content.value = useDefaultScript();
+         content.value = animation.script;
 
          const scriptParseResult = computed(() => parseScript(content.value));
 
@@ -143,14 +157,11 @@
             if (intervalTimeout) { clearInterval(intervalTimeout); intervalTimeout = null; }
          }
 
-         const restClient = useRestClient();
-         const animationClient = new AnimationClient(restClient);
-
          const animationPost: AnimationPost = reactive({
-            id: '768e6520-3f0c-4fb8-8a16-1de5f6fc3577',
+            id: animation.id,
             script: content.value,
-            name: '',
-            description: ''
+            name: animation.name,
+            description: animation.description
          });
 
          watch(content, s => animationPost.script = s);
@@ -158,12 +169,15 @@
          const saveScript = async () => {
             await animationClient.post(animationPost);
             console.log('Saved animation');
+            if (route.params['animationId'] === 'new') {
+               router.replace({ params: { animationId: animationPost.id } });
+            }
          }
 
          onUnmounted(() => {
             if (iframeContext.value) { iframeContext.value.dispose(); }
             if (intervalTimeout) { clearInterval(intervalTimeout); }
-         })
+         }, componentInstance);
 
          return { testScript, errorMessages, saveScript, frame, animationPost, isRunning, stopScript };
       }
@@ -177,8 +191,8 @@
       position: absolute;
       top: var(--control-padding);
       left: var(--control-padding);
-      width: calc(100vw - var(--control-padding) * 2);
-      height: calc(100vh - var(--control-padding) * 2);
+      width: calc(100% - var(--control-padding) * 2);
+      height: calc(100% - var(--control-padding) * 2);
    }
 
    .col-right {

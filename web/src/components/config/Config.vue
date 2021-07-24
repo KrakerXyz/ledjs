@@ -215,12 +215,6 @@
 
          });
 
-         // watch(() => model.animationName, async name => {
-         //    const a = useAnimation(name);
-         //    a.setNumLeds(model.numLeds);
-         //    animationInstance.value = a;
-         // }, { immediate: true });
-
          watch(() => model.numLeds, async leds => {
             if (!leds) { return; }
             console.log('Num leds changed');

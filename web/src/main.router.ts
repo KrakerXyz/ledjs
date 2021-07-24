@@ -14,7 +14,7 @@ const routes: RouteRecordRaw[] = [
    },
    {
       name: 'editor',
-      path: '/editor',
+      path: '/editor/:animationId',
       component: () => import('./components/editor/Editor.vue')
    }
 ];
