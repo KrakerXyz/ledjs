@@ -9,7 +9,7 @@ export class AnimationDb {
         return this.entity.find({});
     }
 
-    public async lastedById(id: string, includeDraft: boolean = false): Promise<Animation | null> {
+    public async latestById(id: string, includeDraft: boolean = false): Promise<Animation | null> {
         const filter: Filter<Animation> = { id };
         if (!includeDraft) { (filter as any)['published'] = true; }
 

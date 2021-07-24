@@ -38,9 +38,6 @@
                >
                   Stop script
                </button>
-               <button class="btn btn-link p-0 ms-3" @click="test()">
-                  Test
-               </button>
 
                <div class="row mt-3">
                   <div class="col">
@@ -90,7 +87,7 @@
 
 <script lang="ts">
 
-   import { computed, defineComponent, reactive, ref, watch } from 'vue';
+   import { computed, defineComponent, onUnmounted, reactive, ref, watch } from 'vue';
    import { useDefaultScript } from './defaultScript';
    import { IFrameContext, useIframeRunner } from './iframeRunner';
    import { useJavascriptLib } from './javascriptLib';
@@ -163,11 +160,12 @@
             console.log('Saved animation');
          }
 
-         const test = () => {
-            //
-         }
+         onUnmounted(() => {
+            if (iframeContext.value) { iframeContext.value.dispose(); }
+            if (intervalTimeout) { clearInterval(intervalTimeout); }
+         })
 
-         return { testScript, errorMessages, saveScript, test, frame, animationPost, isRunning, stopScript };
+         return { testScript, errorMessages, saveScript, frame, animationPost, isRunning, stopScript };
       }
    });
 
@@ -175,7 +173,7 @@
 
 <style lang="postcss" scoped>
    #controls {
-      --control-padding: 120px;
+      --control-padding: 60px;
       position: absolute;
       top: var(--control-padding);
       left: var(--control-padding);

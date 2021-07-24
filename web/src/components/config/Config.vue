@@ -7,21 +7,6 @@
          <div class="d-flex flex-column h-100">
             <div class="flex-grow-1">
                <div class="row">
-                  <div class="col-lg-6 col-xl-3 mb-3">
-                     <div class="form-floating">
-                        <select
-                           id="c-animation"
-                           class="form-select"
-                           placeholder="*"
-                           v-model="model.animationName"
-                        >
-                           <option v-for="a of animations" :key="a" :value="a">
-                              {{ a }}
-                           </option>
-                        </select>
-                        <label for="c-animation">Animation</label>
-                     </div>
-                  </div>
                   <div class="col-lg-6 col-xl mb-3">
                      <label for="c-interval" class="form-label">
                         Interval:
@@ -129,23 +114,33 @@
 
 <script lang="ts">
 
-   import { useAnimation, useAvailableAnimations, useWebSocket, useAnimationConfigMeta, useThrottledProxy, WsMessage } from '../../services';
+   import { useWebSocket, useAnimationConfigMeta, useThrottledProxy, WsMessage, useRestClient } from '../../services';
    import { AnimationInstance, Config, ConfigMetaParam } from '../../animations';
-   import { computed, defineComponent, reactive, ref, watch } from 'vue';
+   import { computed, defineComponent, getCurrentInstance, onUnmounted, reactive, ref, watch } from 'vue';
+   import { useRoute } from 'vue-router';
    import LedCanvas from '../LedCanvas.vue';
    import { Frame } from '../../color-utilities';
+   import { AnimationClient } from 'netled';
+   import { useIframeRunner } from '../editor/iframeRunner';
 
    export default defineComponent({
       components: {
          LedCanvas
       },
-      setup() {
+      async setup() {
 
-         const animations = useAvailableAnimations();
+         const componentInstance = getCurrentInstance();
+
+         const route = useRoute()
+         const animationId = computed(() => route.params['animationId'] as string);
+
+         const restClient = useRestClient();
+         const animationClient = new AnimationClient(restClient);
+         const animation = await animationClient.byId(animationId.value, true);
+         const iframe = await useIframeRunner(animation.script);
 
          const modelJson = localStorage.getItem('config');
          const model: StorageModel = reactive({
-            animationName: animations[0],
             animationConfig: {},
             interval: 50,
             numLeds: 8,
@@ -154,16 +149,20 @@
             ...(modelJson ? JSON.parse(modelJson) : {})
          });
 
+         if (!model.numLeds) { model.numLeds = 8; }
+
+         await iframe.setNumLeds(model.numLeds);
+         const frame = ref<Frame>([]);
+         frame.value = await iframe.nextFrame();
+
          const selectedAnimationStoredConfig = computed(() => {
-            const json = localStorage.getItem(`${model.animationName}-config`);
+            const json = localStorage.getItem(`${animation.name}-config`);
             if (!json) { return {}; }
             const config: Config<any> = JSON.parse(json);
             return config;
          });
 
-         const animationInstance = ref<AnimationInstance<any>>();
-
-         const animationConfigMeta = computed(() => useAnimationConfigMeta(model.animationName));
+         const animationConfigMeta = computed(() => useAnimationConfigMeta(animation.name));
 
          const paramVms = computed(() => {
             const params = animationConfigMeta.value?.params ?? {};
@@ -190,26 +189,24 @@
             return config;
          });
 
-         const frame = ref<Frame>([]);
-         for (let i = 0; i < model.numLeds; i++) { frame.value.push([0, 0, 0]); }
-
-         watch(animationConfig, config => animationInstance.value?.setConfig(config), { immediate: true });
+         //watch(animationConfig, config => animationInstance.value?.setConfig(config), { immediate: true });
 
          const ws = useWebSocket();
 
          const wsLedSetupThrottle = useThrottledProxy((msg: WsMessage) => ws.sendMessage(msg), { timeout: 500 });
 
          watch([model, animationConfig], () => {
+            if (!model.numLeds) { return; }
 
             localStorage.setItem('config', JSON.stringify(model));
-            localStorage.setItem(`${model.animationName}-config`, JSON.stringify(animationConfig.value));
+            localStorage.setItem(`${animation.name}-config`, JSON.stringify(animationConfig.value));
 
             if (!model.autoPush) { return; }
 
             wsLedSetupThrottle({
                type: 'ledSetup',
                setup: {
-                  animationName: model.animationName,
+                  animationName: animation.name,
                   animationConfig: animationConfig.value,
                   numLeds: model.numLeds,
                   interval: model.interval
@@ -218,17 +215,17 @@
 
          });
 
-         watch(() => model.animationName, async name => {
-            const a = useAnimation(name);
-            a.setNumLeds(model.numLeds);
-            animationInstance.value = a;
-         }, { immediate: true });
+         // watch(() => model.animationName, async name => {
+         //    const a = useAnimation(name);
+         //    a.setNumLeds(model.numLeds);
+         //    animationInstance.value = a;
+         // }, { immediate: true });
 
-         watch(() => model.numLeds, leds => {
+         watch(() => model.numLeds, async leds => {
+            if (!leds) { return; }
             console.log('Num leds changed');
-            if (!animationInstance.value) { }
-            animationInstance.value?.setNumLeds(leds);
-            frame.value = animationInstance.value.nextFrame();
+            await iframe.setNumLeds(leds);
+            frame.value = await iframe.nextFrame();
          });
 
          let intervalTimeout: number | undefined;
@@ -236,19 +233,22 @@
          watch(() => model.interval, interval => {
             if (intervalTimeout) { clearInterval(intervalTimeout); }
 
-            intervalTimeout = setInterval(() => {
-               if (!animationInstance.value) { return; }
-               frame.value = [...animationInstance.value.nextFrame()];
+            intervalTimeout = setInterval(async () => {
+               frame.value = [...await iframe.nextFrame()];
             }, interval);
 
          }, { immediate: true });
 
-         return { animations, model, paramVms, frame };
+         onUnmounted(() => {
+            iframe.dispose();
+            if (intervalTimeout) { clearInterval(intervalTimeout); }
+         }, componentInstance);
+
+         return { model, paramVms, frame };
       }
    });
 
    interface StorageModel {
-      animationName: string;
       interval: number;
       numLeds: number;
       autoPush: boolean;
@@ -269,11 +269,11 @@
    }
 
    #controls {
-      --control-padding: 120px;
+      --control-padding: 60px;
       position: absolute;
       top: var(--control-padding);
       left: var(--control-padding);
-      width: calc(100vw - var(--control-padding) * 2);
-      height: calc(100vh - var(--control-padding) * 2);
+      width: calc(100% - var(--control-padding) * 2);
+      height: calc(100% - var(--control-padding) * 2);
    }
 </style>

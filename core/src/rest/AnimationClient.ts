@@ -6,11 +6,15 @@ export class AnimationClient {
     constructor(private readonly restClient: RestClient) { }
 
     public all<T extends boolean>(withScript?: T): Promise<T extends true ? Animation[] : AnimationMeta[]> {
-        return this.restClient.get('api/animations', { withScript });
+        return this.restClient.get('/api/animations', { withScript });
+    }
+
+    public byId(animationId: string, includeDraft?: boolean): Promise<Animation> {
+        return this.restClient.get(`/api/animations/${animationId}`, { includeDraft });
     }
 
     public post<AnimationMeta>(animation: AnimationPost): Promise<AnimationMeta> {
-        return this.restClient.post('api/animations', animation);
+        return this.restClient.post('/api/animations', animation);
     }
 
 }

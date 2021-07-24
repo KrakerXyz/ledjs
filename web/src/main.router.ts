@@ -3,7 +3,7 @@ import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router';
 
 const routes: RouteRecordRaw[] = [
    {
-      name: 'default',
+      name: 'animation-list',
       path: '/',
       component: () => import('./components/animation-list/AnimationList.vue')
    },

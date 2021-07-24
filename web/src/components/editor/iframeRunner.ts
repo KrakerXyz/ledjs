@@ -87,10 +87,10 @@ export function useIframeRunner(script: string): Promise<IFrameContext> {
                 }, '*');
             },
             dispose: () => {
-                if (disposed) { throw new Error('iframe has been disposed'); } {
-                    iframe.remove();
-                    disposed = true;
-                }
+                if (disposed) { throw new Error('iframe has been disposed'); }
+                iframe.remove();
+                disposed = true;
+                window.removeEventListener('message', onMessage);
             }
         }
 

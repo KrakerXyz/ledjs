@@ -1,6 +1,8 @@
 
 <template>
-   <canvas ref="can" class="d-block"></canvas>
+   <div class="h-100 overflow-hidden" ref="wrapper">
+      <canvas ref="can" class="d-block"></canvas>
+   </div>
 </template>
 
 <script lang="ts">
@@ -17,10 +19,33 @@
 
          const frame = toRef(props, 'frame');
 
+         const wrapper = ref<HTMLDivElement>();
+
          const can = ref<HTMLCanvasElement>();
 
          let ctx = ref<CanvasRenderingContext2D | null>();
-         let canvasDimensions: [number, number] = [window.innerWidth, window.innerHeight];
+
+         let canvasDimensions: [number, number] = [0, 0];
+
+         const setCanvasDimension = () => {
+            if (!wrapper.value) { return; }
+            const style = getComputedStyle(wrapper.value);
+            const width = wrapper.value.clientWidth - parseFloat(style.paddingLeft) - parseFloat(style.paddingRight);
+            const height = wrapper.value.clientHeight - parseFloat(style.paddingTop) - parseFloat(style.paddingBottom);
+
+            canvasDimensions[0] = width;
+            canvasDimensions[1] = height;
+
+            if (!can.value) { return; }
+            if (!ctx) { return; }
+            can.value.width = width;
+            can.value.height = height;
+
+            if (!frame || !ctx.value) { return; }
+            draw(ctx.value, frame.value, canvasDimensions);
+         };
+
+         watch(wrapper, () => setCanvasDimension());
 
          watch(frame, f => {
             if (!ctx.value) { return; }
@@ -30,12 +55,8 @@
          window.addEventListener('resize', () => {
             if (!can.value) { return; }
             if (!ctx) { return; }
-            can.value.width = window.innerWidth;
-            can.value.height = window.innerHeight;
-            canvasDimensions = [window.innerWidth, window.innerHeight];
 
-            if (!frame || !ctx.value) { return; }
-            draw(ctx.value, frame.value, canvasDimensions);
+            setCanvasDimension();
          });
 
          const canWatchStop = watch(can, () => {
@@ -53,7 +74,7 @@
             canWatchStop();
          });
 
-         return { can };
+         return { can, wrapper };
       }
    });
 

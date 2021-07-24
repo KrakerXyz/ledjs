@@ -20,6 +20,7 @@ server.register(fastifyWebsocket, { options: { perMessageDeflate: true } });
 const webSocketManager = new WebSocketManager();
 server.get('/api/ws', { websocket: true }, webSocketManager.handler);
 
+server.get('/api/animations/:animationId', rest.animation.getById);
 server.get('/api/animations', rest.animation.get);
 server.post('/api/animations', rest.animation.post);
 

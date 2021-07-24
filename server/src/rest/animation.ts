@@ -9,6 +9,18 @@ export const get: RouteHandler = async (req, res) => {
     res.send(all);
 }
 
+export const getById: RouteHandler = async (req, res) => {
+    const animationId = (req.params as any)['animationId'];
+    const db = new AnimationDb();
+    const animation = await db.latestById(animationId, (req.query as any)['includeDraft'] === 'true');
+    if (!animation) {
+        res.status(404).send({ error: 'An animation with that id does not exist' });
+        return;
+    }
+
+    res.status(200).send(animation);
+}
+
 export const post: RouteHandler = async (req, res) => {
     const animationPost = req.body as AnimationPost;
     if (!animationPost) {
@@ -31,7 +43,7 @@ export const post: RouteHandler = async (req, res) => {
         return;
     }
 
-    const existingAnimation = await db.lastedById(animationPost.id, true);
+    const existingAnimation = await db.latestById(animationPost.id, true);
 
     const animation: Animation = {
         ...animationPost,
