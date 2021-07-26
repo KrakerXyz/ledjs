@@ -163,7 +163,7 @@
             return config;
          });
 
-         const paramVms = reactive(Object.getOwnPropertyNames(configMeta.params).map(k => {
+         const paramVms = reactive(Object.getOwnPropertyNames(configMeta.params ?? {}).map(k => {
             const vm: ParamVm = {
                name: k,
                meta: configMeta.params[k],
