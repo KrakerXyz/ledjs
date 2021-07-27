@@ -114,11 +114,11 @@
 
 <script lang="ts">
 
-   import { useWebSocket, useThrottledProxy, WsMessage, useRestClient } from '../../services';
+   import { useWebSocket, useThrottledProxy, useRestClient } from '../../services';
    import { computed, defineComponent, getCurrentInstance, onUnmounted, reactive, ref, watch } from 'vue';
    import { useRoute } from 'vue-router';
    import LedCanvas from '../LedCanvas.vue';
-   import { AnimationClient, Config, ConfigMetaParam } from 'netled';
+   import { AnimationClient, Config, ConfigMetaParam, WsMessage } from 'netled';
    import { useIframeRunner } from '../editor/iframeRunner';
    import { Frame } from 'netled';
 
