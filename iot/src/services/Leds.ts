@@ -1,8 +1,8 @@
-import { Animation } from 'src/animations';
-import { Frame } from 'src/color-utilities';
+
 import rpio from 'rpio';
-import { useAnimation } from './animationService';
 import { deepEquals } from './deepEquals';
+import { Animator, Frame, WsLedsSetup } from 'netled';
+import { useAnimation } from '.';
 
 export class Leds {
 
@@ -11,23 +11,35 @@ export class Leds {
         rpio.spiSetClockDivider(100);
     }
 
-    private _animation: Animation<any> | undefined;
+    private _animation: Animator<any> | undefined;
 
-    private _lastSetup: LedsSetup | null = null;
-    public setup(setup: LedsSetup) {
+    private _lastSetup: WsLedsSetup | null = null;
+    public async setup(setup: WsLedsSetup): Promise<void> {
 
-        if (setup.animationName !== this._lastSetup?.animationName) {
-            this._animation = useAnimation(setup.animationName);
+        if (setup.animation.id !== this._lastSetup?.animation.id && setup.animation.version !== this._lastSetup?.animation.version) {
+
+            this._animation = await useAnimation(setup.animation.id, setup.animation.version);
             this._animation.setNumLeds(setup.numLeds);
-            if (setup.animationConfig) { this._animation.setConfig(setup.animationConfig); }
+            if (setup.animation.config) {
+                if (this._animation.setConfig) {
+                    this._animation.setConfig(setup.animation.config);
+                } else {
+                    console.warn('Got a config for an animator that has no setConfig method. Ignoring.');
+                }
+            }
+
         } else {
 
             if (setup.numLeds !== this._lastSetup?.numLeds) {
                 this._animation?.setNumLeds(setup.numLeds);
             }
 
-            if (setup.animationConfig && !deepEquals(setup.animationConfig, this._lastSetup?.animationConfig)) {
-                this._animation?.setConfig(setup.animationConfig);
+            if (this._animation && setup.animation.config && !deepEquals(setup.animation.config, this._lastSetup?.animation.config)) {
+                if (this._animation.setConfig) {
+                    this._animation.setConfig(setup.animation.config);
+                } else {
+                    console.warn('Got a config for an animator that has no setConfig method. Ignoring.');
+                }
             }
 
         }
@@ -60,9 +72,9 @@ export class Leds {
             const buffPos = (i * 4) + 4; //We add in 4 to account for the leading reset bytes
 
             buffer[buffPos] = 224 + 4; //Brightness
-            buffer[buffPos + 1] = frame[i][2]; //B
-            buffer[buffPos + 2] = frame[i][1]; //G
-            buffer[buffPos + 3] = frame[i][0]; //R
+            buffer[buffPos + 1] = frame[i][3]; //B
+            buffer[buffPos + 2] = frame[i][2]; //G
+            buffer[buffPos + 3] = frame[i][1]; //R
 
         }
 
@@ -70,11 +82,4 @@ export class Leds {
 
     }
 
-}
-
-export interface LedsSetup {
-    animationName: string;
-    animationConfig?: Record<string, any>;
-    numLeds: number;
-    interval: number;
 }
