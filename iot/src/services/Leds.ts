@@ -16,7 +16,7 @@ export class Leds {
     private _lastSetup: WsLedsSetup | null = null;
     public async setup(setup: WsLedsSetup): Promise<void> {
 
-        if (setup.animation.id !== this._lastSetup?.animation.id && setup.animation.version !== this._lastSetup?.animation.version) {
+        if (setup.animation.id !== this._lastSetup?.animation.id || setup.animation.version !== this._lastSetup?.animation.version) {
             console.log(`Loading animation ${setup.animation.id}:${setup.animation.version}`);
             this._animation = await useAnimation(setup.animation.id, setup.animation.version);
             this._animation.setNumLeds(setup.numLeds);
