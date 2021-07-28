@@ -18,7 +18,7 @@ const server = fastify({ logger: true });
 server.register(fastifyWebsocket, { options: { perMessageDeflate: true } });
 
 const webSocketManager = new WebSocketManager();
-server.get('/api/ws', { websocket: true }, webSocketManager.handler);
+server.get('/ws', { websocket: true }, webSocketManager.handler);
 
 server.get('/api/animations/:animationId/script', rest.animation.scriptById);
 server.get('/api/animations/:animationId', rest.animation.getById);

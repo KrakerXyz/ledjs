@@ -37,7 +37,7 @@ export const scriptById: RouteHandler = async (req, res) => {
         return;
     }
 
-    res.status(200).send(animation);
+    res.status(200).header('Content-Type', 'text/javascript').send(animation.script);
 };
 
 export const post: RouteHandler = async (req, res) => {

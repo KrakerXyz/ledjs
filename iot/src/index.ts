@@ -1,17 +1,13 @@
 
-import { Leds, LedsSetup } from './services';
+import { Leds } from './services';
 import WebSocket from 'ws';
+import { WsMessage } from 'netled';
 
 console.log('Initializing leds');
 const leds = new Leds();
-leds.setup({
-    animationName: 'Rainbow',
-    interval: 50,
-    numLeds: 8
-});
 
 console.log('Starting WebSocket');
-const ws = new WebSocket('ws://localhost:3001/api/ws?device-id=raspi-netled-1&token=raspi-netled-1');
+const ws = new WebSocket('ws://localhost:3001/ws?device-id=raspi-netled-1&token=raspi-netled-1');
 
 ws.addEventListener('open', () => {
     console.log('WebSocket opened');
@@ -34,16 +30,10 @@ ws.addEventListener('message', e => {
         switch (message.type) {
             case 'ledSetup': {
                 console.log('Updating Leds setup');
-                leds.setup(message.setup);
+                leds.setup(message.data);
             }
         }
     } catch (e) {
         console.error(`Error parsing incoming WebSocket message - ${e}`);
     }
 });
-
-
-type WsMessage = {
-    type: 'ledSetup',
-    setup: LedsSetup
-}

@@ -43,17 +43,17 @@ export function useIframeRunner(script: string): Promise<IFrameContext> {
                 }, '${origin}');
             } else if(e.data.type === 'setNumLeds') {
                 instance.setNumLeds(e.data.numLeds);
-                console.log('IFrame: setNumLeds(' + e.data.numLeds + ')');
+                console.debug('IFrame: setNumLeds(' + e.data.numLeds + ')');
             } else if(e.data.type === 'getConfigMeta') {
                 const meta = script.default.configMeta;
-                console.log('IFrame: got configMeta', meta);
+                console.debug('IFrame: got configMeta', meta);
                 window.parent.postMessage({
                     messageId: e.data.messageId,
                     response: meta ?? {}
                 }, '${origin}');
             } else if(e.data.type === 'setConfig') {
                 instance.setConfig(e.data.config);
-                console.log('IFrame: setConfig(' + JSON.stringify(e.data.config) + ')');
+                console.debug('IFrame: setConfig(' + JSON.stringify(e.data.config) + ')');
                 window.parent.postMessage({
                     messageId: e.data.messageId
                 }, '${origin}');
@@ -61,11 +61,13 @@ export function useIframeRunner(script: string): Promise<IFrameContext> {
                 console.warn('Received unknown message type from parent - ' + e.data.type);
             }
         });
+
+        console.debug('IFrame: posting Initialized');
         window.parent.postMessage('Initialized', '${origin}');
 
     })();
  
-<\\script><\\body><\\html>
+</script></body></html>
 
         `;
 
@@ -141,7 +143,7 @@ export function useIframeRunner(script: string): Promise<IFrameContext> {
             if (evt.origin !== 'null') { return; }
 
             if (evt.data === 'Initialized') {
-                console.log('IFrame initialized');
+                console.debug('IFrame initialized');
                 r(frameContext);
                 return;
             }
@@ -169,6 +171,7 @@ export function useIframeRunner(script: string): Promise<IFrameContext> {
 
         window.addEventListener('message', onMessage);
 
+        console.debug('Inserting iframe');
         document.body.appendChild(iframe);
 
     });

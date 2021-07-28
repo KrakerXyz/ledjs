@@ -5,19 +5,31 @@ type Query = Record<string, OrArray<string> | OrArray<boolean> | OrArray<number>
 
 export class RestClient {
 
-    private readonly axios = axios.create({
-    });
+    public readonly origin: string = 'http://localhost:3001';
+    private readonly axiosInstance;
+
+    public constructor(config?: Partial<RestConfig>) {
+        if (config?.origin) { this.origin = config.origin; }
+
+        this.axiosInstance = axios.create({
+            baseURL: this.origin
+        });
+    }
 
     public get<T>(path: string, query?: Query): Promise<T> {
-        return this.axios.get(path, {
+        return this.axiosInstance.get(path, {
             params: query
         }).then(r => r.data);
     }
 
     public post<T>(path: string, data: any, query?: Query): Promise<T> {
-        return this.axios.post(path, data, {
+        return this.axiosInstance.post(path, data, {
             params: query
         }).then(r => r.data);
     }
 
+}
+
+export interface RestConfig {
+    origin: `${'http' | 'https'}://${string}`;
 }

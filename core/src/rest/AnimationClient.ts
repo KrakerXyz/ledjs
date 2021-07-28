@@ -1,4 +1,5 @@
 
+import { AnimatorType, ConfigMeta } from '../animation';
 import { RestClient } from './RestClient';
 
 export class AnimationClient {
@@ -13,8 +14,9 @@ export class AnimationClient {
         return this.restClient.get(`/api/animations/${animationId}`, { includeDraft });
     }
 
-    public scriptById(animationId: string, version: number): Promise<string> {
-        return this.restClient.get(`/api/animations/${animationId}/script`, { version });
+    public async importScriptById<TMeta extends ConfigMeta = any>(animationId: string, version: number): Promise<AnimatorType<TMeta>> {
+        const module = await import(`${this.restClient.origin}/api/animations/${animationId}/script?version=${version}`);
+        return module.default;
     }
 
     public post<AnimationMeta>(animation: AnimationPost): Promise<AnimationMeta> {
