@@ -120,7 +120,7 @@
          const restClient = useRestClient();
          const animationClient = new AnimationClient(restClient);
 
-         const animation: Partial<Animation> = route.params['animationId'] !== 'new' ? await animationClient.latestById(route.params['animationId'] as string, true) : {
+         const animation: Partial<Animation> = route.params['animationId'] !== 'new' ? await animationClient.latest(route.params['animationId'] as string, true) : {
             id: v4(),
             script: useDefaultScript()
          };
@@ -175,7 +175,7 @@
          const contentStopHandle = watch(content, s => animationPost.script = s);
 
          const saveScript = async () => {
-            await animationClient.post(animationPost);
+            await animationClient.saveDraft(animationPost);
             console.log('Saved animation');
             if (route.params['animationId'] === 'new') {
                router.replace({ params: { animationId: animationPost.id } });

@@ -17,7 +17,7 @@ export class Leds {
     public async setup(setup: WsLedsSetup): Promise<void> {
 
         if (setup.animation.id !== this._lastSetup?.animation.id && setup.animation.version !== this._lastSetup?.animation.version) {
-
+            console.log(`Loading animation ${setup.animation.id}:${setup.animation.version}`);
             this._animation = await useAnimation(setup.animation.id, setup.animation.version);
             this._animation.setNumLeds(setup.numLeds);
             if (setup.animation.config) {
@@ -31,11 +31,13 @@ export class Leds {
         } else {
 
             if (setup.numLeds !== this._lastSetup?.numLeds) {
+                console.log(`Updating animator numLeds to ${setup.numLeds}`);
                 this._animation?.setNumLeds(setup.numLeds);
             }
 
             if (this._animation && setup.animation.config && !deepEquals(setup.animation.config, this._lastSetup?.animation.config)) {
                 if (this._animation.setConfig) {
+                    console.log('Updating animator config');
                     this._animation.setConfig(setup.animation.config);
                 } else {
                     console.warn('Got a config for an animator that has no setConfig method. Ignoring.');
@@ -55,6 +57,7 @@ export class Leds {
     private _intervalTimeout: NodeJS.Timeout | undefined;
     private setInterval(interval: number) {
         if (this._intervalTimeout) { clearInterval(this._intervalTimeout); }
+        console.log(`Set draw interval to ${interval}ms`);
         this._intervalTimeout = setInterval(() => {
             const frame = this._animation?.nextFrame();
             if (!frame) { return; }

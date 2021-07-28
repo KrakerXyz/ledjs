@@ -1,25 +1,23 @@
 
-import { AnimatorType, ConfigMeta } from '../animation';
 import { RestClient } from './RestClient';
 
 export class AnimationClient {
 
     constructor(private readonly restClient: RestClient) { }
 
-    public all<T extends boolean>(withScript?: T): Promise<T extends true ? Animation[] : AnimationMeta[]> {
+    public list<T extends boolean>(withScript?: T): Promise<T extends true ? Animation[] : AnimationMeta[]> {
         return this.restClient.get('/api/animations', { withScript });
     }
 
-    public latestById(animationId: string, includeDraft?: boolean): Promise<Animation> {
+    public latest(animationId: string, includeDraft?: boolean): Promise<Animation> {
         return this.restClient.get(`/api/animations/${animationId}`, { includeDraft });
     }
 
-    public async importScriptById<TMeta extends ConfigMeta = any>(animationId: string, version: number): Promise<AnimatorType<TMeta>> {
-        const module = await import(`${this.restClient.origin}/api/animations/${animationId}/script?version=${version}`);
-        return module.default;
+    public async script(animationId: string, version: number): Promise<string> {
+        return this.restClient.get(`/api/animations/${animationId}/script`, { version });
     }
 
-    public post<AnimationMeta>(animation: AnimationPost): Promise<AnimationMeta> {
+    public saveDraft<AnimationMeta>(animation: AnimationPost): Promise<AnimationMeta> {
         return this.restClient.post('/api/animations', animation);
     }
 

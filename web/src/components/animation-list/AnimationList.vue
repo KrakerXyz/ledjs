@@ -54,7 +54,7 @@
          const animationClient = new AnimationClient(restClient);
 
          const animations = ref<AnimationMeta[]>();
-         animationClient.all().then(a => animations.value = a);
+         animationClient.list().then(a => animations.value = a);
 
          return { animations };
       }

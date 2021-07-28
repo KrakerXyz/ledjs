@@ -153,7 +153,7 @@
 
          const restClient = useRestClient();
          const animationClient = new AnimationClient(restClient);
-         const animation = await animationClient.latestById(animationId.value, true);
+         const animation = await animationClient.latest(animationId.value, true);
          const iframe = await useIframeRunner(animation.script);
 
          const modelJson = localStorage.getItem('config');

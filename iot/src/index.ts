@@ -29,8 +29,8 @@ ws.addEventListener('message', e => {
         console.log(`Incoming WebSocket message: ${message.type}`);
         switch (message.type) {
             case 'ledSetup': {
-                console.log('Updating Leds setup');
                 leds.setup(message.data);
+                break;
             }
         }
     } catch (e) {
