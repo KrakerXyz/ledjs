@@ -6,8 +6,11 @@ import { WsMessage } from 'netled';
 console.log('Initializing leds');
 const leds = new Leds();
 
-console.log('Starting WebSocket');
-const ws = new WebSocket('ws://localhost:3001/ws?device-id=raspi-netled-1&token=raspi-netled-1');
+const myArgs = process.argv.splice(2);
+const wsAddress = myArgs[0] ?? 'localhost:3001';
+
+console.log(`Starting WebSocket @ ${wsAddress}`);
+const ws = new WebSocket(`ws://${wsAddress}/ws?device-id=raspi-netled-1&token=raspi-netled-1`);
 
 ws.addEventListener('open', () => {
     console.log('WebSocket opened');
