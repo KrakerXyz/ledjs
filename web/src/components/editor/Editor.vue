@@ -1,19 +1,28 @@
 
 <template>
    <div class="h-100">
-      <led-canvas id="canvas" :frame="frame"></led-canvas>
+      <led-canvas
+         id="canvas"
+         :frame="frame"
+      />
 
-      <div id="controls" class="row border border-dark shadow g-0">
+      <div
+         id="controls"
+         class="row border border-dark shadow g-0"
+      >
          <!-- The positioning here was to get monaco to resize to fill the col. -->
          <div class="col position-relative">
             <div
                id="editor-ide-container"
                class="h-100 w-100 position-absolute"
-            ></div>
+            />
          </div>
 
          <div class="col-auto col-right p-1">
-            <div class="list-group" v-if="errorMessages.length">
+            <div
+               class="list-group"
+               v-if="errorMessages.length"
+            >
                <div
                   class="list-group-item bg-danger text-white p-1"
                   v-for="(e, i) of errorMessages"
@@ -61,7 +70,7 @@
                            class="form-control"
                            placeholder="*"
                            v-model.trim="animationPost.description"
-                        ></textarea>
+                        />
                         <label for="editor-script-description">
                            Description
                         </label>
@@ -92,10 +101,9 @@
    import { IFrameContext, useIframeRunner } from './iframeRunner';
    import { useJavascriptLib } from './javascriptLib';
    import { useMonacoEditor } from './monacoEditor';
-   import { Animation, AnimationClient, AnimationPost, parseScript } from 'netled';
+   import { Animation, AnimationClient, AnimationPost, Frame, parseScript } from 'netled';
    import { useRestClient } from '../../services';
    import LedCanvas from '../LedCanvas.vue';
-   import { Frame } from '../../color-utilities';
    import { useRoute, useRouter } from 'vue-router';
    import { v4 } from 'uuid';
 
@@ -112,7 +120,7 @@
          const restClient = useRestClient();
          const animationClient = new AnimationClient(restClient);
 
-         const animation: Partial<Animation> = route.params['animationId'] !== 'new' ? await animationClient.byId(route.params['animationId'] as string, true) : {
+         const animation: Partial<Animation> = route.params['animationId'] !== 'new' ? await animationClient.latestById(route.params['animationId'] as string, true) : {
             id: v4(),
             script: useDefaultScript()
          };
@@ -126,7 +134,7 @@
          const scriptParseResult = computed(() => parseScript(content.value));
 
          const errorMessages = computed(() => {
-            if (scriptParseResult.value.valid === false) { return scriptParseResult.value.errors }
+            if (scriptParseResult.value.valid === false) { return scriptParseResult.value.errors; }
             return [];
          });
 
@@ -147,7 +155,7 @@
                frame.value = [...await iframeContext.value.nextFrame()];
             }, 50);
 
-         }
+         };
 
          const stopScript = () => {
             if (!iframeContext.value) { return; }
@@ -155,7 +163,7 @@
             iframeContext.value = null;
             frame.value = [];
             if (intervalTimeout) { clearInterval(intervalTimeout); intervalTimeout = null; }
-         }
+         };
 
          const animationPost: AnimationPost = reactive({
             id: animation.id,
@@ -164,7 +172,7 @@
             description: animation.description
          });
 
-         watch(content, s => animationPost.script = s);
+         const contentStopHandle = watch(content, s => animationPost.script = s);
 
          const saveScript = async () => {
             await animationClient.post(animationPost);
@@ -172,11 +180,12 @@
             if (route.params['animationId'] === 'new') {
                router.replace({ params: { animationId: animationPost.id } });
             }
-         }
+         };
 
          onUnmounted(() => {
             if (iframeContext.value) { iframeContext.value.dispose(); }
             if (intervalTimeout) { clearInterval(intervalTimeout); }
+            contentStopHandle();
          }, componentInstance);
 
          return { testScript, errorMessages, saveScript, frame, animationPost, isRunning, stopScript };

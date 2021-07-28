@@ -5,7 +5,7 @@ export function useThrottledProxy<T>(callback: (...args: T[]) => any, options?: 
     let toSave: T[];
     let isQueued = false;
 
-    const timeout = options?.timeout ?? 500
+    const timeout = options?.timeout ?? 500;
     let nextCallTime = Date.now();
 
     return (...args: T[]) => {

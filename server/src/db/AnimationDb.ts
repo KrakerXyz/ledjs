@@ -23,6 +23,17 @@ export class AnimationDb {
         return null;
     }
 
+    public byId(id: string, version: number): Promise<Animation | null> {
+        const filter: Filter<Writeable<Animation>> = { id, version };
+
+        const cur = this.entity.findOneAsync(
+            filter
+        );
+
+        return cur;
+    }
+
+
     public add(animation: Animation): Promise<void> {
         return this.entity.insertAsync(animation);
     }

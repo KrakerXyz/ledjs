@@ -1,7 +1,13 @@
 
 <template>
-   <div class="h-100 overflow-hidden" ref="wrapper">
-      <canvas ref="can" class="d-block"></canvas>
+   <div
+      class="h-100 overflow-hidden"
+      ref="wrapper"
+   >
+      <canvas
+         ref="can"
+         class="d-block"
+      ></canvas>
    </div>
 </template>
 
@@ -37,11 +43,11 @@
             canvasDimensions[1] = height;
 
             if (!can.value) { return; }
-            if (!ctx) { return; }
+            if (!ctx.value) { return; }
             can.value.width = width;
             can.value.height = height;
 
-            if (!frame || !ctx.value) { return; }
+            if (!frame.value || !ctx.value) { return; }
             draw(ctx.value, frame.value, canvasDimensions);
          };
 
@@ -54,7 +60,7 @@
 
          window.addEventListener('resize', () => {
             if (!can.value) { return; }
-            if (!ctx) { return; }
+            if (!ctx.value) { return; }
 
             setCanvasDimension();
          });

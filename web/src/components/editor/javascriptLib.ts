@@ -9,7 +9,7 @@ export function useJavascriptLib(): EditorConfig['javascriptLib'] {
             '',
             '     color: {',
             '',
-            '        /**', ,
+            '        /**',
             '        * Converts HSL values to a [A, R, G, B] value. The alpha for the returned array is hardcoded to 255',
             '        * @param h Hue as a number between 0-360',
             '        * @param s Saturation as a number between 0-100',
@@ -40,5 +40,5 @@ export function useJavascriptLib(): EditorConfig['javascriptLib'] {
             '',
             '}'
         ].join('\r\n')
-    }
+    };
 }

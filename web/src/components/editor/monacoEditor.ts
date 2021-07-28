@@ -32,11 +32,12 @@ export function useMonacoEditor(containerId: string, config?: Partial<EditorConf
                 language: 'javascript',
                 renderValidationDecorations: 'off',
                 theme: 'vs-dark'
-            }) as monaco.editor.IStandaloneCodeEditor
+            }) as monaco.editor.IStandaloneCodeEditor;
 
             let isOutgoingValue = false;
             editor.onDidChangeModelContent(() => {
-                const newContent = editor!.getValue();
+                if (!editor) { return; }
+                const newContent = editor.getValue();
                 isOutgoingValue = true;
                 content.value = newContent;
             });

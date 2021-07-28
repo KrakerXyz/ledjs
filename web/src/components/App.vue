@@ -1,6 +1,9 @@
 
 <template>
-   <div id="app-wrapper" class="vh-100 bg-light d-flex flex-column">
+   <div
+      id="app-wrapper"
+      class="vh-100 bg-light d-flex flex-column"
+   >
       <div class="navbar navbar-expand navbar-dark bg-dark sticky-top">
          <div class="container">
             <div class="d-flex">
@@ -36,12 +39,8 @@
 <script lang="ts">
 
    import { defineComponent } from 'vue';
-   import LedCanvas from './LedCanvas.vue';
 
    export default defineComponent({
-      components: {
-         LedCanvas
-      },
       setup() {
          return {};
       }

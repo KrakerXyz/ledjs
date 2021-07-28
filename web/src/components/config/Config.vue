@@ -1,14 +1,23 @@
 
 <template>
    <div class="h-100">
-      <led-canvas id="canvas" :frame="frame"></led-canvas>
+      <led-canvas
+         id="canvas"
+         :frame="frame"
+      ></led-canvas>
 
-      <div id="controls" class="border border-dark shadow p-3">
+      <div
+         id="controls"
+         class="border border-dark shadow p-3"
+      >
          <div class="d-flex flex-column h-100">
             <div class="flex-grow-1">
                <div class="row">
                   <div class="col-lg-6 col-xl mb-3">
-                     <label for="c-interval" class="form-label">
+                     <label
+                        for="c-interval"
+                        class="form-label"
+                     >
                         Interval:
                         <input
                            class="interval"
@@ -49,7 +58,10 @@
                      </div>
                   </div>
                   <div class="col-lg-6 col-xl-2 mb-3">
-                     <label for="c-brightness" class="form-label">
+                     <label
+                        for="c-brightness"
+                        class="form-label"
+                     >
                         Brightness: {{ model.brightness }}
                      </label>
                      <input
@@ -97,13 +109,19 @@
                         id="c-auto-push"
                         v-model="model.autoPush"
                      />
-                     <label class="form-check-label" for="c-auto-push">
+                     <label
+                        class="form-check-label"
+                        for="c-auto-push"
+                     >
                         Auto-Push to Devices
                      </label>
                   </div>
                </div>
 
-               <div class="col-1" v-if="!model.autoPush">
+               <div
+                  class="col-1"
+                  v-if="!model.autoPush"
+               >
                   <button class="btn btn-primary w-100">Push</button>
                </div>
             </div>
@@ -130,12 +148,12 @@
 
          const componentInstance = getCurrentInstance();
 
-         const route = useRoute()
+         const route = useRoute();
          const animationId = computed(() => route.params['animationId'] as string);
 
          const restClient = useRestClient();
          const animationClient = new AnimationClient(restClient);
-         const animation = await animationClient.byId(animationId.value, true);
+         const animation = await animationClient.latestById(animationId.value, true);
          const iframe = await useIframeRunner(animation.script);
 
          const modelJson = localStorage.getItem('config');
@@ -175,7 +193,7 @@
          const animationConfig = computed(() => {
             const config: Record<string, string | number | boolean> = {};
             for (const v of paramVms) {
-               let value: string | number | boolean = v.value;;
+               let value: string | number | boolean = v.value;
                switch (v.meta.type) {
                   case 'number': value = parseFloat(value.toString()); break;
                   case 'boolean': value = value === 'true'; break;
@@ -185,13 +203,13 @@
             return config;
          });
 
-         watch(animationConfig, config => iframe.setConfig(config), { immediate: true });
+         const animationConfigWatchStop = watch(animationConfig, config => iframe.setConfig(config), { immediate: true });
 
          const ws = useWebSocket();
 
          const wsLedSetupThrottle = useThrottledProxy((msg: WsMessage) => ws.sendMessage(msg), { timeout: 500 });
 
-         watch([model, animationConfig], () => {
+         const modelAnimationConfigWatchStop = watch([model, animationConfig], () => {
             if (!model.numLeds) { return; }
 
             localStorage.setItem('config', JSON.stringify(model));
@@ -201,9 +219,12 @@
 
             wsLedSetupThrottle({
                type: 'ledSetup',
-               setup: {
-                  animationName: animation.name,
-                  animationConfig: animationConfig.value,
+               data: {
+                  animation: {
+                     id: animation.id,
+                     version: animation.version,
+                     config: animationConfig.value
+                  },
                   numLeds: model.numLeds,
                   interval: model.interval
                }
@@ -211,7 +232,7 @@
 
          });
 
-         watch(() => model.numLeds, async leds => {
+         const numLedsWatchStop = watch(() => model.numLeds, async leds => {
             if (!leds) { return; }
             console.log('Num leds changed');
             await iframe.setNumLeds(leds);
@@ -220,7 +241,7 @@
 
          let intervalTimeout: number | undefined;
 
-         watch(() => model.interval, interval => {
+         const intervalWatchStop = watch(() => model.interval, interval => {
             if (intervalTimeout) { clearInterval(intervalTimeout); }
 
             intervalTimeout = setInterval(async () => {
@@ -232,6 +253,10 @@
          onUnmounted(() => {
             iframe.dispose();
             if (intervalTimeout) { clearInterval(intervalTimeout); }
+            animationConfigWatchStop();
+            intervalWatchStop();
+            numLedsWatchStop();
+            modelAnimationConfigWatchStop();
          }, componentInstance);
 
          return { model, paramVms, frame };

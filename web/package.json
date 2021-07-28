@@ -10,8 +10,8 @@
   "license": "MIT",
   "scripts": {
     "start": "vite",
-    "build": "vuedx-typecheck . && vite build",
-    "lint": "eslint src/**/*.{ts,vue}"
+    "build": "vite build",
+    "lint": "vuedx-typecheck . && eslint src/**/*.{ts,vue}"
   },
   "dependencies": {
     "@babel/parser": "^7.14.8",

@@ -65,7 +65,7 @@ export function useIframeRunner(script: string): Promise<IFrameContext> {
 
     })();
  
-<\/script><\/body><\/html>
+<\\script><\\body><\\html>
 
         `;
 
@@ -135,7 +135,7 @@ export function useIframeRunner(script: string): Promise<IFrameContext> {
                 disposed = true;
                 window.removeEventListener('message', onMessage);
             }
-        }
+        };
 
         const onMessage = (evt: MessageEvent) => {
             if (evt.origin !== 'null') { return; }
@@ -165,7 +165,7 @@ export function useIframeRunner(script: string): Promise<IFrameContext> {
             }
             delete awaitingResponse[messageId];
 
-        }
+        };
 
         window.addEventListener('message', onMessage);
 

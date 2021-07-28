@@ -9,8 +9,12 @@ export class AnimationClient {
         return this.restClient.get('/api/animations', { withScript });
     }
 
-    public byId(animationId: string, includeDraft?: boolean): Promise<Animation> {
+    public latestById(animationId: string, includeDraft?: boolean): Promise<Animation> {
         return this.restClient.get(`/api/animations/${animationId}`, { includeDraft });
+    }
+
+    public scriptById(animationId: string, version: number): Promise<string> {
+        return this.restClient.get(`/api/animations/${animationId}/script`, { version });
     }
 
     public post<AnimationMeta>(animation: AnimationPost): Promise<AnimationMeta> {
