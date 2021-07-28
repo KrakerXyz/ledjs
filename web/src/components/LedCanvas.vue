@@ -21,7 +21,10 @@
       props: {
          frame: { type: Array as () => Frame }
       },
-      setup(props) {
+      emits: {
+         drawError: (e: any) => !!e
+      },
+      setup(props, { emit }) {
 
          const frame = toRef(props, 'frame');
 
@@ -55,7 +58,11 @@
 
          watch(frame, f => {
             if (!ctx.value) { return; }
-            draw(ctx.value, f, canvasDimensions);
+            try {
+               draw(ctx.value, f, canvasDimensions);
+            } catch (e) {
+               emit('drawError', e);
+            }
          });
 
          window.addEventListener('resize', () => {
@@ -75,7 +82,11 @@
             can.value.width = window.innerWidth;
             can.value.height = window.innerHeight;
 
-            draw(ctx.value, frame.value, canvasDimensions);
+            try {
+               draw(ctx.value, frame.value, canvasDimensions);
+            } catch (e) {
+               emit('drawError', e);
+            }
 
             canWatchStop();
          });
@@ -112,7 +123,12 @@
 
       let outOfRoom = false;
 
-      for (const led of frame) {
+      for (let i = 0; i < frame.length; i++) {
+         const led = frame[i];
+
+         if (led.length !== 4) { throw new Error(`LED ${i} length != 4`); }
+         if (led.some(l => typeof l !== 'number')) { throw new Error(`LED ${i} has non-numeric value`); }
+
          ctx.fillStyle = outOfRoom ? '#FF0000' : rgbToHex(led);
 
          ctx.beginPath();

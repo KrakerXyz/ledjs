@@ -2,7 +2,7 @@ import { Config, ConfigMeta, Frame, hslToRgb, rgbToHex, rotateFrame } from 'netl
 
 export function useIframeRunner(script: string): Promise<IFrameContext> {
 
-    return new Promise<IFrameContext>(r => {
+    return new Promise<IFrameContext>((r, rej) => {
 
         const origin = `${window.location.protocol}//${window.location.host}`;
 
@@ -27,43 +27,71 @@ export function useIframeRunner(script: string): Promise<IFrameContext> {
             }
         };
 
-        const script = await import(scriptUrl);
+        let instance = null;
 
-        if (!script.default) { throw new Error('default not found'); }
-        const instance = new script.default();
-        if (!instance.nextFrame) { throw new Error('nextFrame not found'); }
+        try {
+            const script = await import(scriptUrl);
 
-        window.addEventListener('message', e => { 
-            if(e.origin !== '${origin}') { return; }
-            if(e.data.type === 'nextFrame') {
-                const frame = instance.nextFrame();
+            if (!script.default) { throw new Error('default not found'); }
+            instance = new script.default();
+            if (!instance.nextFrame) { throw new Error('nextFrame not found'); }
+
+        } catch(e) {
+            window.parent.postMessage({
+                type: 'initializationError',
+                error: e
+            }, '${origin}');
+            return;
+        }
+
+        window.addEventListener('message', e => {
+            try {
+                if(e.origin !== '${origin}') { return; }
+
+                if(e.data.type === 'nextFrame') {
+                    const frame = instance.nextFrame();
+                    window.parent.postMessage({
+                        messageId: e.data.messageId,
+                        response: frame
+                    }, '${origin}');
+
+                } else if(e.data.type === 'setNumLeds') {
+                    instance.setNumLeds(e.data.numLeds);
+                    console.debug('IFrame: setNumLeds(' + e.data.numLeds + ')');
+                    window.parent.postMessage({
+                        messageId: e.data.messageId
+                    }, '${origin}');
+
+                } else if(e.data.type === 'getConfigMeta') {
+                    const meta = script.default.configMeta;
+                    console.debug('IFrame: got configMeta', meta);
+                    window.parent.postMessage({
+                        messageId: e.data.messageId,
+                        response: meta ?? {}
+                    }, '${origin}');
+
+                } else if(e.data.type === 'setConfig') {
+                    instance.setConfig(e.data.config);
+                    console.debug('IFrame: setConfig(' + JSON.stringify(e.data.config) + ')');
+                    window.parent.postMessage({
+                        messageId: e.data.messageId
+                    }, '${origin}');
+
+                } else {
+                    console.warn('Received unknown message type from parent - ' + e.data.type);
+
+                }
+            } catch(err) {
                 window.parent.postMessage({
                     messageId: e.data.messageId,
-                    response: frame
+                    srcData: e.data,
+                    error: err
                 }, '${origin}');
-            } else if(e.data.type === 'setNumLeds') {
-                instance.setNumLeds(e.data.numLeds);
-                console.debug('IFrame: setNumLeds(' + e.data.numLeds + ')');
-            } else if(e.data.type === 'getConfigMeta') {
-                const meta = script.default.configMeta;
-                console.debug('IFrame: got configMeta', meta);
-                window.parent.postMessage({
-                    messageId: e.data.messageId,
-                    response: meta ?? {}
-                }, '${origin}');
-            } else if(e.data.type === 'setConfig') {
-                instance.setConfig(e.data.config);
-                console.debug('IFrame: setConfig(' + JSON.stringify(e.data.config) + ')');
-                window.parent.postMessage({
-                    messageId: e.data.messageId
-                }, '${origin}');
-            } else {
-                console.warn('Received unknown message type from parent - ' + e.data.type);
             }
         });
 
         console.debug('IFrame: posting Initialized');
-        window.parent.postMessage('Initialized', '${origin}');
+        window.parent.postMessage({type:'initialized'}, '${origin}');
 
     })();
  
@@ -78,7 +106,7 @@ export function useIframeRunner(script: string): Promise<IFrameContext> {
         iframe.sandbox.add('allow-scripts');
         iframe.style.display = 'none';
 
-        const awaitingResponse: Record<number, { resolve: (...args: any[]) => void, reject: () => void }> = {};
+        const awaitingResponse: Record<number, { resolve: (...args: any[]) => void, reject: (...args: any[]) => void }> = {};
 
         let disposed = false;
         const frameContext: IFrameContext = {
@@ -95,12 +123,21 @@ export function useIframeRunner(script: string): Promise<IFrameContext> {
                     messageId++;
                 });
             },
-            setNumLeds(numLeds) {
+            setNumLeds: (numLeds) => {
                 if (disposed) { throw new Error('iframe has been disposed'); }
-                iframe.contentWindow!.postMessage({
-                    type: 'setNumLeds',
-                    numLeds
-                }, '*');
+
+                return new Promise<void>((resolve, reject) => {
+                    awaitingResponse[messageId] = { resolve, reject };
+
+                    iframe.contentWindow!.postMessage({
+                        messageId,
+                        type: 'setNumLeds',
+                        numLeds
+                    }, '*');
+
+                    messageId++;
+                });
+
             },
             getConfigMeta: () => {
                 if (disposed) { throw new Error('iframe has been disposed'); }
@@ -142,19 +179,34 @@ export function useIframeRunner(script: string): Promise<IFrameContext> {
         const onMessage = (evt: MessageEvent) => {
             if (evt.origin !== 'null') { return; }
 
-            if (evt.data === 'Initialized') {
+            if (evt.data.type === 'initialized') {
                 console.debug('IFrame initialized');
                 r(frameContext);
                 return;
             }
 
+            if (evt.data.type === 'initializationError') {
+                rej(evt.data.error);
+                return;
+            }
+
             const messageId = evt.data.messageId;
+            const prom = awaitingResponse[messageId];
+
+            if (evt.data.error) {
+                if (prom) {
+                    prom.reject(evt.data.error);
+                } else {
+                    console.error('Got error from IFrame');
+                }
+                return;
+            }
+
             if (messageId === undefined) {
                 console.warn('Message from iframe did not have messageId', evt);
                 return;
             }
 
-            const prom = awaitingResponse[messageId];
             if (!prom) {
                 console.warn(`messageId ${messageId} not found`, evt);
                 return;
@@ -179,7 +231,7 @@ export function useIframeRunner(script: string): Promise<IFrameContext> {
 }
 
 export interface IFrameContext {
-    setNumLeds(numLeds: number): void;
+    setNumLeds(numLeds: number): Promise<void>;
     nextFrame(): Promise<Frame>;
     getConfigMeta(): Promise<ConfigMeta>;
     setConfig(config: Config<any>): Promise<void>;

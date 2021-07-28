@@ -18,7 +18,7 @@ export function useDefaultScript(): string {
         '   setNumLeds(numLeds) {',
         '      this.#frame = [];',
         '      for (let i = 0; i < numLeds; i++) {',
-        '         this.#frame.push([0, 0, 0]);',
+        '         this.#frame.push([0, 0, 0, 0]);',
         '      }',
         '   }',
         '',

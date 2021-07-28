@@ -4,6 +4,7 @@
       <led-canvas
          id="canvas"
          :frame="frame"
+         @drawError="onDrawError($event)"
       />
 
       <div
@@ -19,76 +20,86 @@
          </div>
 
          <div class="col-auto col-right p-1">
+
+            <button
+               v-if="!isRunning"
+               class="btn btn-link p-0"
+               @click="testScript()"
+            >
+               Test script
+            </button>
+
             <div
-               class="list-group"
+               v-if="executionError"
+               class="alert alert-danger px-1 py-0 mt-2 small"
+            >
+               {{executionError}}
+            </div>
+
+            <button
+               v-if="isRunning"
+               class="btn btn-link p-0"
+               @click="stopScript()"
+            >
+               Stop script
+            </button>
+
+            <div class="row mt-3">
+               <div class="col">
+                  <div class="form-floating">
+                     <input
+                        id="editor-script-name"
+                        class="form-control"
+                        placeholder="*"
+                        v-model.trim="animationPost.name"
+                     />
+                     <label for="editor-script-name">Animation Name</label>
+                  </div>
+               </div>
+            </div>
+
+            <div class="row mt-3">
+               <div class="col">
+                  <div class="form-floating">
+                     <textarea
+                        id="editor-script-description"
+                        class="form-control"
+                        placeholder="*"
+                        v-model.trim="animationPost.description"
+                     />
+                     <label for="editor-script-description">
+                        Description
+                     </label>
+                  </div>
+               </div>
+            </div>
+
+            <div
+               v-if="!executionError && !errorMessages.length"
+               class="row mt-2"
+            >
+               <div class="col">
+                  <button
+                     class="btn btn-primary w-100"
+                     @click="saveScript()"
+                  >
+                     Save Draft
+                  </button>
+               </div>
+            </div>
+
+            <div
+               class="mt-3"
                v-if="errorMessages.length"
             >
                <div
-                  class="list-group-item bg-danger text-white p-1"
+                  class="alert alert-danger px-1 py-0 small"
                   v-for="(e, i) of errorMessages"
                   :key="i"
                >
                   <small>{{ e }}</small>
                </div>
             </div>
-
-            <template v-else>
-               <button
-                  v-if="!isRunning"
-                  class="btn btn-link p-0 ms-3"
-                  @click="testScript()"
-               >
-                  Test script
-               </button>
-               <button
-                  v-if="isRunning"
-                  class="btn btn-link p-0 ms-3"
-                  @click="stopScript()"
-               >
-                  Stop script
-               </button>
-
-               <div class="row mt-3">
-                  <div class="col">
-                     <div class="form-floating">
-                        <input
-                           id="editor-script-name"
-                           class="form-control"
-                           placeholder="*"
-                           v-model.trim="animationPost.name"
-                        />
-                        <label for="editor-script-name">Animation Name</label>
-                     </div>
-                  </div>
-               </div>
-
-               <div class="row mt-3">
-                  <div class="col">
-                     <div class="form-floating">
-                        <textarea
-                           id="editor-script-description"
-                           class="form-control"
-                           placeholder="*"
-                           v-model.trim="animationPost.description"
-                        />
-                        <label for="editor-script-description">
-                           Description
-                        </label>
-                     </div>
-                  </div>
-               </div>
-
-               <div class="row mt-2">
-                  <div class="col">
-                     <button
-                        class="btn btn-primary w-100"
-                        @click="saveScript()"
-                     >
-                        Save Draft
-                     </button>
-                  </div>
-               </div>
-            </template>
          </div>
       </div>
    </div>
@@ -134,7 +145,7 @@
          const scriptParseResult = computed(() => parseScript(content.value));
 
          const errorMessages = computed(() => {
-            if (scriptParseResult.value.valid === false) { return scriptParseResult.value.errors; }
+            if (scriptParseResult.value.valid === false) { return scriptParseResult.value.errors.filter(e => e !== 'Script parsing failed'); }
             return [];
          });
 
@@ -143,17 +154,40 @@
          const isRunning = computed(() => !!iframeContext.value);
          let intervalTimeout: number | undefined | null;
 
+         const executionError = ref<string>();
          const testScript = async () => {
             if (!content?.value?.trim()) { return; }
 
-            iframeContext.value = await useIframeRunner(content.value);
-            iframeContext.value.setNumLeds(144);
+            executionError.value = undefined;
 
-            frame.value = [...await iframeContext.value.nextFrame()];
+            try {
+               iframeContext.value = await useIframeRunner(content.value);
 
-            intervalTimeout = setInterval(async () => {
-               frame.value = [...await iframeContext.value.nextFrame()];
-            }, 50);
+               try {
+                  await iframeContext.value.setNumLeds(144);
+               } catch (e) {
+                  throw new Error(`setNumLeds: ${e}`);
+               }
+
+               try {
+                  frame.value = [...await iframeContext.value.nextFrame()];
+               } catch (e) {
+                  throw new Error(`nextFrame: ${e}`);
+               }
+
+               intervalTimeout = setInterval(async () => {
+                  try {
+                     frame.value = [...await iframeContext.value.nextFrame()];
+                  } catch (e) {
+                     executionError.value = `nextFrame: ${e}`;
+                     stopScript();
+                  }
+               }, 50);
+
+            } catch (e) {
+               executionError.value = e.toString();
+               stopScript();
+            }
 
          };
 
@@ -182,13 +216,18 @@
             }
          };
 
+         const onDrawError = (e: any) => {
+            executionError.value = `draw: ${e}`;
+            stopScript();
+         };
+
          onUnmounted(() => {
             if (iframeContext.value) { iframeContext.value.dispose(); }
             if (intervalTimeout) { clearInterval(intervalTimeout); }
             contentStopHandle();
          }, componentInstance);
 
-         return { testScript, errorMessages, saveScript, frame, animationPost, isRunning, stopScript };
+         return { testScript, errorMessages, saveScript, frame, animationPost, isRunning, stopScript, executionError, onDrawError };
       }
    });
 
