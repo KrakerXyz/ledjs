@@ -14,13 +14,9 @@
         "forceConsistentCasingInFileNames": true,
         "importHelpers": true,
         "removeComments": true,
-        "outDir": "./dist",
-        "rootDirs": [
-            "src",
-        ],
-        "lib": [
-            "esnext"
-        ],
-        "baseUrl": "."
-    }
+        "outDir": "dist",
+    },
+    "include": [
+        "./src/**/*"
+    ]
 }
