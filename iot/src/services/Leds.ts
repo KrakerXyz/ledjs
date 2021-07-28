@@ -66,22 +66,29 @@ export class Leds {
         }, interval);
     }
 
+    private _buffer: Buffer | null = null;
     private rpioDraw(frame: Frame) {
 
-        const buffer = Buffer.alloc((frame.length * 4) + 4, '00000000', 'hex');
+        if (!this._buffer || this._buffer.length !== frame.length + 8) {
+            this._buffer = Buffer.alloc((frame.length * 4) + 8, '00000000', 'hex');
+            this._buffer[frame.length - 1] = 255;
+            this._buffer[frame.length - 2] = 255;
+            this._buffer[frame.length - 3] = 255;
+            this._buffer[frame.length - 4] = 255;
+        }
 
         for (let i = 0; i < frame.length; i++) {
 
             const buffPos = (i * 4) + 4; //We add in 4 to account for the leading reset bytes
 
-            buffer[buffPos] = 224 + 4; //Brightness
-            buffer[buffPos + 1] = frame[i][3]; //B
-            buffer[buffPos + 2] = frame[i][2]; //G
-            buffer[buffPos + 3] = frame[i][1]; //R
+            this._buffer[buffPos] = 224 + 4; //Brightness
+            this._buffer[buffPos + 1] = frame[i][3]; //B
+            this._buffer[buffPos + 2] = frame[i][2]; //G
+            this._buffer[buffPos + 3] = frame[i][1]; //R
 
         }
 
-        rpio.spiWrite(buffer, buffer.length);
+        rpio.spiWrite(this._buffer, this._buffer.length);
 
     }
 

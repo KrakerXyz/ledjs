@@ -230,7 +230,7 @@
                }
             });
 
-         });
+         }, { immediate: true });
 
          const numLedsWatchStop = watch(() => model.numLeds, async leds => {
             if (!leds) { return; }
