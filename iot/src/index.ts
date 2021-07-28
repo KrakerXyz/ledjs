@@ -1,16 +1,18 @@
 
-import { Leds } from './services';
+import { Leds, useRestClient } from './services';
 import WebSocket from 'ws';
 import { WsMessage } from 'netled';
+
+const myArgs = process.argv.splice(2);
+const remoteAddress = myArgs[0] ?? 'localhost:3000';
+
+useRestClient(remoteAddress);
 
 console.log('Initializing leds');
 const leds = new Leds();
 
-const myArgs = process.argv.splice(2);
-const wsAddress = myArgs[0] ?? 'localhost:3001';
-
-console.log(`Starting WebSocket @ ${wsAddress}`);
-const ws = new WebSocket(`ws://${wsAddress}/ws?device-id=raspi-netled-1&token=raspi-netled-1`);
+console.log(`Starting WebSocket @ ${remoteAddress}`);
+const ws = new WebSocket(`ws://${remoteAddress}/ws?device-id=raspi-netled-1&token=raspi-netled-1`);
 
 ws.addEventListener('open', () => {
     console.log('WebSocket opened');

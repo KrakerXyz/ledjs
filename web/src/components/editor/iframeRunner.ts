@@ -28,9 +28,10 @@ export function useIframeRunner(script: string): Promise<IFrameContext> {
         };
 
         let instance = null;
+        let script = null;
 
         try {
-            const script = await import(scriptUrl);
+            script = await import(scriptUrl);
 
             if (!script.default) { throw new Error('default not found'); }
             instance = new script.default();
