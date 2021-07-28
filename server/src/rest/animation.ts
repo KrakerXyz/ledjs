@@ -1,5 +1,5 @@
-import { RouteHandler } from 'fastify'
-import { AnimationDb } from '../db'
+import { RouteHandler } from 'fastify';
+import { AnimationDb } from '../db';
 import { awaitAll } from '../services';
 import { Animation, AnimationPost, parseScript } from 'netled';
 
@@ -7,7 +7,7 @@ export const get: RouteHandler = async (req, res) => {
     const db = new AnimationDb();
     const all = await awaitAll(db.all());
     res.send(all);
-}
+};
 
 export const getById: RouteHandler = async (req, res) => {
     const animationId = (req.params as any)['animationId'];
@@ -19,7 +19,7 @@ export const getById: RouteHandler = async (req, res) => {
     }
 
     res.status(200).send(animation);
-}
+};
 
 export const scriptById: RouteHandler = async (req, res) => {
     const animationId = (req.params as any)['animationId'];
@@ -38,7 +38,7 @@ export const scriptById: RouteHandler = async (req, res) => {
     }
 
     res.status(200).send(animation);
-}
+};
 
 export const post: RouteHandler = async (req, res) => {
     const animationPost = req.body as AnimationPost;
@@ -82,4 +82,4 @@ export const post: RouteHandler = async (req, res) => {
 
     res.send(201).send(animationMeta);
 
-}
+};

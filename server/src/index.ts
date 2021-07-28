@@ -10,7 +10,7 @@ console.log('Configuring db');
 configureDb({
     dbName: 'netled',
     uri: getRequiredConfig(EnvKey.DbConnectionString)
-})
+});
 
 console.log('Initializing Fastify');
 
