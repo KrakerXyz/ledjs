@@ -8,7 +8,7 @@ export class Leds {
 
     public constructor() {
         rpio.spiBegin();
-        rpio.spiSetClockDivider(100); // 250mhz / 100
+        rpio.spiSetClockDivider(22); // 250mhz / 100
     }
 
     private _animation: Animator<any> | undefined;
