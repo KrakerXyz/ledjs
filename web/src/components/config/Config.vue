@@ -25,16 +25,52 @@
                         />ms
 
                         <button
+                           class="btn btn-primary py-0 px-2"
+                           @click="model.interval = 16"
+                        >
+                           60fps
+                        </button>
+
+                        <button
                            class="btn btn-primary py-0 px-2 ms-1"
                            @click="model.interval = 33"
                         >
                            30fps
                         </button>
+
                         <button
                            class="btn btn-primary py-0 px-2 ms-1"
-                           @click="model.interval = 16"
+                           @click="model.interval = 66"
                         >
-                           60fps
+                           15fps
+                        </button>
+
+                        <button
+                           class="btn btn-primary py-0 px-2 ms-1"
+                           @click="model.interval = 200"
+                        >
+                           5fps
+                        </button>
+
+                        <button
+                           class="btn btn-primary py-0 px-2 ms-1"
+                           @click="model.interval = 500"
+                        >
+                           2fps
+                        </button>
+
+                        <button
+                           class="btn btn-primary py-0 px-2 ms-1"
+                           @click="model.interval = 1000"
+                        >
+                           1fps
+                        </button>
+
+                        <button
+                           class="btn btn-primary py-0 px-2 ms-1"
+                           @click="model.interval = 2000"
+                        >
+                           0.5fps
                         </button>
                      </label>
                      <input
@@ -42,7 +78,7 @@
                         class="form-range"
                         id="c-interval"
                         min="1"
-                        max="500"
+                        max="2000"
                         v-model.number="model.interval"
                      />
                   </div>
