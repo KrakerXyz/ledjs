@@ -9,8 +9,8 @@ export class WebSocketManager {
         console.log('Incoming WS connection');
 
         let wsConnection: WsConnection | undefined;
-        let did: string | undefined;
-        if (did = (request.query as Record<string, string>)['device-id']) {
+        const did: string | undefined = (request.query as Record<string, string>)['device-id'];
+        if (did) {
             wsConnection = {
                 type: 'device',
                 id: did,

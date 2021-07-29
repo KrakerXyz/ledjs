@@ -14,13 +14,15 @@
         "forceConsistentCasingInFileNames": true,
         "importHelpers": true,
         "removeComments": true,
-        "outDir": "./dist",
-        "rootDirs": [
-            "src",
-        ],
-        "lib": [
-            "esnext"
-        ],
-        "baseUrl": "."
-    }
+        "outDir": "dist",
+        "plugins": [
+            {
+                "transform": "@krakerxyz/typed-base/dist/cjs/transformer/transformer",
+                "collectionNamingStrategy": "kebab"
+            }
+        ]
+    },
+    "include": [
+        "./src/**/*"
+    ]
 }

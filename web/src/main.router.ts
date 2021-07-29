@@ -1,12 +1,21 @@
 
-import { createRouter, createWebHistory, NavigationGuardWithThis, RouteLocationNormalized, RouteRecordRaw } from 'vue-router';
-import App from './components/App.vue';
+import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router';
 
 const routes: RouteRecordRaw[] = [
    {
-      name: 'default',
+      name: 'animation-list',
       path: '/',
-      component: App
+      component: () => import('./components/animation-list/AnimationList.vue')
+   },
+   {
+      name: 'config',
+      path: '/config/:animationId',
+      component: () => import('./components/config/Config.vue')
+   },
+   {
+      name: 'editor',
+      path: '/editor/:animationId',
+      component: () => import('./components/editor/Editor.vue')
    }
 ];
 

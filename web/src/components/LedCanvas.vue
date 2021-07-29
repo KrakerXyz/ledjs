@@ -1,132 +1,174 @@
 
 <template>
-   <canvas ref="can" class="d-block"></canvas>
+   <div
+      class="h-100 overflow-hidden"
+      ref="wrapper"
+   >
+      <canvas
+         ref="can"
+         class="d-block"
+      ></canvas>
+   </div>
 </template>
 
 <script lang="ts">
 
-import { useAnimationContext } from '../services';
-import { defineComponent, watch, ref, toRef } from 'vue';
-import { Frame, rgbToHex } from '../color-utilities';
+   import { Frame, rgbToHex } from 'netled';
+   import { defineComponent, watch, ref, toRef } from 'vue';
 
 
-export default defineComponent({
-   setup() {
+   export default defineComponent({
+      props: {
+         frame: { type: Array as () => Frame }
+      },
+      emits: {
+         drawError: (e: any) => !!e
+      },
+      setup(props, { emit }) {
 
-      const can = ref<HTMLCanvasElement>();
+         const frame = toRef(props, 'frame');
 
-      let ctx = ref<CanvasRenderingContext2D | null>();
-      let canvasDimensions: [number, number] = [window.innerWidth, window.innerHeight];
-      let frame: Frame | undefined;
-      let interval: number | undefined | null;
+         const wrapper = ref<HTMLDivElement>();
 
-      const animationContext = useAnimationContext();
+         const can = ref<HTMLCanvasElement>();
 
-      watch(animationContext.interval, i => {
-         if (interval) { clearInterval(interval); }
-         interval = setInterval(() => {
+         let ctx = ref<CanvasRenderingContext2D | null>();
+
+         let canvasDimensions: [number, number] = [0, 0];
+
+         const setCanvasDimension = () => {
+            if (!wrapper.value) { return; }
+            const style = getComputedStyle(wrapper.value);
+            const width = wrapper.value.clientWidth - parseFloat(style.paddingLeft) - parseFloat(style.paddingRight);
+            const height = wrapper.value.clientHeight - parseFloat(style.paddingTop) - parseFloat(style.paddingBottom);
+
+            canvasDimensions[0] = width;
+            canvasDimensions[1] = height;
+
+            if (!can.value) { return; }
             if (!ctx.value) { return; }
-            if (!animationContext.animation.value) { return; }
-            frame = animationContext.animation.value.nextFrame();
-            draw(ctx.value, frame, canvasDimensions);
-         }, i);
-      }, { immediate: true });
+            can.value.width = width;
+            can.value.height = height;
 
-      window.addEventListener('resize', () => {
-         if (!can.value) { return; }
-         if (!ctx) { return; }
-         can.value.width = window.innerWidth;
-         can.value.height = window.innerHeight;
-         canvasDimensions = [window.innerWidth, window.innerHeight];
+            if (!frame.value || !ctx.value) { return; }
+            draw(ctx.value, frame.value, canvasDimensions);
+         };
 
-         if (!frame || !ctx.value) { return; }
-         draw(ctx.value, frame, canvasDimensions);
-      });
+         watch(wrapper, () => setCanvasDimension());
 
-      watch(can, () => {
+         watch(frame, f => {
+            if (!ctx.value) { return; }
+            try {
+               draw(ctx.value, f, canvasDimensions);
+            } catch (e) {
+               emit('drawError', e);
+            }
+         });
 
-         if (!can.value) { return; }
-         ctx.value = can.value.getContext('2d');
-         if (!ctx) { return; }
+         window.addEventListener('resize', () => {
+            if (!can.value) { return; }
+            if (!ctx.value) { return; }
 
-         can.value.width = window.innerWidth;
-         can.value.height = window.innerHeight;
+            setCanvasDimension();
+         });
 
-      });
+         const canWatchStop = watch(can, () => {
 
-      return { can };
-   }
-});
+            if (!can.value) { return; }
+            ctx.value = can.value.getContext('2d');
+            if (!ctx.value) { return; }
 
-const pi2 = Math.PI * 2;
-const lineWidth = 1;
-const padding = 2;
-const radius = 10;
+            canvasDimensions = [window.innerWidth, window.innerHeight];
+            can.value.width = window.innerWidth;
+            can.value.height = window.innerHeight;
 
-function draw(ctx: CanvasRenderingContext2D, frame: Frame, canvasDimensions: [number, number]) {
+            try {
+               draw(ctx.value, frame.value, canvasDimensions);
+            } catch (e) {
+               emit('drawError', e);
+            }
 
-   ctx.clearRect(0, 0, canvasDimensions[0], canvasDimensions[1]);
+            canWatchStop();
+         });
 
-   let xPos = radius + lineWidth;
-   let yPos = radius + lineWidth;
+         return { can, wrapper };
+      }
+   });
 
-   const ledDimension = (radius * 2) + (padding / 2) + (lineWidth * 2);
+   const pi2 = Math.PI * 2;
+   const lineWidth = 1;
+   const padding = 2;
+   const radius = 10;
 
-   const numX = Math.floor(canvasDimensions[0] / ledDimension);
-   const numY = Math.floor(canvasDimensions[1] / ledDimension) - 1;
+   function draw(ctx: CanvasRenderingContext2D, frame: Frame, canvasDimensions: [number, number]) {
 
-   if (lineWidth) {
-      ctx.lineWidth = lineWidth;
-      ctx.strokeStyle = '#000';
-   }
+      ctx.clearRect(0, 0, canvasDimensions[0], canvasDimensions[1]);
 
-   let dir = 1;
+      let xPos = radius + lineWidth;
+      let yPos = radius + lineWidth;
 
-   let numDir = 0;
+      const ledDimension = (radius * 2) + (padding / 2) + (lineWidth * 2);
 
-   let outOfRoom = false;
+      const numX = Math.floor(canvasDimensions[0] / ledDimension);
+      const numY = Math.floor(canvasDimensions[1] / ledDimension) - 1;
 
-   for (const led of frame) {
-      ctx.fillStyle = outOfRoom ? '#FF0000' : rgbToHex(led);
+      if (lineWidth) {
+         ctx.lineWidth = lineWidth;
+         ctx.strokeStyle = '#000';
+      }
 
-      ctx.beginPath();
-      ctx.arc(xPos, yPos, radius, 0, pi2, false);
-      ctx.closePath();
-      ctx.fill();
-      if (lineWidth) { ctx.stroke(); }
+      let dir = 1;
 
-      if (outOfRoom) { break; }
+      let numDir = 0;
 
-      numDir++;
+      let outOfRoom = false;
 
-      if (dir === 1) {
-         if (numDir === numX) {
-            yPos = ledDimension + radius + lineWidth;
-            dir = 2;
-            numDir = 1;
+      for (let i = 0; i < frame.length; i++) {
+         const led = frame[i];
+
+         if (led.length !== 4) { throw new Error(`LED ${i} length != 4`); }
+         if (led.some(l => typeof l !== 'number')) { throw new Error(`LED ${i} has non-numeric value`); }
+
+         ctx.fillStyle = outOfRoom ? '#FF0000' : rgbToHex(led);
+
+         ctx.beginPath();
+         ctx.arc(xPos, yPos, radius, 0, pi2, false);
+         ctx.closePath();
+         ctx.fill();
+         if (lineWidth) { ctx.stroke(); }
+
+         if (outOfRoom) { break; }
+
+         numDir++;
+
+         if (dir === 1) {
+            if (numDir === numX) {
+               yPos = ledDimension + radius + lineWidth;
+               dir = 2;
+               numDir = 1;
+            } else {
+               xPos += ledDimension;
+            }
+         } else if (dir === 2) {
+            yPos += ledDimension;
+            if (numDir === numY) {
+               dir = 3;
+               numDir = 1;
+            }
+         } else if (dir === 3) {
+            xPos -= ledDimension;
+            if (numDir === numX) {
+               dir = 4;
+               numDir = 0;
+            }
          } else {
-            xPos += ledDimension;
-         }
-      } else if (dir === 2) {
-         yPos += ledDimension;
-         if (numDir === numY) {
-            dir = 3;
-            numDir = 1;
-         }
-      } else if (dir === 3) {
-         xPos -= ledDimension;
-         if (numDir === numX) {
-            dir = 4;
-            numDir = 0;
-         }
-      } else {
-         yPos -= ledDimension;
-         if (numDir === numY) {
-            outOfRoom = true;
+            yPos -= ledDimension;
+            if (numDir === numY) {
+               outOfRoom = true;
+            }
          }
       }
-   }
 
-}
+   }
 
 </script>

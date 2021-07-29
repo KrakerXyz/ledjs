@@ -1,14 +1,38 @@
 {
     "cSpell.words": [
+        "ARGB",
         "Leds",
         "cooldown",
+        "eitmuf",
         "fastify",
         "fastled",
         "heatramp",
         "netled",
+        "parameterless",
         "prestart",
         "raspi",
-        "rpio"
+        "referrerpolicy",
+        "rpio",
+        "ttsc",
+        "ttypescript",
+        "typecheck"
     ],
-    "typescript.tsdk": "node_modules\\typescript\\lib"
+    "typescript.tsdk": "node_modules\\typescript\\lib",
+    "html.format.wrapAttributes": "aligned-multiple",
+    "html.format.wrapLineLength": 0,
+    "typescript.preferences.quoteStyle": "single",
+    "javascript.preferences.quoteStyle": "single",
+    "vetur.format.defaultFormatter.html": "js-beautify-html",
+    "vetur.format.defaultFormatterOptions": {
+        "js-beautify-html": {
+            "wrap_attributes": "force-expand-multiline",
+            "indent_handlebars": true,
+            "indent_inner_html": true
+        }
+    },
+    "vetur.experimental.templateInterpolationService": true,
+    "vetur.format.options.tabSize": 3,
+    "vetur.format.scriptInitialIndent": true,
+    "vetur.format.styleInitialIndent": true,
+    "vetur.format.defaultFormatter.ts": "vscode-typescript"
 }

@@ -1,17 +1,18 @@
 
-import { Leds, LedsSetup } from './services';
+import { Leds, useRestClient } from './services';
 import WebSocket from 'ws';
+import { WsMessage } from 'netled';
+
+const myArgs = process.argv.splice(2);
+const remoteAddress = myArgs[0] ?? 'localhost:3000';
+
+useRestClient(remoteAddress);
 
 console.log('Initializing leds');
 const leds = new Leds();
-leds.setup({
-    animationName: 'Rainbow',
-    interval: 50,
-    numLeds: 8
-});
 
-console.log('Starting WebSocket');
-const ws = new WebSocket('ws://localhost:3001/api/ws?device-id=raspi-netled-1&token=raspi-netled-1');
+console.log(`Starting WebSocket @ ${remoteAddress}`);
+const ws = new WebSocket(`ws://${remoteAddress}/ws?device-id=raspi-netled-1&token=raspi-netled-1`);
 
 ws.addEventListener('open', () => {
     console.log('WebSocket opened');
@@ -33,17 +34,11 @@ ws.addEventListener('message', e => {
         console.log(`Incoming WebSocket message: ${message.type}`);
         switch (message.type) {
             case 'ledSetup': {
-                console.log('Updating Leds setup');
-                leds.setup(message.setup);
+                leds.setup(message.data);
+                break;
             }
         }
     } catch (e) {
         console.error(`Error parsing incoming WebSocket message - ${e}`);
     }
 });
-
-
-type WsMessage = {
-    type: 'ledSetup',
-    setup: LedsSetup
-}
