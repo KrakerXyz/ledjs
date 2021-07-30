@@ -28,6 +28,10 @@
             "src/*"
          ]
       },
+      "types": [
+         "gapi",
+         "gapi.auth2",
+      ],
       "plugins": [
          {
             "name": "@vuedx/typescript-plugin-vue"
