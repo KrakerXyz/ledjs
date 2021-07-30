@@ -25,6 +25,8 @@ server.get('/api/animations/:animationId', rest.animation.getById);
 server.get('/api/animations', rest.animation.get);
 server.post('/api/animations', rest.animation.post);
 
+server.post('/api/auth/google-token', rest.auth.googleToken);
+
 server.get('/api', async () => {
     return { hello: 'world2' };
 });
