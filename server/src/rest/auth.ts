@@ -45,6 +45,15 @@ export const googleToken: RouteHandler = async (req, res) => {
          req.log.info('Created new google user %s', user.id);
       }
 
+      const token = await res.jwtSign({ tokenId: v4() }, { subject: user.id });
+
+      res.setCookie('jwt', token, {
+         domain: req.hostname.split(':')[0],
+         path: '/',
+         secure: req.protocol === 'https',
+         httpOnly: true, //Prevents scripts from accessing the cookie
+         sameSite: true
+      });
 
       res.status(isNewUser ? 201 : 200).send(user);
 

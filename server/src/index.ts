@@ -1,6 +1,9 @@
 
 import fastify from 'fastify';
 import fastifyWebsocket from 'fastify-websocket';
+import fastifyCookie from 'fastify-cookie';
+import fastifyJWT from 'fastify-jwt';
+
 import { WebSocketManager } from './services/WebSocketManager';
 import { EnvKey, getRequiredConfig } from './services/config';
 import { configureDb } from '@krakerxyz/typed-base';
@@ -15,7 +18,19 @@ configureDb({
 console.log('Initializing Fastify');
 
 const server = fastify({ logger: true });
-server.register(fastifyWebsocket, { options: { perMessageDeflate: true } });
+server.register(fastifyJWT, {
+    secret: getRequiredConfig(EnvKey.JwtSecret),
+    cookie: {
+        cookieName: 'jwt',
+        signed: false
+    }
+});
+
+server.register(fastifyCookie);
+
+server.register(fastifyWebsocket, {
+    options: { perMessageDeflate: true }
+});
 
 const webSocketManager = new WebSocketManager();
 server.get('/ws', { websocket: true }, webSocketManager.handler);
