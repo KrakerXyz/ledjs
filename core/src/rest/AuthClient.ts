@@ -21,7 +21,7 @@ export interface GoogleToken {
 export interface User {
     readonly id: string;
     readonly email: string;
-    readonly createdDate: number;
+    readonly created: number;
     /** Time stamp of the last time a authenticated service was used. Could be off by 15 minutes. */
     readonly lastSeen: number;
 }

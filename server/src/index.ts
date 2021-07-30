@@ -7,7 +7,7 @@ import fastifyJWT from 'fastify-jwt';
 import { WebSocketManager } from './services/WebSocketManager';
 import { EnvKey, getRequiredConfig } from './services/config';
 import { configureDb } from '@krakerxyz/typed-base';
-import * as rest from './rest';
+import { apiRoutes } from './rest';
 
 console.log('Configuring db');
 configureDb({
@@ -35,12 +35,7 @@ server.register(fastifyWebsocket, {
 const webSocketManager = new WebSocketManager();
 server.get('/ws', { websocket: true }, webSocketManager.handler);
 
-server.get('/api/animations/:animationId/script', rest.animation.scriptById);
-server.get('/api/animations/:animationId', rest.animation.getById);
-server.get('/api/animations', rest.animation.get);
-server.post('/api/animations', rest.animation.post);
-
-server.post('/api/auth/google-token', rest.auth.googleToken);
+apiRoutes.forEach(r => server.route(r));
 
 server.get('/api', async () => {
     return { hello: 'world2' };
