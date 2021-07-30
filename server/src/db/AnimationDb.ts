@@ -1,7 +1,6 @@
 import { Filter, TypedEntity } from '@krakerxyz/typed-base';
 import { Animation, AnimationMeta } from 'netled';
-
-type Writeable<T> = { -readonly [P in keyof T]: T[P] };
+import { Writeable } from '.';
 
 export class AnimationDb {
 
@@ -26,9 +25,7 @@ export class AnimationDb {
     public byId(id: string, version: number): Promise<Animation | null> {
         const filter: Filter<Writeable<Animation>> = { id, version };
 
-        const cur = this.entity.findOneAsync(
-            filter
-        );
+        const cur = this.entity.findOneAsync(filter);
 
         return cur;
     }

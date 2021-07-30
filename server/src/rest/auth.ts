@@ -1,62 +1,57 @@
 import { RouteHandler } from 'fastify';
+import { OAuth2Client } from 'google-auth-library';
 import { GoogleToken } from 'netled';
+import { UserDb } from '../db';
+import { EnvKey, getRequiredConfig } from '../services';
+import { v4 } from 'uuid';
 
 export const googleToken: RouteHandler = async (req, res) => {
-    const googleToken = req.body as GoogleToken;
-
-    if (!googleToken?.idToken) {
-        res.status(400).send('Missing idToken');
-        return;
-    }
-
-    /*
-   const googleToken: GoogleToken = req.body;
+   const googleToken = req.body as GoogleToken;
 
    if (!googleToken?.idToken) {
-      res.status(400).send('Missing google token');
+      res.status(400).send('Missing idToken');
       return;
    }
 
-   const clientId = getRequiredConfig(EnvKey.GOOGLE_CLIENT_ID);
+   const clientId = getRequiredConfig(EnvKey.GoogleClientId);
 
-   const client = new OAuth2Client(clientId);
-
-   let user: User | null = null;
+   const oauthClient = new OAuth2Client(clientId);
 
    try {
-      const ticket = await client.verifyIdToken({
+      const ticket = await oauthClient.verifyIdToken({
          idToken: googleToken.idToken,
          audience: clientId
       });
+
       const payload = ticket.getPayload();
       if (!payload) { throw new Error('empty payload'); }
 
-      const googleUserId = payload.sub;
-
-      log.info('Verified google token for {googleUserId}', { googleUserId });
-
-      user = await getGoogleUser(googleUserId);
-
-      if (!user) {
-         const newUser: NewUser = {
-            created: Date.now(),
-            adminApiToken: newHookId()
-         };
-         user = await addGoogleUser(googleUserId, newUser);
-         log.info('Created new google user {userId}', { userId: user.id });
+      if (!payload.email) {
+         throw new Error('ticket did not contain an email address');
       }
 
+      const userDb = new UserDb();
+
+      let user = await userDb.byEmail(payload.email.toLocaleLowerCase());
+      const isNewUser = !user;
+      if (!user) {
+         user = {
+            id: v4(),
+            email: payload.email,
+            createdDate: Date.now(),
+            lastSeen: Date.now()
+         };
+         await userDb.add(user);
+         req.log.info('Created new google user %s', user.id);
+      }
+
+
+      res.status(isNewUser ? 201 : 200).send(user);
+
    } catch (e) {
-      log.warn('Error validating google auth token - {errorMessage}', { errorMessage: e.toString() });
-      res.status(401).send('Could not validate google idToken');
+      req.log.warn(e, 'Error validating google auth token',);
+      res.status(401).send('Error during token/user validation');
       return;
    }
-
-   const apiToken: ApiToken = {
-      token: `Bearer ${user!.adminApiToken}`
-   };
-
-   res.status(200).send(apiToken);
-    */
 
 };

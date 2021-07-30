@@ -25,10 +25,13 @@
     "dotenv": "^10.0.0",
     "fastify": "^3.19.1",
     "fastify-websocket": "^3.2.0",
-    "netled": "file:../core"
+    "google-auth-library": "^7.4.1",
+    "netled": "file:../core",
+    "uuid": "^8.3.2"
   },
   "devDependencies": {
     "@types/node": "^14.17.5",
+    "@types/uuid": "^8.3.1",
     "@typescript-eslint/eslint-plugin": "^4.22.0",
     "@typescript-eslint/parser": "^4.22.0",
     "eslint": "^7.24.0",

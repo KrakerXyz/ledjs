@@ -4,8 +4,8 @@ export class AuthClient {
 
     constructor(private readonly restClient: RestClient) { }
 
-    public validateGoogleToken(token: GoogleToken): Promise<void> {
-        return this.restClient.post<void>('api/auth/google-token', token);
+    public validateGoogleToken(token: GoogleToken): Promise<User> {
+        return this.restClient.post<User>('api/auth/google-token', token);
     }
 
 }
@@ -16,4 +16,12 @@ export interface GoogleToken {
     /** The id token returned from a google sign-in request */
     idToken: string;
 
+}
+
+export interface User {
+    readonly id: string;
+    readonly email: string;
+    readonly createdDate: number;
+    /** Time stamp of the last time a authenticated service was used. Could be off by 15 minutes. */
+    readonly lastSeen: number;
 }

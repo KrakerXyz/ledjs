@@ -2,7 +2,7 @@
 import fastify from 'fastify';
 import fastifyWebsocket from 'fastify-websocket';
 import { WebSocketManager } from './services/WebSocketManager';
-import { EnvKey, getRequiredConfig } from './config';
+import { EnvKey, getRequiredConfig } from './services/config';
 import { configureDb } from '@krakerxyz/typed-base';
 import * as rest from './rest';
 
