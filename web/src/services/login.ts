@@ -5,18 +5,17 @@ import { useRestClient } from './restClient';
 
 let user: gapi.auth2.GoogleUser | null = null;
 const avatarUrl = ref<string | null>(null);
-const loginStatus = ref<'signedOut' | 'initializing' | 'signedIn'>('initializing');
+const status = ref<'signedOut' | 'initializing' | 'signedIn'>('initializing');
 
 function init(): Promise<void> {
 
     return new Promise<void>(r => {
 
         const client_id = import.meta.env?.VITE_GOOGLE_CLIENT_ID;
-        loginStatus.value = 'initializing';
+        status.value = 'initializing';
         gapi.load('auth2', () => {
             gapi.auth2.init({
                 client_id,
-                cookie_policy: 'single_host_origin',
                 fetch_basic_profile: true
             }).then(
                 auth2 => {
@@ -27,14 +26,14 @@ function init(): Promise<void> {
                             .then(u => user = u)
                             .finally(() => r());
                     } else {
-                        loginStatus.value = 'signedOut';
+                        status.value = 'signedOut';
                         r();
                     }
 
                 },
                 e => {
                     console.debug('Failed to initialize gapi', e);
-                    loginStatus.value = 'signedOut';
+                    status.value = 'signedOut';
                     r();
                 }
             );
@@ -60,7 +59,7 @@ async function verifyToken(googleUser: gapi.auth2.GoogleUser, auth2: gapi.auth2.
         await authApi.validateGoogleToken(googleToken);
 
         avatarUrl.value = googleUser.getBasicProfile().getImageUrl();
-        loginStatus.value = 'signedIn';
+        status.value = 'signedIn';
 
         return googleUser;
 
@@ -77,7 +76,7 @@ async function signIn(): Promise<void> {
     if (user) { return; }
     const auth2 = gapi.auth2.getAuthInstance();
 
-    loginStatus.value = 'initializing';
+    status.value = 'initializing';
     return new Promise<void>(r => {
         auth2.signIn().then(
             googleUser => {
@@ -87,7 +86,7 @@ async function signIn(): Promise<void> {
             },
             () => {
                 console.debug('Sign-in canceled');
-                loginStatus.value = 'signedOut';
+                status.value = 'signedOut';
                 r();
             }
         );
@@ -97,12 +96,12 @@ async function signIn(): Promise<void> {
 async function signOut() {
     await intiProm;
     if (!user) { return; }
-    loginStatus.value = 'initializing';
+    status.value = 'initializing';
     const auth2 = gapi.auth2.getAuthInstance();
     auth2.signOut().then(() => {
         user = null;
         avatarUrl.value = null;
-        loginStatus.value = 'signedOut';
+        status.value = 'signedOut';
         intiProm = init();
     });
 }
@@ -112,6 +111,6 @@ export function useLoginService() {
         signIn,
         signOut,
         avatarUrl,
-        loginStatus
+        status
     };
 }
