@@ -1,6 +1,6 @@
-import { HostClient } from 'netled';
+import { HostWsClient } from 'netled';
 
-const ws = new HostClient(window.location.host);
+const ws = new HostWsClient(window.location.host);
 export function useWebSocket() {
     return ws;
 }

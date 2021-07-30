@@ -1,7 +1,7 @@
 import { WsMessage, WsLedsSetup } from '.';
 import { Disposable } from '..';
 
-export class DeviceClient {
+export class DeviceWsClient {
 
     public constructor(host: string) {
 

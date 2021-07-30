@@ -41,14 +41,14 @@ export const postGoogleToken: RouteOptions = {
                 user = {
                     id: v4(),
                     email: payload.email,
-                    createdDate: Date.now(),
+                    created: Date.now(),
                     lastSeen: Date.now()
                 };
                 await userDb.add(user);
                 req.log.info('Created new google user %s', user.id);
             }
 
-            const token = await res.jwtSign({ tokenId: v4() }, { subject: user.id });
+            const token = await res.jwtSign({}, { subject: user.id, jwtid: v4() });
 
             res.setCookie('jwt', token, {
                 domain: req.hostname.split(':')[0],

@@ -8,6 +8,7 @@ import { WebSocketManager } from './services/WebSocketManager';
 import { EnvKey, getRequiredConfig } from './services/config';
 import { configureDb } from '@krakerxyz/typed-base';
 import { apiRoutes } from './rest';
+import { RequestUser } from './services';
 
 console.log('Configuring db');
 configureDb({
@@ -23,6 +24,10 @@ server.register(fastifyJWT, {
     cookie: {
         cookieName: 'jwt',
         signed: false
+    },
+    formatUser(token) {
+        if (typeof token !== 'object') { throw new Error('Token was not an object'); }
+        return new RequestUser((token as any).sub, (token as any).jti);
     }
 });
 

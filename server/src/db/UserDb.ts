@@ -6,6 +6,10 @@ export class UserDb {
 
     private readonly entity = new TypedEntity<User>();
 
+    public byId(id: string): Promise<User | null> {
+        return this.entity.findOneAsync({ id });
+    }
+
     public byEmail(email: string): Promise<User | null> {
         const filter: Filter<Writeable<User>> = { email };
         const ent = this.entity.findOneAsync(filter);
