@@ -1,17 +1,17 @@
 import { RouteOptions } from 'fastify-websocket';
-import { DeviceLedsSetupPost } from 'netled';
+import { DeviceAnimationPost } from 'netled';
 import { jwtAuthentication } from '../../services';
 import { DeviceDb } from '../../db/DeviceDb';
 
 export const postLedsSetup: RouteOptions = {
     method: 'POST',
-    url: '/api/devices/leds-setup',
+    url: '/api/devices/animation',
     preValidation: [jwtAuthentication],
     handler: async (req, res) => {
 
         const db = new DeviceDb();
 
-        const deviceSetup = req.body as DeviceLedsSetupPost;
+        const deviceSetup = req.body as DeviceAnimationPost;
 
         const devices = await Promise.all(deviceSetup.deviceIds.map(did => db.byId(did)));
 

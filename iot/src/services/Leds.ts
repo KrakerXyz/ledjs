@@ -1,7 +1,7 @@
 
 import rpio from 'rpio';
 import { deepEquals } from './deepEquals';
-import { Animator, ARGB, DeviceLedsAnimationSetup, DeviceSetupData, Frame } from 'netled';
+import { Animator, ARGB, DeviceAnimationSetup, DeviceSetupData, Frame } from 'netled';
 import { useAnimation } from '.';
 
 export class Leds {
@@ -12,14 +12,16 @@ export class Leds {
     }
 
     private _animation: Animator<any> | null = null;
-    private _lastSetup: DeviceLedsAnimationSetup | null = null;
+    private _lastSetup: DeviceAnimationSetup | null = null;
     private _lastDeviceSetup: DeviceSetupData | null = null;
 
-    public async setupAnimation(setup: DeviceLedsAnimationSetup): Promise<void> {
+    public async setupAnimation(setup: DeviceAnimationSetup): Promise<void> {
 
         if (setup.id !== this._lastSetup?.id || setup.version !== this._lastSetup?.version) {
             console.log(`Loading animation ${setup.id}:${setup.version}`);
             this._animation = await useAnimation(setup.id, setup.version);
+
+            this._animation.setNumLeds(this._lastDeviceSetup?.numLeds ?? 0);
 
             if (setup.config) {
                 if (this._animation.setConfig) {
@@ -52,20 +54,30 @@ export class Leds {
         if (deepEquals(setup, this._lastDeviceSetup)) { return; }
         console.log(`Updating animator numLeds to ${setup.numLeds}`);
         this._animation?.setNumLeds(setup.numLeds);
+        this._lastDeviceSetup = setup;
     }
 
     private _intervalTimeout: NodeJS.Timeout | null = null;
     private _lastInterval = -1;
+    private _isNextFrameError = false;
     private setInterval(interval: number) {
         if (this._intervalTimeout && interval === this._lastInterval) { return; }
         if (this._intervalTimeout) { clearInterval(this._intervalTimeout); }
         console.log(`Set draw interval to ${interval}ms`);
         this._lastInterval = interval;
         this._intervalTimeout = setInterval(() => {
-            const frame = this._animation?.nextFrame();
-            if (!frame) { return; }
-            this.rpioDraw(frame);
-
+            let position: string = 'nextFrame';
+            try {
+                const frame = this._animation?.nextFrame();
+                if (!frame) { return; }
+                position = 'draw';
+                this.rpioDraw(frame);
+                this._isNextFrameError = false;
+            } catch (e) {
+                if (this._isNextFrameError) { return; }
+                console.error(`Error during interval tick on ${position}: ${e.message}`);
+                this._isNextFrameError = true;
+            }
         }, interval);
     }
 
@@ -73,6 +85,7 @@ export class Leds {
         if (stop) {
             if (!this._intervalTimeout) { return; }
             clearInterval(this._intervalTimeout);
+            console.log('Stopping animation');
             this._intervalTimeout = null;
             const frame: Frame = [];
             const darkLed: ARGB = [0, 0, 0, 0];
@@ -83,6 +96,7 @@ export class Leds {
         } else {
             if (this._intervalTimeout) { return; }
             if (this._lastInterval === -1) { return; }
+            console.log('Starting animation');
             this.setInterval(this._lastInterval);
         }
     }
@@ -90,7 +104,8 @@ export class Leds {
     private _buffer: Buffer | null = null;
     private rpioDraw(frame: Frame) {
 
-        if (!this._buffer || this._buffer.length !== frame.length + 8) {
+        if (!this._buffer || this._buffer.length !== (frame.length * 4) + 8) {
+            console.log(`Initializing buffer for frame length ${frame.length}`);
             this._buffer = Buffer.alloc((frame.length * 4) + 8, '00000000', 'hex');
             this._buffer[frame.length - 1] = 255;
             this._buffer[frame.length - 2] = 255;

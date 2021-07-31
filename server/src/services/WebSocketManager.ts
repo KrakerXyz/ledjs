@@ -24,16 +24,37 @@ export class WebSocketManager {
             socketStream
         };
 
+        if (wsConnection.type === 'device') { this.initializeDevice(wsConnection.id, req); }
+
         this._connections.set(req.user.sub, wsConnection);
 
     }
 
-    public sendDeviceMessage(msg: ToDeviceMessage, ...deviceIds: string[]) {
+    public sendDeviceMessage(msg: ToDeviceMessage, ...deviceIds: [string, ...string[]]) {
         const msgJson = JSON.stringify(msg);
         for (const did of deviceIds) {
             const con = this._connections.get(did);
             if (!con) { continue; }
             con.socketStream.socket.send(msgJson);
+        }
+    }
+
+    private async initializeDevice(deviceId: string, req: FastifyRequest) {
+        const device = await req.services.deviceDb.byId(deviceId);
+        if (!device) { return; }
+        req.log.info('Sending %s initial deviceSetup', deviceId);
+        this.sendDeviceMessage({
+            type: 'deviceSetup',
+            data: {
+                numLeds: device.numLeds
+            }
+        }, deviceId);
+
+        if (device.status.animation) {
+            this.sendDeviceMessage({
+                type: 'animationSetup',
+                data: device.status.animation
+            }, deviceId);
         }
     }
 

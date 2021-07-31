@@ -1,6 +1,6 @@
 
 import { Disposable, ToDeviceMessage } from '..';
-import { DeviceLedsAnimationSetup } from '../rest';
+import { DeviceAnimationSetup } from '../rest';
 import { AnimationStopData, DeviceSetupData } from './Messages';
 import * as WebSocket from 'ws';
 
@@ -59,7 +59,7 @@ export class DeviceWsClient {
         callbacks.forEach(cb => cb(msg.data));
     }
 
-    public onAnimationSetup(cb: (data: DeviceLedsAnimationSetup) => void): Disposable {
+    public onAnimationSetup(cb: (data: DeviceAnimationSetup) => void): Disposable {
         return this.addListener('animationSetup', cb);
     }
 

@@ -11,7 +11,11 @@
             "skipFiles": [
                 "<node_internals>/**"
             ],
+            "cwd": "${workspaceFolder}\\iot",
             "program": "${workspaceFolder}\\iot\\dist\\index.js",
+            "runtimeArgs": [
+                "--unhandled-rejections=strict"
+            ],
             "preLaunchTask": "build-iot",
             "outFiles": [
                 "${workspaceFolder}/iot/dist/**/*.js"
@@ -27,8 +31,7 @@
             "cwd": "${workspaceFolder}\\server",
             "program": "${workspaceFolder}\\server\\dist\\index.js",
             "runtimeArgs": [
-                "--unhandled-rejections=strict",
-                "--require=dotenv/config"
+                "--unhandled-rejections=strict"
             ],
             "preLaunchTask": "build-server",
             "outFiles": [

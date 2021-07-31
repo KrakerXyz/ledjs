@@ -17,8 +17,8 @@ export class DeviceRestClient {
         return this.restClient.post('/api/devices', device);
     }
 
-    public setLedSetup(setup: DeviceLedsSetupPost): Promise<void> {
-        return this.restClient.post('/api/devices/leds-setup', setup);
+    public setLedSetup(setup: DeviceAnimationPost): Promise<void> {
+        return this.restClient.post('/api/devices/animation', setup);
     }
 
 }
@@ -42,7 +42,7 @@ export interface DeviceStatus {
     isOnline: boolean;
     localIp?: string;
     wanIp?: string;
-    animation?: DeviceLedsAnimationSetup;
+    animation?: DeviceAnimationSetup;
 }
 
 export interface DeviceLog {
@@ -52,12 +52,12 @@ export interface DeviceLog {
     args: any[]
 }
 
-export interface DeviceLedsSetupPost {
-    deviceIds: string[],
-    animation: DeviceLedsAnimationSetup
+export interface DeviceAnimationPost {
+    deviceIds: [string, ...string[]],
+    animation: DeviceAnimationSetup
 }
 
-export interface DeviceLedsAnimationSetup {
+export interface DeviceAnimationSetup {
     id: string;
     version: number;
     config?: Config<any>;

@@ -172,7 +172,7 @@
    import { computed, defineComponent, getCurrentInstance, onUnmounted, reactive, ref, watch } from 'vue';
    import { useRoute } from 'vue-router';
    import LedCanvas from '../LedCanvas.vue';
-   import { AnimationRestClient, Config, ConfigMetaParam, DeviceLedsSetupPost, DeviceRestClient } from 'netled';
+   import { AnimationRestClient, Config, ConfigMetaParam, DeviceAnimationPost, DeviceRestClient } from 'netled';
    import { useIframeRunner } from '../editor/iframeRunner';
    import { Frame } from 'netled';
 
@@ -245,7 +245,7 @@
 
          const animationConfigWatchStop = watch(animationConfig, config => iframe.setConfig(config), { immediate: true });
 
-         const wsLedSetupThrottle = useThrottledProxy((setup: DeviceLedsSetupPost) => devicesClient.setLedSetup(setup), { timeout: 1000 });
+         const wsLedSetupThrottle = useThrottledProxy((setup: DeviceAnimationPost) => devicesClient.setLedSetup(setup), { timeout: 1000 });
 
          const modelAnimationConfigWatchStop = watch([model, animationConfig], () => {
             if (!model.numLeds) { return; }
@@ -254,9 +254,10 @@
             localStorage.setItem(`${animation.name}-config`, JSON.stringify(animationConfig.value));
 
             if (!model.autoPush) { return; }
+            if (!devices.length) { return; }
 
             wsLedSetupThrottle({
-               deviceIds: devices.map(d => d.id),
+               deviceIds: devices.map(d => d.id) as [string, ...string[]],
                animation: {
                   id: animation.id,
                   version: animation.version,
