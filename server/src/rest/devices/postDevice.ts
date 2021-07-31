@@ -2,12 +2,12 @@ import { RouteOptions } from 'fastify';
 import { Device, DevicePost } from 'netled';
 import { v4 } from 'uuid';
 import { DeviceDb } from '../../db/DeviceDb';
-import { authenticateValidation, RequestUser } from '../../services';
+import { jwtAuthentication, RequestUser } from '../../services';
 
 export const postDevice: RouteOptions = {
     method: 'POST',
     url: '/api/devices',
-    preValidation: [authenticateValidation],
+    preValidation: [jwtAuthentication],
     handler: async (req, res) => {
 
         const user = req.user as RequestUser;

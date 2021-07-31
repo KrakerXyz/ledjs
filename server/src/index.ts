@@ -8,7 +8,7 @@ import { WebSocketManager } from './services/WebSocketManager';
 import { EnvKey, getRequiredConfig } from './services/config';
 import { configureDb } from '@krakerxyz/typed-base';
 import { apiRoutes } from './rest';
-import { RequestUser } from './services';
+import { jwtAuthentication, RequestUser } from './services';
 
 console.log('Configuring db');
 configureDb({
@@ -18,7 +18,10 @@ configureDb({
 
 console.log('Initializing Fastify');
 
-const server = fastify({ logger: true });
+const server = fastify({
+    logger: true
+});
+
 server.register(fastifyJWT, {
     secret: getRequiredConfig(EnvKey.JwtSecret),
     cookie: {
@@ -34,11 +37,18 @@ server.register(fastifyJWT, {
 server.register(fastifyCookie);
 
 server.register(fastifyWebsocket, {
-    options: { perMessageDeflate: true }
+    errorHandler: (_, conn) => {
+        conn.socket.close(4001, 'Unauthorized');
+        conn.destroy();
+    },
+    options: {
+        perMessageDeflate: true,
+    }
 });
 
 const webSocketManager = new WebSocketManager();
-server.get('/ws', { websocket: true }, webSocketManager.handler);
+server.get('/ws/device', { websocket: true }, webSocketManager.handler);
+server.get('/ws/client', { websocket: true, preValidation: [jwtAuthentication] }, webSocketManager.handler);
 
 apiRoutes.forEach(r => server.route(r));
 

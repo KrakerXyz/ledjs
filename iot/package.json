@@ -14,7 +14,9 @@
   "license": "MIT",
   "scripts": {
     "clean": "rimraf ./dist/*",
-    "start": "nodemon --config nodemon.json src/index.ts",
+    "prestart": "npm run build",
+    "start": "node --unhandled-rejections=strict --trace-warnings .",
+    "start-mon": "nodemon --config nodemon.json src/index.ts",
     "build": "npm run clean && tsc",
     "lint": "eslint ./src/**/*.ts"
   },

@@ -1,11 +1,11 @@
 import { RouteOptions } from 'fastify';
 import { DeviceDb } from '../../db/DeviceDb';
-import { authenticateValidation, RequestUser } from '../../services';
+import { jwtAuthentication, RequestUser } from '../../services';
 
 export const getDevice: RouteOptions = {
     method: 'GET',
     url: '/api/devices/:deviceId',
-    preValidation: [authenticateValidation],
+    preValidation: [jwtAuthentication],
     handler: async (req, res) => {
 
         const deviceId = (req.params as any).deviceId as string;

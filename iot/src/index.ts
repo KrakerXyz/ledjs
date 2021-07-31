@@ -22,7 +22,7 @@ if (!getConfig(EnvKey.DeviceId) || !getConfig(EnvKey.DeviceSecret)) {
 
     console.log(`Starting WebSocket @ ${remoteAddress}`);
     const authToken = `${getRequiredConfig(EnvKey.DeviceId)}:${getRequiredConfig(EnvKey.DeviceSecret)}`;
-    const ws = new WebSocket(`ws://${remoteAddress}/ws`, { auth: authToken });
+    const ws = new WebSocket(`ws://${remoteAddress}/ws/device`, { auth: authToken });
 
     ws.addEventListener('open', () => {
         console.log('WebSocket opened');
