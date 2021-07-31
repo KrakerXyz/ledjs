@@ -261,7 +261,8 @@
                animation: {
                   id: animation.id,
                   version: animation.version,
-                  interval: model.interval
+                  interval: model.interval,
+                  config: animationConfig.value
                }
             });
 
