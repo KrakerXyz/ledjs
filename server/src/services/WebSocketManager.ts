@@ -9,6 +9,21 @@ export class WebSocketManager {
     public handler = async (socketStream: SocketStream, request: FastifyRequest) => {
         console.log('Incoming WS connection');
 
+        socketStream.socket.on('close', () => {
+            console.log('WS Disconnected');
+            const index = this._connections.findIndex(x => x.socketStream === socketStream);
+            this._connections.splice(index, 1);
+        });
+
+        socketStream.socket.on('message', (message: any) => {
+            console.log('Received WS message' + message);
+            const devices = this._connections.filter(x => x.type === 'device');
+            if (!devices.length) { return; }
+            console.log(`Relaying message to ${devices.length}`);
+            devices.forEach(d => d.socketStream.socket.send(message));
+        });
+
+
         let wsConnection: WsConnection | undefined;
 
         if (request.headers.authorization) {
@@ -45,7 +60,7 @@ export class WebSocketManager {
             try {
                 await request.jwtVerify();
             } catch (e) {
-                socketStream.destroy(e);
+                socketStream.socket;
                 return;
             }
 
@@ -57,20 +72,6 @@ export class WebSocketManager {
 
         }
         this._connections.push(wsConnection);
-
-        socketStream.socket.on('close', () => {
-            console.log('WS Disconnected');
-            const index = this._connections.findIndex(x => x.socketStream === socketStream);
-            this._connections.splice(index, 1);
-        });
-
-        socketStream.socket.on('message', (message: any) => {
-            console.log('Received WS message' + message);
-            const devices = this._connections.filter(x => x.type === 'device');
-            if (!devices.length) { return; }
-            console.log(`Relaying message to ${devices.length}`);
-            devices.forEach(d => d.socketStream.socket.send(message));
-        });
 
     }
 
