@@ -257,12 +257,9 @@
 
             wsLedSetupThrottle({
                deviceIds: devices.map(d => d.id),
-               setup: {
-                  animation: {
-                     id: animation.id,
-                     version: animation.version
-                  },
-                  numLeds: model.numLeds,
+               animation: {
+                  id: animation.id,
+                  version: animation.version,
                   interval: model.interval
                }
             });

@@ -5,11 +5,11 @@ export class DeviceRestClient {
 
     constructor(private readonly restClient: RestClient) { }
 
-    public list<T extends boolean>(includeStatus?: T): Promise<T extends true ? Device[] : Omit<Device, 'status'>[]> {
+    public list<T extends boolean>(includeStatus?: T): Promise<T extends true ? Device[] : DeviceShallow[]> {
         return this.restClient.get('/api/devices', { includeStatus });
     }
 
-    public byId<T extends boolean = false>(deviceId: string, includeStatus?: T): Promise<T extends true ? Device | null : Omit<Device, 'status'> | null> {
+    public byId<T extends boolean = false>(deviceId: string, includeStatus?: T): Promise<T extends true ? Device | null : DeviceShallow | null> {
         return this.restClient.get(`/api/devices/${deviceId}`, { includeStatus });
     }
 
@@ -32,6 +32,8 @@ export interface Device {
     numLeds: number;
     name: string;
 }
+
+export type DeviceShallow = Omit<Device, 'status'>
 
 export type DevicePost = Pick<Device, 'id' | 'name' | 'numLeds'>;
 

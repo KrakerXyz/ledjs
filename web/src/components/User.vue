@@ -44,8 +44,6 @@
    import { useLoginService } from '../services';
 
    export default defineComponent({
-      props: {
-      },
       setup() {
 
          const login = useLoginService();

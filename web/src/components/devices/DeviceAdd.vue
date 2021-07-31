@@ -3,7 +3,7 @@
    <div class="container h-100 shadow bg-white p-3">
 
       <div class="row">
-         <div class="col-md-6">
+         <div class="col-md-6 mb-3">
             <div class="form-floating">
                <input
                   id="device-name"
@@ -14,9 +14,20 @@
                <label for="device-name">Device Name</label>
             </div>
          </div>
+         <div class="col-md-6 mb-3">
+            <div class="form-floating">
+               <input
+                  id="device-name"
+                  class="form-control"
+                  placeholder="*"
+                  v-model="devicePost.numLeds"
+               >
+               <label for="device-name">Number of Leds</label>
+            </div>
+         </div>
       </div>
 
-      <div class="row mt-3">
+      <div class="row">
          <div class="col-md-3">
             <button
                class="btn btn-primary w-100"
@@ -44,7 +55,8 @@
 
          const devicePost: DevicePost = reactive({
             id: v4(),
-            name: ''
+            name: '',
+            numLeds: 0
          });
 
          const restClient = useRestClient();

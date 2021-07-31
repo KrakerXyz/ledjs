@@ -14,7 +14,7 @@
 <script lang="ts">
 
    import { Frame, rgbToHex } from 'netled';
-   import { defineComponent, watch, ref, toRef } from 'vue';
+   import { defineComponent, watch, ref, computed } from 'vue';
 
 
    export default defineComponent({
@@ -26,7 +26,7 @@
       },
       setup(props, { emit }) {
 
-         const frame = toRef(props, 'frame');
+         const frame = computed(() => props.frame ?? []);
 
          const wrapper = ref<HTMLDivElement>();
 

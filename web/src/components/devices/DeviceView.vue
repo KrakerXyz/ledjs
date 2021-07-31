@@ -1,6 +1,6 @@
 
 <template>
-   <div>
+   <div v-if="device">
       View - {{device.name}}
    </div>
 </template>
@@ -8,7 +8,7 @@
 <script lang="ts">
 
    import { ref } from '@vue/reactivity';
-   import { DeviceRestClient, DeviceWithStatus } from 'netled';
+   import { DeviceRestClient, Device } from 'netled';
    import { defineComponent } from 'vue';
    import { useRestClient } from '../../services';
 
@@ -18,7 +18,7 @@
       },
       async setup(props) {
 
-         const device = ref<DeviceWithStatus>();
+         const device = ref<Device | null>(null);
 
          const restClient = useRestClient();
          const deviceClient = new DeviceRestClient(restClient);

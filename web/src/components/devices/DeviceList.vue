@@ -36,7 +36,7 @@
 
 <script lang="ts">
 
-   import { DeviceRestClient, DeviceWithStatus } from 'netled';
+   import { DeviceRestClient, Device } from 'netled';
    import { defineComponent, ref } from 'vue';
    import { useRestClient } from '../../services';
 
@@ -48,7 +48,7 @@
          const restClient = useRestClient();
          const devicesClient = new DeviceRestClient(restClient);
 
-         const devices = ref<DeviceWithStatus[]>();
+         const devices = ref<Device[]>();
          devicesClient.list(true).then(d => devices.value = d);
 
          return { devices };
