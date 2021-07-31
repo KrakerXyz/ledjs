@@ -1,7 +1,7 @@
 
 import rpio from 'rpio';
 import { deepEquals } from './deepEquals';
-import { Animator, Frame, WsLedsSetup } from 'netled';
+import { Animator, DeviceLedsSetup, Frame } from 'netled';
 import { useAnimation } from '.';
 
 export class Leds {
@@ -13,8 +13,8 @@ export class Leds {
 
     private _animation: Animator<any> | undefined;
 
-    private _lastSetup: WsLedsSetup | null = null;
-    public async setup(setup: WsLedsSetup): Promise<void> {
+    private _lastSetup: DeviceLedsSetup | null = null;
+    public async setup(setup: DeviceLedsSetup): Promise<void> {
 
         if (setup.animation.id !== this._lastSetup?.animation.id || setup.animation.version !== this._lastSetup?.animation.version) {
             console.log(`Loading animation ${setup.animation.id}:${setup.animation.version}`);

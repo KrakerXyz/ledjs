@@ -29,10 +29,11 @@ export class WebSocketManager {
     }
 
     public sendDeviceMessage(msg: ToDeviceMessage, ...deviceIds: string[]) {
+        const msgJson = JSON.stringify(msg);
         for (const did of deviceIds) {
             const con = this._connections.get(did);
             if (!con) { continue; }
-            con.socketStream.socket.send(msg);
+            con.socketStream.socket.send(msgJson);
         }
     }
 

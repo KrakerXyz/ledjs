@@ -4,7 +4,7 @@ require('dotenv').config();
 
 import { EnvKey, getConfig, getRequiredConfig, Leds, useRestClient } from './services';
 import WebSocket from 'ws';
-import { WsMessage } from 'netled';
+import { ToDeviceMessage } from 'netled';
 
 if (!getConfig(EnvKey.DeviceId) || !getConfig(EnvKey.DeviceSecret)) {
     console.error('Missing config - deviceId/secret. Quitting');
@@ -40,7 +40,7 @@ if (!getConfig(EnvKey.DeviceId) || !getConfig(EnvKey.DeviceSecret)) {
 
     ws.addEventListener('message', e => {
         try {
-            const message = JSON.parse(e.data) as WsMessage;
+            const message = JSON.parse(e.data) as ToDeviceMessage;
             console.log(`Incoming WebSocket message: ${message.type}`);
             switch (message.type) {
                 case 'ledSetup': {
