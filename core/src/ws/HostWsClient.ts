@@ -1,4 +1,3 @@
-import { WsMessage } from '..';
 
 export class HostWsClient {
     private readonly _ws: WebSocket;
@@ -8,7 +7,12 @@ export class HostWsClient {
         this._ws = ws;
     }
 
-    public sendMessage(msg: WsMessage) {
-        this._ws.send(JSON.stringify(msg));
-    }
+}
+
+export type DeviceChangeMessage = {
+    type: 'connected',
+    deviceId: string
+} | {
+    type: 'disconnected',
+    deviceId: string
 }

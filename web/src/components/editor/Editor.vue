@@ -138,9 +138,9 @@
 
          const { content } = useMonacoEditor('editor-ide-container', {
             javascriptLib: useJavascriptLib()
-         }, componentInstance);
+         }, componentInstance ?? undefined);
 
-         content.value = animation.script;
+         content.value = animation.script ?? '';
 
          const scriptParseResult = computed(() => parseScript(content.value));
 
@@ -170,14 +170,14 @@
                }
 
                try {
-                  frame.value = [...await iframeContext.value.nextFrame()];
+                  frame.value = [...await iframeContext.value!.nextFrame()];
                } catch (e) {
                   throw new Error(`nextFrame: ${e}`);
                }
 
                intervalTimeout = setInterval(async () => {
                   try {
-                     frame.value = [...await iframeContext.value.nextFrame()];
+                     frame.value = [...await iframeContext.value!.nextFrame()];
                   } catch (e) {
                      executionError.value = `nextFrame: ${e}`;
                      stopScript();
@@ -194,16 +194,16 @@
          const stopScript = () => {
             if (!iframeContext.value) { return; }
             iframeContext.value.dispose();
-            iframeContext.value = null;
+            iframeContext.value = undefined;
             frame.value = [];
             if (intervalTimeout) { clearInterval(intervalTimeout); intervalTimeout = null; }
          };
 
          const animationPost: AnimationPost = reactive({
-            id: animation.id,
-            script: content.value,
-            name: animation.name,
-            description: animation.description
+            id: animation.id!,
+            script: content.value ?? '',
+            name: animation.name ?? '',
+            description: animation.description ?? ''
          });
 
          const contentStopHandle = watch(content, s => animationPost.script = s);

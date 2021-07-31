@@ -1,6 +1,6 @@
 import { RouteOptions } from 'fastify';
 import { DeviceDb } from '../../db/DeviceDb';
-import { jwtAuthentication, RequestUser } from '../../services';
+import { jwtAuthentication } from '../../services';
 
 export const getDevice: RouteOptions = {
     method: 'GET',
@@ -14,8 +14,6 @@ export const getDevice: RouteOptions = {
             return;
         }
 
-        const user = req.user as RequestUser;
-
         const db = new DeviceDb();
         const device = await db.byId(deviceId);
 
@@ -24,7 +22,7 @@ export const getDevice: RouteOptions = {
             return;
         }
 
-        if (device.userId !== user.id) {
+        if (device.userId !== req.user.sub) {
             res.status(403).send('User does not have access to this device');
             return;
         }

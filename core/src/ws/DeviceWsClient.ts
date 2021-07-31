@@ -1,5 +1,6 @@
-import { WsMessage, WsLedsSetup } from '.';
-import { Disposable } from '..';
+
+import { Disposable, ToDeviceMessage } from '..';
+import { DeviceLedsSetup } from '../rest';
 
 export class DeviceWsClient {
 
@@ -19,7 +20,7 @@ export class DeviceWsClient {
 
         ws.addEventListener('message', e => {
             try {
-                const message = JSON.parse(e.data) as WsMessage;
+                const message = JSON.parse(e.data) as ToDeviceMessage;
                 this.processMessage(message);
 
             } catch (e) {
@@ -28,13 +29,13 @@ export class DeviceWsClient {
         });
     }
 
-    private readonly _listeners: Partial<Record<WsMessage['type'], ((data: WsMessage['data']) => void)[]>> = {};
-    private processMessage(msg: WsMessage) {
+    private readonly _listeners: Partial<Record<ToDeviceMessage['type'], ((data: ToDeviceMessage['data']) => void)[]>> = {};
+    private processMessage(msg: ToDeviceMessage) {
         const callbacks = this._listeners[msg.type] ?? [];
         callbacks.forEach(cb => cb(msg.data));
     }
 
-    public onLedSetup(cb: (data: WsLedsSetup) => void): Disposable {
+    public onLedSetup(cb: (data: DeviceLedsSetup) => void): Disposable {
         const arr = this._listeners['ledSetup'] ?? (this._listeners['ledSetup'] = []);
         arr.push(cb);
         let disposed = false;

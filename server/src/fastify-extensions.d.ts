@@ -1,9 +1,13 @@
 
 import 'fastify';
-import { RequestUser } from './services';
+import { RequestServicesContainer } from './services';
 
 declare module 'fastify' {
     interface FastifyRequest {
-        user: RequestUser
+        user: {
+            sub: string,
+            jti?: string
+        },
+        services: RequestServicesContainer
     }
 }

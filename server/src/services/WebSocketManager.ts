@@ -1,95 +1,42 @@
 import { FastifyRequest } from 'fastify';
 import { SocketStream } from 'fastify-websocket';
-import { DeviceDb } from '../db/DeviceDb';
-import { RequestUser } from './RequestUser';
+import { ToDeviceMessage } from '../../../core/dist/cjs';
 
 export class WebSocketManager {
 
-    private _connections: WsConnection[] = [];
+    private _connections: Map<string, WsConnection> = new Map();
 
-    public handler = async (socketStream: SocketStream, request: FastifyRequest) => {
+    public handler = async (socketStream: SocketStream, req: FastifyRequest) => {
         console.log('Incoming WS connection');
 
         socketStream.socket.on('close', () => {
-            console.log('WS Disconnected');
-            const index = this._connections.findIndex(x => x.socketStream === socketStream);
-            this._connections.splice(index, 1);
+            req.log.debug('WS Disconnected');
+            this._connections.delete(req.user.sub);
         });
 
         socketStream.socket.on('message', (message: any) => {
-            console.log('Received WS message' + message);
-            const devices = this._connections.filter(x => x.type === 'device');
-            if (!devices.length) { return; }
-            console.log(`Relaying message to ${devices.length}`);
-            devices.forEach(d => d.socketStream.socket.send(message));
+            req.log.debug('Received WS message' + message);
         });
 
+        const wsConnection: WsConnection = {
+            type: req.url.endsWith('/device') ? 'device' : 'user',
+            id: req.user.sub,
+            socketStream
+        };
 
-        let wsConnection: WsConnection | undefined;
-
-        if (request.url.endsWith('/device')) {
-            const authParts = request.headers?.authorization?.split(' ');
-
-            if (!authParts) {
-                throw new Error('Missing authorization header');
-            }
-
-            if (authParts.length !== 2) {
-                throw new Error('Malformed authorization header');
-
-            } else if (authParts[0].toLowerCase() !== 'basic') {
-                throw new Error('Invalid scheme');
-            }
-
-            const tokenValue = Buffer.from(authParts[1], 'base64').toString();
-            const tokenParts = tokenValue.split(':');
-            if (tokenParts.length !== 2) {
-                throw new Error('Malformed token value');
-            }
-
-            const deviceDb = new DeviceDb();
-            const device = await deviceDb.byId(tokenParts[0]);
-            if (device?.secret !== tokenParts[1]) {
-                throw new Error('Invalid token');
-            }
-
-            throw new Error('Testing');
-
-            // wsConnection = {
-            //     type: 'device',
-            //     id: device.id,
-            //     socketStream
-            // };
-        } else {
-
-            const user: RequestUser = request.user as RequestUser;
-
-            if (!user?.id) { throw new Error('Authenticated user missing'); }
-
-            wsConnection = {
-                type: 'user',
-                id: user.id,
-                socketStream
-            };
-
-        }
-        this._connections.push(wsConnection);
+        this._connections.set(req.user.sub, wsConnection);
 
     }
 
+    public sendDeviceMessage(msg: ToDeviceMessage, ...deviceIds: string[]) {
+        for (const did of deviceIds) {
+            const con = this._connections.get(did);
+            if (!con) { continue; }
+            con.socketStream.socket.send(msg);
+        }
+    }
+
 }
-
-// export function isAuthorizedWs(req: IncomingMessage): boolean {
-
-//     if (req.url?.endsWith('/device')) {
-//         const auth = req.headers.authorization;
-
-//     } else if (req.url?.endsWith('/client')) {
-
-//     }
-
-//     return false;
-// }
 
 interface WsConnection {
     type: 'device' | 'user';

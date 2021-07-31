@@ -168,11 +168,11 @@
 
 <script lang="ts">
 
-   import { useWebSocket, useThrottledProxy, useRestClient } from '../../services';
+   import { useThrottledProxy, useRestClient } from '../../services';
    import { computed, defineComponent, getCurrentInstance, onUnmounted, reactive, ref, watch } from 'vue';
    import { useRoute } from 'vue-router';
    import LedCanvas from '../LedCanvas.vue';
-   import { AnimationRestClient, Config, ConfigMetaParam, WsMessage } from 'netled';
+   import { AnimationRestClient, Config, ConfigMetaParam, DeviceLedsSetupPost, DeviceRestClient } from 'netled';
    import { useIframeRunner } from '../editor/iframeRunner';
    import { Frame } from 'netled';
 
@@ -189,6 +189,10 @@
 
          const restClient = useRestClient();
          const animationClient = new AnimationRestClient(restClient);
+
+         const devicesClient = new DeviceRestClient(restClient);
+         const devices = await devicesClient.list(false);
+
          const animation = await animationClient.latest(animationId.value, true);
          const iframe = await useIframeRunner(animation.script);
 
@@ -241,9 +245,7 @@
 
          const animationConfigWatchStop = watch(animationConfig, config => iframe.setConfig(config), { immediate: true });
 
-         const ws = useWebSocket();
-
-         const wsLedSetupThrottle = useThrottledProxy((msg: WsMessage) => ws.sendMessage(msg), { timeout: 500 });
+         const wsLedSetupThrottle = useThrottledProxy((setup: DeviceLedsSetupPost) => devicesClient.setLedSetup(setup), { timeout: 1000 });
 
          const modelAnimationConfigWatchStop = watch([model, animationConfig], () => {
             if (!model.numLeds) { return; }
@@ -254,12 +256,11 @@
             if (!model.autoPush) { return; }
 
             wsLedSetupThrottle({
-               type: 'ledSetup',
-               data: {
+               deviceIds: devices.map(d => d.id),
+               setup: {
                   animation: {
                      id: animation.id,
-                     version: animation.version,
-                     config: animationConfig.value
+                     version: animation.version
                   },
                   numLeds: model.numLeds,
                   interval: model.interval
