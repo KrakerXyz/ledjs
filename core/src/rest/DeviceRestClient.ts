@@ -29,17 +29,18 @@ export interface Device {
     secret: string;
     created: number;
     status: DeviceStatus;
+    numLeds: number;
     name: string;
 }
 
-export type DevicePost = Pick<Device, 'id' | 'name'>;
+export type DevicePost = Pick<Device, 'id' | 'name' | 'numLeds'>;
 
 export interface DeviceStatus {
     lastContact?: number;
     isOnline: boolean;
     localIp?: string;
     wanIp?: string;
-    ledsSetup?: DeviceLedsSetup;
+    animation?: DeviceLedsAnimationSetup;
 }
 
 export interface DeviceLog {
@@ -51,17 +52,12 @@ export interface DeviceLog {
 
 export interface DeviceLedsSetupPost {
     deviceIds: string[],
-    setup: DeviceLedsSetup
+    animation: DeviceLedsAnimationSetup
 }
 
-export interface DeviceLedsSetup {
-    animation: DeviceLedsSetupAnimation;
-    numLeds: number;
-    interval: number;
-}
-
-export interface DeviceLedsSetupAnimation {
+export interface DeviceLedsAnimationSetup {
     id: string;
     version: number;
     config?: Config<any>;
+    interval: number;
 }

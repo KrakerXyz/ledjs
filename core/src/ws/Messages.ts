@@ -1,8 +1,28 @@
-import { DeviceLedsSetup } from '..';
 
-export type ToDeviceMessage = LedSetupMessage;
+import { DeviceLedsAnimationSetup } from '../rest';
 
-export type LedSetupMessage = {
-    type: 'ledSetup',
-    data: DeviceLedsSetup
+export type ToDeviceMessage = AnimationSetup | DeviceSetup | AnimationStop;
+
+export type AnimationSetup = {
+    type: 'animationSetup',
+    data: DeviceLedsAnimationSetup
 }
+
+export type DeviceSetup = {
+    type: 'deviceSetup',
+    data: DeviceSetupData
+}
+
+export type DeviceSetupData = {
+    numLeds: number;
+}
+
+export type AnimationStop = {
+    type: 'animationStop'
+    data: AnimationStopData
+}
+
+export type AnimationStopData = {
+    stop: boolean;
+}
+

@@ -34,7 +34,8 @@ export const postDevice: RouteOptions = {
             },
             ...(existingDevice ?? {}),
             id: device.id,
-            name: device.name
+            name: device.name,
+            numLeds: device.numLeds
         };
 
         await (existingDevice ? db.replace : db.add).apply(db, [newDevice]);

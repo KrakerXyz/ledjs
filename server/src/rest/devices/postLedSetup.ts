@@ -28,13 +28,13 @@ export const postLedsSetup: RouteOptions = {
         const updateProms: Promise<any>[] = [];
         for (const d of devices) {
             if (!d) { continue; }
-            d.status.ledsSetup = deviceSetup.setup;
+            d.status.animation = deviceSetup.animation;
             updateProms.push(db.replace(d));
         }
 
         req.services.webSocketManager.sendDeviceMessage({
-            type: 'ledSetup',
-            data: deviceSetup.setup
+            type: 'animationSetup',
+            data: deviceSetup.animation
         }, ...deviceSetup.deviceIds);
 
         res.send();
