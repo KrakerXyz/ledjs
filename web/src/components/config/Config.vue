@@ -172,7 +172,7 @@
    import { computed, defineComponent, getCurrentInstance, onUnmounted, reactive, ref, watch } from 'vue';
    import { useRoute } from 'vue-router';
    import LedCanvas from '../LedCanvas.vue';
-   import { AnimationClient, Config, ConfigMetaParam, WsMessage } from 'netled';
+   import { AnimationRestClient, Config, ConfigMetaParam, WsMessage } from 'netled';
    import { useIframeRunner } from '../editor/iframeRunner';
    import { Frame } from 'netled';
 
@@ -188,7 +188,7 @@
          const animationId = computed(() => route.params['animationId'] as string);
 
          const restClient = useRestClient();
-         const animationClient = new AnimationClient(restClient);
+         const animationClient = new AnimationRestClient(restClient);
          const animation = await animationClient.latest(animationId.value, true);
          const iframe = await useIframeRunner(animation.script);
 

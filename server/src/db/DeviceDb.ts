@@ -5,6 +5,10 @@ export class DeviceDb {
 
     private readonly entity = new TypedEntity<Device>();
 
+    public byId(id: string): Promise<Device | null> {
+        return this.entity.findOneAsync({ id });
+    }
+
     public byUserId(userId: string): AsyncGenerator<Device> {
         return this.entity.find({ userId });
     }

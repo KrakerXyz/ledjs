@@ -1,12 +1,16 @@
 import { RestClient } from '.';
 import { Config } from '../animation';
 
-export class DeviceClient {
+export class DeviceRestClient {
 
     constructor(private readonly restClient: RestClient) { }
 
     public list<T extends boolean>(includeStatus?: T): Promise<T extends true ? DeviceWithStatus[] : Device[]> {
         return this.restClient.get('/api/devices', { includeStatus });
+    }
+
+    public byId<T extends boolean>(deviceId: string, includeStatus?: T): Promise<T extends true ? DeviceWithStatus | null : Device | null> {
+        return this.restClient.get(`/api/devices/${deviceId}`, { includeStatus });
     }
 
     public save(device: DevicePost): Promise<Device> {

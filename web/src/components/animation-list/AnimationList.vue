@@ -29,8 +29,8 @@
          </div>
       </div>
 
-      <div class="row">
-         <div class="col text-end">
+      <div class="row mt-3">
+         <div class="col">
             <router-link :to="{ name: 'editor', params: { animationId: 'new' } }">
                New Animation
             </router-link>
@@ -41,7 +41,7 @@
 
 <script lang="ts">
 
-   import { AnimationClient, AnimationMeta } from 'netled';
+   import { AnimationRestClient, AnimationMeta } from 'netled';
    import { defineComponent, ref } from 'vue';
    import { useRestClient } from '../../services';
 
@@ -51,7 +51,7 @@
       setup() {
 
          const restClient = useRestClient();
-         const animationClient = new AnimationClient(restClient);
+         const animationClient = new AnimationRestClient(restClient);
 
          const animations = ref<AnimationMeta[]>();
          animationClient.list().then(a => animations.value = a);

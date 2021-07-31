@@ -1,5 +1,5 @@
 
-import { GoogleToken, AuthClient } from 'netled';
+import { GoogleToken, AuthRestClient } from 'netled';
 import { ref } from 'vue';
 import { useRestClient } from './restClient';
 
@@ -54,7 +54,7 @@ async function verifyToken(googleUser: gapi.auth2.GoogleUser, auth2: gapi.auth2.
     try {
 
         const restClient = useRestClient();
-        const authApi = new AuthClient(restClient);
+        const authApi = new AuthRestClient(restClient);
 
         await authApi.validateGoogleToken(googleToken);
 

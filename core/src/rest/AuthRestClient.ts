@@ -1,6 +1,6 @@
 import { RestClient } from './RestClient';
 
-export class AuthClient {
+export class AuthRestClient {
 
     constructor(private readonly restClient: RestClient) { }
 

@@ -1,7 +1,7 @@
 
 import { RestClient } from './RestClient';
 
-export class AnimationClient {
+export class AnimationRestClient {
 
     constructor(private readonly restClient: RestClient) { }
 
