@@ -5,7 +5,7 @@ export class AnimationRestClient {
 
     constructor(private readonly restClient: RestClient) { }
 
-    public list<T extends boolean>(withScript?: T): Promise<T extends true ? Animation[] : AnimationMeta[]> {
+    public list<T extends boolean = false>(withScript?: T): Promise<T extends true ? Animation[] : AnimationMeta[]> {
         return this.restClient.get('/api/animations', { withScript });
     }
 

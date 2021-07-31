@@ -9,7 +9,7 @@ export class DeviceRestClient {
         return this.restClient.get('/api/devices', { includeStatus });
     }
 
-    public byId<T extends boolean>(deviceId: string, includeStatus?: T): Promise<T extends true ? DeviceWithStatus | null : Device | null> {
+    public byId<T extends boolean = false>(deviceId: string, includeStatus?: T): Promise<T extends true ? DeviceWithStatus | null : Device | null> {
         return this.restClient.get(`/api/devices/${deviceId}`, { includeStatus });
     }
 

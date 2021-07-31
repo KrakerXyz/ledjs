@@ -8,7 +8,7 @@
 <script lang="ts">
 
    import { ref } from '@vue/reactivity';
-   import { Device, DeviceRestClient } from 'netled';
+   import { DeviceRestClient, DeviceWithStatus } from 'netled';
    import { defineComponent } from 'vue';
    import { useRestClient } from '../../services';
 
@@ -18,11 +18,11 @@
       },
       async setup(props) {
 
-         const device = ref<Device>();
+         const device = ref<DeviceWithStatus>();
 
          const restClient = useRestClient();
          const deviceClient = new DeviceRestClient(restClient);
-         device.value = await deviceClient.byId(props.deviceId);
+         device.value = await deviceClient.byId(props.deviceId, true);
 
          return { device };
       }

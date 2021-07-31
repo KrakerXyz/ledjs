@@ -1,15 +1,19 @@
 
-import { initConfig, Leds, useRestClient } from './services';
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+require('dotenv').config();
+
+import { EnvKey, getConfig, getRequiredConfig, Leds, useRestClient } from './services';
 import WebSocket from 'ws';
 import { WsMessage } from 'netled';
 
+if (!getConfig(EnvKey.DeviceId) || !getConfig(EnvKey.DeviceSecret)) {
+    console.error('Missing config - deviceId/secret. Quitting');
+    process.exit();
+}
+
 (async () => {
 
-    console.log('Initializing config');
-    const config = await initConfig();
-
-    const myArgs = process.argv.splice(2);
-    const remoteAddress = myArgs[0] ?? config.host ?? 'localhost:3000';
+    const remoteAddress = getConfig(EnvKey.WsHost, 'localhost:3001');
 
     useRestClient(remoteAddress);
 
@@ -17,7 +21,8 @@ import { WsMessage } from 'netled';
     const leds = new Leds();
 
     console.log(`Starting WebSocket @ ${remoteAddress}`);
-    const ws = new WebSocket(`ws://${remoteAddress}/ws?device-id=raspi-netled-1&token=raspi-netled-1`);
+    const authToken = `${getRequiredConfig(EnvKey.DeviceId)}:${getRequiredConfig(EnvKey.DeviceSecret)}`;
+    const ws = new WebSocket(`ws://${remoteAddress}/ws`, { auth: authToken });
 
     ws.addEventListener('open', () => {
         console.log('WebSocket opened');
