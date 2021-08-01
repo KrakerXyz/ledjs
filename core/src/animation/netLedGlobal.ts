@@ -1,10 +1,11 @@
-import { hslToRgb, rgbToHex, rotateFrame } from '../color-utilities';
+import { hslToRgb, rgbToHex, rotateFrame, shade } from '../color-utilities';
 
 export const netLedGlobal = {
     util: {
         color: {
             hslToRgb,
-            rgbToHex
+            rgbToHex,
+            shade
         },
         frame: {
             rotateFrame

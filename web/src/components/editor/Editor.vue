@@ -1,103 +1,103 @@
 
 <template>
-   <div class="h-100">
+   <div class="h-100 d-flex flex-column">
       <led-canvas
          id="canvas"
+         class="bg-secondary"
          :frame="frame"
          @drawError="onDrawError($event)"
       />
 
-      <div
-         id="controls"
-         class="row border border-dark shadow g-0"
-      >
-         <!-- The positioning here was to get monaco to resize to fill the col. -->
-         <div class="col position-relative">
-            <div
-               id="editor-ide-container"
-               class="h-100 w-100 position-absolute"
-            />
-         </div>
-
-         <div class="col-auto col-right p-1">
-
-            <button
-               v-if="!isRunning"
-               class="btn btn-link p-0"
-               @click="testScript()"
-            >
-               Test script
-            </button>
-
-            <div
-               v-if="executionError"
-               class="alert alert-danger px-1 py-0 mt-2 small"
-            >
-               {{executionError}}
-            </div>
-
-            <button
-               v-if="isRunning"
-               class="btn btn-link p-0"
-               @click="stopScript()"
-            >
-               Stop script
-            </button>
-
-            <div class="row mt-3">
-               <div class="col">
-                  <div class="form-floating">
-                     <input
-                        id="editor-script-name"
-                        class="form-control"
-                        placeholder="*"
-                        v-model.trim="animationPost.name"
-                     />
-                     <label for="editor-script-name">Animation Name</label>
-                  </div>
-               </div>
-            </div>
-
-            <div class="row mt-3">
-               <div class="col">
-                  <div class="form-floating">
-                     <textarea
-                        id="editor-script-description"
-                        class="form-control"
-                        placeholder="*"
-                        v-model.trim="animationPost.description"
-                     />
-                     <label for="editor-script-description">
-                        Description
-                     </label>
-                  </div>
-               </div>
-            </div>
-
-            <div
-               v-if="!executionError && !errorMessages.length"
-               class="row mt-2"
-            >
-               <div class="col">
-                  <button
-                     class="btn btn-primary w-100"
-                     @click="saveScript()"
-                  >
-                     Save Draft
-                  </button>
-               </div>
-            </div>
-
-            <div
-               class="mt-3"
-               v-if="errorMessages.length"
-            >
+      <div class="flex-grow-1 container shadow bg-white p-3">
+         <div class="row g-0 h-100">
+            <!-- The positioning here was to get monaco to resize to fill the col. -->
+            <div class="col position-relative">
                <div
-                  class="alert alert-danger px-1 py-0 small"
-                  v-for="(e, i) of errorMessages"
-                  :key="i"
+                  id="editor-ide-container"
+                  class="h-100 w-100 position-absolute"
+               />
+            </div>
+
+            <div class="col-auto col-right p-1">
+
+               <button
+                  v-if="!isRunning"
+                  class="btn btn-link p-0"
+                  @click="testScript()"
                >
-                  <small>{{ e }}</small>
+                  Test script
+               </button>
+
+               <div
+                  v-if="executionError"
+                  class="alert alert-danger px-1 py-0 mt-2 small"
+               >
+                  {{executionError}}
+               </div>
+
+               <button
+                  v-if="isRunning"
+                  class="btn btn-link p-0"
+                  @click="stopScript()"
+               >
+                  Stop script
+               </button>
+
+               <div class="row mt-3">
+                  <div class="col">
+                     <div class="form-floating">
+                        <input
+                           id="editor-script-name"
+                           class="form-control"
+                           placeholder="*"
+                           v-model.trim="animationPost.name"
+                        />
+                        <label for="editor-script-name">Animation Name</label>
+                     </div>
+                  </div>
+               </div>
+
+               <div class="row mt-3">
+                  <div class="col">
+                     <div class="form-floating">
+                        <textarea
+                           id="editor-script-description"
+                           class="form-control"
+                           placeholder="*"
+                           v-model.trim="animationPost.description"
+                        />
+                        <label for="editor-script-description">
+                           Description
+                        </label>
+                     </div>
+                  </div>
+               </div>
+
+               <div
+                  v-if="!executionError && !errorMessages.length"
+                  class="row mt-2"
+               >
+                  <div class="col">
+                     <button
+                        class="btn btn-primary w-100"
+                        @click="saveScript()"
+                     >
+                        Save Draft
+                     </button>
+                  </div>
+               </div>
+
+               <div
+                  class="mt-3"
+                  v-if="errorMessages.length"
+               >
+                  <div
+                     class="alert alert-danger px-1 py-0 small"
+                     v-for="(e, i) of errorMessages"
+                     :key="i"
+                  >
+                     <small>{{ e }}</small>
+                  </div>
                </div>
             </div>
          </div>
@@ -164,7 +164,7 @@
                iframeContext.value = await useIframeRunner(content.value);
 
                try {
-                  await iframeContext.value.setNumLeds(144);
+                  await iframeContext.value.setNumLeds(90);
                } catch (e) {
                   throw new Error(`setNumLeds: ${e}`);
                }
@@ -234,13 +234,8 @@
 </script>
 
 <style lang="postcss" scoped>
-   #controls {
-      --control-padding: 60px;
-      position: absolute;
-      top: var(--control-padding);
-      left: var(--control-padding);
-      width: calc(100% - var(--control-padding) * 2);
-      height: calc(100% - var(--control-padding) * 2);
+   #canvas {
+      height: 20px;
    }
 
    .col-right {
