@@ -67,13 +67,14 @@ export class Leds {
     private _isNextFrameError = false;
     private setInterval(interval: number) {
         if (this._intervalTimeout && interval === this._lastInterval) { return; }
+        this._lastInterval = interval;
+
         if (this._intervalTimeout) { clearInterval(this._intervalTimeout); }
         if (this._isStopped) {
             console.log('Holding interval change because animation is stopped');
             return;
         }
         console.log(`Set draw interval to ${interval}ms`);
-        this._lastInterval = interval;
         this._intervalTimeout = setInterval(() => {
             let position: string = 'nextFrame';
             try {
