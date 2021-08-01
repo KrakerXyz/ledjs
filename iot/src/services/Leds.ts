@@ -116,13 +116,17 @@ export class Leds {
     private _buffer: Buffer | null = null;
     private rpioDraw(frame: Frame) {
 
-        if (!this._buffer || this._buffer.length !== (frame.length * 4) + 8) {
+        if (!this._buffer || this._buffer.length !== (frame.length * 4) + 12) {
             console.log(`Initializing buffer for frame length ${frame.length}`);
-            this._buffer = Buffer.alloc((frame.length * 4) + 8, '00000000', 'hex');
+            this._buffer = Buffer.alloc((frame.length * 4) + 12, '00000000', 'hex');
             this._buffer[frame.length - 1] = 255;
             this._buffer[frame.length - 2] = 255;
             this._buffer[frame.length - 3] = 255;
             this._buffer[frame.length - 4] = 255;
+            this._buffer[frame.length - 5] = 255;
+            this._buffer[frame.length - 6] = 255;
+            this._buffer[frame.length - 7] = 255;
+            this._buffer[frame.length - 8] = 255;
         }
 
         for (let i = 0; i < frame.length; i++) {
