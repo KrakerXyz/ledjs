@@ -3,6 +3,7 @@ import rpio from 'rpio';
 import { deepEquals } from './deepEquals';
 import { Animator, ARGB, DeviceAnimationSetup, DeviceSetupData, Frame } from 'netled';
 import { useAnimation } from '.';
+import { performance } from 'perf_hooks';
 
 export class Leds {
 
@@ -65,6 +66,11 @@ export class Leds {
     private _intervalTimeout: NodeJS.Timeout | null = null;
     private _lastInterval = -1;
     private _isNextFrameError = false;
+
+    private _benchPosition = 0;
+    private _frameBench = Buffer.alloc(500, 0);
+    private _drawBench = Buffer.alloc(500, 0);
+
     private setInterval(interval: number) {
         if (this._intervalTimeout && interval === this._lastInterval) { return; }
         this._lastInterval = interval;
@@ -78,11 +84,23 @@ export class Leds {
         this._intervalTimeout = setInterval(() => {
             let position: string = 'nextFrame';
             try {
+                let sw = performance.now();
                 const frame = this._animation?.nextFrame();
+                this._frameBench[this._benchPosition] = performance.now() - sw;
                 if (!frame) { return; }
                 position = 'draw';
+                sw = performance.now();
                 this.rpioDraw(frame);
+                this._drawBench[this._benchPosition] = performance.now() - sw;
                 this._isNextFrameError = false;
+
+                this._benchPosition++;
+                if (this._benchPosition === this._frameBench.length) {
+                    const avgFrame = this._frameBench.reduce((p, c) => p + c, 0) / this._frameBench.length;
+                    const avgDraw = this._frameBench.reduce((p, c) => p + c, 0) / this._frameBench.length;
+                    console.log(`Last ${this._benchPosition} iteration - Frame: ${avgFrame}ms, Draw: ${avgDraw}ms`);
+                    this._benchPosition = 0;
+                }
             } catch (e) {
                 if (this._isNextFrameError) { return; }
                 console.error(`Error during interval tick on ${position}: ${e.message}`);
