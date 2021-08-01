@@ -166,6 +166,7 @@ export class Leds {
 
             const led = frame[i];
 
+            //If anything, using set instead of direct assignment increased time by 1ms (to ~36ms);
             this._buffer.set([228, led[3], led[2], led[1]], buffPos);
 
             // this._buffer[buffPos] = 228; //Brightness
