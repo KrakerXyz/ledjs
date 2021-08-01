@@ -27,7 +27,7 @@
                         <button
                            class="btn p-0 ms-2 text-success"
                            v-if="d.status.animation && d.status.isStopped"
-                           @click.prevent="stop(d.id, false)"
+                           @click.prevent="stop(d, false)"
                         >
                            <i class="fas fa-play fa-fw"></i>
                         </button>
@@ -35,7 +35,7 @@
                         <span
                            class="btn p-0 ms-2 text-danger"
                            v-if="d.status.animation && !d.status.isStopped"
-                           @click.prevent="stop(d.id, true)"
+                           @click.prevent="stop(d, true)"
                         >
                            <i class="fas fa-stop fa-fw"></i>
                         </span>
@@ -60,7 +60,7 @@
 <script lang="ts">
 
    import { DeviceRestClient, Device } from 'netled';
-   import { defineComponent, ref } from 'vue';
+   import { defineComponent, reactive, ref } from 'vue';
    import { useRestClient } from '../../services';
 
    export default defineComponent({
@@ -72,10 +72,11 @@
          const devicesClient = new DeviceRestClient(restClient);
 
          const devices = ref<Device[]>();
-         devicesClient.list(true).then(d => devices.value = d);
+         devicesClient.list(true).then(d => devices.value = reactive(d));
 
-         const stop = (deviceId: string, value: boolean) => {
-            devicesClient.stopAnimation({ deviceIds: [deviceId], stop: value });
+         const stop = (device: Device, value: boolean) => {
+            devicesClient.stopAnimation({ deviceIds: [device.id], stop: value });
+            device.status.isStopped = value;
          };
 
          return { devices, stop };

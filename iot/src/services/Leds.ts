@@ -121,11 +121,16 @@ export class Leds {
 
         if (!this._buffer || this._buffer.length !== (frame.length * 4) + 8) {
             console.log(`Initializing buffer for frame length ${frame.length}`);
-            this._buffer = Buffer.alloc((frame.length * 4) + 8, '00000000', 'hex');
-            this._buffer[frame.length - 1] = 255;
-            this._buffer[frame.length - 2] = 255;
-            this._buffer[frame.length - 3] = 255;
-            this._buffer[frame.length - 4] = 255;
+
+            // The spec says that we need to 32 bits for the end of the frame but on my 144 strand, 
+            //   we were ending up with a lit led at the end when turning off. Based on reading from
+            //   https://cpldcpu.wordpress.com/2014/11/30/understanding-the-apa102-superled/ we
+            //   really need a bit for each 2 leds. Converted to bytes, that 2 * 8.
+            // The spec also states that we should send 255 for each byte but it doesn't seem to 
+            //   matter so we'll just leave it at it's default fill of 0
+            const numEndFrameBytes = Math.ceil(frame.length / 16);
+
+            this._buffer = Buffer.alloc((frame.length * 4) + 4 + numEndFrameBytes, '00000000', 'hex');
         }
 
         for (let i = 0; i < frame.length; i++) {
