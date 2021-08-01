@@ -1,5 +1,5 @@
 
-import rpio from 'rpio';
+import rpio, { PAD_GROUP_46_53 } from 'rpio';
 import { deepEquals } from './deepEquals';
 import { Animator, ARGB, DeviceAnimationSetup, DeviceSetupData, Frame } from 'netled';
 import { useAnimation } from '.';
@@ -152,16 +152,19 @@ export class Leds {
             this._buffer = Buffer.alloc((frame.length * 4) + 4 + numEndFrameBytes, '00000000', 'hex');
         }
 
-        for (let i = 0; i < frame.length; i++) {
+        const bufferBytes = Uint8Array.from(frame.flatMap(led => [224 + 4, led[3], led[2], led[1]]));
+        this._buffer.fill(bufferBytes, 4);
 
-            const buffPos = (i * 4) + 4; //We add in 4 to account for the leading reset bytes
+        // for (let i = 0; i < frame.length; i++) {
 
-            this._buffer[buffPos] = 224 + 4; //Brightness
-            this._buffer[buffPos + 1] = frame[i][3]; //B
-            this._buffer[buffPos + 2] = frame[i][2]; //G
-            this._buffer[buffPos + 3] = frame[i][1]; //R
+        //     const buffPos = (i * 4) + 4; //We add in 4 to account for the leading reset bytes
 
-        }
+        //     this._buffer[buffPos] = 224 + 4; //Brightness
+        //     this._buffer[buffPos + 1] = frame[i][3]; //B
+        //     this._buffer[buffPos + 2] = frame[i][2]; //G
+        //     this._buffer[buffPos + 3] = frame[i][1]; //R
+
+        // }
 
         rpio.spiWrite(this._buffer, this._buffer.length);
 
