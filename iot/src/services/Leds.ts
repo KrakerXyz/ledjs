@@ -161,16 +161,16 @@ export class Leds {
 
             const buffPos = (i * 4) + 4; //We add in 4 to account for the leading reset bytes
 
-            this._buffer[buffPos] = 224 + 4; //Brightness
-            this._buffer[buffPos + 1] = frame[i][3]; //B
-            this._buffer[buffPos + 2] = frame[i][2]; //G
-            this._buffer[buffPos + 3] = frame[i][1]; //R
+            const led = frame[i];
+
+            this._buffer[buffPos] = 228; //Brightness
+            this._buffer[buffPos + 1] = led[3]; //B
+            this._buffer[buffPos + 2] = led[2]; //G
+            this._buffer[buffPos + 3] = led[1]; //R
 
         }
 
-        const arr: any = [...this._buffer];
-
-        rpio.spiWrite(arr, this._buffer.length);
+        rpio.spiWrite(this._buffer, this._buffer.length);
 
     }
 
