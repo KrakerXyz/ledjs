@@ -1,5 +1,5 @@
 
-import rpio, { PAD_GROUP_46_53 } from 'rpio';
+import rpio from 'rpio';
 import { deepEquals } from './deepEquals';
 import { Animator, ARGB, DeviceAnimationSetup, DeviceSetupData, Frame } from 'netled';
 import { useAnimation } from '.';
@@ -9,7 +9,7 @@ export class Leds {
 
     public constructor() {
         rpio.spiBegin();
-        rpio.spiSetClockDivider(22); // 250mhz / 100
+        rpio.spiSetClockDivider(10); // 250mhz / 100
     }
 
     private _animation: Animator | null = null;
