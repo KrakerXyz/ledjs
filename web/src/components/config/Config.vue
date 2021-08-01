@@ -86,48 +86,56 @@
                v-for="p of paramVms"
                :key="p.name"
             >
-               <div class="form-floating">
-                  <input
-                     v-if="p.meta.type === 'number'"
-                     :id="`c-param-${p.name}`"
-                     class="form-control"
-                     placeholder="*"
-                     v-model="p.value"
-                  />
-                  <label :for="`c-param-${p.name}`">
-                     {{ p.name }}
-                  </label>
-                  <small class="form-text">{{
+               <label class="form-label">
+                  {{p.name}}:
+                  <input v-model.number="p.value" />
+                  <small
+                     v-if="p.meta.default"
+                     class="form-text ms-2"
+                  >
+                     Default {{p.meta.default}}
+                  </small>
+               </label>
+
+               <input
+                  type="range"
+                  v-if="p.meta.type === 'number'"
+                  :id="`c-param-${p.name}`"
+                  class="form-range"
+                  :min="p.meta.min"
+                  :max="p.meta.maxRecommended ?? p.meta.max"
+                  v-model="p.value"
+               />
+
+               <small class="form-text">{{
                            p.meta.description
                         }}</small>
+            </div>
+         </div>
+
+         <div class="row">
+            <div class="col-auto">
+               <div class="form-check btn ps-4">
+                  <input
+                     class="form-check-input"
+                     type="checkbox"
+                     id="c-auto-push"
+                     v-model="model.autoPush"
+                  />
+                  <label
+                     class="form-check-label"
+                     for="c-auto-push"
+                  >
+                     Auto-Push to Devices
+                  </label>
                </div>
             </div>
-         </div>
-      </div>
-
-      <div class="row">
-         <div class="col-auto">
-            <div class="form-check btn ps-4">
-               <input
-                  class="form-check-input"
-                  type="checkbox"
-                  id="c-auto-push"
-                  v-model="model.autoPush"
-               />
-               <label
-                  class="form-check-label"
-                  for="c-auto-push"
-               >
-                  Auto-Push to Devices
-               </label>
+            <div
+               class="col-1"
+               v-if="!model.autoPush"
+            >
+               <button class="btn btn-primary w-100">Push</button>
             </div>
-         </div>
-
-         <div
-            class="col-1"
-            v-if="!model.autoPush"
-         >
-            <button class="btn btn-primary w-100">Push</button>
          </div>
       </div>
    </div>
@@ -271,7 +279,7 @@
       height: 20px;
    }
 
-   input.interval {
+   label > input {
       width: 5rem;
    }
 </style>

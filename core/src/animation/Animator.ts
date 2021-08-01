@@ -19,10 +19,14 @@ export type ConfigMetaParams = Record<string, ConfigMetaParam>;
 
 export type ConfigMetaParam = {
     description: string;
-    type: 'string' | 'number' | 'boolean';
+    type: 'string' | 'number' | 'boolean' | 'color';
     default: string | number | boolean;
     min?: number;
+    /** In cases where there's no hard min, minRecommended can be used to set the lower bounds of a slider on the UI */
+    minRecommended?: number
     max?: number;
+    /** In cases where there's no hard max, maxRecommended can be used to set the upper bounds of a slider on the UI */
+    maxRecommended?: number;
 };
 
 export function createType(script: string): Promise<AnimatorType> {
