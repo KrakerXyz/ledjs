@@ -97,7 +97,7 @@ export class Leds {
                 this._benchPosition++;
                 if (this._benchPosition === this._frameBench.length) {
                     const avgFrame = this._frameBench.reduce((p, c) => p + c, 0) / this._frameBench.length;
-                    const avgDraw = this._frameBench.reduce((p, c) => p + c, 0) / this._frameBench.length;
+                    const avgDraw = this._drawBench.reduce((p, c) => p + c, 0) / this._frameBench.length;
                     console.log(`Last ${this._benchPosition} iteration - Frame: ${avgFrame}ms, Draw: ${avgDraw}ms`);
                     this._benchPosition = 0;
                 }
