@@ -119,7 +119,9 @@ export class Leds {
     private _buffer: Buffer | null = null;
     private rpioDraw(frame: Frame) {
 
-        if (!this._buffer || this._buffer.length !== (frame.length * 4) + 8) {
+        const numEndFrameBytes = Math.ceil(frame.length / 16);
+
+        if (!this._buffer || this._buffer.length !== (frame.length * 4) + 4 + numEndFrameBytes) {
             console.log(`Initializing buffer for frame length ${frame.length}`);
 
             // The spec says that we need to 32 bits for the end of the frame but on my 144 strand, 
@@ -128,7 +130,6 @@ export class Leds {
             //   really need a bit for each 2 leds. Converted to bytes, that 2 * 8.
             // The spec also states that we should send 255 for each byte but it doesn't seem to 
             //   matter so we'll just leave it at it's default fill of 0
-            const numEndFrameBytes = Math.ceil(frame.length / 16);
 
             this._buffer = Buffer.alloc((frame.length * 4) + 4 + numEndFrameBytes, '00000000', 'hex');
         }
