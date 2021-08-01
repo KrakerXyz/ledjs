@@ -135,7 +135,7 @@ export class Leds {
         }
     }
 
-    private _buffer: Buffer | null = null;
+    private _buffer: Uint8Array | null = null;
     private rpioDraw(frame: Frame) {
 
         const numEndFrameBytes = Math.ceil(frame.length / 16);
@@ -150,11 +150,10 @@ export class Leds {
             // The spec also states that we should send 255 for each byte but it doesn't seem to 
             //   matter so we'll just leave it at it's default fill of 0
 
-            this._buffer = Buffer.alloc((frame.length * 4) + 4 + numEndFrameBytes, '00000000', 'hex');
+            this._buffer = new Uint8Array((frame.length * 4) + 4 + numEndFrameBytes);
         }
 
         this._sw = performance.now();
-
         //~158ms
         //const bufferBytes = Uint8Array.from(frame.flatMap(led => [224 + 4, led[3], led[2], led[1]]));
         //this._buffer.fill(bufferBytes, 4);
@@ -178,7 +177,7 @@ export class Leds {
 
         this._sw = performance.now();
 
-        rpio.spiWrite(this._buffer, this._buffer.length);
+        rpio.spiWrite(Buffer.from(this._buffer), this._buffer.length);
 
         this._drawBench[this._benchPosition] = performance.now() - this._sw;
 
