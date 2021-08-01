@@ -67,8 +67,10 @@ export class Leds {
     private _lastInterval = -1;
     private _isNextFrameError = false;
 
+    private _sw = 0;
     private _benchPosition = 0;
     private _frameBench = Buffer.alloc(500, 0);
+    private _createBufferBench = Buffer.alloc(500, 0);
     private _drawBench = Buffer.alloc(500, 0);
 
     private setInterval(interval: number) {
@@ -84,21 +86,20 @@ export class Leds {
         this._intervalTimeout = setInterval(() => {
             let position: string = 'nextFrame';
             try {
-                let sw = performance.now();
+                this._sw = performance.now();
                 const frame = this._animation?.nextFrame();
-                this._frameBench[this._benchPosition] = performance.now() - sw;
+                this._frameBench[this._benchPosition] = performance.now() - this._sw;
                 if (!frame) { return; }
                 position = 'draw';
-                sw = performance.now();
                 this.rpioDraw(frame);
-                this._drawBench[this._benchPosition] = performance.now() - sw;
                 this._isNextFrameError = false;
 
                 this._benchPosition++;
                 if (this._benchPosition === this._frameBench.length) {
                     const avgFrame = this._frameBench.reduce((p, c) => p + c, 0) / this._frameBench.length;
+                    const avgBuffer = this._createBufferBench.reduce((p, c) => p + c, 0) / this._frameBench.length;
                     const avgDraw = this._drawBench.reduce((p, c) => p + c, 0) / this._frameBench.length;
-                    console.log(`Last ${this._benchPosition} iteration - Frame: ${avgFrame}ms, Draw: ${avgDraw}ms`);
+                    console.log(`Last ${this._benchPosition} iteration - Frame: ${avgFrame}ms, Buffer: ${avgBuffer}, Draw: ${avgDraw}ms`);
                     this._benchPosition = 0;
                 }
             } catch (e) {
@@ -152,11 +153,14 @@ export class Leds {
             this._buffer = Buffer.alloc((frame.length * 4) + 4 + numEndFrameBytes, '00000000', 'hex');
         }
 
+        this._sw = performance.now();
+
         //~158ms
         //const bufferBytes = Uint8Array.from(frame.flatMap(led => [224 + 4, led[3], led[2], led[1]]));
         //this._buffer.fill(bufferBytes, 4);
 
         //~41ms
+        //~35ms: Changed [buffPos] = 224 + 4 to just 228, created local ref to led = frame[i].
         for (let i = 0; i < frame.length; i++) {
 
             const buffPos = (i * 4) + 4; //We add in 4 to account for the leading reset bytes
@@ -170,7 +174,13 @@ export class Leds {
 
         }
 
+        this._createBufferBench[this._benchPosition] = performance.now() - this._sw;
+
+        this._sw = performance.now();
+
         rpio.spiWrite(this._buffer, this._buffer.length);
+
+        this._drawBench[this._benchPosition] = performance.now() - this._sw;
 
     }
 
