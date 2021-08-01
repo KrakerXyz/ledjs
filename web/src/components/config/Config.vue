@@ -216,7 +216,7 @@
 
          const animationConfigWatchStop = watch(animationConfig, config => iframe.setConfig(config), { immediate: true });
 
-         const wsLedSetupThrottle = useThrottledProxy((setup: DeviceAnimationPost) => devicesClient.setLedSetup(setup), { timeout: 1000 });
+         const wsLedSetupThrottle = useThrottledProxy((setup: DeviceAnimationPost) => devicesClient.setAnimation(setup), { timeout: 1000 });
 
          const modelAnimationConfigWatchStop = watch([model, animationConfig], () => {
 

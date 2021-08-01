@@ -15,8 +15,31 @@
                   :to="{ name: 'device-view', params: { deviceId: d.id } }"
                >
                   <div class="row">
-                     <div class="col">
+                     <div class="col d-flex align-items-center">
+
+                        <span
+                           class="online-status d-inline-block me-2"
+                           :class="{'bg-success': d.status.cameOnline > d.status.wentOffline, 'bg-danger': d.status.wentOffline >= d.status.cameOnline }"
+                        ></span>
+
                         {{ d.name }}
+
+                        <button
+                           class="btn p-0 ms-2 text-success"
+                           v-if="d.status.animation && d.status.isStopped"
+                           @click.prevent="stop(d.id, false)"
+                        >
+                           <i class="fas fa-play fa-fw"></i>
+                        </button>
+
+                        <span
+                           class="btn p-0 ms-2 text-danger"
+                           v-if="d.status.animation && !d.status.isStopped"
+                           @click.prevent="stop(d.id, true)"
+                        >
+                           <i class="fas fa-stop fa-fw"></i>
+                        </span>
+
                      </div>
                   </div>
                </router-link>
@@ -51,8 +74,21 @@
          const devices = ref<Device[]>();
          devicesClient.list(true).then(d => devices.value = d);
 
-         return { devices };
+         const stop = (deviceId: string, value: boolean) => {
+            devicesClient.stopAnimation({ deviceIds: [deviceId], stop: value });
+         };
+
+         return { devices, stop };
       }
    });
 
 </script>
+
+<style lang="postcss" scoped>
+   .online-status {
+      --size: 1rem;
+      height: var(--size);
+      width: var(--size);
+      border-radius: var(--size);
+   }
+</style>

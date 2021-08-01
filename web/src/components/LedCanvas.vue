@@ -55,7 +55,11 @@
          };
 
          const obs = new ResizeObserver(setCanvasDimension);
-         onMounted(() => obs.observe(wrapper.value));
+         onMounted(() => {
+            console.assert(!!wrapper.value);
+            if (!wrapper.value) { return; }
+            obs.observe(wrapper.value);
+         });
 
          watch(frame, f => {
             if (!ctx.value) { return; }

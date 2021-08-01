@@ -2,6 +2,7 @@
 import { getDevice } from './getDevice';
 import { getDevices } from './getDevices';
 import { postDevice } from './postDevice';
-import { postLedsSetup } from './postLedSetup';
+import { postAnimation } from './postAnimation';
+import { postStop } from './postStop';
 
-export const deviceRoutes = [getDevices, postDevice, getDevice, postLedsSetup];
+export const deviceRoutes = [getDevices, postDevice, getDevice, postAnimation, postStop];

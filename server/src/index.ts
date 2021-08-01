@@ -1,4 +1,7 @@
 
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+require('dotenv').config();
+
 import fastify from 'fastify';
 import fastifyWebsocket from 'fastify-websocket';
 import fastifyCookie from 'fastify-cookie';

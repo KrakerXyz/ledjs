@@ -16,8 +16,12 @@ export class DeviceRestClient {
         return this.restClient.post('/api/devices', device);
     }
 
-    public setLedSetup(setup: DeviceAnimationPost): Promise<void> {
+    public setAnimation(setup: DeviceAnimationPost): Promise<void> {
         return this.restClient.post('/api/devices/animation', setup);
+    }
+
+    public stopAnimation(stop: DeviceStopPost): Promise<void> {
+        return this.restClient.post('/api/devices/animation/stop', stop);
     }
 
 }
@@ -38,10 +42,14 @@ export type DevicePost = Pick<Device, 'id' | 'name' | 'numLeds'>;
 
 export interface DeviceStatus {
     lastContact?: number;
-    isOnline: boolean;
+    /** Timestamp of when the device last connected */
+    cameOnline: number;
+    /** Timestamp of when the device last went offline */
+    wentOffline: number;
     localIp?: string;
     wanIp?: string;
     animation?: DeviceAnimationSetup;
+    isStopped: boolean;
 }
 
 export interface DeviceLog {
@@ -61,4 +69,9 @@ export interface DeviceAnimationSetup {
     version: number;
     config?: Record<string, any>;
     interval: number;
+}
+
+export interface DeviceStopPost {
+    deviceIds: [string, ...string[]],
+    stop: boolean;
 }

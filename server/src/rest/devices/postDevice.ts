@@ -30,7 +30,9 @@ export const postDevice: RouteOptions = {
             secret: v4(),
             userId: req.user.sub,
             status: {
-                isOnline: false
+                cameOnline: 0,
+                wentOffline: 0,
+                isStopped: false,
             },
             ...(existingDevice ?? {}),
             id: device.id,

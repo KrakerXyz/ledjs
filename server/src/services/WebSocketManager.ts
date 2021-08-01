@@ -1,6 +1,6 @@
 import { FastifyRequest } from 'fastify';
 import { SocketStream } from 'fastify-websocket';
-import { ToDeviceMessage } from '../../../core/dist/cjs';
+import { Device, ToDeviceMessage } from '../../../core/dist/cjs';
 
 export class WebSocketManager {
 
@@ -9,9 +9,23 @@ export class WebSocketManager {
     public handler = async (socketStream: SocketStream, req: FastifyRequest) => {
         console.log('Incoming WS connection');
 
-        socketStream.socket.on('close', () => {
+        socketStream.socket.on('close', async () => {
             req.log.debug('WS Disconnected');
+
+            const connection = this._connections.get(req.user.sub);
+            console.assert(connection);
+            if (!connection) { return; }
+
             this._connections.delete(req.user.sub);
+
+            if (connection.type === 'device') {
+                const device = await req.services.deviceDb.byId(connection.id);
+                console.assert(device);
+                if (!device) { return; }
+
+                device.status.wentOffline = Date.now();
+                await req.services.deviceDb.replace(device);
+            }
         });
 
         socketStream.socket.on('message', (message: any) => {
@@ -24,7 +38,26 @@ export class WebSocketManager {
             socketStream
         };
 
-        if (wsConnection.type === 'device') { this.initializeDevice(wsConnection.id, req); }
+        if (wsConnection.type === 'device') {
+
+            const device = await req.services.deviceDb.byId(wsConnection.id);
+            console.assert(device);
+            if (!device) { return; }
+
+            // Calling initialize synchronously definitely does not work. 
+            // I tried with immediate and 0 timeout but it's still too quick.  Setting to 10ms
+            // Seen sporadic failed with 10ms. Setting to 100ms
+            setTimeout(() => {
+                this.initializeDevice(device, req);
+            }, 100);
+
+            device.status.cameOnline = Date.now();
+            device.status.lastContact = Date.now();
+            device.status.wanIp = req.ip;
+
+            await req.services.deviceDb.replace(device);
+
+        }
 
         this._connections.set(req.user.sub, wsConnection);
 
@@ -39,22 +72,30 @@ export class WebSocketManager {
         }
     }
 
-    private async initializeDevice(deviceId: string, req: FastifyRequest) {
-        const device = await req.services.deviceDb.byId(deviceId);
+    private initializeDevice(device: Device, req: FastifyRequest) {
+
         if (!device) { return; }
-        req.log.info('Sending %s initial deviceSetup', deviceId);
+
+        req.log.info('Sending %s initial deviceSetup', device.id);
         this.sendDeviceMessage({
             type: 'deviceSetup',
             data: {
                 numLeds: device.numLeds
             }
-        }, deviceId);
+        }, device.id);
 
         if (device.status.animation) {
             this.sendDeviceMessage({
                 type: 'animationSetup',
                 data: device.status.animation
-            }, deviceId);
+            }, device.id);
+        }
+
+        if (device.status.isStopped) {
+            this.sendDeviceMessage({
+                type: 'animationStop',
+                data: { stop: device.status.isStopped }
+            }, device.id);
         }
     }
 

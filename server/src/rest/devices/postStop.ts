@@ -1,17 +1,17 @@
 import { RouteOptions } from 'fastify-websocket';
-import { DeviceAnimationPost } from 'netled';
+import { DeviceStopPost } from 'netled';
 import { jwtAuthentication } from '../../services';
 import { DeviceDb } from '../../db/DeviceDb';
 
-export const postLedsSetup: RouteOptions = {
+export const postStop: RouteOptions = {
     method: 'POST',
-    url: '/api/devices/animation',
+    url: '/api/devices/animation/stop',
     preValidation: [jwtAuthentication],
     handler: async (req, res) => {
 
         const db = new DeviceDb();
 
-        const deviceSetup = req.body as DeviceAnimationPost;
+        const deviceSetup = req.body as DeviceStopPost;
 
         const devices = await Promise.all(deviceSetup.deviceIds.map(did => db.byId(did)));
 
@@ -28,13 +28,13 @@ export const postLedsSetup: RouteOptions = {
         const updateProms: Promise<any>[] = [];
         for (const d of devices) {
             if (!d) { continue; }
-            d.status.animation = deviceSetup.animation;
+            d.status.isStopped = deviceSetup.stop;
             updateProms.push(db.replace(d));
         }
 
         req.services.webSocketManager.sendDeviceMessage({
-            type: 'animationSetup',
-            data: deviceSetup.animation
+            type: 'animationStop',
+            data: { stop: deviceSetup.stop }
         }, ...deviceSetup.deviceIds);
 
         res.send();

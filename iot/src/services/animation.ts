@@ -4,7 +4,7 @@ import { NodeVM, VMScript } from 'vm2';
 
 let theVm: NodeVM | undefined;
 
-export async function useAnimation(id: string, version: number): Promise<Animator<any>> {
+export async function useAnimation(id: string, version: number): Promise<Animator> {
 
     const restClient = useRestClient();
     const animationClient = new AnimationRestClient(restClient);
@@ -20,7 +20,7 @@ export async function useAnimation(id: string, version: number): Promise<Animato
     }));
 
     const runResult = vm.run(vmScript);
-    const animatorType: AnimatorType<any> = runResult.default;
+    const animatorType: AnimatorType = runResult.default;
 
     const animator = new animatorType();
 

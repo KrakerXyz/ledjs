@@ -15,8 +15,8 @@
   "scripts": {
     "clean": "rimraf ./dist/*",
     "prestart": "npm run build",
-    "start": "node -r dotenv/config --unhandled-rejections=strict --trace-warnings .",
-    "start-mon": "nodemon --config nodemon.json -r dotenv/config --unhandled-rejections=strict --trace-warnings src/index.ts",
+    "start": "node --unhandled-rejections=strict --trace-warnings .",
+    "start-mon": "nodemon --config nodemon.json --unhandled-rejections=strict --trace-warnings src/index.ts",
     "build": "npm run clean && ttsc",
     "lint": "eslint ./src/**/*.ts"
   },

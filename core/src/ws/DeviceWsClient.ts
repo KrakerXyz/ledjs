@@ -55,6 +55,7 @@ export class DeviceWsClient {
 
     private readonly _listeners: Partial<Record<ToDeviceMessage['type'], ((data: any) => void)[]>> = {};
     private processMessage(msg: ToDeviceMessage) {
+        console.log(`Incoming WS message ${msg.type}`);
         const callbacks = this._listeners[msg.type] ?? [];
         callbacks.forEach(cb => cb(msg.data));
     }
@@ -68,7 +69,7 @@ export class DeviceWsClient {
     }
 
     public onAnimationStop(cb: (data: AnimationStopData) => void): Disposable {
-        return this.addListener('animationSetup', cb);
+        return this.addListener('animationStop', cb);
     }
 
     private addListener(type: ToDeviceMessage['type'], cb: any): Disposable {
