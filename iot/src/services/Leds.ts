@@ -168,7 +168,9 @@ export class Leds {
 
         }
 
-        rpio.spiWrite(this._buffer, this._buffer.length);
+        const arr: any = [...this._buffer];
+
+        rpio.spiWrite(arr, this._buffer.length);
 
     }
 
