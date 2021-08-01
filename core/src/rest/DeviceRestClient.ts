@@ -1,5 +1,4 @@
 import { RestClient } from '.';
-import { Config } from '../animation';
 
 export class DeviceRestClient {
 
@@ -60,6 +59,6 @@ export interface DeviceAnimationPost {
 export interface DeviceAnimationSetup {
     id: string;
     version: number;
-    config?: Config<any>;
+    config?: Record<string, any>;
     interval: number;
 }

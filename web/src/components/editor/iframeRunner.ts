@@ -1,4 +1,4 @@
-import { Config, ConfigMeta, Frame, hslToRgb, rgbToHex, rotateFrame } from 'netled';
+import { ConfigMeta, Frame, hslToRgb, rgbToHex, rotateFrame } from 'netled';
 
 export function useIframeRunner(script: string): Promise<IFrameContext> {
 
@@ -235,6 +235,6 @@ export interface IFrameContext {
     setNumLeds(numLeds: number): Promise<void>;
     nextFrame(): Promise<Frame>;
     getConfigMeta(): Promise<ConfigMeta>;
-    setConfig(config: Config<any>): Promise<void>;
+    setConfig(config: Record<string, any>): Promise<void>;
     dispose(): void;
 }

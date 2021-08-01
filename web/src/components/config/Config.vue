@@ -172,7 +172,7 @@
    import { computed, defineComponent, getCurrentInstance, onUnmounted, reactive, ref, watch } from 'vue';
    import { useRoute } from 'vue-router';
    import LedCanvas from '../LedCanvas.vue';
-   import { AnimationRestClient, Config, ConfigMetaParam, DeviceAnimationPost, DeviceRestClient } from 'netled';
+   import { AnimationRestClient, ConfigMetaParam, DeviceAnimationPost, DeviceRestClient } from 'netled';
    import { useIframeRunner } from '../editor/iframeRunner';
    import { Frame } from 'netled';
 
@@ -217,7 +217,7 @@
          const selectedAnimationStoredConfig = computed(() => {
             const json = localStorage.getItem(`${animation.name}-config`);
             if (!json) { return {}; }
-            const config: Config<any> = JSON.parse(json);
+            const config: Record<string, any> = JSON.parse(json);
             return config;
          });
 

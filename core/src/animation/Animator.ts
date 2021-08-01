@@ -1,15 +1,13 @@
 import { Frame } from '.';
 
-export type Config<TMeta extends ConfigMeta> = Record<keyof TMeta['params'], any>;
-
-export interface AnimatorType<TMeta extends ConfigMeta> {
-    new(): Animator<TMeta>;
+export interface AnimatorType {
+    new(): Animator;
     configMeta?: ConfigMeta
 }
 
-export interface Animator<TMeta extends ConfigMeta> {
+export interface Animator {
     setNumLeds(num: number): void;
-    setConfig?(config: Config<TMeta>): void;
+    setConfig?(config: Record<string, any>): void;
     nextFrame(): Frame
 }
 
@@ -27,7 +25,7 @@ export type ConfigMetaParam = {
     max?: number;
 };
 
-export function createType<TMeta extends ConfigMeta>(script: string): Promise<AnimatorType<TMeta>> {
+export function createType(script: string): Promise<AnimatorType> {
     const blob = new Blob([script], { type: 'text/javascript' });
     const url = URL.createObjectURL(blob);
 
