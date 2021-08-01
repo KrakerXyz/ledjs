@@ -166,10 +166,12 @@ export class Leds {
 
             const led = frame[i];
 
-            this._buffer[buffPos] = 228; //Brightness
-            this._buffer[buffPos + 1] = led[3]; //B
-            this._buffer[buffPos + 2] = led[2]; //G
-            this._buffer[buffPos + 3] = led[1]; //R
+            this._buffer.set([228, led[3], led[2], led[1]], buffPos);
+
+            // this._buffer[buffPos] = 228; //Brightness
+            // this._buffer[buffPos + 1] = led[3]; //B
+            // this._buffer[buffPos + 2] = led[2]; //G
+            // this._buffer[buffPos + 3] = led[1]; //R
 
         }
 
