@@ -22,12 +22,15 @@ export class LedController {
 
         let lastNumLeds = 0;
         deviceWs.onDeviceSetup(setup => {
-            if (lastNumLeds === setup.numLeds) { return; }
-            lastNumLeds = setup.numLeds;
-            const startFrameBytes = 4;
-            const numEndFrameBytes = Math.ceil(setup.numLeds / 16);
-            console.log(`Initalizing buffer for ${setup.numLeds} leds`);
-            this._buffer = new Uint8Array((setup.numLeds * 4) + startFrameBytes + numEndFrameBytes);
+            if (lastNumLeds !== setup.numLeds) {
+                lastNumLeds = setup.numLeds;
+                const startFrameBytes = 4;
+                const numEndFrameBytes = Math.ceil(setup.numLeds / 16);
+                console.log(`Initalizing buffer for ${setup.numLeds} leds`);
+                this._buffer = new Uint8Array((setup.numLeds * 4) + startFrameBytes + numEndFrameBytes);
+            }
+
+            this.initSpi(setup.spiSpeed);
         });
 
         let reportInterval: NodeJS.Timeout | null = setInterval(() => {

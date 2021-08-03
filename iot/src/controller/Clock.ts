@@ -47,7 +47,7 @@ export class Clock {
         if (this._isStopped) { return; }
         const now = performance.now();
         const offBy = now - this._nextDue;
-        if (offBy < -3) { return; }
+        if (offBy < -2) { return; }
         //console.log(`Late: ${offBy}`);
         this._nextDue = now + this._interval - offBy;
         this._onTick();
