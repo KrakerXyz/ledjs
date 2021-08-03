@@ -232,7 +232,8 @@
                   id: animation.id,
                   version: animation.version,
                   interval: model.interval,
-                  config: animationConfig.value
+                  config: animationConfig.value,
+                  brightness: 0.5
                }
             });
 

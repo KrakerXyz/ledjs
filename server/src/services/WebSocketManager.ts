@@ -1,6 +1,6 @@
 import { FastifyRequest } from 'fastify';
 import { SocketStream } from 'fastify-websocket';
-import { Device, ToDeviceMessage } from '../../../core/dist/cjs';
+import { Device, ToDeviceMessage } from 'netled';
 
 export class WebSocketManager {
 
@@ -80,21 +80,21 @@ export class WebSocketManager {
         this.sendDeviceMessage({
             type: 'deviceSetup',
             data: {
-                numLeds: device.numLeds
+                ...device.setup
             }
         }, device.id);
 
-        if (device.status.animation) {
+        if (device.animation) {
             this.sendDeviceMessage({
                 type: 'animationSetup',
-                data: device.status.animation
+                data: device.animation
             }, device.id);
         }
 
-        if (device.status.isStopped) {
+        if (device.isStopped) {
             this.sendDeviceMessage({
                 type: 'animationStop',
-                data: { stop: device.status.isStopped }
+                data: { stop: device.isStopped }
             }, device.id);
         }
     }

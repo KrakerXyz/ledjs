@@ -11,8 +11,7 @@ export class LedController {
 
     public constructor(readonly deviceWs: DeviceWsClient) {
 
-        rpio.spiBegin();
-        rpio.spiSetClockDivider(10); // 250mhz / 100
+        this.initSpi(25);
 
         new Clock(deviceWs, () => this.tick());
 
@@ -27,16 +26,51 @@ export class LedController {
             lastNumLeds = setup.numLeds;
             const startFrameBytes = 4;
             const numEndFrameBytes = Math.ceil(setup.numLeds / 16);
-            console.log(`Initializing buffer for ${setup.numLeds} leds`);
+            console.log(`Initalizing buffer for ${setup.numLeds} leds`);
             this._buffer = new Uint8Array((setup.numLeds * 4) + startFrameBytes + numEndFrameBytes);
         });
 
-        setInterval(() => {
-            const fps = this._framesDrawn / 10;
-            this._framesDrawn = 0;
-            console.log(`Avg FPS: ${fps}`);
-        }, 10_000);
+        let reportInterval: NodeJS.Timeout | null = setInterval(() => {
+            this.report();
+        }, 15_000);
 
+        deviceWs.onAnimationStop(data => {
+            if (data.stop) {
+                if (reportInterval) {
+                    console.debug('Stopping report interval');
+                    clearInterval(reportInterval);
+                    reportInterval = null;
+                }
+            } else if (!reportInterval) {
+                console.debug('Starting report interval');
+                reportInterval = setInterval(() => {
+                    this.report();
+                }, 10_000);
+            }
+        });
+
+    }
+
+    private _spiBegun = false;
+    private _lastSpiSpeed: number | null = null;
+    private initSpi(mhz: number) {
+        if (mhz === this._lastSpiSpeed) { return; }
+        this._lastSpiSpeed = mhz;
+
+        const divisor = 250 / mhz;
+        const divider = divisor - (divisor % 2);
+
+        console.log(`Initializing SPI to ~${mhz}mhz using divider ${divider}`);
+        if (this._spiBegun) { rpio.spiEnd(); }
+        rpio.spiBegin();
+        rpio.spiSetClockDivider(divider);
+        this._spiBegun = true;
+    }
+
+    private report() {
+        const fps = this._framesDrawn / 10;
+        this._framesDrawn = 0;
+        console.log(`Avg FPS: ${fps}`);
     }
 
     private tick() {

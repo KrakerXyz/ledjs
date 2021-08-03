@@ -26,7 +26,7 @@
 
                         <button
                            class="btn p-0 ms-2 text-success"
-                           v-if="d.status.animation && d.status.isStopped"
+                           v-if="d.animation && d.isStopped"
                            @click.prevent="stop(d, false)"
                         >
                            <i class="fas fa-play fa-fw"></i>
@@ -34,7 +34,7 @@
 
                         <span
                            class="btn p-0 ms-2 text-danger"
-                           v-if="d.status.animation && !d.status.isStopped"
+                           v-if="d.animation && !d.isStopped"
                            @click.prevent="stop(d, true)"
                         >
                            <i class="fas fa-stop fa-fw"></i>
@@ -76,7 +76,8 @@
 
          const stop = (device: Device, value: boolean) => {
             devicesClient.stopAnimation({ deviceIds: [device.id], stop: value });
-            device.status.isStopped = value;
+            //Need to clone and make the in-memory devices writeable
+            (device as any).isStopped = value;
          };
 
          return { devices, stop };

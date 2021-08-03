@@ -1,23 +1,26 @@
 
 import { DeviceAnimationSetup } from '../rest';
 
-export type ToDeviceMessage = AnimationSetup | DeviceSetup | AnimationStop;
+export type ToDeviceMessage = AnimationSetupMessage | DeviceSetupMessage | AnimationStopMessage;
 
-export type AnimationSetup = {
+export type AnimationSetupMessage = {
     type: 'animationSetup',
     data: DeviceAnimationSetup
 }
 
-export type DeviceSetup = {
+export type DeviceSetupMessage = {
     type: 'deviceSetup',
     data: DeviceSetupData
 }
 
 export type DeviceSetupData = {
+    /** Number of LEDs connected to the SPI interface */
     numLeds: number;
+    /** Speed in MHz to run the SPI interface at */
+    spiSpeed: number;
 }
 
-export type AnimationStop = {
+export type AnimationStopMessage = {
     type: 'animationStop'
     data: AnimationStopData
 }

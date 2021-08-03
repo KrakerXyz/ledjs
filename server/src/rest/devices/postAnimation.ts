@@ -28,8 +28,11 @@ export const postAnimation: RouteOptions = {
         const updateProms: Promise<any>[] = [];
         for (const d of devices) {
             if (!d) { continue; }
-            d.status.animation = deviceSetup.animation;
-            updateProms.push(db.replace(d));
+            const newDevice = {
+                ...d,
+                animation: deviceSetup.animation
+            };
+            updateProms.push(db.replace(newDevice));
         }
 
         req.services.webSocketManager.sendDeviceMessage({

@@ -32,12 +32,12 @@ export const postDevice: RouteOptions = {
             status: {
                 cameOnline: 0,
                 wentOffline: 0,
-                isStopped: false,
             },
             ...(existingDevice ?? {}),
             id: device.id,
             name: device.name,
-            numLeds: device.numLeds
+            isStopped: false,
+            setup: device.setup
         };
 
         await (existingDevice ? db.replace : db.add).apply(db, [newDevice]);

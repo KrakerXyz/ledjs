@@ -28,8 +28,11 @@ export const postStop: RouteOptions = {
         const updateProms: Promise<any>[] = [];
         for (const d of devices) {
             if (!d) { continue; }
-            d.status.isStopped = deviceSetup.stop;
-            updateProms.push(db.replace(d));
+            const newDevice = {
+                ...d,
+                isStopped: deviceSetup.stop
+            };
+            updateProms.push(db.replace(newDevice));
         }
 
         req.services.webSocketManager.sendDeviceMessage({

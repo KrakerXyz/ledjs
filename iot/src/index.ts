@@ -23,18 +23,4 @@ if (!getConfig(EnvKey.DeviceId) || !getConfig(EnvKey.DeviceSecret)) {
 
     new LedController(deviceWs);
 
-    //const leds = new Leds();
-
-    // deviceWs.onDeviceSetup(setup => {
-    //     leds.setupDevice(setup);
-    // });
-
-    // deviceWs.onAnimationSetup(setup => {
-    //     leds.setupAnimation(setup);
-    // });
-
-    // deviceWs.onAnimationStop(stop => {
-    //     leds.stopAnimation(stop.stop);
-    // });
-
 })();
