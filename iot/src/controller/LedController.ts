@@ -5,6 +5,8 @@ import rpio from 'rpio';
 
 export class LedController {
 
+    static readonly REPORT_INTERVAL = 15;
+
     private _animator: Animator | null = null;
     private _buffer: Buffer | null = null;
     private _framesDrawn = 0;
@@ -35,7 +37,7 @@ export class LedController {
 
         let reportInterval: NodeJS.Timeout | null = setInterval(() => {
             this.report();
-        }, 15_000);
+        }, LedController.REPORT_INTERVAL);
 
         deviceWs.onAnimationStop(data => {
             if (data.stop) {
@@ -59,7 +61,7 @@ export class LedController {
                 console.debug('Starting report interval');
                 reportInterval = setInterval(() => {
                     this.report();
-                }, 10_000);
+                }, LedController.REPORT_INTERVAL);
             }
         });
 
@@ -82,7 +84,7 @@ export class LedController {
     }
 
     private report() {
-        const fps = this._framesDrawn / 10;
+        const fps = this._framesDrawn / LedController.REPORT_INTERVAL;
         this._framesDrawn = 0;
         console.log(`Avg FPS: ${fps}`);
     }
