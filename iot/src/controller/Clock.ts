@@ -32,7 +32,10 @@ export class Clock {
         this._isStopped = stopped;
         if (stopped) {
             console.log('Animator clock stopped');
-            if (this._intervalTimeout) { clearInterval(this._intervalTimeout); }
+            if (this._intervalTimeout) {
+                clearInterval(this._intervalTimeout);
+                this._intervalTimeout = null;
+            }
         } else if (!this._intervalTimeout) {
             console.log('Animator clock started');
             this._intervalTimeout = setInterval(() => this.tick(), 5);
