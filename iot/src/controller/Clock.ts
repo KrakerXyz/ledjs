@@ -24,7 +24,7 @@ export class Clock {
         this._interval = interval;
         if (this._intervalTimeout) { clearInterval(this._intervalTimeout); }
         if (this._isStopped) { return; }
-        this._intervalTimeout = setInterval(() => this.tick(), 3);
+        this._intervalTimeout = setInterval(() => this.tick(), 5);
     }
 
     private setStopped(stopped: boolean) {
@@ -35,7 +35,7 @@ export class Clock {
             if (this._intervalTimeout) { clearInterval(this._intervalTimeout); }
         } else if (!this._interval) {
             console.log('Animator clock started');
-            this._intervalTimeout = setInterval(() => this.tick(), 3);
+            this._intervalTimeout = setInterval(() => this.tick(), 5);
         }
     }
 
