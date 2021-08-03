@@ -122,7 +122,7 @@ export class Leds {
             const darkLed: ARGB = [0, 0, 0, 0];
             //I used to check for < 1 but it was leaving one pixel at the end lit.
             //I tried adding an extra 4 bytes of 255 to the end in rpioDraw but it didn't do anything.
-            for (let i = 0; i <= (this._lastDeviceSetup?.numLeds ?? 0); i++) {
+            for (let i = 0; i < (this._lastDeviceSetup?.numLeds ?? 0); i++) {
                 frame.push(darkLed);
             }
             this.rpioDraw(frame);
@@ -135,7 +135,7 @@ export class Leds {
         }
     }
 
-    private _buffer: Uint8Array | null = null;
+    private _buffer: Uint8ClampedArray | null = null;
     private rpioDraw(frame: Frame) {
 
         const numEndFrameBytes = Math.ceil(frame.length / 16);
@@ -150,29 +150,21 @@ export class Leds {
             // The spec also states that we should send 255 for each byte but it doesn't seem to 
             //   matter so we'll just leave it at it's default fill of 0
 
-            this._buffer = new Uint8Array((frame.length * 4) + 4 + numEndFrameBytes);
+            this._buffer = new Uint8ClampedArray((frame.length * 4) + 4 + numEndFrameBytes);
         }
 
         this._sw = performance.now();
-        //~158ms
-        //const bufferBytes = Uint8Array.from(frame.flatMap(led => [224 + 4, led[3], led[2], led[1]]));
-        //this._buffer.fill(bufferBytes, 4);
 
-        //~41ms
-        //~35ms: Changed [buffPos] = 224 + 4 to just 228, created local ref to led = frame[i].
         for (let i = 0; i < frame.length; i++) {
 
             const buffPos = (i * 4) + 4; //We add in 4 to account for the leading reset bytes
 
             const led = frame[i];
 
-            //If anything, using set instead of direct assignment increased time by 1ms (to ~36ms);
-            this._buffer.set([228, led[3], led[2], led[1]], buffPos);
-
-            // this._buffer[buffPos] = 228; //Brightness
-            // this._buffer[buffPos + 1] = led[3]; //B
-            // this._buffer[buffPos + 2] = led[2]; //G
-            // this._buffer[buffPos + 3] = led[1]; //R
+            this._buffer[buffPos] = 228; //Brightness
+            this._buffer[buffPos + 1] = led[3]; //B
+            this._buffer[buffPos + 2] = led[2]; //G
+            this._buffer[buffPos + 3] = led[1]; //R
 
         }
 

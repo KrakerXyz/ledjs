@@ -2,8 +2,9 @@
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 require('dotenv').config();
 
-import { EnvKey, getConfig, getRequiredConfig, Leds, useRestClient } from './services';
+import { EnvKey, getConfig, getRequiredConfig, useRestClient } from './services';
 import { DeviceWsClient } from 'netled';
+import { LedController } from './controller/LedController';
 
 if (!getConfig(EnvKey.DeviceId) || !getConfig(EnvKey.DeviceSecret)) {
     console.error('Missing config - deviceId/secret. Quitting');
@@ -16,21 +17,24 @@ if (!getConfig(EnvKey.DeviceId) || !getConfig(EnvKey.DeviceSecret)) {
 
     useRestClient(remoteAddress);
 
-    console.log('Initializing leds');
-    const leds = new Leds();
-
     const deviceWs = new DeviceWsClient(remoteAddress, getRequiredConfig(EnvKey.DeviceId), getRequiredConfig(EnvKey.DeviceSecret));
 
-    deviceWs.onDeviceSetup(setup => {
-        leds.setupDevice(setup);
-    });
+    console.log('Initializing leds');
 
-    deviceWs.onAnimationSetup(setup => {
-        leds.setupAnimation(setup);
-    });
+    new LedController(deviceWs);
 
-    deviceWs.onAnimationStop(stop => {
-        leds.stopAnimation(stop.stop);
-    });
+    //const leds = new Leds();
+
+    // deviceWs.onDeviceSetup(setup => {
+    //     leds.setupDevice(setup);
+    // });
+
+    // deviceWs.onAnimationSetup(setup => {
+    //     leds.setupAnimation(setup);
+    // });
+
+    // deviceWs.onAnimationStop(stop => {
+    //     leds.stopAnimation(stop.stop);
+    // });
 
 })();
