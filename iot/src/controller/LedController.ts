@@ -1,4 +1,4 @@
-import { Animator, DeviceWsClient, Frame } from 'netled';
+import { Animator, ARGB, DeviceWsClient, Frame } from 'netled';
 import { AnimatorProvider } from './AnimatorProvider';
 import { Clock } from './Clock';
 import rpio from 'rpio';
@@ -6,7 +6,7 @@ import rpio from 'rpio';
 export class LedController {
 
     private _animator: Animator | null = null;
-    private _buffer: Uint8Array | null = null;
+    private _buffer: Buffer | null = null;
     private _framesDrawn = 0;
 
     public constructor(readonly deviceWs: DeviceWsClient) {
@@ -25,9 +25,9 @@ export class LedController {
             if (lastNumLeds !== setup.numLeds) {
                 lastNumLeds = setup.numLeds;
                 const startFrameBytes = 4;
-                const numEndFrameBytes = Math.ceil(setup.numLeds / 16);
+                const numEndFrameBytes = Math.max(4, Math.ceil(setup.numLeds / 16));
                 console.log(`Initalizing buffer for ${setup.numLeds} leds`);
-                this._buffer = new Uint8Array((setup.numLeds * 4) + startFrameBytes + numEndFrameBytes);
+                this._buffer = Buffer.alloc((setup.numLeds * 4) + startFrameBytes + numEndFrameBytes);
             }
 
             this.initSpi(setup.spiSpeed);
@@ -44,6 +44,17 @@ export class LedController {
                     clearInterval(reportInterval);
                     reportInterval = null;
                 }
+
+                if (lastNumLeds) {
+                    console.log('Drawing dark frame to clear leds');
+                    const darkLeds: ARGB = [255, 0, 0, 0];
+                    const darkFrame: Frame = [];
+                    for (let i = 0; i < lastNumLeds; i++) {
+                        darkFrame.push(darkLeds);
+                    }
+                    this.rpioDraw(darkFrame);
+                }
+
             } else if (!reportInterval) {
                 console.debug('Starting report interval');
                 reportInterval = setInterval(() => {
@@ -99,7 +110,7 @@ export class LedController {
 
         }
 
-        rpio.spiWrite(Buffer.from(this._buffer), this._buffer.length);
+        rpio.spiWrite(this._buffer, this._buffer.length);
         this._framesDrawn++;
     }
 
