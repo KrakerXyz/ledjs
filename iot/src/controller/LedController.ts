@@ -5,7 +5,7 @@ import rpio from 'rpio';
 
 export class LedController {
 
-    static readonly REPORT_INTERVAL = 15;
+    static readonly REPORT_INTERVAL = 15_000;
 
     private _animator: Animator | null = null;
     private _buffer: Buffer | null = null;
