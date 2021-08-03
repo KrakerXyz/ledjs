@@ -20,7 +20,7 @@ export class Leds {
 
         if (setup.id !== this._lastSetup?.id || setup.version !== this._lastSetup?.version) {
             console.log(`Loading animation ${setup.id}:${setup.version}`);
-            this._animation = await useAnimation(setup.id, setup.version);
+            this._animation = await useAnimation(setup.id, setup.version, true);
 
             if (!this._animation) {
                 console.error('Animation did not exist');
