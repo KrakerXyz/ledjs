@@ -84,7 +84,7 @@ export class LedController {
     }
 
     private report() {
-        const fps = this._framesDrawn / LedController.REPORT_INTERVAL;
+        const fps = this._framesDrawn / LedController.REPORT_INTERVAL / 1000;
         this._framesDrawn = 0;
         console.log(`Avg FPS: ${fps}`);
     }
