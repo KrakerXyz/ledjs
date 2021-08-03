@@ -17,6 +17,10 @@ export async function useAnimation(id: string, version: number, trusted: boolean
         return animation;
     }
 
+    if (!(globalThis as any).netled) {
+        (globalThis as any).netled = netLedGlobal;
+    }
+
     //https://stackoverflow.com/questions/17581830/load-node-js-module-from-string-in-memory
     const Module: any = module.constructor;
     const m = new Module();
