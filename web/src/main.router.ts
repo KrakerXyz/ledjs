@@ -7,7 +7,7 @@ const isLoggedIn = useLoginService().status;
 const requireLogin: NavigationGuard = (to, _from, next) => {
    if (isLoggedIn.value === 'signedIn') { return next(); }
    if (to.name === 'home') { return next(); }
-   next({ name: 'home' });
+   next({ name: 'login', query: { ret: to.name?.toString() } });
 };
 
 const routes: RouteRecordRaw[] = [
@@ -15,6 +15,11 @@ const routes: RouteRecordRaw[] = [
       name: 'home',
       path: '/',
       component: () => import('./components/Home.vue')
+   },
+   {
+      name: 'login',
+      path: '/login',
+      component: () => import('./components/Login.vue')
    },
    {
       name: 'animation-list',

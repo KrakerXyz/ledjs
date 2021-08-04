@@ -34,6 +34,8 @@ export class HostWsClient {
             }
 
             this._reconnectRetryCount++;
+            this._ws = null; //so that startWebsocket does not immediately return
+
             const retryWaitSecs = Math.min(this._reconnectRetryCount, 15);
             console.warn(`WebSocket closed. Attempting reconnect #${this._reconnectRetryCount} in ${retryWaitSecs}secs`, { wasClean: e.wasClean, code: e.code, reason: e.reason });
             setTimeout(() => {

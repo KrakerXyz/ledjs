@@ -59,9 +59,9 @@
 
 <script lang="ts">
 
-   import { DeviceRestClient, Device } from 'netled';
+   import { DeviceRestClient, Device, deepClone } from 'netled';
    import { defineComponent, reactive, ref } from 'vue';
-   import { useRestClient } from '../../services';
+   import { useRestClient, useWsClient } from '../../services';
 
    export default defineComponent({
       props: {
@@ -72,13 +72,24 @@
          const devicesClient = new DeviceRestClient(restClient);
 
          const devices = ref<Device[]>();
-         devicesClient.list(true).then(d => devices.value = reactive(d));
+         devicesClient.list(true).then(d => devices.value = reactive(deepClone(d)));
 
          const stop = (device: Device, value: boolean) => {
             devicesClient.stopAnimation({ deviceIds: [device.id], stop: value });
             //Need to clone and make the in-memory devices writeable
             (device as any).isStopped = value;
          };
+
+         const wsClient = useWsClient();
+         wsClient.onDeviceConnectionEvent((did, data) => {
+            const device = devices.value.find(d => d.id === did);
+            if (!device) { return; }
+            if (data.state === 'connected') {
+               (device.status as any).cameOnline = Date.now();
+            } else {
+               (device.status as any).wentOffline = Date.now();
+            }
+         });
 
          return { devices, stop };
       }

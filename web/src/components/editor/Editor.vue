@@ -112,7 +112,7 @@
    import { IFrameContext, useIframeRunner } from './iframeRunner';
    import { useJavascriptLib } from './javascriptLib';
    import { useMonacoEditor } from './monacoEditor';
-   import { Animation, AnimationRestClient, AnimationPost, Frame, parseScript } from 'netled';
+   import { Animation, AnimationRestClient, AnimationPost, Frame, parseScript, deepClone } from 'netled';
    import { useRestClient } from '../../services';
    import LedCanvas from '../LedCanvas.vue';
    import { useRoute, useRouter } from 'vue-router';
@@ -131,7 +131,7 @@
          const restClient = useRestClient();
          const animationClient = new AnimationRestClient(restClient);
 
-         const animation: Partial<Animation> = route.params['animationId'] !== 'new' ? await animationClient.latest(route.params['animationId'] as string, true) : {
+         const animation: Partial<Animation> = route.params['animationId'] !== 'new' ? deepClone(await animationClient.latest(route.params['animationId'] as string, true)) : {
             id: v4(),
             script: useDefaultScript()
          };

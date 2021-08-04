@@ -54,15 +54,15 @@ export type DevicePost = Pick<Device, 'id' | 'name' | 'setup'>;
 
 export interface DeviceStatus {
     /** Last time the device made a call to the server */
-    lastContact?: number;
+    readonly lastContact?: number;
     /** Timestamp of when the device last connected */
-    cameOnline: number;
+    readonly cameOnline: number;
     /** Timestamp of when the device last went offline */
-    wentOffline: number;
+    readonly wentOffline: number;
     /** The LAN IP of the device */
-    localIp?: string;
+    readonly localIp?: string;
     /** The WAN IP address the device connected from */
-    wanIp?: string;
+    readonly wanIp?: string;
 }
 
 export interface DeviceSetup {
