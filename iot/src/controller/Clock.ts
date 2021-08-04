@@ -38,6 +38,8 @@ export class Clock {
             }
         } else if (!this._intervalTimeout) {
             console.log('Animator clock started');
+            //Change the next to now otherwise it'll play catch up and render all frames that otherwise would have been due during the pause period.
+            this._nextDue = performance.now();
             this._intervalTimeout = setInterval(() => this.tick(), 5);
         }
     }
