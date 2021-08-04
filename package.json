@@ -1,0 +1,10 @@
+{
+    "scripts": {
+        "start-web": "cd web && npm run start",
+        "start-server": "cd server && npm run start",
+        "start": "concurrently -k -n web,server \"npm run start-web\" \"npm run start-server\""
+    },
+    "devDependencies": {
+        "concurrently": "^6.2.0"
+    }
+}
