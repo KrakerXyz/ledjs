@@ -18,10 +18,10 @@
                   <input
                      class="interval"
                      v-model.number="model.interval"
-                  />ms
+                  />ms, {{1000/model.interval}}FPS
 
                   <button
-                     class="btn btn-primary py-0 px-2"
+                     class="btn btn-primary py-0 px-2 ms-3"
                      @click="model.interval = 16"
                   >
                      60fps
@@ -73,7 +73,7 @@
                   type="range"
                   class="form-range"
                   id="c-interval"
-                  min="1"
+                  min="3"
                   max="2000"
                   v-model.number="model.interval"
                />
