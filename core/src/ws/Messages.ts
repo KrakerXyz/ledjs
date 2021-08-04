@@ -1,20 +1,31 @@
-import { Config } from '..';
 
-export type WsMessage = LedSetupMessage;
+import { DeviceAnimationSetup } from '../rest';
 
-export type LedSetupMessage = {
-    type: 'ledSetup',
-    data: WsLedsSetup
+export type ToDeviceMessage = AnimationSetupMessage | DeviceSetupMessage | AnimationStopMessage;
+
+export type AnimationSetupMessage = {
+    type: 'animationSetup',
+    data: DeviceAnimationSetup
 }
 
-export interface WsLedsSetup {
-    animation: WsLedsSetupAnimation;
+export type DeviceSetupMessage = {
+    type: 'deviceSetup',
+    data: DeviceSetupData
+}
+
+export type DeviceSetupData = {
+    /** Number of LEDs connected to the SPI interface */
     numLeds: number;
-    interval: number;
+    /** Speed in MHz to run the SPI interface at */
+    spiSpeed: number;
 }
 
-export interface WsLedsSetupAnimation {
-    id: string;
-    version: number;
-    config?: Config<any>;
+export type AnimationStopMessage = {
+    type: 'animationStop'
+    data: AnimationStopData
 }
+
+export type AnimationStopData = {
+    stop: boolean;
+}
+

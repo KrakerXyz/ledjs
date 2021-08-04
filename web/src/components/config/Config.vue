@@ -1,165 +1,140 @@
 
 <template>
-   <div class="h-100">
+   <div class="h-100 d-flex flex-column">
       <led-canvas
          id="canvas"
          :frame="frame"
       ></led-canvas>
 
-      <div
-         id="controls"
-         class="border border-dark shadow p-3"
-      >
-         <div class="d-flex flex-column h-100">
-            <div class="flex-grow-1">
-               <div class="row">
-                  <div class="col-lg-6 col-xl mb-3">
-                     <label
-                        for="c-interval"
-                        class="form-label"
-                     >
-                        Interval:
-                        <input
-                           class="interval"
-                           v-model.number="model.interval"
-                        />ms
+      <div class="flex-grow-1 container shadow bg-white p-3">
 
-                        <button
-                           class="btn btn-primary py-0 px-2"
-                           @click="model.interval = 16"
-                        >
-                           60fps
-                        </button>
+         <div class="row">
+            <div class="col-lg-6 col-xl mb-3">
+               <label
+                  for="c-interval"
+                  class="form-label"
+               >
+                  Interval:
+                  <input
+                     class="interval"
+                     v-model.number="model.interval"
+                  />ms, {{1000/model.interval}}FPS
 
-                        <button
-                           class="btn btn-primary py-0 px-2 ms-1"
-                           @click="model.interval = 33"
-                        >
-                           30fps
-                        </button>
-
-                        <button
-                           class="btn btn-primary py-0 px-2 ms-1"
-                           @click="model.interval = 66"
-                        >
-                           15fps
-                        </button>
-
-                        <button
-                           class="btn btn-primary py-0 px-2 ms-1"
-                           @click="model.interval = 200"
-                        >
-                           5fps
-                        </button>
-
-                        <button
-                           class="btn btn-primary py-0 px-2 ms-1"
-                           @click="model.interval = 500"
-                        >
-                           2fps
-                        </button>
-
-                        <button
-                           class="btn btn-primary py-0 px-2 ms-1"
-                           @click="model.interval = 1000"
-                        >
-                           1fps
-                        </button>
-
-                        <button
-                           class="btn btn-primary py-0 px-2 ms-1"
-                           @click="model.interval = 2000"
-                        >
-                           0.5fps
-                        </button>
-                     </label>
-                     <input
-                        type="range"
-                        class="form-range"
-                        id="c-interval"
-                        min="1"
-                        max="2000"
-                        v-model.number="model.interval"
-                     />
-                  </div>
-                  <div class="col-lg-6 col-xl-2 mb-3">
-                     <div class="form-floating">
-                        <input
-                           id="c-num-leds"
-                           class="form-control"
-                           placeholder="*"
-                           v-model.number="model.numLeds"
-                        />
-                        <label for="c-num-leds">Num Leds</label>
-                     </div>
-                  </div>
-                  <div class="col-lg-6 col-xl-2 mb-3">
-                     <label
-                        for="c-brightness"
-                        class="form-label"
-                     >
-                        Brightness: {{ model.brightness }}
-                     </label>
-                     <input
-                        type="range"
-                        class="form-range"
-                        id="c-interval"
-                        min="0"
-                        max="31"
-                        v-model.number="model.brightness"
-                     />
-                  </div>
-               </div>
-
-               <div class="row">
-                  <div
-                     class="col-lg-6 mb-3"
-                     v-for="p of paramVms"
-                     :key="p.name"
+                  <button
+                     class="btn btn-primary py-0 px-2 ms-3"
+                     @click="model.interval = 16"
                   >
-                     <div class="form-floating">
-                        <input
-                           v-if="p.meta.type === 'number'"
-                           :id="`c-param-${p.name}`"
-                           class="form-control"
-                           placeholder="*"
-                           v-model="p.value"
-                        />
-                        <label :for="`c-param-${p.name}`">
-                           {{ p.name }}
-                        </label>
-                        <small class="form-text">{{
+                     60fps
+                  </button>
+
+                  <button
+                     class="btn btn-primary py-0 px-2 ms-1"
+                     @click="model.interval = 33"
+                  >
+                     30fps
+                  </button>
+
+                  <button
+                     class="btn btn-primary py-0 px-2 ms-1"
+                     @click="model.interval = 66"
+                  >
+                     15fps
+                  </button>
+
+                  <button
+                     class="btn btn-primary py-0 px-2 ms-1"
+                     @click="model.interval = 200"
+                  >
+                     5fps
+                  </button>
+
+                  <button
+                     class="btn btn-primary py-0 px-2 ms-1"
+                     @click="model.interval = 500"
+                  >
+                     2fps
+                  </button>
+
+                  <button
+                     class="btn btn-primary py-0 px-2 ms-1"
+                     @click="model.interval = 1000"
+                  >
+                     1fps
+                  </button>
+
+                  <button
+                     class="btn btn-primary py-0 px-2 ms-1"
+                     @click="model.interval = 2000"
+                  >
+                     0.5fps
+                  </button>
+               </label>
+               <input
+                  type="range"
+                  class="form-range"
+                  id="c-interval"
+                  min="3"
+                  max="2000"
+                  v-model.number="model.interval"
+               />
+            </div>
+         </div>
+
+         <div class="row">
+            <div
+               class="col-lg-6 mb-3"
+               v-for="p of paramVms"
+               :key="p.name"
+            >
+               <label class="form-label">
+                  {{p.name}}:
+                  <input v-model.number="p.value" />
+                  <small
+                     v-if="p.meta.default"
+                     class="form-text ms-2"
+                  >
+                     Default {{p.meta.default}}
+                  </small>
+               </label>
+
+               <input
+                  type="range"
+                  v-if="p.meta.type === 'number'"
+                  :id="`c-param-${p.name}`"
+                  class="form-range"
+                  :min="p.meta.min"
+                  :max="p.meta.maxRecommended ?? p.meta.max"
+                  v-model="p.value"
+               />
+
+               <small class="form-text">{{
                            p.meta.description
                         }}</small>
-                     </div>
-                  </div>
+            </div>
+         </div>
+
+         <div class="row">
+            <div class="col-auto">
+               <div class="form-check btn ps-4">
+                  <input
+                     class="form-check-input"
+                     type="checkbox"
+                     id="c-auto-push"
+                     v-model="model.autoPush"
+                  />
+                  <label
+                     class="form-check-label"
+                     for="c-auto-push"
+                  >
+                     Auto-Push to Devices
+                  </label>
                </div>
             </div>
-
-            <div class="row">
-               <div class="col-auto">
-                  <div class="form-check btn ps-4">
-                     <input
-                        class="form-check-input"
-                        type="checkbox"
-                        id="c-auto-push"
-                        v-model="model.autoPush"
-                     />
-                     <label
-                        class="form-check-label"
-                        for="c-auto-push"
-                     >
-                        Auto-Push to Devices
-                     </label>
-                  </div>
-               </div>
-
-               <div
-                  class="col-1"
-                  v-if="!model.autoPush"
-               >
-                  <button class="btn btn-primary w-100">Push</button>
-               </div>
+            <div
+               class="col-1"
+               v-if="!model.autoPush"
+            >
+               <button class="btn btn-primary w-100">Push</button>
             </div>
          </div>
       </div>
@@ -168,11 +143,11 @@
 
 <script lang="ts">
 
-   import { useWebSocket, useThrottledProxy, useRestClient } from '../../services';
+   import { useThrottledProxy, useRestClient } from '../../services';
    import { computed, defineComponent, getCurrentInstance, onUnmounted, reactive, ref, watch } from 'vue';
    import { useRoute } from 'vue-router';
    import LedCanvas from '../LedCanvas.vue';
-   import { AnimationClient, Config, ConfigMetaParam, WsMessage } from 'netled';
+   import { AnimationRestClient, ConfigMetaParam, DeviceAnimationPost, DeviceRestClient } from 'netled';
    import { useIframeRunner } from '../editor/iframeRunner';
    import { Frame } from 'netled';
 
@@ -188,7 +163,11 @@
          const animationId = computed(() => route.params['animationId'] as string);
 
          const restClient = useRestClient();
-         const animationClient = new AnimationClient(restClient);
+         const animationClient = new AnimationRestClient(restClient);
+
+         const devicesClient = new DeviceRestClient(restClient);
+         const devices = await devicesClient.list(false);
+
          const animation = await animationClient.latest(animationId.value, true);
          const iframe = await useIframeRunner(animation.script);
 
@@ -196,15 +175,11 @@
          const model: StorageModel = reactive({
             animationConfig: {},
             interval: 50,
-            numLeds: 8,
             autoPush: true,
-            brightness: 4,
             ...(modelJson ? JSON.parse(modelJson) : {})
          });
 
-         if (!model.numLeds) { model.numLeds = 8; }
-
-         await iframe.setNumLeds(model.numLeds);
+         await iframe.setNumLeds(60);
          const frame = ref<Frame>([]);
          frame.value = await iframe.nextFrame();
 
@@ -213,7 +188,7 @@
          const selectedAnimationStoredConfig = computed(() => {
             const json = localStorage.getItem(`${animation.name}-config`);
             if (!json) { return {}; }
-            const config: Config<any> = JSON.parse(json);
+            const config: Record<string, any> = JSON.parse(json);
             return config;
          });
 
@@ -241,39 +216,28 @@
 
          const animationConfigWatchStop = watch(animationConfig, config => iframe.setConfig(config), { immediate: true });
 
-         const ws = useWebSocket();
-
-         const wsLedSetupThrottle = useThrottledProxy((msg: WsMessage) => ws.sendMessage(msg), { timeout: 500 });
+         const wsLedSetupThrottle = useThrottledProxy((setup: DeviceAnimationPost) => devicesClient.setAnimation(setup), { timeout: 1000 });
 
          const modelAnimationConfigWatchStop = watch([model, animationConfig], () => {
-            if (!model.numLeds) { return; }
 
             localStorage.setItem('config', JSON.stringify(model));
             localStorage.setItem(`${animation.name}-config`, JSON.stringify(animationConfig.value));
 
             if (!model.autoPush) { return; }
+            if (!devices.length) { return; }
 
             wsLedSetupThrottle({
-               type: 'ledSetup',
-               data: {
-                  animation: {
-                     id: animation.id,
-                     version: animation.version,
-                     config: animationConfig.value
-                  },
-                  numLeds: model.numLeds,
-                  interval: model.interval
+               deviceIds: devices.map(d => d.id) as [string, ...string[]],
+               animation: {
+                  id: animation.id,
+                  version: animation.version,
+                  interval: model.interval,
+                  config: animationConfig.value,
+                  brightness: 0.5
                }
             });
 
          }, { immediate: true });
-
-         const numLedsWatchStop = watch(() => model.numLeds, async leds => {
-            if (!leds) { return; }
-            console.log('Num leds changed');
-            await iframe.setNumLeds(leds);
-            frame.value = await iframe.nextFrame();
-         });
 
          let intervalTimeout: number | undefined;
 
@@ -291,7 +255,6 @@
             if (intervalTimeout) { clearInterval(intervalTimeout); }
             animationConfigWatchStop();
             intervalWatchStop();
-            numLedsWatchStop();
             modelAnimationConfigWatchStop();
          }, componentInstance);
 
@@ -301,9 +264,7 @@
 
    interface StorageModel {
       interval: number;
-      numLeds: number;
       autoPush: boolean;
-      brightness: number;
    }
 
    interface ParamVm {
@@ -315,16 +276,11 @@
 </script>
 
 <style lang="postcss" scoped>
-   input.interval {
-      width: 5rem;
+   #canvas {
+      height: 20px;
    }
 
-   #controls {
-      --control-padding: 60px;
-      position: absolute;
-      top: var(--control-padding);
-      left: var(--control-padding);
-      width: calc(100% - var(--control-padding) * 2);
-      height: calc(100% - var(--control-padding) * 2);
+   label > input {
+      width: 5rem;
    }
 </style>

@@ -8,6 +8,22 @@ const routes: RouteRecordRaw[] = [
       component: () => import('./components/animation-list/AnimationList.vue')
    },
    {
+      name: 'device-list',
+      path: '/devices',
+      component: () => import('./components/devices/DeviceList.vue')
+   },
+   {
+      name: 'device-add',
+      path: '/devices/add',
+      component: () => import('./components/devices/DeviceAdd.vue')
+   },
+   {
+      name: 'device-view',
+      path: '/devices/:deviceId',
+      component: () => import('./components/devices/DeviceView.vue'),
+      props: true
+   },
+   {
       name: 'config',
       path: '/config/:animationId',
       component: () => import('./components/config/Config.vue')

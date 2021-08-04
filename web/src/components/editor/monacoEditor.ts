@@ -52,16 +52,18 @@ export function useMonacoEditor(containerId: string, config?: Partial<EditorConf
                 editor!.setValue(c);
             }, { immediate: true });
 
+            const obs = new ResizeObserver(() => {
+                if (!editor) { return; }
+                editor.layout();
+            });
+
+            obs.observe(ideContainer);
+
+            onUnmounted(() => {
+                obs.disconnect();
+            }, componentTarget);
+
         });
-
-        const windowResized = () => {
-            if (!editor) { return; }
-            editor.layout();
-        };
-
-        window.addEventListener('resize', windowResized);
-
-        onUnmounted(() => window.removeEventListener('resize', windowResized));
 
     }, componentTarget);
 

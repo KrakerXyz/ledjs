@@ -17,7 +17,7 @@ const config: UserConfig = {
       proxy: {
          '/api': {
             target: 'http://localhost:3001',
-            changeOrigin: true
+            changeOrigin: true,
          },
          '/ws': {
             target: 'http://localhost:3001',

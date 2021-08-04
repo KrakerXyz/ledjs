@@ -15,8 +15,8 @@
   "scripts": {
     "clean": "rimraf ./dist/*",
     "prestart": "npm run build",
-    "start": "node -r dotenv/config --unhandled-rejections=strict --trace-warnings .",
-    "start-mon": "nodemon --config nodemon.json -r dotenv/config --unhandled-rejections=strict --trace-warnings src/index.ts",
+    "start": "node --unhandled-rejections=strict --trace-warnings .",
+    "start-mon": "nodemon --config nodemon.json --unhandled-rejections=strict --trace-warnings src/index.ts",
     "build": "npm run clean && ttsc",
     "lint": "eslint ./src/**/*.ts"
   },
@@ -24,11 +24,16 @@
     "@krakerxyz/typed-base": "file:../../typed-base",
     "dotenv": "^10.0.0",
     "fastify": "^3.19.1",
+    "fastify-cookie": "^5.3.1",
+    "fastify-jwt": "^3.0.0",
     "fastify-websocket": "^3.2.0",
-    "netled": "file:../core"
+    "google-auth-library": "^7.4.1",
+    "netled": "file:../core",
+    "uuid": "^8.3.2"
   },
   "devDependencies": {
     "@types/node": "^14.17.5",
+    "@types/uuid": "^8.3.1",
     "@typescript-eslint/eslint-plugin": "^4.22.0",
     "@typescript-eslint/parser": "^4.22.0",
     "eslint": "^7.24.0",

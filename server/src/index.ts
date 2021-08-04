@@ -1,10 +1,17 @@
 
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+require('dotenv').config();
+
 import fastify from 'fastify';
 import fastifyWebsocket from 'fastify-websocket';
+import fastifyCookie from 'fastify-cookie';
+import fastifyJWT from 'fastify-jwt';
+
 import { WebSocketManager } from './services/WebSocketManager';
-import { EnvKey, getRequiredConfig } from './config';
+import { EnvKey, getRequiredConfig } from './services/config';
 import { configureDb } from '@krakerxyz/typed-base';
-import * as rest from './rest';
+import { apiRoutes } from './rest';
+import { deviceAuthentication, jwtAuthentication, RequestServicesContainer } from './services';
 
 console.log('Configuring db');
 configureDb({
@@ -14,16 +21,38 @@ configureDb({
 
 console.log('Initializing Fastify');
 
-const server = fastify({ logger: true });
-server.register(fastifyWebsocket, { options: { perMessageDeflate: true } });
+const server = fastify({
+    logger: true
+});
 
 const webSocketManager = new WebSocketManager();
-server.get('/ws', { websocket: true }, webSocketManager.handler);
 
-server.get('/api/animations/:animationId/script', rest.animation.scriptById);
-server.get('/api/animations/:animationId', rest.animation.getById);
-server.get('/api/animations', rest.animation.get);
-server.post('/api/animations', rest.animation.post);
+server.decorateRequest('services', { getter: () => new RequestServicesContainer(webSocketManager) });
+
+server.register(fastifyJWT, {
+    secret: getRequiredConfig(EnvKey.JwtSecret),
+    cookie: {
+        cookieName: 'jwt',
+        signed: false
+    }
+});
+
+server.register(fastifyCookie);
+
+server.register(fastifyWebsocket, {
+    errorHandler: (_, conn) => {
+        conn.socket.close(4001, 'Unauthorized');
+        conn.destroy();
+    },
+    options: {
+        perMessageDeflate: true,
+    }
+});
+
+server.get('/ws/device', { websocket: true, preValidation: [deviceAuthentication] }, webSocketManager.handler);
+server.get('/ws/client', { websocket: true, preValidation: [jwtAuthentication] }, webSocketManager.handler);
+
+apiRoutes.forEach(r => server.route(r));
 
 server.get('/api', async () => {
     return { hello: 'world2' };

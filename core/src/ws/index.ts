@@ -1,4 +1,4 @@
 
-export * from './HostClient';
-export * from './DeviceClient';
+export * from './HostWsClient';
+export * from './DeviceWsClient';
 export * from './Messages';

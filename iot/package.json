@@ -14,20 +14,21 @@
   "license": "MIT",
   "scripts": {
     "clean": "rimraf ./dist/*",
-    "start": "nodemon --config nodemon.json src/index.ts",
+    "prestart": "npm run build",
+    "start": "node --unhandled-rejections=strict --trace-warnings .",
+    "start-mon": "nodemon --config nodemon.json src/index.ts",
     "build": "npm run clean && tsc",
     "lint": "eslint ./src/**/*.ts"
   },
   "dependencies": {
+    "dotenv": "^10.0.0",
     "netled": "file:../core",
     "rpio": "^2.4.2",
-    "vm2": "^3.9.3",
-    "ws": "^7.5.3"
+    "vm2": "^3.9.3"
   },
   "devDependencies": {
     "@types/node": "^14.17.5",
     "@types/rpio": "^2.4.2",
-    "@types/ws": "^7.4.6",
     "@typescript-eslint/eslint-plugin": "^4.22.0",
     "@typescript-eslint/parser": "^4.22.0",
     "eslint": "^7.24.0",

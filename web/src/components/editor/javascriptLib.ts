@@ -23,6 +23,13 @@ export function useJavascriptLib(): EditorConfig['javascriptLib'] {
             '        */',
             '        rbgToHex(argb: [number, number, number, number]): string',
             '',
+            '        /**',
+            '        * Proportionally lighten or darken all values by the given decimal',
+            '        * @param argb ARGB values',
+            '        * @param shade A decimal that will be multiplied by the current value and then added to each RGB value. Resulting values to be added are rounded and then capped to 255',
+            '        */',
+            '        shade(argb: [number, number, number, number], decimal: number): void',
+            '',
             '     }', //color
             '',
             '     frame: {',

@@ -1,5 +1,7 @@
 export const enum EnvKey {
     DbConnectionString = 'DB_CONNECTION_STRING',
+    GoogleClientId = 'GOOGLE_CLIENT_ID',
+    JwtSecret = 'JWT_SECRET'
 }
 
 /** Gets value from process.env or throws exception if empty */

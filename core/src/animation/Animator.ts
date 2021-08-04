@@ -1,15 +1,13 @@
 import { Frame } from '.';
 
-export type Config<TMeta extends ConfigMeta> = Record<keyof TMeta['params'], any>;
-
-export interface AnimatorType<TMeta extends ConfigMeta> {
-    new(): Animator<TMeta>;
+export interface AnimatorType {
+    new(): Animator;
     configMeta?: ConfigMeta
 }
 
-export interface Animator<TMeta extends ConfigMeta> {
+export interface Animator {
     setNumLeds(num: number): void;
-    setConfig?(config: Config<TMeta>): void;
+    setConfig?(config: Record<string, any>): void;
     nextFrame(): Frame
 }
 
@@ -21,13 +19,17 @@ export type ConfigMetaParams = Record<string, ConfigMetaParam>;
 
 export type ConfigMetaParam = {
     description: string;
-    type: 'string' | 'number' | 'boolean';
+    type: 'string' | 'number' | 'boolean' | 'color';
     default: string | number | boolean;
     min?: number;
+    /** In cases where there's no hard min, minRecommended can be used to set the lower bounds of a slider on the UI */
+    minRecommended?: number
     max?: number;
+    /** In cases where there's no hard max, maxRecommended can be used to set the upper bounds of a slider on the UI */
+    maxRecommended?: number;
 };
 
-export function createType<TMeta extends ConfigMeta>(script: string): Promise<AnimatorType<TMeta>> {
+export function createType(script: string): Promise<AnimatorType> {
     const blob = new Blob([script], { type: 'text/javascript' });
     const url = URL.createObjectURL(blob);
 

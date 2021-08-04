@@ -1,5 +1,5 @@
 {
-  "name": "stub",
+  "name": "netled-web",
   "version": "0.0.1",
   "author": "Josh Kraker <joshkrak@gmail.com>",
   "type": "module",
@@ -11,7 +11,8 @@
   "scripts": {
     "start": "vite",
     "build": "vite build",
-    "lint": "vuedx-typecheck . && eslint src/**/*.{ts,vue}"
+    "lint": "vuedx-typecheck . && eslint src/**/*.{ts,vue}",
+    "lint-tsc": "vue-tsc --noEmit && eslint src/**/*.{ts,vue}"
   },
   "dependencies": {
     "@babel/parser": "^7.14.8",
@@ -21,6 +22,8 @@
     "vue-router": "^4.0.8"
   },
   "devDependencies": {
+    "@types/gapi": "^0.0.41",
+    "@types/gapi.auth2": "^0.0.55",
     "@types/uuid": "^8.3.0",
     "@typescript-eslint/eslint-plugin": "^4.26.1",
     "@typescript-eslint/parser": "^4.26.1",

@@ -2,7 +2,7 @@
 interface ImportMeta {
    env?: {
       MODE: 'development' | 'production';
-      //VITE_API_BASE?: string;
+      VITE_GOOGLE_CLIENT_ID?: string;
    };
    glob(g: string): Record<string, Promise<any>>;
 }

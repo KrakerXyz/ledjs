@@ -1,44 +1,26 @@
 
-import { Leds, useRestClient } from './services';
-import WebSocket from 'ws';
-import { WsMessage } from 'netled';
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+require('dotenv').config();
 
-const myArgs = process.argv.splice(2);
-const remoteAddress = myArgs[0] ?? 'localhost:3000';
+import { EnvKey, getConfig, getRequiredConfig, useRestClient } from './services';
+import { DeviceWsClient } from 'netled';
+import { LedController } from './controller/LedController';
 
-useRestClient(remoteAddress);
+if (!getConfig(EnvKey.DeviceId) || !getConfig(EnvKey.DeviceSecret)) {
+    console.error('Missing config - deviceId/secret. Quitting');
+    process.exit();
+}
 
-console.log('Initializing leds');
-const leds = new Leds();
+(async () => {
 
-console.log(`Starting WebSocket @ ${remoteAddress}`);
-const ws = new WebSocket(`ws://${remoteAddress}/ws?device-id=raspi-netled-1&token=raspi-netled-1`);
+    const remoteAddress = getConfig(EnvKey.WsHost, 'localhost:3001');
 
-ws.addEventListener('open', () => {
-    console.log('WebSocket opened');
-});
+    useRestClient(remoteAddress);
 
-ws.addEventListener('error', e => {
-    //Will happen if the server is down. Will subsequently call the close as well
-    console.warn(`WebSocket error: ${e.message}`);
-});
+    const deviceWs = new DeviceWsClient(remoteAddress, getRequiredConfig(EnvKey.DeviceId), getRequiredConfig(EnvKey.DeviceSecret));
 
-ws.addEventListener('close', e => {
-    //Will happen if the server closes or after an error has occurred while connecting
-    console.warn('WebSocket closed', { wasClean: e.wasClean, code: e.code, reason: e.reason });
-});
+    console.log('Initializing leds');
 
-ws.addEventListener('message', e => {
-    try {
-        const message = JSON.parse(e.data) as WsMessage;
-        console.log(`Incoming WebSocket message: ${message.type}`);
-        switch (message.type) {
-            case 'ledSetup': {
-                leds.setup(message.data);
-                break;
-            }
-        }
-    } catch (e) {
-        console.error(`Error parsing incoming WebSocket message - ${e}`);
-    }
-});
+    new LedController(deviceWs);
+
+})();
