@@ -1,7 +1,7 @@
 
 import { Disposable, ToDeviceMessage } from '..';
 import { DeviceAnimationSetup } from '../rest';
-import { AnimationStopData, DeviceSetupData } from './Messages';
+import { AnimationStopData, DeviceSetupData } from './DeviceMessages';
 import * as WebSocket from 'ws';
 
 export class DeviceWsClient {
@@ -16,7 +16,6 @@ export class DeviceWsClient {
 
             ws.addEventListener('open', () => {
                 console.log('WebSocket opened');
-
                 reconnectRetryCount = 0;
             });
 

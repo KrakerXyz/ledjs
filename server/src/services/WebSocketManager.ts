@@ -1,30 +1,51 @@
 import { FastifyRequest } from 'fastify';
 import { SocketStream } from 'fastify-websocket';
-import { Device, ToDeviceMessage } from 'netled';
+import { Device, ToDeviceMessage, ToHostMessage } from 'netled';
 
 export class WebSocketManager {
 
-    private _connections: Map<string, WsConnection> = new Map();
+    private _connections: Map<string, WsConnection[]> = new Map();
 
     public handler = async (socketStream: SocketStream, req: FastifyRequest) => {
         console.log('Incoming WS connection');
 
+        const wsConnection: WsConnection = {
+            type: req.url.endsWith('/device') ? 'device' : 'user',
+            id: req.user.sub,
+            socketStream
+        };
+
         socketStream.socket.on('close', async () => {
             req.log.debug('WS Disconnected');
 
-            const connection = this._connections.get(req.user.sub);
-            console.assert(connection);
-            if (!connection) { return; }
+            const connections = this._connections.get(req.user.sub);
+            console.assert(connections);
+            if (!connections) { return; }
 
-            this._connections.delete(req.user.sub);
+            const connectionIndex = connections.findIndex(c => c === wsConnection);
+            console.assert(connectionIndex !== -1);
+            if (connectionIndex === -1) { return; }
 
-            if (connection.type === 'device') {
-                const device = await req.services.deviceDb.byId(connection.id);
+            connections.splice(connectionIndex, 1);
+            if (!connections.length) {
+                this._connections.delete(wsConnection.id);
+            }
+
+            if (wsConnection.type === 'device') {
+                const device = await req.services.deviceDb.byId(wsConnection.id);
                 console.assert(device);
                 if (!device) { return; }
 
                 device.status.wentOffline = Date.now();
                 await req.services.deviceDb.replace(device);
+
+                this.sendHostMessage(device.userId, {
+                    type: 'deviceConnection',
+                    deviceId: device.id,
+                    data: {
+                        state: 'disconnected'
+                    }
+                });
             }
         });
 
@@ -32,11 +53,16 @@ export class WebSocketManager {
             req.log.debug('Received WS message' + message);
         });
 
-        const wsConnection: WsConnection = {
-            type: req.url.endsWith('/device') ? 'device' : 'user',
-            id: req.user.sub,
-            socketStream
-        };
+        let connections = this._connections.get(wsConnection.id);
+
+        if (wsConnection.type === 'device' && connections?.length) {
+            wsConnection.socketStream.destroy(new Error('Device already connected'));
+        }
+
+        if (!connections) { this._connections.set(wsConnection.id, (connections = [])); }
+
+        connections.push(wsConnection);
+
 
         if (wsConnection.type === 'device') {
 
@@ -57,9 +83,15 @@ export class WebSocketManager {
 
             await req.services.deviceDb.replace(device);
 
-        }
+            this.sendHostMessage(device.userId, {
+                deviceId: device.id,
+                type: 'deviceConnection',
+                data: {
+                    state: 'connected'
+                }
+            });
 
-        this._connections.set(req.user.sub, wsConnection);
+        }
 
     }
 
@@ -67,9 +99,22 @@ export class WebSocketManager {
         const msgJson = JSON.stringify(msg);
         for (const did of deviceIds) {
             const con = this._connections.get(did);
-            if (!con) { continue; }
-            con.socketStream.socket.send(msgJson);
+            if (!con?.length) { continue; }
+            console.assert(con.length === 1);
+            con[0].socketStream.socket.send(msgJson);
         }
+    }
+
+    public sendHostMessage(userId: string, msg: ToHostMessage) {
+        const msgJson = JSON.stringify(msg);
+
+        const userConnections = this._connections.get(userId);
+        if (!userConnections?.length) { return; }
+
+        userConnections.forEach(c => {
+            c.socketStream.socket.send(msgJson);
+        });
+
     }
 
     private initializeDevice(device: Device, req: FastifyRequest) {
