@@ -1,6 +1,7 @@
 
 import { GoogleToken, AuthRestClient } from 'netled';
 import { ref } from 'vue';
+import { useRouter } from 'vue-router';
 import { useRestClient } from './restClient';
 
 let user: gapi.auth2.GoogleUser | null = null;
@@ -107,9 +108,17 @@ async function signOut() {
 }
 
 export function useLoginService() {
+
+    const router = useRouter();
+
+    const signOutAndRedirect = () => {
+        signOut();
+        router.replace({ name: 'home' });
+    };
+
     return {
         signIn,
-        signOut,
+        signOut: signOutAndRedirect,
         avatarUrl,
         status
     };
