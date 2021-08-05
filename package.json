@@ -1,4 +1,5 @@
 {
+    "name": "netled",
     "scripts": {
         "start-web": "cd web && npm run start",
         "start-server": "cd server && npm run start",

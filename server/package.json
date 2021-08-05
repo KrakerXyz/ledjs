@@ -38,6 +38,7 @@
     "@typescript-eslint/parser": "^4.22.0",
     "eslint": "^7.24.0",
     "nodemon": "^2.0.12",
+    "pino-pretty": "^5.1.2",
     "rimraf": "^3.0.0",
     "ts-node": "^10.1.0",
     "ttypescript": "^1.5.12",

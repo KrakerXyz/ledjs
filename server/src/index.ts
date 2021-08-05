@@ -22,7 +22,13 @@ configureDb({
 console.log('Initializing Fastify');
 
 const server = fastify({
-    logger: true
+    logger: {
+        prettyPrint: process.env.NODE_ENV === 'development' && {
+            translateTime: 'SYS:h:MM:ss TT Z o',
+            colorize: true,
+            ignore: 'pid,hostname'
+        },
+    }
 });
 
 const webSocketManager = new WebSocketManager();
