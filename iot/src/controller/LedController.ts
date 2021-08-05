@@ -2,16 +2,16 @@ import { Animator, ARGB, DeviceWsClient, Frame } from 'netled';
 import { AnimatorProvider } from './AnimatorProvider';
 import { Clock } from './Clock';
 import rpio from 'rpio';
+import { HealthReporter } from '../services';
 
 export class LedController {
-
-    static readonly REPORT_INTERVAL = 15_000;
 
     private _animator: Animator | null = null;
     private _buffer: Buffer | null = null;
     private _framesDrawn = 0;
+    private _isStopped = false;
 
-    public constructor(readonly deviceWs: DeviceWsClient) {
+    public constructor(readonly deviceWs: DeviceWsClient, readonly healthReporter: HealthReporter) {
 
         this.initSpi(25);
 
@@ -21,6 +21,8 @@ export class LedController {
         animatorProvider.onAnimation(animator => {
             this._animator = animator;
         });
+
+        healthReporter.addHealthData('fps', () => this.getFps());
 
         let lastNumLeds = 0;
         deviceWs.onDeviceSetup(setup => {
@@ -35,18 +37,9 @@ export class LedController {
             this.initSpi(setup.spiSpeed);
         });
 
-        let reportInterval: NodeJS.Timeout | null = setInterval(() => {
-            this.report();
-        }, LedController.REPORT_INTERVAL);
-
         deviceWs.onAnimationStop(data => {
+            this._isStopped = data.stop;
             if (data.stop) {
-                if (reportInterval) {
-                    console.debug('Stopping report interval');
-                    clearInterval(reportInterval);
-                    reportInterval = null;
-                }
-
                 if (lastNumLeds) {
                     console.log('Drawing dark frame to clear leds');
                     const darkLeds: ARGB = [255, 0, 0, 0];
@@ -56,12 +49,8 @@ export class LedController {
                     }
                     this.rpioDraw(darkFrame);
                 }
-
-            } else if (!reportInterval) {
-                console.debug('Starting report interval');
-                reportInterval = setInterval(() => {
-                    this.report();
-                }, LedController.REPORT_INTERVAL);
+            } else {
+                this.resetFps();
             }
         });
 
@@ -83,10 +72,18 @@ export class LedController {
         this._spiBegun = true;
     }
 
-    private report() {
-        const fps = Math.round(this._framesDrawn / LedController.REPORT_INTERVAL * 1000);
+    private resetFps() {
+        this._lastFpsCalc = Date.now();
         this._framesDrawn = 0;
-        console.log(`Avg FPS: ${fps}`);
+    }
+
+    private _lastFpsCalc = Date.now();
+    private getFps(): number | undefined {
+        if (this._isStopped) { return undefined; }
+        const elapsedSeconds = (Date.now() - this._lastFpsCalc) / 1000;
+        const fps = Math.round(this._framesDrawn / elapsedSeconds);
+        this.resetFps();
+        return fps;
     }
 
     private tick() {

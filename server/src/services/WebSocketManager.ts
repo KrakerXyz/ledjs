@@ -1,13 +1,16 @@
-import { FastifyRequest } from 'fastify';
+import { FastifyLoggerInstance, FastifyRequest } from 'fastify';
 import { SocketStream } from 'fastify-websocket';
-import { Device, ToDeviceMessage, ToHostMessage } from 'netled';
+import { Device, FromDeviceMessage, ToDeviceMessage, ToHostMessage } from 'netled';
 
 export class WebSocketManager {
+
+    public constructor(private _log: FastifyLoggerInstance) {
+
+    }
 
     private _connections: Map<string, WsConnection[]> = new Map();
 
     public handler = async (socketStream: SocketStream, req: FastifyRequest) => {
-        console.log('Incoming WS connection');
 
         const wsConnection: WsConnection = {
             type: req.url.endsWith('/device') ? 'device' : 'user',
@@ -15,8 +18,10 @@ export class WebSocketManager {
             socketStream
         };
 
+        this._log.info('Incoming WS connection for %s:%s', wsConnection.type, wsConnection.id);
+
         socketStream.socket.on('close', async () => {
-            req.log.debug('WS Disconnected');
+            this._log.info('WS %s:%s disconnected', wsConnection.type, wsConnection.id);
 
             const connections = this._connections.get(req.user.sub);
             console.assert(connections);
@@ -49,8 +54,24 @@ export class WebSocketManager {
             }
         });
 
-        socketStream.socket.on('message', (message: any) => {
-            req.log.debug('Received WS message' + message);
+        wsConnection.socketStream.socket.on('message', async (json: string) => {
+            this._log.info('WS message from %s:%s', wsConnection.type, wsConnection.id);
+
+            if (wsConnection.type === 'device') {
+                const msg: FromDeviceMessage = JSON.parse(json);
+                console.log('Device message', msg);
+
+                const device = await req.services.deviceDb.byId(wsConnection.id);
+                console.assert(device);
+                if (!device) { return; }
+
+                device.status.lastContact = Date.now();
+                const deviceReplace = req.services.deviceDb.replace(device);
+
+
+
+                await Promise.all([deviceReplace]);
+            }
         });
 
         let connections = this._connections.get(wsConnection.id);
@@ -74,7 +95,7 @@ export class WebSocketManager {
             // I tried with immediate and 0 timeout but it's still too quick.  Setting to 10ms
             // Seen sporadic failed with 10ms. Setting to 100ms
             setTimeout(() => {
-                this.initializeDevice(device, req);
+                this.initializeDevice(device);
             }, 100);
 
             device.status.cameOnline = Date.now();
@@ -117,11 +138,11 @@ export class WebSocketManager {
 
     }
 
-    private initializeDevice(device: Device, req: FastifyRequest) {
+    private initializeDevice(device: Device) {
 
         if (!device) { return; }
 
-        req.log.info('Sending %s initial deviceSetup', device.id);
+        this._log.info('Sending %s initial deviceSetup', device.id);
         this.sendDeviceMessage({
             type: 'deviceSetup',
             data: {

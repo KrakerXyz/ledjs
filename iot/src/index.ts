@@ -2,7 +2,7 @@
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 require('dotenv').config();
 
-import { EnvKey, getConfig, getRequiredConfig, useRestClient } from './services';
+import { EnvKey, getConfig, getRequiredConfig, HealthReporter, useRestClient } from './services';
 import { DeviceWsClient } from 'netled';
 import { LedController } from './controller/LedController';
 
@@ -19,8 +19,10 @@ if (!getConfig(EnvKey.DeviceId) || !getConfig(EnvKey.DeviceSecret)) {
 
     const deviceWs = new DeviceWsClient(remoteAddress, getRequiredConfig(EnvKey.DeviceId), getRequiredConfig(EnvKey.DeviceSecret));
 
+    const healthReporter = new HealthReporter(deviceWs);
+
     console.log('Initializing leds');
 
-    new LedController(deviceWs);
+    new LedController(deviceWs, healthReporter);
 
 })();

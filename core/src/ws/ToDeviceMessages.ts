@@ -28,4 +28,3 @@ export type AnimationStopMessage = {
 export type AnimationStopData = {
     stop: boolean;
 }
-

@@ -31,7 +31,7 @@ const server = fastify({
     }
 });
 
-const webSocketManager = new WebSocketManager();
+const webSocketManager = new WebSocketManager(server.log.child({ loggerName: 'WebSocketManager' }));
 
 server.decorateRequest('services', { getter: () => new RequestServicesContainer(webSocketManager) });
 
@@ -49,9 +49,6 @@ server.register(fastifyWebsocket, {
     errorHandler: (_, conn) => {
         conn.socket.close(4001, 'Unauthorized');
         conn.destroy();
-    },
-    options: {
-        perMessageDeflate: true,
     }
 });
 
@@ -65,7 +62,7 @@ server.get('/api', async () => {
 });
 
 server.ready(() => {
-    console.log('Fastify ready');
+    server.log.info('Fastify ready');
 });
 
 const start = async () => {

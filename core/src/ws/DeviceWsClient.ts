@@ -1,10 +1,13 @@
 
 import { Disposable, ToDeviceMessage } from '..';
 import { DeviceAnimationSetup } from '../rest';
-import { AnimationStopData, DeviceSetupData } from './DeviceMessages';
+import { AnimationStopData, DeviceSetupData } from './ToDeviceMessages';
 import * as WebSocket from 'ws';
+import { FromDeviceMessage } from './FromDeviceMessage';
 
 export class DeviceWsClient {
+
+    private _postMessage: ((msg: string) => void) | null = null;
 
     public constructor(host: string, deviceId: string, deviceSecret: string) {
 
@@ -13,6 +16,8 @@ export class DeviceWsClient {
 
             const authToken = `${deviceId}:${deviceSecret}`;
             const ws = new WebSocket(`ws://${host}/ws/device`, { auth: authToken });
+
+            this._postMessage = ws.send;
 
             ws.addEventListener('open', () => {
                 console.log('WebSocket opened');
@@ -87,5 +92,12 @@ export class DeviceWsClient {
                 newArr.splice(index, 1);
             }
         };
+    }
+
+    public postMessage(msg: FromDeviceMessage): void {
+        if (!this._postMessage) { return; }
+        const msgJson = JSON.stringify(msg);
+        this._postMessage(msgJson);
+
     }
 }

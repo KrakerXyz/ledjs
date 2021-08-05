@@ -1,7 +1,20 @@
 {
 	"folders": [
 		{
-			"path": "."
+			"path": "web"
+		},
+		{
+			"path": "server"
+		},
+		{
+			"path": "core"
+		},
+		{
+			"path": "iot"
+		},
+		{
+			"path": ".",
+			"name": "workspace"
 		}
 	],
 	"settings": {
