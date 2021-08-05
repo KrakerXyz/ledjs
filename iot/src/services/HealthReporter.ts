@@ -17,7 +17,6 @@ export class HealthReporter {
         if (!dataEntries.length) { return; }
 
         const data: DeviceHealthData = Object.fromEntries(dataEntries);
-        console.log('Sending health');
         this._ws.postMessage({
             type: 'health',
             data

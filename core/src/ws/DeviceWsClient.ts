@@ -17,7 +17,7 @@ export class DeviceWsClient {
             const authToken = `${deviceId}:${deviceSecret}`;
             const ws = new WebSocket(`ws://${host}/ws/device`, { auth: authToken });
 
-            this._postMessage = ws.send;
+            this._postMessage = ws.send.bind(ws);
 
             ws.addEventListener('open', () => {
                 console.log('WebSocket opened');
