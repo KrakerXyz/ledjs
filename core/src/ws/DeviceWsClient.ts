@@ -1,9 +1,8 @@
 
-import { Disposable, ToDeviceMessage } from '..';
+import { Disposable, FromDeviceMessage, ToDeviceMessage } from '..';
 import { DeviceAnimationSetup } from '../rest';
 import { AnimationStopData, DeviceSetupData } from './ToDeviceMessages';
 import * as WebSocket from 'ws';
-import { FromDeviceMessage } from './FromDeviceMessage';
 
 export class DeviceWsClient {
 
@@ -31,8 +30,7 @@ export class DeviceWsClient {
             ws.addEventListener('close', e => {
                 //Will happen if the server closes or after an error has occurred while connecting
                 if (e.code === 4001) {
-                    console.error('Device not authorized to connect to netled. Check your .env DEVICE_ID/SECRET');
-                    return;
+                    throw new Error('Device not authorized to connect to netled. Check your .env DEVICE_ID/SECRET');
                 }
 
                 reconnectRetryCount++;
@@ -56,6 +54,7 @@ export class DeviceWsClient {
         };
         startWebsocket();
     }
+
 
     private readonly _listeners: Partial<Record<ToDeviceMessage['type'], ((data: any) => void)[]>> = {};
     private processMessage(msg: ToDeviceMessage) {

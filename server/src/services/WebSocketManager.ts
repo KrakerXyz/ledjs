@@ -65,12 +65,10 @@ export class WebSocketManager {
                 console.assert(device);
                 if (!device) { return; }
 
-                device.status.lastContact = Date.now();
-                const deviceReplace = req.services.deviceDb.replace(device);
-
-
-
-                await Promise.all([deviceReplace]);
+                if (msg.type !== 'info') {
+                    device.status.lastContact = Date.now();
+                    await req.services.deviceDb.replace(device);
+                }
             }
         });
 
