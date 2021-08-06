@@ -11,7 +11,7 @@ export class AnimatorProvider {
 
         let lastSetup: DeviceAnimationSetup | null = null;
         let currentAnimator: Animator | null = null;
-        deviceWs.onAnimationSetup(async setup => {
+        deviceWs.on('animationSetup', async setup => {
 
             let dirty = false;
             if (setup.id !== lastSetup?.id || setup.version !== lastSetup.version) {
@@ -35,7 +35,7 @@ export class AnimatorProvider {
         });
 
         let lastNumLeds = 0;
-        deviceWs.onDeviceSetup(setup => {
+        deviceWs.on('deviceSetup', setup => {
             if (lastNumLeds === setup.numLeds) { return; }
             console.log(`Updating number of leds to ${setup.numLeds}`);
             lastNumLeds = setup.numLeds;

@@ -25,7 +25,7 @@ export class LedController {
         healthReporter.addHealthData('fps', () => this.getFps());
 
         let lastNumLeds = 0;
-        deviceWs.onDeviceSetup(setup => {
+        deviceWs.on('deviceSetup', setup => {
             if (lastNumLeds !== setup.numLeds) {
                 lastNumLeds = setup.numLeds;
                 const startFrameBytes = 4;
@@ -37,7 +37,7 @@ export class LedController {
             this.initSpi(setup.spiSpeed);
         });
 
-        deviceWs.onAnimationStop(data => {
+        deviceWs.on('animationStop', data => {
             this._isStopped = data.stop;
             if (data.stop) {
                 if (lastNumLeds) {

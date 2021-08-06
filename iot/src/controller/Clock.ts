@@ -5,11 +5,11 @@ export class Clock {
 
     public constructor(readonly deviceWs: DeviceWsClient, private readonly _onTick: () => void) {
 
-        deviceWs.onAnimationSetup(setup => {
+        deviceWs.on('animationSetup', setup => {
             this.setInterval(setup.interval);
         });
 
-        deviceWs.onAnimationStop(stop => {
+        deviceWs.on('animationStop', stop => {
             this.setStopped(stop.stop);
         });
 

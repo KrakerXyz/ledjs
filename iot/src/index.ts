@@ -19,13 +19,26 @@ if (!getConfig(EnvKey.DeviceId) || !getConfig(EnvKey.DeviceSecret)) {
 
     useRestClient(remoteAddress);
 
-    const deviceWs = new DeviceWsClient(remoteAddress, getRequiredConfig(EnvKey.DeviceId), getRequiredConfig(EnvKey.DeviceSecret));
+    const deviceWs = new DeviceWsClient(
+        getRequiredConfig(EnvKey.DeviceId),
+        getRequiredConfig(EnvKey.DeviceSecret),
+        {
+            protocol: 'ws',
+            host: remoteAddress
+        }
+    );
 
-    deviceWs.postMessage({
-        type: 'info',
-        data: {
-            os: `${os.platform()}|${os.release()}`,
-            cores: os.cpus().length
+    deviceWs.on('connectionChange', state => {
+        console.log(`WebSocket ${state}`);
+
+        if (state === 'connected') {
+            deviceWs.postMessage({
+                type: 'info',
+                data: {
+                    os: `${os.platform()}|${os.release()}`,
+                    cores: os.cpus().length
+                }
+            });
         }
     });
 
