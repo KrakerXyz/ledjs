@@ -1,13 +1,14 @@
 
-import { createRouter, createWebHistory, NavigationGuard, RouteRecordRaw } from 'vue-router';
+import { createRouter, createWebHistory, NavigationGuard, RouteLocationRaw, RouteRecordRaw } from 'vue-router';
 import { useLoginService } from './services';
 
-const isLoggedIn = useLoginService().status;
+const isLoggedIn = useLoginService(() => router).status;
 
 const requireLogin: NavigationGuard = (to, _from, next) => {
    if (isLoggedIn.value === 'signedIn') { return next(); }
    if (to.name === 'home') { return next(); }
-   next({ name: 'login', query: { ret: to.name?.toString() } });
+   const loginRoute: RouteLocationRaw = { name: 'login', query: { ret: to.fullPath } };
+   next(loginRoute);
 };
 
 const routes: RouteRecordRaw[] = [

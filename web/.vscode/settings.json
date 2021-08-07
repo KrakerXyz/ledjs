@@ -2,7 +2,9 @@
    "cSpell.words": [
       "Leds",
       "cooldown",
-      "heatramp"
+      "gapi",
+      "heatramp",
+      "netled"
    ],
    "vetur.format.scriptInitialIndent": true,
    "vetur.format.styleInitialIndent": true

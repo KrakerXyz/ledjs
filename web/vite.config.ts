@@ -1,6 +1,9 @@
 import type { UserConfig } from 'vite';
 import vue from '@vitejs/plugin-vue';
 
+//Monaco related changes came from 
+//https://github.com/vitejs/vite/discussions/1791
+
 const config: UserConfig = {
    plugins: [vue()],
    resolve: {

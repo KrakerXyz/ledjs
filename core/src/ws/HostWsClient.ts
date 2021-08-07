@@ -27,6 +27,11 @@ export class HostWsClient {
         });
 
         ws.addEventListener('close', e => {
+
+            if (this._disposed) {
+                return;
+            }
+
             //Will happen if the server closes or after an error has occurred while connecting
             if (e.code === 4001) {
                 console.error('WebSocket not authorized');
