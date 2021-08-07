@@ -4,7 +4,8 @@
       "cooldown",
       "gapi",
       "heatramp",
-      "netled"
+      "netled",
+      "typeof"
    ],
    "vetur.format.scriptInitialIndent": true,
    "vetur.format.styleInitialIndent": true
