@@ -5,6 +5,7 @@
       "gapi",
       "heatramp",
       "netled",
+      "typecheck",
       "typeof"
    ],
    "vetur.format.scriptInitialIndent": true,

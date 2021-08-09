@@ -10,10 +10,10 @@ export const postAnimation: RouteOptions = {
             res.status(400).send({ error: 'Missing animationPost body' });
             return;
         } else if (!animationPost.script?.trim()) {
-            res.send(400).send({ error: 'Missing script' });
+            res.status(400).send({ error: 'Missing script' });
             return;
         } else if (!animationPost.id) {
-            res.send(400).send({ error: 'Missing id' });
+            res.status(400).send({ error: 'Missing id' });
             return;
         }
 
@@ -44,7 +44,7 @@ export const postAnimation: RouteOptions = {
 
         const { script, ...animationMeta } = animation;
 
-        res.send(201).send(animationMeta);
+        res.status(existingAnimation ? 200 : 201).send(animationMeta);
 
     }
 };

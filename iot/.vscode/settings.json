@@ -3,6 +3,7 @@
         "ARGB",
         "leds",
         "netled",
+        "prestart",
         "rpio"
     ]
 }

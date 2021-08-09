@@ -57,10 +57,6 @@ server.get('/ws/client', { websocket: true, preValidation: [jwtAuthentication] }
 
 apiRoutes.forEach(r => server.route(r));
 
-server.get('/api', async () => {
-    return { hello: 'world2' };
-});
-
 server.ready(() => {
     server.log.info('Fastify ready');
 });

@@ -1,6 +1,10 @@
 {
     "cSpell.words": [
         "fastify",
-        "netled"
+        "netled",
+        "pino",
+        "prestart",
+        "ttsc",
+        "ttypescript"
     ]
 }

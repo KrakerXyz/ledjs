@@ -36,7 +36,8 @@
             "preLaunchTask": "build-server",
             "outFiles": [
                 "${workspaceFolder}/server/dist/**/*.js"
-            ]
+            ],
+            "outputCapture": "std" //to capture winston console logs
         }
     ]
 }
