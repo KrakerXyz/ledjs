@@ -18,15 +18,15 @@
    export default defineComponent({
       setup() {
 
-         const loginService = useLoginService();
-         const route = useRoute();
          const router = useRouter();
+         const loginService = useLoginService(() => router);
+         const route = useRoute();
 
          watch(loginService.status, status => {
             if (status !== 'signedIn') { return; }
             const name = route.query.ret as string;
             if (!name) { return; }
-            router.replace({ name });
+            router.replace(name);
          });
 
          return { ...loginService };

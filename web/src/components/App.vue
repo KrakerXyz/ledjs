@@ -58,6 +58,7 @@
 <script lang="ts">
 
    import { computed, defineComponent } from 'vue';
+   import { useRouter } from 'vue-router';
    import { useLoginService } from '../services';
    import User from './User.vue';
 
@@ -66,8 +67,8 @@
          User
       },
       setup() {
-
-         const loginService = useLoginService();
+         const router = useRouter();
+         const loginService = useLoginService(() => router);
 
          const isLoggedIn = computed(() => loginService.status.value === 'signedIn');
 

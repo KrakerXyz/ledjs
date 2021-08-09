@@ -82,7 +82,7 @@
 
          const wsClient = useWsClient();
          wsClient.onDeviceConnectionEvent((did, data) => {
-            const device = devices.value.find(d => d.id === did);
+            const device = devices.value?.find(d => d.id === did);
             if (!device) { return; }
             if (data.state === 'connected') {
                (device.status as any).cameOnline = Date.now();
