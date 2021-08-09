@@ -1,7 +1,6 @@
 import { RouteOptions } from 'fastify';
 import { Device, DevicePost } from 'netled';
 import { v4 } from 'uuid';
-import { DeviceDb } from '../../db/DeviceDb';
 import { jwtAuthentication } from '../../services';
 
 export const postDevice: RouteOptions = {
@@ -16,7 +15,7 @@ export const postDevice: RouteOptions = {
             return;
         }
 
-        const db = new DeviceDb();
+        const db = req.services.deviceDb;
 
         const existingDevice = await db.byId(device.id);
 

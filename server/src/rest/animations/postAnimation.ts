@@ -1,6 +1,5 @@
 import { RouteOptions } from 'fastify';
 import { AnimationPost, parseScript, Animation } from 'netled';
-import { AnimationDb } from '../../db';
 
 export const postAnimation: RouteOptions = {
     method: 'POST',
@@ -18,7 +17,7 @@ export const postAnimation: RouteOptions = {
             return;
         }
 
-        const db = new AnimationDb();
+        const db = req.services.animationDb;
 
         const parseResult = parseScript(animationPost.script);
 

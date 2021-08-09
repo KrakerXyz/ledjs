@@ -1,4 +1,4 @@
-import { RestClient } from '.';
+import { DeviceAnimationConfigPost, RestClient } from '.';
 import { AnimationConfig } from '.';
 
 export class DeviceRestClient {
@@ -21,7 +21,7 @@ export class DeviceRestClient {
         return this.restClient.post('/api/devices/animation', setup);
     }
 
-    public setNamedConfig(post: DeviceAnimationConfigPost): Promise<void> {
+    public setAnimationConfig(post: DeviceAnimationConfigPost): Promise<void> {
         return this.restClient.post('/api/devices/animation-config', post);
     }
 
@@ -89,9 +89,4 @@ export interface DeviceStopPost {
     deviceIds: [string, ...string[]],
     /** When or not to stop the animation. Send false to restart a previously stopped animation. */
     stop: boolean;
-}
-
-export interface DeviceAnimationConfigPost {
-    deviceIds: [string, ...string[]],
-    configId: string;
 }

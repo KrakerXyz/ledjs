@@ -1,5 +1,4 @@
 import { preValidationHookHandler } from 'fastify';
-import { DeviceDb } from '../db/DeviceDb';
 
 export const deviceAuthentication: preValidationHookHandler = async (req, res) => {
     const authParts = req.headers?.authorization?.split(' ');
@@ -23,7 +22,7 @@ export const deviceAuthentication: preValidationHookHandler = async (req, res) =
             throw new Error('Malformed token value');
         }
 
-        const deviceDb = new DeviceDb();
+        const deviceDb = req.services.deviceDb;
         const device = await deviceDb.byId(tokenParts[0]);
         if (device?.secret !== tokenParts[1]) {
             throw new Error('Invalid token');

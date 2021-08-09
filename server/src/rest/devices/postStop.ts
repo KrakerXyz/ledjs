@@ -1,7 +1,6 @@
 import { RouteOptions } from 'fastify-websocket';
 import { DeviceStopPost } from 'netled';
 import { jwtAuthentication } from '../../services';
-import { DeviceDb } from '../../db/DeviceDb';
 
 export const postStop: RouteOptions = {
     method: 'POST',
@@ -9,7 +8,7 @@ export const postStop: RouteOptions = {
     preValidation: [jwtAuthentication],
     handler: async (req, res) => {
 
-        const db = new DeviceDb();
+        const db = req.services.deviceDb;
 
         const deviceSetup = req.body as DeviceStopPost;
 

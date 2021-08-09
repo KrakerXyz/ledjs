@@ -1,9 +1,11 @@
 import { RouteOptions } from 'fastify';
 import { AnimationNamedConfigPost, animationNamedConfigPostSchema } from 'netled';
+import { jwtAuthentication } from 'src/services';
 
 export const postConfig: RouteOptions = {
     method: 'POST',
     url: '/api/animations/config',
+    preValidation: [jwtAuthentication],
     schema: {
         body: animationNamedConfigPostSchema
     },
@@ -15,5 +17,6 @@ export const postConfig: RouteOptions = {
             return;
         }
 
+        throw new Error('Not implemented');
     }
 };

@@ -1,5 +1,4 @@
 import { RouteOptions } from 'fastify';
-import { DeviceDb } from '../../db/DeviceDb';
 import { jwtAuthentication } from '../../services';
 
 export const getDevice: RouteOptions = {
@@ -14,7 +13,7 @@ export const getDevice: RouteOptions = {
             return;
         }
 
-        const db = new DeviceDb();
+        const db = req.services.deviceDb;
         const device = await db.byId(deviceId);
 
         if (!device) {

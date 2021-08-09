@@ -4,11 +4,12 @@ import { animationConfigSchema } from './AnimationConfig';
 
 export interface AnimationNamedConfig {
     readonly id: string;
+    readonly userId: string;
     name: string;
     animation: AnimationConfig
 }
 
-export type AnimationNamedConfigPost = AnimationNamedConfig;
+export type AnimationNamedConfigPost = Omit<AnimationNamedConfig, 'userId'>;
 
 export const animationNamedConfigPostSchema: AjvSchema<AnimationNamedConfigPost> = {
     type: 'object',

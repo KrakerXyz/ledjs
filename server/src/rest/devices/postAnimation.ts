@@ -1,7 +1,6 @@
 import { RouteOptions } from 'fastify-websocket';
 import { DeviceAnimationPost } from 'netled';
 import { jwtAuthentication } from '../../services';
-import { DeviceDb } from '../../db/DeviceDb';
 
 export const postAnimation: RouteOptions = {
     method: 'POST',
@@ -9,7 +8,7 @@ export const postAnimation: RouteOptions = {
     preValidation: [jwtAuthentication],
     handler: async (req, res) => {
 
-        const db = new DeviceDb();
+        const db = req.services.deviceDb;
 
         const deviceSetup = req.body as DeviceAnimationPost;
 

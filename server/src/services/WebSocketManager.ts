@@ -1,6 +1,7 @@
 import { FastifyLoggerInstance, FastifyRequest } from 'fastify';
 import { SocketStream } from 'fastify-websocket';
 import { Device, FromDeviceMessage, ToDeviceMessage, ToHostMessage } from 'netled';
+import { RequestServicesContainer } from './RequestServicesContainer';
 
 export class WebSocketManager {
 
@@ -82,7 +83,6 @@ export class WebSocketManager {
 
         connections.push(wsConnection);
 
-
         if (wsConnection.type === 'device') {
 
             const device = await req.services.deviceDb.byId(wsConnection.id);
@@ -93,7 +93,7 @@ export class WebSocketManager {
             // I tried with immediate and 0 timeout but it's still too quick.  Setting to 10ms
             // Seen sporadic failed with 10ms. Setting to 100ms
             setTimeout(() => {
-                this.initializeDevice(device);
+                this.initializeDevice(device, req.services);
             }, 100);
 
             device.status.cameOnline = Date.now();
@@ -136,7 +136,7 @@ export class WebSocketManager {
 
     }
 
-    private initializeDevice(device: Device) {
+    private async initializeDevice(device: Device, services: RequestServicesContainer) {
 
         if (!device) { return; }
 
@@ -148,10 +148,15 @@ export class WebSocketManager {
             }
         }, device.id);
 
-        if (device.animation) {
+        if (device.animationNamedConfigId) {
+
+            const config = await services.animationConfigDb.byId(device.animationNamedConfigId);
+            console.assert(config);
+            if (!config) { return; }
+
             this.sendDeviceMessage({
                 type: 'animationSetup',
-                data: device.animation
+                data: config?.animation
             }, device.id);
         }
 

@@ -1,5 +1,4 @@
 import { RouteOptions } from 'fastify';
-import { AnimationDb } from '../../db';
 
 export const getScriptById: RouteOptions = {
     method: 'GET',
@@ -13,7 +12,7 @@ export const getScriptById: RouteOptions = {
             return;
         }
 
-        const db = new AnimationDb();
+        const db = req.services.animationDb;
         const animation = await db.byId(animationId, version);
         if (!animation) {
             res.status(404).send({ error: 'An animation with that id/version does not exist' });
