@@ -16,9 +16,10 @@
 
    <body>
       <div id="app"></div>
-      <script type="module" src="/src/main.ts"></script>
-      <script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.21.2/min/vs/loader.min.js"></script>
 
+      <script type="module" src="/src/main.ts"></script>
+
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.21.2/min/vs/loader.min.js"></script>
       <script>
          require.config({
             paths: {
@@ -29,14 +30,15 @@
          window.MonacoEnvironment = {
             getWorkerUrl: function (workerId, label) {
                return `data:text/javascript;charset=utf-8,${encodeURIComponent(`
-                      self.MonacoEnvironment = {
-                        baseUrl: 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.21.2/min/'
-                      };
-                      importScripts('https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.21.2/min/vs/base/worker/workerMain.js');`)}`;
+                            self.MonacoEnvironment = {
+                              baseUrl: 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.21.2/min/'
+                            };
+                            importScripts('https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.21.2/min/vs/base/worker/workerMain.js');`)}`;
             },
          };
 
       </script>
+
    </body>
 
 </html>

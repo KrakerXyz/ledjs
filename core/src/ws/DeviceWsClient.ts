@@ -1,11 +1,11 @@
 
 import { FromDeviceMessage, ToDeviceMessage } from '..';
-import { DeviceAnimationSetup } from '../rest';
+import { AnimationConfig } from '../rest';
 import { AnimationStopData, DeviceSetupData } from './ToDeviceMessages';
 import { WsConnection, WsOptions, Listener, WsCallbacks, WsEvents } from './WsConnection';
 
 type DeviceCallbacks = {
-    [T in ToDeviceMessage['type']]: T extends 'animationSetup' ? (data: DeviceAnimationSetup) => void
+    [T in ToDeviceMessage['type']]: T extends 'animationSetup' ? (data: AnimationConfig) => void
     : T extends 'deviceSetup' ? (data: DeviceSetupData) => void
     : T extends 'animationStop' ? (data: AnimationStopData) => void
     : never

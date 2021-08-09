@@ -1,11 +1,12 @@
+import { AnimationConfig } from '../rest';
 
-import { DeviceAnimationSetup } from '../rest';
+
 
 export type ToDeviceMessage = AnimationSetupMessage | DeviceSetupMessage | AnimationStopMessage;
 
 export type AnimationSetupMessage = {
     type: 'animationSetup',
-    data: DeviceAnimationSetup
+    data: AnimationConfig
 }
 
 export type DeviceSetupMessage = {
