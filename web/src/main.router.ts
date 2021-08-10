@@ -30,9 +30,22 @@ const routes: RouteRecordRaw[] = [
    },
    {
       name: 'animation-configs',
-      path: '/animations/:animationId/configs',
+      path: '/animations/:animationId.:version/configs',
       beforeEnter: requireLogin,
-      component: () => import('./components/animations/configs/Configs.vue')
+      component: () => import('./components/animations/configs/ConfigList.vue'),
+      props: r => {
+         return {
+            animationId: r.params.animationId,
+            version: parseInt(r.params.version as string)
+         };
+      }
+   },
+   {
+      name: 'animation-config',
+      path: '/animations/configs/:configId',
+      beforeEnter: requireLogin,
+      component: () => import('./components/animations/configs/Config.vue'),
+      props: true
    },
    {
       name: 'animation-editor',

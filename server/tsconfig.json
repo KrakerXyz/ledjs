@@ -15,7 +15,6 @@
         "importHelpers": true,
         "removeComments": true,
         "outDir": "dist",
-        "baseUrl": ".",
         "plugins": [
             {
                 "transform": "@krakerxyz/typed-base/dist/cjs/transformer/transformer",

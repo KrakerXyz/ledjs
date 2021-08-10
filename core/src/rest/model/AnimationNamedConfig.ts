@@ -7,6 +7,7 @@ export interface AnimationNamedConfig {
     readonly id: string;
     readonly userId: string;
     name: string;
+    description?: string | null;
     animation: AnimationConfig
 }
 
@@ -17,6 +18,7 @@ export const animationNamedConfigPostSchema: AjvSchema<AnimationNamedConfigPost>
     properties: {
         id: { type: 'string' },
         name: { type: 'string' },
+        description: { type: 'string' },
         animation: animationConfigSchema
     },
     required: ['id', 'name', 'animation'],

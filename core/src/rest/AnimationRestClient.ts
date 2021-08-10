@@ -1,5 +1,6 @@
 
 import { AnimationMeta, AnimationNamedConfig, AnimationPost, Animation } from '.';
+import { AnimationNamedConfigPost } from './model';
 import { RestClient } from './RestClient';
 
 export class AnimationRestClient {
@@ -26,9 +27,14 @@ export class AnimationRestClient {
         return this.restClient.post('/api/animations', animation);
     }
 
+    /** Get a list of configs for this animation */
+    public configList(animationId: string, version?: number): Promise<AnimationNamedConfig[]> {
+        return this.restClient.get(`/api/animations/${animationId}/configs`, { version });
+    }
+
     /** Saves/Updates a named animation config */
-    public saveConfig(config: AnimationNamedConfig): Promise<AnimationNamedConfig> {
-        return this.restClient.post('/api/animations/config', config);
+    public saveConfig(config: AnimationNamedConfigPost): Promise<AnimationNamedConfig> {
+        return this.restClient.post('/api/animations/configs', config);
     }
 
 }

@@ -1,6 +1,7 @@
 
 <template>
    <div>
+      Config
    </div>
 </template>
 
@@ -10,7 +11,6 @@
 
    export default defineComponent({
       props: {
-         animationId: { type: String, required: true }
       },
       setup() {
          return {};

@@ -11,7 +11,7 @@
                   class="list-group-item list-group-item-action"
                   v-for="a of animations"
                   :key="a.id"
-                  :to="{ name: 'animation-configs', params: { animationId: a.id } }"
+                  :to="{ name: 'animation-configs', params: { animationId: a.id, version: a.version } }"
                >
                   <div class="row">
                      <div class="col">

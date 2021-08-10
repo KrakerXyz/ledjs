@@ -4,7 +4,7 @@ import { jwtAuthentication } from '../../services';
 
 export const postConfig: RouteOptions = {
     method: 'POST',
-    url: '/api/animations/config',
+    url: '/api/animations/configs',
     preValidation: [jwtAuthentication],
     schema: {
         body: animationNamedConfigPostSchema
