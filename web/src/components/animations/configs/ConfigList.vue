@@ -1,6 +1,7 @@
 
 <template>
    <div class="container h-100 shadow bg-white p-3">
+      <h1>{{ animation.name }} Configs</h1>
       <div class="row">
          <div class="col">
             <div class="list-group" v-if="configs">
@@ -43,7 +44,10 @@ export default defineComponent({
       const restClient = useRestClient();
       const animationRestClient = new AnimationRestClient(restClient);
 
+      const animationProm = animationRestClient.byId(props.animationId, props.version);
       const configs = await animationRestClient.configList(props.animationId, props.version);
+
+      const animation = await animationProm;
 
       if (!configs.length) {
          const newConfig: AnimationNamedConfigPost = {
@@ -60,7 +64,7 @@ export default defineComponent({
          await animationRestClient.saveConfig(newConfig);
       }
 
-      return { configs };
+      return { configs, animation };
    }
 });
 

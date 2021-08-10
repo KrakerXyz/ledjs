@@ -5,13 +5,18 @@ export const getDevice: RouteOptions = {
     method: 'GET',
     url: '/api/devices/:deviceId',
     preValidation: [jwtAuthentication],
+    schema: {
+        params: {
+            type: 'object',
+            properties: {
+                deviceId: { type: 'string', format: 'uuid' }
+            },
+            required: ['deviceId']
+        }
+    },
     handler: async (req, res) => {
 
         const deviceId = (req.params as any).deviceId as string;
-        if (!deviceId) {
-            res.status(400).send('Missing deviceId');
-            return;
-        }
 
         const db = req.services.deviceDb;
         const device = await db.byId(deviceId);

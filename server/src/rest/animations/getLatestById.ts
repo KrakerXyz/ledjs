@@ -1,8 +1,17 @@
 import { RouteOptions } from 'fastify';
 
-export const getAnimationById: RouteOptions = {
+export const getLatestById: RouteOptions = {
     method: 'GET',
     url: '/api/animations/:animationId',
+    schema: {
+        params: {
+            type: 'object',
+            properties: {
+                animationId: { type: 'string', format: 'uuid' }
+            },
+            required: ['animationId']
+        }
+    },
     handler: async (req, res) => {
         const animationId = (req.params as any)['animationId'];
         const db = req.services.animationDb;

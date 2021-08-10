@@ -1,8 +1,8 @@
 import { RouteOptions } from 'fastify';
 
-export const getScriptById: RouteOptions = {
+export const getById: RouteOptions = {
     method: 'GET',
-    url: '/api/animations/:animationId/:version/script',
+    url: '/api/animations/:animationId/:version',
     schema: {
         params: {
             type: 'object',
@@ -15,16 +15,15 @@ export const getScriptById: RouteOptions = {
     },
     handler: async (req, res) => {
         const animationId = (req.params as any)['animationId'] as string;
-        const version = (req.params as any)['animationId'] as number;
+        const version = (req.params as any)['version'] as number;
 
         const db = req.services.animationDb;
         const animation = await db.byId(animationId, version);
-
         if (!animation) {
             res.status(404).send({ error: 'An animation with that id/version does not exist' });
             return;
         }
 
-        res.status(200).header('Content-Type', 'text/javascript').send(animation.script);
+        res.status(200).send(animation);
     }
 };

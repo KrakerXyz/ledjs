@@ -17,9 +17,14 @@ export class AnimationRestClient {
         return this.restClient.get(`/api/animations/${animationId}`, { includeDraft });
     }
 
+    /** Return specific animation version */
+    public byId(animationId: string, version: number): Promise<Animation> {
+        return this.restClient.get(`/api/animations/${animationId}/${version}`);
+    }
+
     /** Returns the script text of the given animation */
     public async script(animationId: string, version: number): Promise<string> {
-        return this.restClient.get(`/api/animations/${animationId}/script`, { version });
+        return this.restClient.get(`/api/animations/${animationId}/${version}/script`);
     }
 
     /** Creates or updates a draft version of an animation script */
@@ -30,6 +35,10 @@ export class AnimationRestClient {
     /** Get a list of configs for this animation */
     public configList(animationId: string, version?: number): Promise<AnimationNamedConfig[]> {
         return this.restClient.get(`/api/animations/${animationId}/configs`, { version });
+    }
+
+    public configById(configId: string): Promise<AnimationNamedConfig> {
+        return this.restClient.get(`/api/animations/configs/${configId}`);
     }
 
     /** Saves/Updates a named animation config */
