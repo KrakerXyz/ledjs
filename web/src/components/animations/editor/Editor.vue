@@ -113,8 +113,8 @@
    import { useJavascriptLib } from './javascriptLib';
    import { useMonacoEditor } from './monacoEditor';
    import { Animation, AnimationRestClient, AnimationPost, Frame, parseScript, deepClone } from 'netled';
-   import { useRestClient } from '../../services';
-   import LedCanvas from '../LedCanvas.vue';
+   import { useRestClient } from '../../../services';
+   import LedCanvas from '../../LedCanvas.vue';
    import { useRoute, useRouter } from 'vue-router';
    import { v4 } from 'uuid';
 

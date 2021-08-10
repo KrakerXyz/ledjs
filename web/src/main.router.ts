@@ -26,7 +26,19 @@ const routes: RouteRecordRaw[] = [
       name: 'animation-list',
       path: '/animations',
       beforeEnter: requireLogin,
-      component: () => import('./components/animation-list/AnimationList.vue')
+      component: () => import('./components/animations/AnimationList.vue')
+   },
+   {
+      name: 'animation-configs',
+      path: '/animations/:animationId/configs',
+      beforeEnter: requireLogin,
+      component: () => import('./components/animations/configs/Configs.vue')
+   },
+   {
+      name: 'animation-editor',
+      path: '/animations/:animationId/editor',
+      beforeEnter: requireLogin,
+      component: () => import('./components/animations/editor/Editor.vue')
    },
    {
       name: 'device-list',
@@ -47,18 +59,6 @@ const routes: RouteRecordRaw[] = [
       component: () => import('./components/devices/DeviceView.vue'),
       props: true
    },
-   {
-      name: 'config',
-      path: '/config/:animationId',
-      beforeEnter: requireLogin,
-      component: () => import('./components/config/Config.vue')
-   },
-   {
-      name: 'editor',
-      path: '/editor/:animationId',
-      beforeEnter: requireLogin,
-      component: () => import('./components/editor/Editor.vue')
-   }
 ];
 
 export const router = createRouter({

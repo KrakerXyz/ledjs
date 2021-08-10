@@ -1,5 +1,5 @@
 
-import { AnimationMeta, AnimationNamedConfig, AnimationPost } from '.';
+import { AnimationMeta, AnimationNamedConfig, AnimationPost, Animation } from '.';
 import { RestClient } from './RestClient';
 
 export class AnimationRestClient {

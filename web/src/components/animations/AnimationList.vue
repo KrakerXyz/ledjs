@@ -11,7 +11,7 @@
                   class="list-group-item list-group-item-action"
                   v-for="a of animations"
                   :key="a.id"
-                  :to="{ name: 'config', params: { animationId: a.id } }"
+                  :to="{ name: 'animation-configs', params: { animationId: a.id } }"
                >
                   <div class="row">
                      <div class="col">
@@ -19,7 +19,7 @@
                         <div v-if="a.description">{{ a.description }}</div>
                      </div>
                      <div class="col-auto d-flex align-items-center">
-                        <router-link :to="{ name: 'editor', params: { animationId: a.id } }">
+                        <router-link :to="{ name: 'animation-editor', params: { animationId: a.id } }">
                            <i class="fal fa-edit"></i>
                         </router-link>
                      </div>
@@ -31,7 +31,7 @@
 
       <div class="row mt-3">
          <div class="col">
-            <router-link :to="{ name: 'editor', params: { animationId: 'new' } }">
+            <router-link :to="{ name: 'animation-editor', params: { animationId: 'new' } }">
                New Animation
             </router-link>
          </div>

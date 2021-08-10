@@ -26,7 +26,7 @@
 
                         <button
                            class="btn p-0 ms-2 text-success"
-                           v-if="d.animation && d.isStopped"
+                           v-if="d.animationNamedConfigId && d.isStopped"
                            @click.prevent="stop(d, false)"
                         >
                            <i class="fas fa-play fa-fw"></i>
@@ -34,7 +34,7 @@
 
                         <span
                            class="btn p-0 ms-2 text-danger"
-                           v-if="d.animation && !d.isStopped"
+                           v-if="d.animationNamedConfigId && !d.isStopped"
                            @click.prevent="stop(d, true)"
                         >
                            <i class="fas fa-stop fa-fw"></i>

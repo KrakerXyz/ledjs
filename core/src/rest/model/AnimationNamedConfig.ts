@@ -1,3 +1,4 @@
+
 import { AnimationConfig } from '.';
 import { AjvSchema } from '../AjvSchema';
 import { animationConfigSchema } from './AnimationConfig';

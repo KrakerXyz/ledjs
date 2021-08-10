@@ -1,5 +1,4 @@
-import { AnimationConfigDb, AnimationDb, UserDb } from 'src/db';
-import { DeviceDb } from '../db/DeviceDb';
+import { DeviceDb, AnimationConfigDb, AnimationDb, UserDb } from '../db';
 import { WebSocketManager } from './WebSocketManager';
 
 export class RequestServicesContainer {

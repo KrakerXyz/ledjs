@@ -1,6 +1,6 @@
 import { RouteOptions } from 'fastify';
 import { AnimationNamedConfigPost, animationNamedConfigPostSchema } from 'netled';
-import { jwtAuthentication } from 'src/services';
+import { jwtAuthentication } from '../../services';
 
 export const postConfig: RouteOptions = {
     method: 'POST',

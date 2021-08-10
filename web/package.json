@@ -15,12 +15,11 @@
     "lint-tsc": "vue-tsc --noEmit && eslint src/**/*.{ts,vue}"
   },
   "dependencies": {
-    "@babel/parser": "^7.14.8",
+    "monaco-editor": "^0.26.1",
     "netled": "file:../core",
     "uuid": "^8.3.2",
     "vue": "^3.1.1",
-    "vue-router": "^4.0.8",
-    "monaco-editor": "^0.26.1"
+    "vue-router": "^4.0.8"
   },
   "devDependencies": {
     "@types/gapi": "^0.0.41",
