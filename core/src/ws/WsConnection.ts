@@ -1,7 +1,7 @@
 
 import * as WebSocket from 'ws';
-import { EventEmitter2, Listener } from 'eventemitter2';
-export { Listener } from 'eventemitter2';
+import { EventEmitter } from 'eventemitter3';
+import { Disposable } from '../Disposable';
 
 type Message = { type: string, data: any }
 export type WsEvents<TMessage extends Message> = TMessage['type'] | 'connectionChange';
@@ -18,7 +18,7 @@ export class WsConnection<
 
     private readonly _url: string;
     private readonly _auth: { auth: string } | undefined;
-    private _eventEmitter = new EventEmitter2();
+    private _eventEmitter = new EventEmitter();
 
     public constructor(type: 'device' | 'host', options?: Partial<WsOptions>) {
         this._url = `${options?.protocol ?? 'wss'}://${options?.host ?? 'netled.io'}/ws/${type}`;
@@ -26,8 +26,13 @@ export class WsConnection<
         this.startWebsocket();
     }
 
-    public on<Type extends WsEvents<TMessage>>(type: Type, callback: WsCallbacks<TMessage, TMessageCallback>[Type]) {
-        return this._eventEmitter.addListener(type, callback) as Listener;
+    public on<Type extends WsEvents<TMessage>>(type: Type, callback: WsCallbacks<TMessage, TMessageCallback>[Type]): Disposable {
+        this._eventEmitter.addListener(type, callback);
+        return {
+            dispose: () => {
+                this._eventEmitter.removeListener('type', callback);
+            }
+        };
     }
 
     private _reconnectRetryCount = 0;

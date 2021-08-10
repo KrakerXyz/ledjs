@@ -1,4 +1,4 @@
-import { Animator, DeviceAnimationSetup, DeviceWsClient } from 'netled';
+import { Animator, AnimationConfig, DeviceWsClient } from 'netled';
 import { deepEquals, useAnimation } from '../services';
 
 export type Callback = (animation: Animator) => void;
@@ -9,7 +9,7 @@ export class AnimatorProvider {
 
     public constructor(readonly deviceWs: DeviceWsClient) {
 
-        let lastSetup: DeviceAnimationSetup | null = null;
+        let lastSetup: AnimationConfig | null = null;
         let currentAnimator: Animator | null = null;
         deviceWs.on('animationSetup', async setup => {
 

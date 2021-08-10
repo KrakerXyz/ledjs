@@ -1,4 +1,3 @@
-
 <template>
    <div class="container h-100 shadow bg-white p-3">
       <h1>{{ animation.name }} Configs</h1>
@@ -28,7 +27,6 @@
 </template>
 
 <script lang="ts">
-
 import { useRestClient } from '@/services';
 import { AnimationNamedConfigPost, AnimationRestClient } from 'netled';
 import { v4 } from 'uuid';
@@ -37,15 +35,20 @@ import { defineComponent } from 'vue';
 export default defineComponent({
    props: {
       animationId: { type: String, required: true },
-      version: { type: Number, required: true }
+      version: { type: Number, required: true },
    },
    async setup(props) {
-
       const restClient = useRestClient();
       const animationRestClient = new AnimationRestClient(restClient);
 
-      const animationProm = animationRestClient.byId(props.animationId, props.version);
-      const configs = await animationRestClient.configList(props.animationId, props.version);
+      const animationProm = animationRestClient.byId(
+         props.animationId,
+         props.version
+      );
+      const configs = await animationRestClient.configList(
+         props.animationId,
+         props.version
+      );
 
       const animation = await animationProm;
 
@@ -57,15 +60,14 @@ export default defineComponent({
                id: props.animationId,
                version: props.version,
                interval: 33,
-               brightness: 0.5
-            }
+               brightness: 0.5,
+            },
          };
          console.log(newConfig);
          await animationRestClient.saveConfig(newConfig);
       }
 
       return { configs, animation };
-   }
+   },
 });
-
 </script>

@@ -1,74 +1,123 @@
-
 <template>
    <div class="h-100 d-flex flex-column">
       <led-canvas id="canvas" :frame="frame"></led-canvas>
 
-      <div class="flex-grow-1 container shadow bg-white p-3">
-         <h1>{{ animation.name }}</h1>
+      <div class="flex-grow-1 container shadow bg-white p-3 d-flex flex-column">
+         <div class="flex-grow-1">
+            <h1>{{ animation.name }}</h1>
 
-         <div class="row">
-            <div class="col-sm-6 col-lg-4 mb-3">
-               <div class="form-floating">
+            <div class="row">
+               <div class="col-sm-6 col-lg-4 mb-3">
+                  <div class="form-floating">
+                     <input
+                        id="config-name"
+                        class="form-control"
+                        placeholder="*"
+                        v-model="dirtyConfig.name"
+                     />
+                     <label for="config-name">Name</label>
+                  </div>
+               </div>
+            </div>
+
+            <div class="row">
+               <div class="col-lg-6 col-xl mb-3">
+                  <label for="c-interval" class="form-label">
+                     Interval:
+                     <input
+                        class="interval"
+                        v-model.number.lazy="dirtyConfig.animation.interval"
+                     />
+                     ms,
+                     {{
+                        Math.round(10000 / dirtyConfig.animation.interval) / 10
+                     }}fps
+                     <button
+                        class="btn btn-primary py-0 px-2 ms-3"
+                        @click="dirtyConfig.animation.interval = 16"
+                     >60fps</button>
+
+                     <button
+                        class="btn btn-primary py-0 px-2 ms-1"
+                        @click="dirtyConfig.animation.interval = 33"
+                     >30fps</button>
+
+                     <button
+                        class="btn btn-primary py-0 px-2 ms-1"
+                        @click="dirtyConfig.animation.interval = 66"
+                     >15fps</button>
+
+                     <button
+                        class="btn btn-primary py-0 px-2 ms-1"
+                        @click="dirtyConfig.animation.interval = 200"
+                     >5fps</button>
+
+                     <button
+                        class="btn btn-primary py-0 px-2 ms-1"
+                        @click="dirtyConfig.animation.interval = 500"
+                     >2fps</button>
+
+                     <button
+                        class="btn btn-primary py-0 px-2 ms-1"
+                        @click="dirtyConfig.animation.interval = 1000"
+                     >1fps</button>
+
+                     <button
+                        class="btn btn-primary py-0 px-2 ms-1"
+                        @click="dirtyConfig.animation.interval = 2000"
+                     >0.5fps</button>
+                  </label>
                   <input
-                     id="config-name"
-                     class="form-control"
-                     placeholder="*"
-                     v-model="dirtyConfig.name"
+                     type="range"
+                     class="form-range"
+                     id="c-interval"
+                     min="5"
+                     max="2000"
+                     v-model.number="dirtyConfig.animation.interval"
                   />
-                  <label for="config-name">Name</label>
+               </div>
+            </div>
+
+            <div class="row">
+               <div class="col-lg-6 mb-3" v-for="p of paramVms" :key="p.name">
+                  <label class="form-label">
+                     {{ p.name }}:
+                     <input v-model.number="p.value" />
+                     <small
+                        v-if="p.meta.default"
+                        class="form-text ms-2"
+                     >Default {{ p.meta.default }}</small>
+                  </label>
+
+                  <input
+                     type="range"
+                     v-if="p.meta.type === 'number'"
+                     :id="`c-param-${p.name}`"
+                     class="form-range"
+                     :min="p.meta.min"
+                     :max="p.meta.maxRecommended ?? p.meta.max"
+                     v-model="p.value"
+                  />
+
+                  <small class="form-text">
+                     {{
+                        p.meta.description
+                     }}
+                  </small>
                </div>
             </div>
          </div>
 
-         <div class="row">
-            <div class="col-lg-6 col-xl mb-3">
-               <label for="c-interval" class="form-label">
-                  Interval:
-                  <input class="interval" v-model.number="dirtyConfig.animation.interval" />
-                  ms, {{ Math.round(1000 / dirtyConfig.animation.interval) }}fps
-                  <button
-                     class="btn btn-primary py-0 px-2 ms-3"
-                     @click="dirtyConfig.animation.interval = 16"
-                  >60fps</button>
-
-                  <button
-                     class="btn btn-primary py-0 px-2 ms-1"
-                     @click="dirtyConfig.animation.interval = 33"
-                  >30fps</button>
-
-                  <button
-                     class="btn btn-primary py-0 px-2 ms-1"
-                     @click="dirtyConfig.animation.interval = 66"
-                  >15fps</button>
-
-                  <button
-                     class="btn btn-primary py-0 px-2 ms-1"
-                     @click="dirtyConfig.animation.interval = 200"
-                  >5fps</button>
-
-                  <button
-                     class="btn btn-primary py-0 px-2 ms-1"
-                     @click="dirtyConfig.animation.interval = 500"
-                  >2fps</button>
-
-                  <button
-                     class="btn btn-primary py-0 px-2 ms-1"
-                     @click="dirtyConfig.animation.interval = 1000"
-                  >1fps</button>
-
-                  <button
-                     class="btn btn-primary py-0 px-2 ms-1"
-                     @click="dirtyConfig.animation.interval = 2000"
-                  >0.5fps</button>
-               </label>
-               <input
-                  type="range"
-                  class="form-range"
-                  id="c-interval"
-                  min="3"
-                  max="2000"
-                  v-model.number="dirtyConfig.animation.interval"
-               />
+         <div>
+            <label>Preview Devices</label>
+            <div class="btn-group ms-3">
+               <button
+                  v-for="d of deviceVms"
+                  :key="d.id"
+                  class="btn"
+                  :class="{ 'btn-primary': d.selected, 'btn-outline-primary': !d.selected }"
+                  @click="toggleDevice(d)"
+               >{{ d.name }}</button>
             </div>
          </div>
       </div>
@@ -76,35 +125,93 @@
 </template>
 
 <script lang="ts">
-
-import { useAnimationRestClient } from '@/services';
-import { deepClone, Frame } from 'netled';
-import { defineComponent, reactive } from 'vue';
+import { useAnimationRestClient, useDevicesRestClient } from '@/services';
+import { ConfigMetaParam, deepClone, Frame } from 'netled';
+import { defineComponent, onUnmounted, reactive, watch, WatchStopHandle, ref } from 'vue';
 import LedCanvas from '@/components/LedCanvas.vue';
+import { useIframeRunner } from '../editor/iframeRunner';
 
 export default defineComponent({
    components: {
-      LedCanvas
+      LedCanvas,
    },
    props: {
-      configId: { type: String, required: true }
+      configId: { type: String, required: true },
    },
    async setup(props) {
+      const stops: WatchStopHandle[] = [];
+      onUnmounted(() => stops.forEach((s) => s()));
 
       const animationClient = useAnimationRestClient();
+      const devicesClient = useDevicesRestClient();
+
+      const devicesProm = devicesClient.list();
 
       const config = await animationClient.configById(props.configId);
 
-      const animation = await animationClient.byId(config.animation.id, config.animation.version);
+      const animation = await animationClient.byId(
+         config.animation.id,
+         config.animation.version
+      );
+
+      const devices = await devicesProm;
 
       const dirtyConfig = reactive(deepClone(config));
 
-      const frame: Frame = [];
+      const iframe = await useIframeRunner(animation.script);
 
-      return { dirtyConfig, animation, frame };
+      await iframe.setNumLeds(60);
+
+      const frame = ref<Frame>([]);
+      frame.value = await iframe.nextFrame();
+
+      const configMeta = await iframe.getConfigMeta();
+
+      const paramVms = reactive(Object.getOwnPropertyNames(configMeta.params ?? {}).map(k => {
+         const vm: ParamVm = {
+            name: k,
+            meta: configMeta.params[k],
+            value: (config.animation.config ?? {})[k] ?? configMeta.params[k].default
+         };
+         return vm;
+      }));
+
+      const deviceVms = devices.map(d => {
+         return reactive<DeviceVm>({
+            id: d.id,
+            name: d.name,
+            selected: false
+         });
+      });
+
+      const toggleDevice = (d: DeviceVm) => {
+         d.selected = !d.selected;
+      };
+
+      window.addEventListener('beforeunload', () => {
+         console.log('Before unload');
+      }, { capture: true });
+
+      stops.push(watch(dirtyConfig, (c) => {
+         c.animation.interval = Math.round(c.animation.interval);
+      }, { deep: true }));
+
+      return { dirtyConfig, animation, frame, paramVms, deviceVms, toggleDevice };
    }
+
 });
 
+interface ParamVm {
+   name: string;
+   meta: ConfigMetaParam;
+   value: string | number;
+}
+
+interface DeviceVm {
+   id: string;
+   name: string;
+   selected: boolean;
+}
 </script>
 
 <style lang="postcss" scoped>

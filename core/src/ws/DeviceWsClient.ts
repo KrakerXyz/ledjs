@@ -2,7 +2,7 @@
 import { FromDeviceMessage, ToDeviceMessage } from '..';
 import { AnimationConfig } from '../rest';
 import { AnimationStopData, DeviceSetupData } from './ToDeviceMessages';
-import { WsConnection, WsOptions, Listener, WsCallbacks, WsEvents } from './WsConnection';
+import { WsConnection, WsOptions, WsCallbacks, WsEvents } from './WsConnection';
 
 type DeviceCallbacks = {
     [T in ToDeviceMessage['type']]: T extends 'animationSetup' ? (data: AnimationConfig) => void
@@ -25,7 +25,7 @@ export class DeviceWsClient {
         });
     }
 
-    public on<Type extends WsEvents<ToDeviceMessage>>(type: Type, callback: DeviceWsCallbacks[Type]): Listener {
+    public on<Type extends WsEvents<ToDeviceMessage>>(type: Type, callback: DeviceWsCallbacks[Type]) {
         return this._ws.on(type, callback);
     }
 

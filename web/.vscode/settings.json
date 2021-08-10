@@ -10,6 +10,7 @@
       "typecheck",
       "typeof"
    ],
-   "vetur.format.scriptInitialIndent": true,
-   "vetur.format.styleInitialIndent": true
+   "[vue]": {
+      "editor.defaultFormatter": "johnsoncodehk.volar"
+   },
 }

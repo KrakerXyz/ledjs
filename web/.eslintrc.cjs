@@ -33,13 +33,6 @@ module.exports = {
          'off'
       ],
 
-      'vue/multiline-html-element-content-newline': [
-         'warn',
-         {
-            'allowEmptyLines': true
-         }
-      ],
-
       'vue/mustache-interpolation-spacing': [
          'off'
       ],
@@ -106,6 +99,10 @@ module.exports = {
       ],
 
       'vue/max-attributes-per-line': [
+         'off'
+      ],
+
+      'vue/multiline-html-element-content-newline': [
          'off'
       ],
 
