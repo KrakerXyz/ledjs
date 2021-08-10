@@ -26,25 +26,21 @@ export const postAnimation: RouteOptions = {
             return;
         }
 
-        const existingAnimation = await db.latestById(animationPost.id, true);
+        const existing = await db.latestById(animationPost.id, true);
 
         const animation: Animation = {
             ...animationPost,
             published: false,
-            version: existingAnimation?.published ? existingAnimation.version + 1 : (existingAnimation?.version ?? 0),
+            version: existing?.published ? existing.version + 1 : (existing?.version ?? 0),
             created: Date.now(),
-            author: 'TestUser'
+            author: req.user.sub
         };
 
-        if (existingAnimation) {
-            await db.replace(animation);
-        } else {
-            await db.add(animation);
-        }
+        await (existing ? db.replace : db.add).apply(db, [animation]);
 
         const { script, ...animationMeta } = animation;
 
-        res.status(existingAnimation ? 200 : 201).send(animationMeta);
+        res.status(existing ? 200 : 201).send(animationMeta);
 
     }
 };

@@ -7,11 +7,9 @@ export class AnimationConfigDb {
     public byAnimationId(animationId: string, userId: string, version?: number): AsyncGenerator<AnimationNamedConfig> {
         const filter: Filter<AnimationNamedConfig> = {
             userId,
-            animation: {
-                id: animationId
-            }
+            'animation.id': animationId
         };
-        if (version !== undefined) { filter.animation!.version = version; }
+        if (version !== undefined) { filter['animation.version'] = version; }
         return this.entity.find(filter);
     }
 

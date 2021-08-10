@@ -77,7 +77,7 @@ module.exports = {
       ],
 
       'vue/v-on-function-call': [
-         //Enforce that we always used () in a parameterless method call of a event handler. Eg @click="onClick()"
+         //Enforce that we always used () in a parameter-less method call of a event handler. Eg @click="onClick()"
          'error',
          'always'
       ],
@@ -103,6 +103,10 @@ module.exports = {
       'vue/no-empty-component-block': [
          //Do not allow empty template, script or style blocks
          'error'
+      ],
+
+      'vue/max-attributes-per-line': [
+         'off'
       ],
 
       '@typescript-eslint/explicit-module-boundary-types': [
