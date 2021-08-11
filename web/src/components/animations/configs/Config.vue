@@ -18,6 +18,18 @@
                      <label for="config-name">Name</label>
                   </div>
                </div>
+
+               <div class="col mb-3">
+                  <div class="form-floating">
+                     <input
+                        id="config-description"
+                        class="form-control"
+                        placeholder="*"
+                        v-model="description"
+                     />
+                     <label for="config-description">Description</label>
+                  </div>
+               </div>
             </div>
 
             <div class="row">
@@ -109,15 +121,23 @@
          </div>
 
          <div>
-            <label>Preview Devices</label>
-            <div class="btn-group ms-3">
-               <button
-                  v-for="d of deviceVms"
-                  :key="d.id"
-                  class="btn"
-                  :class="{ 'btn-primary': d.selected, 'btn-outline-primary': !d.selected }"
-                  @click="toggleDevice(d)"
-               >{{ d.name }}</button>
+            <div class="row g-4">
+               <div class="col-12 col-md mb-4">
+                  <p>Preview Devices</p>
+                  <div class="btn-group w-100">
+                     <button
+                        v-for="d of deviceVms"
+                        :key="d.id"
+                        class="btn"
+                        :class="{ 'btn-primary': d.selected, 'btn-outline-primary': !d.selected }"
+                        @click="toggleDevice(d)"
+                     >{{ d.name }}</button>
+                  </div>
+               </div>
+
+               <div class="col-md-3 col-xxl-2 d-flex align-items-end mb-4">
+                  <button v-if="isDirty" class="btn w-100 btn-primary" @click="saveConfig()">Save</button>
+               </div>
             </div>
          </div>
       </div>
@@ -125,9 +145,9 @@
 </template>
 
 <script lang="ts">
-import { useAnimationRestClient, useDevicesRestClient } from '@/services';
-import { ConfigMetaParam, deepClone, Frame } from 'netled';
-import { defineComponent, onUnmounted, reactive, watch, WatchStopHandle, ref } from 'vue';
+import { useAnimationRestClient, useDevicesRestClient, useThrottledProxy } from '@/services';
+import { AnimationNamedConfigPost, ConfigMetaParam, deepClone, deepEquals, DeviceAnimationPost, DeviceAnimationResetPost, Frame } from 'netled';
+import { defineComponent, onUnmounted, reactive, watch, WatchStopHandle, ref, computed } from 'vue';
 import LedCanvas from '@/components/LedCanvas.vue';
 import { useIframeRunner } from '../editor/iframeRunner';
 
@@ -147,16 +167,21 @@ export default defineComponent({
 
       const devicesProm = devicesClient.list();
 
-      const config = await animationClient.configById(props.configId);
+      //Not const because it's updated after a save
+      const config = ref(await animationClient.configById(props.configId));
 
       const animation = await animationClient.byId(
-         config.animation.id,
-         config.animation.version
+         config.value.animation.id,
+         config.value.animation.version
       );
 
       const devices = await devicesProm;
 
-      const dirtyConfig = reactive(deepClone(config));
+      const dirtyConfig = reactive(deepClone(config.value));
+      const description = computed({
+         get() { return dirtyConfig.description ?? ''; },
+         set(v: string) { dirtyConfig.description = v || null; }
+      });
 
       const iframe = await useIframeRunner(animation.script);
 
@@ -171,7 +196,7 @@ export default defineComponent({
          const vm: ParamVm = {
             name: k,
             meta: configMeta.params[k],
-            value: (config.animation.config ?? {})[k] ?? configMeta.params[k].default
+            value: (config.value.animation.config ?? {})[k] ?? configMeta.params[k].default
          };
          return vm;
       }));
@@ -186,17 +211,57 @@ export default defineComponent({
 
       const toggleDevice = (d: DeviceVm) => {
          d.selected = !d.selected;
+         if (d.selected) {
+            devicesClient.setAnimation({
+               deviceIds: [d.id],
+               animation: dirtyConfig.animation
+            });
+         } else {
+            devicesClient.resetAnimation({ deviceIds: [d.id] });
+         }
       };
 
-      window.addEventListener('beforeunload', () => {
-         console.log('Before unload');
-      }, { capture: true });
+      const resetDevices = () => {
+         const previewDeviceIds = deviceVms.filter(d => d.selected).map(d => d.id);
+         if (!previewDeviceIds.length) { return; }
+         devicesClient.resetAnimation({ deviceIds: previewDeviceIds as DeviceAnimationResetPost['deviceIds'] });
+      };
+
+      stops.push(resetDevices);
+
+      const isDirty = computed(() => !deepEquals(config.value, dirtyConfig));
+
+      const saveConfig = async () => {
+         if (!isDirty.value) { return; }
+         const newConfig: AnimationNamedConfigPost = {
+            id: dirtyConfig.id,
+            name: dirtyConfig.name,
+            animation: dirtyConfig.animation,
+            description: dirtyConfig.description
+         };
+         config.value = deepClone(dirtyConfig);
+         await animationClient.saveConfig(newConfig);
+
+      };
+
+      window.addEventListener('beforeunload', resetDevices, { capture: true });
+      stops.push(() => window.removeEventListener('beforeunload', resetDevices));
+
+      const throttledSetAnimation = useThrottledProxy(devicesClient.setAnimation.bind(devicesClient));
 
       stops.push(watch(dirtyConfig, (c) => {
          c.animation.interval = Math.round(c.animation.interval);
+
+         const previewDeviceIds = deviceVms.filter(d => d.selected).map(d => d.id);
+         if (previewDeviceIds.length) {
+            throttledSetAnimation({
+               deviceIds: previewDeviceIds as DeviceAnimationPost['deviceIds'],
+               animation: dirtyConfig.animation
+            });
+         }
       }, { deep: true }));
 
-      return { dirtyConfig, animation, frame, paramVms, deviceVms, toggleDevice };
+      return { dirtyConfig, description, animation, frame, paramVms, deviceVms, toggleDevice, saveConfig, isDirty };
    }
 
 });

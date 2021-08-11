@@ -5,5 +5,6 @@ import { postDevice } from './postDevice';
 import { postAnimation } from './postAnimation';
 import { postStop } from './postStop';
 import { postAnimationConfig } from './postAnimationConfig';
+import { postAnimationReset } from './postAnimationReset';
 
-export const deviceRoutes = [getDevices, postDevice, getDevice, postAnimation, postStop, postAnimationConfig];
+export const deviceRoutes = [getDevices, postDevice, getDevice, postAnimation, postStop, postAnimationConfig, postAnimationReset];

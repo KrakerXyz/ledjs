@@ -1,4 +1,4 @@
-import { RouteOptions } from 'fastify-websocket';
+import { RouteOptions } from 'fastify';
 import { DeviceStopPost } from 'netled';
 import { jwtAuthentication } from '../../services';
 

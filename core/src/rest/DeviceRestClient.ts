@@ -17,6 +17,11 @@ export class DeviceRestClient {
         return this.restClient.post('/api/devices', device);
     }
 
+    /** Resets the device back to it's configured animation */
+    public resetAnimation(reset: DeviceAnimationResetPost): Promise<void> {
+        return this.restClient.post('/api/devices/animation/reset', reset);
+    }
+
     public setAnimation(setup: DeviceAnimationPost): Promise<void> {
         return this.restClient.post('/api/devices/animation', setup);
     }
@@ -89,4 +94,8 @@ export interface DeviceStopPost {
     deviceIds: [string, ...string[]],
     /** When or not to stop the animation. Send false to restart a previously stopped animation. */
     stop: boolean;
+}
+
+export interface DeviceAnimationResetPost {
+    deviceIds: [string, ...string[]];
 }
