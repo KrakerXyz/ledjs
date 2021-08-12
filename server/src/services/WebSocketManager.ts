@@ -114,7 +114,7 @@ export class WebSocketManager {
 
     }
 
-    public sendDeviceMessage(msg: ToDeviceMessage, ...deviceIds: [string, ...string[]]) {
+    public sendDeviceMessage(msg: ToDeviceMessage, ...deviceIds: [Id, ...Id[]]) {
         const msgJson = JSON.stringify(msg);
         for (const did of deviceIds) {
             const con = this._connections.get(did);
@@ -124,7 +124,7 @@ export class WebSocketManager {
         }
     }
 
-    public sendHostMessage(userId: string, msg: ToHostMessage) {
+    public sendHostMessage(userId: Id, msg: ToHostMessage) {
         const msgJson = JSON.stringify(msg);
 
         const userConnections = this._connections.get(userId);
