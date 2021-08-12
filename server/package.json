@@ -23,6 +23,7 @@
   "dependencies": {
     "@krakerxyz/json-schema-transformer": "file:../../json-schema-transformer",
     "@krakerxyz/typed-base": "file:../../typed-base",
+    "ajv": "^6.12.6",
     "dotenv": "^10.0.0",
     "fastify": "^3.19.1",
     "fastify-cookie": "^5.3.1",

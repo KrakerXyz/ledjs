@@ -12,6 +12,7 @@ import { EnvKey, getRequiredConfig } from './services/config';
 import { configureDb } from '@krakerxyz/typed-base';
 import { apiRoutes } from './rest';
 import { deviceAuthentication, jwtAuthentication, RequestServicesContainer } from './services';
+import Ajv from 'ajv';
 
 console.log('Configuring db');
 configureDb({
@@ -29,6 +30,36 @@ const server = fastify({
             ignore: 'pid,hostname'
         },
     }
+});
+
+const schemaCompilers: Record<string, Ajv.Ajv> = {
+    'body': new Ajv({
+        removeAdditional: false,
+        coerceTypes: false,
+        allErrors: true
+    }),
+    'params': new Ajv({
+        removeAdditional: false,
+        coerceTypes: true,
+        allErrors: true
+    }),
+    'querystring': new Ajv({
+        removeAdditional: false,
+        coerceTypes: true,
+        allErrors: true,
+    })
+};
+
+server.setValidatorCompiler(req => {
+    if (!req.httpPart) {
+        throw new Error('Missing httpPart');
+    }
+    const compiler = schemaCompilers[req.httpPart];
+    if (!compiler) {
+        throw new Error(`Missing compiler for ${req.httpPart}`);
+    }
+
+    return compiler.compile(req.schema);
 });
 
 const webSocketManager = new WebSocketManager(server.log.child({ loggerName: 'WebSocketManager' }));

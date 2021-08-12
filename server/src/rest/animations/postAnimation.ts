@@ -1,21 +1,17 @@
 import { RouteOptions } from 'fastify';
 import { AnimationPost, parseScript, Animation } from 'netled';
+import { jsonSchema } from '@krakerxyz/json-schema-transformer';
+import { jwtAuthentication } from '../../services';
 
 export const postAnimation: RouteOptions = {
     method: 'POST',
     url: '/api/animations',
+    preValidation: [jwtAuthentication],
+    schema: {
+        body: jsonSchema<AnimationPost>()
+    },
     handler: async (req, res) => {
         const animationPost = req.body as AnimationPost;
-        if (!animationPost) {
-            res.status(400).send({ error: 'Missing animationPost body' });
-            return;
-        } else if (!animationPost.script?.trim()) {
-            res.status(400).send({ error: 'Missing script' });
-            return;
-        } else if (!animationPost.id) {
-            res.status(400).send({ error: 'Missing id' });
-            return;
-        }
 
         const db = req.services.animationDb;
 

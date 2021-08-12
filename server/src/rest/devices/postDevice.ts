@@ -1,19 +1,19 @@
 import { RouteOptions } from 'fastify';
 import { Device, DevicePost } from 'netled';
 import { v4 } from 'uuid';
+import { jsonSchema } from '@krakerxyz/json-schema-transformer';
 import { jwtAuthentication } from '../../services';
 
 export const postDevice: RouteOptions = {
     method: 'POST',
     url: '/api/devices',
     preValidation: [jwtAuthentication],
+    schema: {
+        body: jsonSchema<DevicePost>()
+    },
     handler: async (req, res) => {
 
         const device = req.body as DevicePost;
-        if (!device) {
-            res.status(400).send('Missing body');
-            return;
-        }
 
         const db = req.services.deviceDb;
 
