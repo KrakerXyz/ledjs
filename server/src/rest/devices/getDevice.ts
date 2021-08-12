@@ -1,4 +1,5 @@
 import { RouteOptions } from 'fastify';
+import { Id } from 'netled';
 import { jwtAuthentication } from '../../services';
 
 export const getDevice: RouteOptions = {
@@ -16,7 +17,7 @@ export const getDevice: RouteOptions = {
     },
     handler: async (req, res) => {
 
-        const deviceId = (req.params as any).deviceId as string;
+        const deviceId = (req.params as any).deviceId as Id;
 
         const db = req.services.deviceDb;
         const device = await db.byId(deviceId);

@@ -1,6 +1,6 @@
 import { FastifyLoggerInstance, FastifyRequest } from 'fastify';
 import { SocketStream } from 'fastify-websocket';
-import { Device, FromDeviceMessage, ToDeviceMessage, ToHostMessage } from 'netled';
+import { Device, FromDeviceMessage, Id, ToDeviceMessage, ToHostMessage } from 'netled';
 import { RequestServicesContainer } from './RequestServicesContainer';
 
 export class WebSocketManager {
@@ -172,6 +172,6 @@ export class WebSocketManager {
 
 interface WsConnection {
     type: 'device' | 'user';
-    id: string;
+    id: Id;
     socketStream: SocketStream;
 }

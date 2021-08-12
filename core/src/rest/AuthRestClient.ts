@@ -1,3 +1,4 @@
+import { Id } from '.';
 import { RestClient } from './RestClient';
 
 export class AuthRestClient {
@@ -19,7 +20,7 @@ export interface GoogleToken {
 }
 
 export interface User {
-    readonly id: string;
+    readonly id: Id;
     readonly email: string;
     readonly created: number;
     /** Time stamp of the last time a authenticated service was used. Could be off by 15 minutes. */

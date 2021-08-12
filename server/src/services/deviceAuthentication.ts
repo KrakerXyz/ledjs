@@ -1,4 +1,5 @@
 import { preValidationHookHandler } from 'fastify';
+import { Id } from 'netled';
 
 export const deviceAuthentication: preValidationHookHandler = async (req, res) => {
     const authParts = req.headers?.authorization?.split(' ');
@@ -23,7 +24,7 @@ export const deviceAuthentication: preValidationHookHandler = async (req, res) =
         }
 
         const deviceDb = req.services.deviceDb;
-        const device = await deviceDb.byId(tokenParts[0]);
+        const device = await deviceDb.byId(tokenParts[0] as Id);
         if (device?.secret !== tokenParts[1]) {
             throw new Error('Invalid token');
         }

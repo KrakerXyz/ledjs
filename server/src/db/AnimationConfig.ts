@@ -1,5 +1,5 @@
 import { Filter, TypedEntity } from '@krakerxyz/typed-base';
-import { AnimationNamedConfig } from 'netled';
+import { AnimationNamedConfig, Id } from 'netled';
 
 export class AnimationConfigDb {
     private readonly entity = new TypedEntity<AnimationNamedConfig>();
@@ -13,7 +13,7 @@ export class AnimationConfigDb {
         return this.entity.find(filter);
     }
 
-    public byId(id: string): Promise<AnimationNamedConfig | null> {
+    public byId(id: Id): Promise<AnimationNamedConfig | null> {
         return this.entity.findOneAsync({ id });
     }
 

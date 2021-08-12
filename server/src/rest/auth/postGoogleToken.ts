@@ -1,7 +1,7 @@
 import { RouteOptions } from 'fastify';
 import { OAuth2Client } from 'google-auth-library';
 import { v4 } from 'uuid';
-import { GoogleToken } from 'netled';
+import { GoogleToken, Id } from 'netled';
 import { UserDb } from '../../db';
 import { EnvKey, getRequiredConfig } from '../../services';
 
@@ -39,7 +39,7 @@ export const postGoogleToken: RouteOptions = {
             const isNewUser = !user;
             if (!user) {
                 user = {
-                    id: v4(),
+                    id: v4() as Id,
                     email: payload.email,
                     created: Date.now(),
                     lastSeen: Date.now()

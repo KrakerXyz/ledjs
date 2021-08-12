@@ -1,4 +1,4 @@
-import { DeviceAnimationConfigPost, RestClient } from '.';
+import { DeviceAnimationConfigPost, Id, RestClient } from '.';
 import { AnimationConfig } from '.';
 
 export class DeviceRestClient {
@@ -38,9 +38,9 @@ export class DeviceRestClient {
 
 export interface Device {
     /** GUID id of the device */
-    readonly id: string;
+    readonly id: Id;
     /** GUID id of the user the device belongs to */
-    readonly userId: string;
+    readonly userId: Id;
     /** A name for the device, given by the user */
     name: string;
     /** API secret used for device to server authentication */
@@ -52,7 +52,7 @@ export interface Device {
     /** Various status details for the device. */
     readonly status: DeviceStatus;
     /** Id of named animation config assigned to this device */
-    readonly animationNamedConfigId?: string
+    readonly animationNamedConfigId?: Id
     /** Last stop/start state of the animation on the device */
     readonly isStopped: boolean;
 }
@@ -84,18 +84,18 @@ export interface DeviceSetup {
 
 export interface DeviceAnimationPost {
     /** One or more device ids to send the stop request to. */
-    deviceIds: [string, ...string[]],
+    deviceIds: [Id, ...Id[]],
     /** Animation and configuration to run on devices */
     animation: AnimationConfig
 }
 
 export interface DeviceStopPost {
     /** One or more device ids to send the stop request to. */
-    deviceIds: [string, ...string[]],
+    deviceIds: [Id, ...Id[]],
     /** When or not to stop the animation. Send false to restart a previously stopped animation. */
     stop: boolean;
 }
 
 export interface DeviceAnimationResetPost {
-    deviceIds: [string, ...string[]];
+    deviceIds: [Id, ...Id[]];
 }

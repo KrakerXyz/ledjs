@@ -1,4 +1,5 @@
 import { RouteOptions } from 'fastify';
+import { Id } from 'netled';
 import { jwtAuthentication } from '../../services';
 
 export const getConfigById: RouteOptions = {
@@ -15,7 +16,7 @@ export const getConfigById: RouteOptions = {
         }
     },
     handler: async (req, res) => {
-        const configId: string = (req.params as any).configId;
+        const configId: Id = (req.params as any).configId;
         const db = req.services.animationConfigDb;
         const config = await db.byId(configId);
 

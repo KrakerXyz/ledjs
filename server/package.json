@@ -21,6 +21,7 @@
     "lint": "eslint ./src/**/*.ts"
   },
   "dependencies": {
+    "@krakerxyz/json-schema-transformer": "file:../../json-schema-transformer",
     "@krakerxyz/typed-base": "file:../../typed-base",
     "dotenv": "^10.0.0",
     "fastify": "^3.19.1",

@@ -1,5 +1,6 @@
 import { RouteOptions } from 'fastify';
-import { AnimationNamedConfig, AnimationNamedConfigPost, animationNamedConfigPostSchema } from 'netled';
+import { AnimationNamedConfig, AnimationNamedConfigPost } from 'netled';
+import { jsonSchema } from '@krakerxyz/json-schema-transformer';
 import { jwtAuthentication } from '../../services';
 
 export const postConfig: RouteOptions = {
@@ -7,7 +8,7 @@ export const postConfig: RouteOptions = {
     url: '/api/animations/configs',
     preValidation: [jwtAuthentication],
     schema: {
-        body: animationNamedConfigPostSchema
+        body: jsonSchema<AnimationNamedConfigPost>()
     },
     handler: async (req, res) => {
         const post = req.body as AnimationNamedConfigPost;

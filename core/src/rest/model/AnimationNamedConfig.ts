@@ -1,10 +1,9 @@
 
 import { AnimationConfig } from '.';
-import { AjvSchema } from '../AjvSchema';
-import { animationConfigSchema } from './AnimationConfig';
+import { Id } from '..';
 
 export interface AnimationNamedConfig {
-    readonly id: string;
+    readonly id: Id;
     readonly userId: string;
     name: string;
     description?: string | null;
@@ -12,15 +11,3 @@ export interface AnimationNamedConfig {
 }
 
 export type AnimationNamedConfigPost = Omit<AnimationNamedConfig, 'userId'>;
-
-export const animationNamedConfigPostSchema: AjvSchema<AnimationNamedConfigPost> = {
-    type: 'object',
-    properties: {
-        id: { type: 'string' },
-        name: { type: 'string' },
-        description: { type: 'string' },
-        animation: animationConfigSchema
-    },
-    required: ['id', 'name', 'animation'],
-    additionalProperties: false
-};
