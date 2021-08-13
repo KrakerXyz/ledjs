@@ -1,6 +1,5 @@
 import { TypedEntity } from '@krakerxyz/typed-base';
-import { Device, Id } from 'netled';
-import { Writeable } from '.';
+import { Device, Id, Writeable } from 'netled';
 
 export class DeviceDb {
 

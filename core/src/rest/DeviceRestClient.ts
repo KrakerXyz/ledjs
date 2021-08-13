@@ -17,15 +17,17 @@ export class DeviceRestClient {
         return this.restClient.post('/api/devices', device);
     }
 
-    /** Resets the device back to it's configured animation */
+    /** Resets the device back to it's stored animation config */
     public resetAnimation(reset: DeviceAnimationResetPost): Promise<void> {
         return this.restClient.post('/api/devices/animation/reset', reset);
     }
 
+    /** Sets the device to rendering a specific animation without storing it on the device. */
     public setAnimation(setup: DeviceAnimationPost): Promise<void> {
         return this.restClient.post('/api/devices/animation', setup);
     }
 
+    /** Stores a animation config to the device so that it'll render on startup */
     public setAnimationConfig(post: DeviceAnimationConfigPost): Promise<void> {
         return this.restClient.post('/api/devices/animation-config', post);
     }
@@ -98,6 +100,7 @@ export interface DeviceStopPost {
     persist?: boolean;
 }
 
+/** Resets the device back to it's stored animation config */
 export interface DeviceAnimationResetPost {
     deviceIds: [Id, ...Id[]];
 }

@@ -2,43 +2,16 @@
 <template>
    <div class="container h-100 shadow bg-white p-3">
       <div class="row">
-         <div class="col">
-            <div class="list-group" v-if="devices">
-               <router-link
-                  class="list-group-item list-group-item-action"
-                  v-for="d of devices"
-                  :key="d.id"
-                  :to="{ name: 'device-view', params: { deviceId: d.id } }"
-               >
-                  <div class="row">
-                     <div class="col d-flex align-items-center">
-                        <span
-                           class="online-status d-inline-block me-2"
-                           :class="{ 'bg-success': d.status.cameOnline > d.status.wentOffline, 'bg-danger': d.status.wentOffline >= d.status.cameOnline }"
-                        ></span>
-
-                        {{ d.name }}
-                        <button
-                           class="btn p-0 ms-2 text-success"
-                           v-if="d.isStopped"
-                           @click.prevent="stop(d, false)"
-                        >
-                           <i class="fas fa-play fa-fw"></i>
-                        </button>
-
-                        <span
-                           class="btn p-0 ms-2 text-danger"
-                           v-if="!d.isStopped"
-                           @click.prevent="stop(d, true)"
-                        >
-                           <i class="fas fa-stop fa-fw"></i>
-                        </span>
-                     </div>
-                  </div>
-               </router-link>
-            </div>
+         <div
+            class="col-sm-6 col-lg-4 col-xxl-3 text-decoration-none"
+            v-for="d of devices"
+            :key="d.id"
+         >
+            <device-list-item :device="d" :configs="configs"></device-list-item>
          </div>
       </div>
+
+      <!--:to="{ name: 'device-view', params: { deviceId: d.id } }"-->
 
       <div class="row mt-3">
          <div class="col">
@@ -50,30 +23,28 @@
 
 <script lang="ts">
 
-import { DeviceRestClient, Device, deepClone } from 'netled';
-import { defineComponent, reactive, ref } from 'vue';
-import { useRestClient, useWsClient } from '../../services';
+import { deepClone } from 'netled';
+import { defineComponent } from 'vue';
+import { useAnimationRestClient, useDevicesRestClient, useWsClient } from '../../services';
+import DeviceListItem from './DeviceListItem.vue';
 
 export default defineComponent({
+   components: {
+      DeviceListItem
+   },
    props: {
    },
-   setup() {
-
-      const restClient = useRestClient();
-      const devicesClient = new DeviceRestClient(restClient);
-
-      const devices = ref<Device[]>();
-      devicesClient.list(true).then(d => devices.value = reactive(deepClone(d)));
-
-      const stop = (device: Device, value: boolean) => {
-         devicesClient.stopAnimation({ deviceIds: [device.id], stop: value });
-         //Need to clone and make the in-memory devices writeable
-         (device as any).isStopped = value;
-      };
+   async setup() {
 
       const wsClient = useWsClient();
+      const devicesClient = useDevicesRestClient();
+      const animationClient = useAnimationRestClient();
+
+      const devices = await devicesClient.list(true);
+      const configs = deepClone(await animationClient.config.list()).sort((a, b) => a.name.localeCompare(b.name));
+
       wsClient.onDeviceConnectionEvent((did, data) => {
-         const device = devices.value?.find(d => d.id === did);
+         const device = devices.find(d => d.id === did);
          if (!device) { return; }
          if (data.state === 'connected') {
             (device.status as any).cameOnline = Date.now();
@@ -82,17 +53,8 @@ export default defineComponent({
          }
       });
 
-      return { devices, stop };
+      return { devices, configs };
    }
 });
 
 </script>
-
-<style lang="postcss" scoped>
-.online-status {
-   --size: 1rem;
-   height: var(--size);
-   width: var(--size);
-   border-radius: var(--size);
-}
-</style>

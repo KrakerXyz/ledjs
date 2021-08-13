@@ -168,7 +168,7 @@ export default defineComponent({
       const devicesProm = devicesClient.list(true);
 
       //Not const because it's updated after a save
-      const config = ref(await animationClient.configById(props.configId));
+      const config = ref(await animationClient.config.byId(props.configId));
 
       const animation = await animationClient.byId(
          config.value.animation.id,
@@ -245,7 +245,7 @@ export default defineComponent({
             description: dirtyConfig.description
          };
          config.value = deepClone(dirtyConfig);
-         await animationClient.saveConfig(newConfig);
+         await animationClient.config.save(newConfig);
 
       };
 

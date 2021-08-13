@@ -10,4 +10,9 @@ export interface AnimationNamedConfig {
     animation: AnimationConfig
 }
 
+export interface AnimationNamedConfigSummary extends Omit<AnimationNamedConfig, 'animation'> {
+    animationName: string;
+    animationVersion: number;
+}
+
 export type AnimationNamedConfigPost = Omit<AnimationNamedConfig, 'userId'>;

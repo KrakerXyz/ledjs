@@ -1,6 +1,5 @@
 import { Filter, TypedEntity } from '@krakerxyz/typed-base';
-import { Animation, AnimationMeta } from 'netled';
-import { Writeable } from '.';
+import { Animation, AnimationMeta, Writeable } from 'netled';
 
 export class AnimationDb {
 

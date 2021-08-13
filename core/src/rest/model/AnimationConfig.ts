@@ -1,7 +1,8 @@
+import { Id } from '..';
 
 export interface AnimationConfig {
     /** Id of the animation to render */
-    readonly id: string;
+    readonly id: Id;
     /** Version of animation */
     version: number;
     /** Animation configuration */

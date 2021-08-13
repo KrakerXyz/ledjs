@@ -13,6 +13,10 @@ export class AnimationConfigDb {
         return this.entity.find(filter);
     }
 
+    public byUserId(userId: Id): AsyncGenerator<AnimationNamedConfig> {
+        return this.entity.find({ userId });
+    }
+
     public byId(id: Id): Promise<AnimationNamedConfig | null> {
         return this.entity.findOneAsync({ id });
     }

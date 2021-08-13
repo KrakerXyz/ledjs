@@ -1,11 +1,16 @@
 import { Disposable, HostWsClient } from 'netled';
-import { onUnmounted } from 'vue';
+import { getCurrentInstance, onUnmounted } from 'vue';
 
 type WsClient = Pick<HostWsClient, 'onDeviceConnectionEvent'>;
 
 let ws: HostWsClient | null = null;
 let refCount = 0;
 export function useWsClient(): WsClient {
+
+    const component = getCurrentInstance();
+    if (!component) {
+        console.warn('useWsClient was called outside of setup or after awaits');
+    }
 
     if (!ws) {
         ws = new HostWsClient(window.location.host);
@@ -41,7 +46,7 @@ export function useWsClient(): WsClient {
                 ws = null;
             }, 1000);
         }
-    });
+    }, component);
 
     return wsClient;
 

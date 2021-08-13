@@ -28,13 +28,13 @@
 
 <script lang="ts">
 import { useRestClient } from '@/services';
-import { AnimationNamedConfigPost, AnimationRestClient } from 'netled';
+import { AnimationNamedConfigPost, AnimationRestClient, Id } from 'netled';
 import { v4 } from 'uuid';
 import { defineComponent } from 'vue';
 
 export default defineComponent({
    props: {
-      animationId: { type: String, required: true },
+      animationId: { type: String as () => Id, required: true },
       version: { type: Number, required: true },
    },
    async setup(props) {
@@ -45,7 +45,7 @@ export default defineComponent({
          props.animationId,
          props.version
       );
-      const configs = await animationRestClient.configList(
+      const configs = await animationRestClient.config.list(
          props.animationId,
          props.version
       );
@@ -54,7 +54,7 @@ export default defineComponent({
 
       if (!configs.length) {
          const newConfig: AnimationNamedConfigPost = {
-            id: v4(),
+            id: v4() as Id,
             name: 'Default',
             animation: {
                id: props.animationId,
@@ -64,7 +64,7 @@ export default defineComponent({
             },
          };
          console.log(newConfig);
-         await animationRestClient.saveConfig(newConfig);
+         await animationRestClient.config.save(newConfig);
       }
 
       return { configs, animation };

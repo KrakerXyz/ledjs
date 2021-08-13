@@ -1,6 +1,6 @@
 
-import { AnimationMeta, AnimationNamedConfig, AnimationPost, Animation } from '.';
-import { AnimationNamedConfigPost } from './model';
+import { AnimationMeta, AnimationNamedConfig, AnimationPost, Animation, Id } from '.';
+import { AnimationNamedConfigPost, AnimationNamedConfigSummary } from './model';
 import { RestClient } from './RestClient';
 
 export class AnimationRestClient {
@@ -13,17 +13,17 @@ export class AnimationRestClient {
     }
 
     /** Returns the latest published version of the given animation id. Optionally includes draft version of your own script */
-    public latest(animationId: string, includeDraft?: boolean): Promise<Animation> {
+    public latest(animationId: Id, includeDraft?: boolean): Promise<Animation> {
         return this.restClient.get(`/api/animations/${animationId}`, { includeDraft });
     }
 
     /** Return specific animation version */
-    public byId(animationId: string, version: number): Promise<Animation> {
+    public byId(animationId: Id, version: number): Promise<Animation> {
         return this.restClient.get(`/api/animations/${animationId}/${version}`);
     }
 
     /** Returns the script text of the given animation */
-    public async script(animationId: string, version: number): Promise<string> {
+    public async script(animationId: Id, version: number): Promise<string> {
         return this.restClient.get(`/api/animations/${animationId}/${version}/script`);
     }
 
@@ -32,19 +32,32 @@ export class AnimationRestClient {
         return this.restClient.post('/api/animations', animation);
     }
 
-    /** Get a list of configs for this animation */
-    public configList(animationId: string, version?: number): Promise<AnimationNamedConfig[]> {
-        return this.restClient.get(`/api/animations/${animationId}/configs`, { version });
+    /** Gets a list of all configs for the users. Does not return the configuration detail. */
+    private configList(): Promise<AnimationNamedConfigSummary[]>
+    /** Get all configs for all versions of a an animation */
+    private configList(animationId: Id): Promise<AnimationNamedConfig[]>
+    /** Get all configs for a specific animation.version */
+    private configList(animationId: Id, version: number): Promise<AnimationNamedConfig[]>
+    private configList(animationId?: Id, version?: number): Promise<AnimationNamedConfig[]> | Promise<AnimationNamedConfigSummary[]> {
+        if (animationId) {
+            return this.restClient.get<AnimationNamedConfig[]>(`/api/animations/${animationId}/configs`, { version });
+        } else {
+            return this.restClient.get<AnimationNamedConfigSummary[]>('/api/animations/configs');
+        }
     }
 
-    public configById(configId: string): Promise<AnimationNamedConfig> {
-        return this.restClient.get(`/api/animations/configs/${configId}`);
+    public readonly config = {
+        /** Get a list of configs for this animation */
+        list: this.configList.bind(this),
+        byId: (configId: string): Promise<AnimationNamedConfig> => {
+            return this.restClient.get(`/api/animations/configs/${configId}`);
+        },
+        /** Saves/Updates a named animation config */
+        save: (config: AnimationNamedConfigPost): Promise<AnimationNamedConfig> => {
+            return this.restClient.post('/api/animations/configs', config);
+        }
     }
 
-    /** Saves/Updates a named animation config */
-    public saveConfig(config: AnimationNamedConfigPost): Promise<AnimationNamedConfig> {
-        return this.restClient.post('/api/animations/configs', config);
-    }
 
 }
 
