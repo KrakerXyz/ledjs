@@ -3,7 +3,7 @@ import { DeviceHealthData, DeviceWsClient } from 'netled';
 export class HealthReporter {
 
     public constructor(private readonly _ws: DeviceWsClient) {
-        setInterval(() => this.report(), 30_000);
+        setInterval(() => this.report(), 15_000);
     }
 
     private providers: Partial<Record<keyof DeviceHealthData, () => any>> = {};
