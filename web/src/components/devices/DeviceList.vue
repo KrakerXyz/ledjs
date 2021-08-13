@@ -24,7 +24,7 @@
 <script lang="ts">
 
 import { deepClone } from 'netled';
-import { defineComponent } from 'vue';
+import { defineComponent, reactive } from 'vue';
 import { useAnimationRestClient, useDevicesRestClient, useWsClient } from '../../services';
 import DeviceListItem from './DeviceListItem.vue';
 
@@ -40,16 +40,16 @@ export default defineComponent({
       const devicesClient = useDevicesRestClient();
       const animationClient = useAnimationRestClient();
 
-      const devices = await devicesClient.list(true);
+      const devices = reactive(deepClone(await devicesClient.list(true)));
       const configs = deepClone(await animationClient.config.list()).sort((a, b) => a.name.localeCompare(b.name));
 
       wsClient.onDeviceConnectionEvent((did, data) => {
          const device = devices.find(d => d.id === did);
          if (!device) { return; }
          if (data.state === 'connected') {
-            (device.status as any).cameOnline = Date.now();
+            device.status.cameOnline = Date.now();
          } else {
-            (device.status as any).wentOffline = Date.now();
+            device.status.wentOffline = Date.now();
          }
       });
 
