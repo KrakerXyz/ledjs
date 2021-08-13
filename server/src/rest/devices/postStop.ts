@@ -29,19 +29,24 @@ export const postStop: RouteOptions = {
         }
 
         const updateProms: Promise<any>[] = [];
-        for (const d of devices) {
-            if (!d) { continue; }
-            const newDevice = {
-                ...d,
-                isStopped: deviceSetup.stop
-            };
-            updateProms.push(db.replace(newDevice));
+
+        if (deviceSetup.persist !== false) {
+            for (const d of devices) {
+                if (!d) { continue; }
+                const newDevice = {
+                    ...d,
+                    isStopped: deviceSetup.stop
+                };
+                updateProms.push(db.replace(newDevice));
+            }
         }
 
         req.services.webSocketManager.sendDeviceMessage({
             type: 'animationStop',
             data: { stop: deviceSetup.stop }
         }, ...deviceSetup.deviceIds);
+
+        await Promise.all(updateProms);
 
         res.send();
 

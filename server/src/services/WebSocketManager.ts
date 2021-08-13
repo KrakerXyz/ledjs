@@ -115,6 +115,7 @@ export class WebSocketManager {
     }
 
     public sendDeviceMessage(msg: ToDeviceMessage, ...deviceIds: [Id, ...Id[]]) {
+        this._log.trace('Sending %s message to device %s', msg.type, deviceIds.join(', '));
         const msgJson = JSON.stringify(msg);
         for (const did of deviceIds) {
             const con = this._connections.get(did);
@@ -160,12 +161,11 @@ export class WebSocketManager {
             }, device.id);
         }
 
-        if (device.isStopped) {
-            this.sendDeviceMessage({
-                type: 'animationStop',
-                data: { stop: device.isStopped }
-            }, device.id);
-        }
+        this.sendDeviceMessage({
+            type: 'animationStop',
+            data: { stop: device.isStopped }
+        }, device.id);
+
     }
 
 }

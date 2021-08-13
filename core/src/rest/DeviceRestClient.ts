@@ -94,6 +94,8 @@ export interface DeviceStopPost {
     deviceIds: [Id, ...Id[]],
     /** When or not to stop the animation. Send false to restart a previously stopped animation. */
     stop: boolean;
+    /** Whether or not to store this stop state on the device. Defaults to true */
+    persist?: boolean;
 }
 
 export interface DeviceAnimationResetPost {

@@ -50,10 +50,18 @@ export const postAnimationReset: RouteOptions = {
 
             }
 
+            req.services.webSocketManager.sendDeviceMessage({
+                type: 'animationStop',
+                data: {
+                    stop: !d.isStopped
+                }
+            }, d.id);
+
             if (!hadConfig) {
+                //If they didn't have a config, clear out the current animation
                 req.services.webSocketManager.sendDeviceMessage({
-                    type: 'animationStop',
-                    data: { stop: true }
+                    type: 'animationSetup',
+                    data: null
                 }, d.id);
             }
         }

@@ -14,11 +14,6 @@ export const postConfig: RouteOptions = {
         const post = req.body as AnimationNamedConfigPost;
         const db = req.services.animationConfigDb;
 
-        if (!post) {
-            res.status(400).send({ error: 'Missing animationNamedConfigPost body' });
-            return;
-        }
-
         const existing = await db.byId(post.id);
         if (existing && existing.userId !== req.user.sub) {
             res.status(401).send({ error: 'Config does not belong to you' });

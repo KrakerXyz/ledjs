@@ -5,7 +5,7 @@ import { AnimationStopData, DeviceSetupData } from './ToDeviceMessages';
 import { WsConnection, WsOptions, WsCallbacks, WsEvents } from './WsConnection';
 
 type DeviceCallbacks = {
-    [T in ToDeviceMessage['type']]: T extends 'animationSetup' ? (data: AnimationConfig) => void
+    [T in ToDeviceMessage['type']]: T extends 'animationSetup' ? (data: AnimationConfig | null) => void
     : T extends 'deviceSetup' ? (data: DeviceSetupData) => void
     : T extends 'animationStop' ? (data: AnimationStopData) => void
     : never

@@ -6,7 +6,8 @@ export type ToDeviceMessage = AnimationSetupMessage | DeviceSetupMessage | Anima
 
 export type AnimationSetupMessage = {
     type: 'animationSetup',
-    data: AnimationConfig
+    /** The animation and configuration to load on device or null to clear current animation */
+    data: AnimationConfig | null
 }
 
 export type DeviceSetupMessage = {

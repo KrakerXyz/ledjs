@@ -1,21 +1,16 @@
 import { RouteOptions } from 'fastify';
+import { jsonSchema } from '@krakerxyz/json-schema-transformer';
+import { Id } from 'netled';
 
 export const getScriptById: RouteOptions = {
     method: 'GET',
     url: '/api/animations/:animationId/:version/script',
     schema: {
-        params: {
-            type: 'object',
-            properties: {
-                animationId: { type: 'string', format: 'uuid' },
-                version: { type: 'number' }
-            },
-            required: ['animationId', 'version']
-        }
+        params: jsonSchema<{ animationId: Id, version: number }>()
     },
     handler: async (req, res) => {
         const animationId = (req.params as any)['animationId'] as string;
-        const version = (req.params as any)['animationId'] as number;
+        const version = (req.params as any)['version'] as number;
 
         const db = req.services.animationDb;
         const animation = await db.byId(animationId, version);

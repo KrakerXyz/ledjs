@@ -24,6 +24,7 @@ console.log('Initializing Fastify');
 
 const server = fastify({
     logger: {
+        level: 'trace',
         prettyPrint: process.env.NODE_ENV === 'development' && {
             translateTime: 'SYS:h:MM:ss TT Z o',
             colorize: true,

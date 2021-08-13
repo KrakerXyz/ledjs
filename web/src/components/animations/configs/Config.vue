@@ -128,7 +128,7 @@
                      <button
                         v-for="d of deviceVms"
                         :key="d.id"
-                        class="btn"
+                        class="btn btn-device"
                         :class="{ 'btn-primary': d.selected, 'btn-outline-primary': !d.selected }"
                         @click="toggleDevice(d)"
                      >{{ d.name }}</button>
@@ -146,7 +146,7 @@
 
 <script lang="ts">
 import { useAnimationRestClient, useDevicesRestClient, useThrottledProxy } from '@/services';
-import { AnimationNamedConfigPost, ConfigMetaParam, deepClone, deepEquals, DeviceAnimationPost, DeviceAnimationResetPost, Frame } from 'netled';
+import { AnimationNamedConfigPost, ConfigMetaParam, deepClone, deepEquals, DeviceAnimationPost, DeviceAnimationResetPost, Frame, Id } from 'netled';
 import { defineComponent, onUnmounted, reactive, watch, WatchStopHandle, ref, computed } from 'vue';
 import LedCanvas from '@/components/LedCanvas.vue';
 import { useIframeRunner } from '../editor/iframeRunner';
@@ -165,7 +165,7 @@ export default defineComponent({
       const animationClient = useAnimationRestClient();
       const devicesClient = useDevicesRestClient();
 
-      const devicesProm = devicesClient.list();
+      const devicesProm = devicesClient.list(true);
 
       //Not const because it's updated after a save
       const config = ref(await animationClient.configById(props.configId));
@@ -201,7 +201,7 @@ export default defineComponent({
          return vm;
       }));
 
-      const deviceVms = devices.map(d => {
+      const deviceVms = devices.filter(d => d.status.cameOnline > d.status.wentOffline).map(d => {
          return reactive<DeviceVm>({
             id: d.id,
             name: d.name,
@@ -215,6 +215,11 @@ export default defineComponent({
             devicesClient.setAnimation({
                deviceIds: [d.id],
                animation: dirtyConfig.animation
+            });
+            devicesClient.stopAnimation({
+               deviceIds: [d.id],
+               stop: false,
+               persist: false
             });
          } else {
             devicesClient.resetAnimation({ deviceIds: [d.id] });
@@ -273,7 +278,7 @@ interface ParamVm {
 }
 
 interface DeviceVm {
-   id: string;
+   id: Id;
    name: string;
    selected: boolean;
 }
@@ -286,5 +291,9 @@ interface DeviceVm {
 
 label > input {
    width: 5rem;
+}
+
+.btn-device {
+   max-width: 200px;
 }
 </style>

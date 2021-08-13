@@ -6,6 +6,8 @@ export class Clock {
     public constructor(readonly deviceWs: DeviceWsClient, private readonly _onTick: () => void) {
 
         deviceWs.on('animationSetup', setup => {
+            //If the animation was cleared, we can just ignore this. The interval will run but it'll basically be a noop. Once the next animation is set, it will override if necessary
+            if (!setup) { return; }
             this.setInterval(setup.interval);
         });
 
