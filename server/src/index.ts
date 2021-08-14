@@ -87,13 +87,19 @@ server.register(fastifyWebsocket, {
 });
 
 server.register(fastifyStatic, {
-    root: path.join(__dirname, '.web'),
+    root: path.join(__dirname, '.web')
 });
 
 server.get('/ws/device', { websocket: true, preValidation: [deviceAuthentication] }, webSocketManager.handler);
 server.get('/ws/client', { websocket: true, preValidation: [jwtAuthentication] }, webSocketManager.handler);
 
 apiRoutes.forEach(r => server.route(r));
+
+server.setNotFoundHandler((req, res) => {
+    if (req.method !== 'GET') { return res.status(404).send(); }
+    if (req.url.startsWith('/api')) { return res.status(404).send(); }
+    return res.sendFile('index.html');
+});
 
 server.ready(() => {
     server.log.info('Fastify ready');
