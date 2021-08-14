@@ -6,6 +6,7 @@ import fastify from 'fastify';
 import fastifyWebsocket from 'fastify-websocket';
 import fastifyCookie from 'fastify-cookie';
 import fastifyJWT from 'fastify-jwt';
+import fastifyStatic from 'fastify-static';
 
 import { WebSocketManager } from './services/WebSocketManager';
 import { EnvKey, getRequiredConfig } from './services/config';
@@ -13,6 +14,7 @@ import { configureDb } from '@krakerxyz/typed-base';
 import { apiRoutes } from './rest';
 import { deviceAuthentication, jwtAuthentication, RequestServicesContainer } from './services';
 import Ajv from 'ajv';
+import path from 'path';
 
 console.log('Configuring db');
 configureDb({
@@ -82,6 +84,10 @@ server.register(fastifyWebsocket, {
         conn.socket.close(4001, 'Unauthorized');
         conn.destroy();
     }
+});
+
+server.register(fastifyStatic, {
+    root: path.join(__dirname, '.web'),
 });
 
 server.get('/ws/device', { websocket: true, preValidation: [deviceAuthentication] }, webSocketManager.handler);

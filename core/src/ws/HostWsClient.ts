@@ -14,7 +14,7 @@ export class HostWsClient {
         if (this._disposed) { throw new Error('This HostWsClient has been disposed'); }
         if (this._ws) { return; }
 
-        const ws = new WebSocket(`ws://${this.host}/ws/client`);
+        const ws = new WebSocket(`${this.host.includes('localhost') ? 'ws' : 'wss'}://${this.host}/ws/client`);
         this._ws = ws;
 
         ws.addEventListener('open', () => {

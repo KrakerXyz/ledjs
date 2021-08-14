@@ -11,7 +11,7 @@ if (fs.existsSync('./build')) {
 console.log('Creating build folder');
 fs.mkdirSync('./build');
 
-/*
+//*
 
 console.log('Building core');
 execSync('npm run --prefix ./core build', { stdio: 'inherit' });
@@ -22,7 +22,7 @@ execSync('npm run --prefix ./server build', { stdio: 'inherit' });
 console.log('Building web');
 execSync('npm run --prefix ./web build', { stdio: 'inherit' });
 
-*/
+//*/
 
 console.log('Copy server to build');
 console.log('-- dist');
@@ -70,8 +70,9 @@ await new Promise((res, rej) => {
     });
 });
 
-console.log('Pruning node_modules')
-execSync('npm prune --prefix ./build --production', { stdio: 'inherit' });
+//We can't yet enable this because it re-symlinks core and then for some reason, removes all the dependencies
+// console.log('Pruning node_modules')
+// execSync('npm prune --prefix ./build --production', { stdio: 'inherit' });
 
 console.log('Copy web to build');
 await new Promise((res, rej) => {
@@ -83,3 +84,20 @@ await new Promise((res, rej) => {
         }
     });
 });
+
+console.log('Copy Dockerfile');
+await new Promise((res, rej) => {
+    ncp('./Dockerfile', './build/Dockerfile', e => {
+        if (e) {
+            rej();
+        } else {
+            res();
+        }
+    });
+});
+
+console.log('Building docker image');
+await execSync('docker build -t joshkrak/netled .', { cwd: './build', stdio: 'inherit' });
+
+console.log('Publishing docker image');
+await execSync('docker push joshkrak/netled', { stdio: 'inherit' });
