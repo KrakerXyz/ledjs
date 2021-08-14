@@ -6,6 +6,7 @@
         "start": "concurrently -k -n web,server -c bgBlue.black,bgGreen.black \"npm run start-web\" \"npm run start-server\""
     },
     "devDependencies": {
-        "concurrently": "^6.2.0"
+        "concurrently": "^6.2.0",
+        "ncp": "^2.0.0"
     }
 }
