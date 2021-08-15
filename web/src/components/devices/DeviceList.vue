@@ -43,8 +43,8 @@ export default defineComponent({
       const devices = reactive(deepClone(await devicesClient.list(true)));
       const configs = deepClone(await animationClient.config.list()).sort((a, b) => a.name.localeCompare(b.name));
 
-      wsClient.onDeviceConnectionEvent((did, data) => {
-         const device = devices.find(d => d.id === did);
+      wsClient.on('deviceConnection', data => {
+         const device = devices.find(d => d.id === data.deviceId);
          if (!device) { return; }
          if (data.state === 'connected') {
             device.status.cameOnline = Date.now();

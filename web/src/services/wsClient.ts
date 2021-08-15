@@ -1,26 +1,27 @@
 import { Disposable, HostWsClient } from 'netled';
 import { getCurrentInstance, onUnmounted } from 'vue';
 
-type WsClient = Pick<HostWsClient, 'onDeviceConnectionEvent'>;
+type WsClient = Pick<HostWsClient, 'on'>;
 
 let ws: HostWsClient | null = null;
 let refCount = 0;
 export function useWsClient(): WsClient {
 
     const component = getCurrentInstance();
+
     if (!component) {
         console.warn('useWsClient was called outside of setup or after awaits');
     }
 
     if (!ws) {
-        ws = new HostWsClient(window.location.host);
+        ws = new HostWsClient({ host: window.location.host });
     }
 
     const subscriptions: Disposable[] = [];
 
     const wsClient: WsClient = {
-        onDeviceConnectionEvent(cb) {
-            const thisDisposable = ws!.onDeviceConnectionEvent(cb);
+        on(t, cb) {
+            const thisDisposable = ws!.on(t, cb);
             subscriptions.push(thisDisposable);
             return {
                 dispose() {

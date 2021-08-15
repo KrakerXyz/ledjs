@@ -1,6 +1,6 @@
 
 <template>
-    <div class="card">
+    <div class="card h-100">
         <div class="card-header">
             <div class="row">
                 <div class="col">
@@ -49,40 +49,24 @@
                 </select>
                 <label for="device-animation">Animation</label>
             </div>
-        </div>
 
-        <!-- <div class="row">
-            <div class="col d-flex align-items-center">
-                <span
-                    class="online-status d-inline-block me-2"
-                    :class="{ 'bg-success': device.status.cameOnline > device.status.wentOffline, 'bg-danger': device.status.wentOffline >= device.status.cameOnline }"
-                ></span>
-                {{ device.name }}
-                <button
-                    class="btn p-0 ms-2 text-success"
-                    v-if="device.isStopped"
-                    @click.prevent="stop(device, false)"
-                >
-                    <i class="fas fa-play fa-fw"></i>
-                </button>
-
-                <span
-                    class="btn p-0 ms-2 text-danger"
-                    v-if="!device.isStopped"
-                    @click.prevent="stop(device, true)"
-                >
-                    <i class="fas fa-stop fa-fw"></i>
-                </span>
+            <div v-if="telemetry.length" class="mt-3">
+                <div class="alert alert-primary mb-2" v-for="item of telemetry" :key="item.name">
+                    <div class="row">
+                        <div class="col">{{ item.name }}</div>
+                        <div class="col-auto">{{ item.value }}</div>
+                    </div>
+                </div>
             </div>
-        </div>-->
+        </div>
     </div>
 </template>
 
 <script lang="ts">
 
-import { useDevicesRestClient } from '@/services';
-import { AnimationNamedConfigSummary, deepClone, Device, Id } from 'netled';
-import { computed, defineComponent, reactive } from 'vue';
+import { useDevicesRestClient, useWsClient } from '@/services';
+import { AnimationNamedConfigSummary, deepClone, Device, DeviceHealthData, Id } from 'netled';
+import { computed, defineComponent, reactive, ref } from 'vue';
 
 export default defineComponent({
     props: {
@@ -92,6 +76,7 @@ export default defineComponent({
     setup(props) {
 
         const devicesClient = useDevicesRestClient();
+        const ws = useWsClient();
 
         const deviceCopy = reactive(deepClone(props.device));
 
@@ -113,9 +98,29 @@ export default defineComponent({
             deviceCopy.isStopped = value;
         };
 
-        return { stop, selectedConfigId, deviceCopy };
+        const telemetry = ref<TelementryItem[]>([]);
+
+        ws.on('deviceMessage', msg => {
+            if (msg.deviceId !== props.device.id) { return; }
+            if (msg.type === 'health') {
+                telemetry.value = Object.entries(msg.data).map(kvp => {
+                    return {
+                        name: kvp[0] as keyof DeviceHealthData,
+                        value: kvp[1].toString()
+                    };
+                });
+            }
+        });
+
+        return { stop, selectedConfigId, deviceCopy, telemetry };
     }
 });
+
+
+interface TelementryItem {
+    name: keyof DeviceHealthData,
+    value: string;
+}
 
 </script>
 

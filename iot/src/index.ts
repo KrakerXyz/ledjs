@@ -15,7 +15,7 @@ if (!getConfig(EnvKey.DeviceId) || !getConfig(EnvKey.DeviceSecret)) {
 
 (async () => {
 
-    const remoteAddress = getConfig(EnvKey.WsHost, 'localhost:3001');
+    const remoteAddress = getConfig(EnvKey.WsHost, 'dev.netled.io');
 
     useRestClient(remoteAddress);
 
@@ -23,7 +23,6 @@ if (!getConfig(EnvKey.DeviceId) || !getConfig(EnvKey.DeviceSecret)) {
         getRequiredConfig(EnvKey.DeviceId),
         getRequiredConfig(EnvKey.DeviceSecret),
         {
-            protocol: 'ws',
             host: remoteAddress
         }
     );

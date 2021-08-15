@@ -17,7 +17,7 @@ export class DeviceWsClient {
 
     private readonly _ws: WsConnection<ToDeviceMessage, DeviceCallbacks, FromDeviceMessage>;
 
-    public constructor(deviceId: string, deviceSecret: string, options?: Partial<DeviceWsOptions>) {
+    public constructor(readonly deviceId: string, readonly deviceSecret: string, readonly options?: Partial<DeviceWsOptions>) {
         const auth = `${deviceId}:${deviceSecret}`;
         this._ws = new WsConnection('device', {
             ...options ?? {},
@@ -31,6 +31,11 @@ export class DeviceWsClient {
 
     public postMessage(msg: FromDeviceMessage): void {
         this._ws.postMessage(msg);
+    }
+
+    /** Immediately removes all listeners and disposes the websocket */
+    public dispose(): void {
+        this._ws.dispose();
     }
 }
 

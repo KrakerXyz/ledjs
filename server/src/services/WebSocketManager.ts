@@ -49,8 +49,8 @@ export class WebSocketManager {
 
                 this.sendHostMessage(device.userId, {
                     type: 'deviceConnection',
-                    deviceId: device.id,
                     data: {
+                        deviceId: device.id,
                         state: 'disconnected'
                     }
                 });
@@ -82,9 +82,11 @@ export class WebSocketManager {
                 }
 
                 this.sendHostMessage(device.userId, {
-                    deviceId: device.id,
                     type: 'deviceMessage',
-                    data: msg
+                    data: {
+                        deviceId: device.id,
+                        ...msg
+                    }
                 });
 
 
@@ -122,9 +124,9 @@ export class WebSocketManager {
             await req.services.deviceDb.replace(device);
 
             this.sendHostMessage(device.userId, {
-                deviceId: device.id,
                 type: 'deviceConnection',
                 data: {
+                    deviceId: device.id,
                     state: 'connected'
                 }
             });

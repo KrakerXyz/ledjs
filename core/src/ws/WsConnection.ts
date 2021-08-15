@@ -1,5 +1,5 @@
 
-import * as WebSocket from 'ws';
+import * as WsWebSocket from 'ws';
 import { EventEmitter } from 'eventemitter3';
 import { Disposable } from '../Disposable';
 
@@ -20,8 +20,11 @@ export class WsConnection<
     private readonly _auth: { auth: string } | undefined;
     private _eventEmitter = new EventEmitter();
 
-    public constructor(type: 'device' | 'host', options?: Partial<WsOptions>) {
-        this._url = `${options?.protocol ?? 'wss'}://${options?.host ?? 'netled.io'}/ws/${type}`;
+    public constructor(type: 'device' | 'client', options?: Partial<WsOptions>) {
+
+        const host = options?.host ?? 'netled.io';
+        const protocol = options?.protocol ?? (host.includes('localhost') ? 'ws' : 'wss');
+        this._url = `${protocol}://${host}/ws/${type}`;
         this._auth = options?.auth ? { auth: options.auth } : undefined;
         this.startWebsocket();
     }
@@ -37,12 +40,15 @@ export class WsConnection<
 
     private _reconnectRetryCount = 0;
     private _postMessage: ((msg: string) => void) | null = null;
+    private _ws: WebSocket | null = null;
 
     private startWebsocket() {
+        if (this._disposed) { throw new Error('This been disposed'); }
 
         this._eventEmitter.emit('connectionChange', 'connecting');
 
-        const ws = new WebSocket(this._url, this._auth);
+        const ws = globalThis.WebSocket ? new WebSocket(this._url) : new WsWebSocket(this._url, this._auth) as any as WebSocket;
+        this._ws = ws;
 
         this._postMessage = ws.send.bind(ws);
 
@@ -67,6 +73,7 @@ export class WsConnection<
 
             const retryWaitSecs = Math.min(this._reconnectRetryCount, 15);
             setTimeout(() => {
+                if (this._disposed) { return; }
                 this.startWebsocket();
             }, retryWaitSecs * 1000);
         });
@@ -86,6 +93,16 @@ export class WsConnection<
         if (!this._postMessage) { return; }
         const msgJson = JSON.stringify(msg);
         this._postMessage(msgJson);
+    }
+
+    private _disposed = false;
+    /** Immediately removes all listeners and disposes the websocket */
+    public dispose() {
+        if (this._disposed) { throw new Error('This WsConnection has already been disposed'); }
+        this._disposed = true;
+        this._eventEmitter.removeAllListeners();
+        this._ws?.close();
+        this._ws = null;
     }
 
 }
