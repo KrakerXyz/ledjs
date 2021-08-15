@@ -5,7 +5,7 @@ type Query = Record<string, OrArray<string> | OrArray<boolean> | OrArray<number>
 
 export class RestClient {
 
-    public readonly origin: string = 'http://localhost:3001';
+    public readonly origin: string = 'https://netled.io';
     private readonly axiosInstance;
 
     public constructor(config?: Partial<RestConfig>) {
