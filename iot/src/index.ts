@@ -20,7 +20,7 @@ if (!getConfig(EnvKey.DeviceId) || !getConfig(EnvKey.DeviceSecret)) {
     const protocol = getConfig(EnvKey.WsProtocol);
     if (protocol !== undefined && protocol !== 'ws' && protocol !== 'wss') { throw new Error(`Invalid protocol ${protocol}. Expected ws | wss`); }
 
-    useRestClient(remoteAddress);
+    useRestClient(getConfig(EnvKey.ApiAddress));
 
     const deviceWs = new DeviceWsClient(
         getRequiredConfig(EnvKey.DeviceId),

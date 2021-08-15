@@ -2,7 +2,8 @@ export const enum EnvKey {
     DeviceId = 'DEVICE_ID',
     DeviceSecret = 'DEVICE_SECRET',
     WsHost = 'WS_HOST',
-    WsProtocol = 'WS_PROTOCOL'
+    WsProtocol = 'WS_PROTOCOL',
+    ApiAddress = 'API_ADDRESS'
 }
 
 /** Gets value from process.env or throws exception if empty */
