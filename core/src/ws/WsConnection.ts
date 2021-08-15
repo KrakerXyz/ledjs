@@ -41,6 +41,9 @@ export class WsConnection<
     private _reconnectRetryCount = 0;
     private _postMessage: ((msg: string) => void) | null = null;
     private _ws: WebSocket | null = null;
+    private _isConnected: boolean = false;
+
+    public get isConnected() { return this._isConnected; }
 
     private startWebsocket() {
         if (this._disposed) { throw new Error('This been disposed'); }
@@ -55,6 +58,7 @@ export class WsConnection<
         ws.addEventListener('open', () => {
             this._reconnectRetryCount = 0;
             this._eventEmitter.emit('connectionChange', 'connected');
+            this._isConnected = true;
         });
 
         ws.addEventListener('error', () => {
@@ -62,6 +66,7 @@ export class WsConnection<
         });
 
         ws.addEventListener('close', e => {
+            this._isConnected = false;
             //Will happen if the server closes or after an error has occurred while connecting
             if (e.code === 4001) {
                 throw new Error('Device not authorized to connect to netled. Check your .env DEVICE_ID/SECRET');

@@ -13,6 +13,10 @@ export class DeviceDb {
         return this.entity.find({ userId });
     }
 
+    public byAnimationNamedConfigId(animationNamedConfigId: Id): AsyncGenerator<Writeable<Device>> {
+        return this.entity.find({ animationNamedConfigId });
+    }
+
     public add(device: Device): Promise<void> {
         return this.entity.insertAsync(device);
     }

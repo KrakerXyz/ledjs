@@ -2,8 +2,11 @@ import { DeviceHealthData, DeviceWsClient } from 'netled';
 
 export class HealthReporter {
 
+
+
     public constructor(private readonly _ws: DeviceWsClient) {
         setInterval(() => this.report(), 15_000);
+
     }
 
     private providers: Partial<Record<keyof DeviceHealthData, () => any>> = {};
@@ -13,6 +16,9 @@ export class HealthReporter {
     }
 
     private report() {
+
+        if (!this._ws.isConnected) { return; }
+
         const dataEntries = Object.entries(this.providers).map(e => [e[0], e[1]()]).filter(e => e[1] !== undefined);
         if (!dataEntries.length) { return; }
 

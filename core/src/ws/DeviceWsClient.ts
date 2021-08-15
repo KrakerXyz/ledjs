@@ -33,6 +33,8 @@ export class DeviceWsClient {
         this._ws.postMessage(msg);
     }
 
+    public get isConnected() { return this._ws.isConnected; }
+
     /** Immediately removes all listeners and disposes the websocket */
     public dispose(): void {
         this._ws.dispose();

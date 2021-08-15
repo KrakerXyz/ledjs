@@ -89,6 +89,7 @@ export default defineComponent({
                     deviceIds: [props.device.id],
                     configId: configId as Id || null
                 });
+                deviceCopy.animationNamedConfigId = configId as Id;
             }
         });
 
@@ -118,6 +119,7 @@ export default defineComponent({
             if (data.state === 'connected') {
                 deviceCopy.status.cameOnline = Date.now();
             } else {
+                telemetry.value = [];
                 deviceCopy.status.wentOffline = Date.now();
             }
         });
