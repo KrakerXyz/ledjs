@@ -17,12 +17,16 @@ if (!getConfig(EnvKey.DeviceId) || !getConfig(EnvKey.DeviceSecret)) {
 
     const remoteAddress = getConfig(EnvKey.WsHost, 'dev.netled.io');
 
+    const protocol = getConfig(EnvKey.WsProtocol);
+    if (protocol !== undefined && protocol !== 'ws' && protocol !== 'wss') { throw new Error(`Invalid protocol ${protocol}. Expected ws | wss`); }
+
     useRestClient(remoteAddress);
 
     const deviceWs = new DeviceWsClient(
         getRequiredConfig(EnvKey.DeviceId),
         getRequiredConfig(EnvKey.DeviceSecret),
         {
+            protocol,
             host: remoteAddress
         }
     );

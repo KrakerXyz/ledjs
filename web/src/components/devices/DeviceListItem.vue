@@ -112,6 +112,16 @@ export default defineComponent({
             }
         });
 
+
+        ws.on('deviceConnection', data => {
+            if (data.deviceId !== deviceCopy.id) { return; }
+            if (data.state === 'connected') {
+                deviceCopy.status.cameOnline = Date.now();
+            } else {
+                deviceCopy.status.wentOffline = Date.now();
+            }
+        });
+
         return { stop, selectedConfigId, deviceCopy, telemetry };
     }
 });
