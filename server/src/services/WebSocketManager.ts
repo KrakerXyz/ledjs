@@ -1,6 +1,8 @@
 import { FastifyLoggerInstance, FastifyRequest } from 'fastify';
 import { SocketStream } from 'fastify-websocket';
 import { Device, FromDeviceMessage, Id, ToDeviceMessage, ToHostMessage } from 'netled';
+import { v4 } from 'uuid';
+import { DeviceLogDb } from '../db';
 import { RequestServicesContainer } from './RequestServicesContainer';
 
 export class WebSocketManager {
@@ -66,10 +68,27 @@ export class WebSocketManager {
                 console.assert(device);
                 if (!device) { return; }
 
+                const logProm = req.services.deviceLogDb.add({
+                    id: v4() as Id,
+                    deviceId: device.id,
+                    created: Date.now(),
+                    from: 'device',
+                    data: msg
+                });
+
                 if (msg.type !== 'info') {
                     device.status.lastContact = Date.now();
                     await req.services.deviceDb.replace(device);
                 }
+
+                this.sendHostMessage(device.userId, {
+                    deviceId: device.id,
+                    type: 'deviceMessage',
+                    data: msg
+                });
+
+
+                await logProm;
             }
         });
 
@@ -114,15 +133,31 @@ export class WebSocketManager {
 
     }
 
-    public sendDeviceMessage(msg: ToDeviceMessage, ...deviceIds: [Id, ...Id[]]) {
+    public async sendDeviceMessage(msg: ToDeviceMessage, ...deviceIds: [Id, ...Id[]]) {
         this._log.trace('Sending %s message to device %s', msg.type, deviceIds.join(', '));
         const msgJson = JSON.stringify(msg);
+
+        const deviceLogDb = new DeviceLogDb();
+        const logProms: Promise<any>[] = [];
         for (const did of deviceIds) {
             const con = this._connections.get(did);
             if (!con?.length) { continue; }
             console.assert(con.length === 1);
             con[0].socketStream.socket.send(msgJson);
+
+            logProms.push(deviceLogDb.add({
+                id: v4() as Id,
+                created: Date.now(),
+                deviceId: did,
+                from: 'server',
+                data: {
+                    type: 'websocketSendMessage',
+                    msgType: msg.type
+                }
+            }));
         }
+
+        await Promise.all(logProms);
     }
 
     public sendHostMessage(userId: Id, msg: ToHostMessage) {

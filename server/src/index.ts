@@ -87,7 +87,9 @@ server.register(fastifyWebsocket, {
 });
 
 server.register(fastifyStatic, {
-    root: path.join(__dirname, '.web')
+    root: path.join(__dirname, '.web'),
+    immutable: true,
+    maxAge: '1d'
 });
 
 server.get('/ws/device', { websocket: true, preValidation: [deviceAuthentication] }, webSocketManager.handler);

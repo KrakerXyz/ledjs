@@ -1,4 +1,4 @@
-import { DeviceDb, AnimationConfigDb, AnimationDb, UserDb } from '../db';
+import { DeviceDb, AnimationConfigDb, AnimationDb, UserDb, DeviceLogDb } from '../db';
 import { WebSocketManager } from './WebSocketManager';
 
 export class RequestServicesContainer {
@@ -18,6 +18,11 @@ export class RequestServicesContainer {
     private _deviceDb: DeviceDb | null = null;
     public get deviceDb() {
         return this._deviceDb ?? (this._deviceDb = new DeviceDb());
+    }
+
+    private _deviceLogDb: DeviceLogDb | null = null;
+    public get deviceLogDb() {
+        return this._deviceLogDb ?? (this._deviceLogDb = new DeviceLogDb());
     }
 
     private _userDb: UserDb | null = null;

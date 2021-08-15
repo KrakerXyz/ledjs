@@ -1,5 +1,6 @@
+import { FromDeviceMessage } from './FromDeviceMessage';
 
-export type ToHostMessage = DeviceConnectionEvent
+export type ToHostMessage = DeviceConnectionEvent | DeviceMessageEvent;
 
 export type DeviceConnectionEvent = {
     deviceId: string;
@@ -9,5 +10,11 @@ export type DeviceConnectionEvent = {
 
 export type DeviceConnectionData = {
     state: 'connected' | 'disconnected'
+}
+
+export type DeviceMessageEvent = {
+    deviceId: string;
+    type: 'deviceMessage',
+    data: FromDeviceMessage
 }
 
