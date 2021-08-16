@@ -1,0 +1,30 @@
+
+use('netled');
+
+db['device-log-bases']
+  .aggregate([
+    { $match: { from: 'server', 'data.type': 'deviceConnection' }},
+    { $sort: { created: -1 }},
+    //{ $limit: 10 },
+    { $lookup: {
+      from: 'devices',
+      localField: 'data.data.deviceId',
+      foreignField: 'id',
+      as: 'device'
+    }},
+    { $unwind: '$device' },
+    { 
+      $project: { 
+        _id: 0, 
+        id: 1, 
+        created: { 
+          '$toDate': {
+            '$subtract': ['$created', 1000 * 60 * 60 * 4] 
+          }
+        }, 
+        state: 
+        '$data.data.state', 
+        deviceId: '$device.id', 
+        deviceName: '$device.name' }
+      },
+  ])
