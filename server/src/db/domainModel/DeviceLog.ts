@@ -1,4 +1,4 @@
-import { DeviceHealthMessage, DeviceInfoMessage, Id } from 'netled';
+import { DeviceConnectionEvent, DeviceHealthMessage, DeviceInfoMessage, Id } from 'netled';
 
 export interface DeviceLogBase {
     id: Id;
@@ -12,7 +12,7 @@ export type DeviceLog = DeviceLogMessage | ServerDeviceMessage;
 
 export interface ServerDeviceMessage extends DeviceLogBase {
     from: 'server';
-    data: ServerDeviceSocketSendMessage;
+    data: ServerDeviceSocketSendMessage | DeviceConnectionEvent;
 }
 
 export type ServerDeviceSocketSendMessage = {

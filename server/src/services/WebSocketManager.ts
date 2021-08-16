@@ -1,6 +1,6 @@
 import { FastifyLoggerInstance, FastifyRequest } from 'fastify';
 import { SocketStream } from 'fastify-websocket';
-import { Device, FromDeviceMessage, Id, ToDeviceMessage, ToHostMessage } from 'netled';
+import { Device, DeviceConnectionEvent, FromDeviceMessage, Id, ToDeviceMessage, ToHostMessage } from 'netled';
 import { v4 } from 'uuid';
 import { DeviceLogDb } from '../db';
 import { RequestServicesContainer } from './RequestServicesContainer';
@@ -44,16 +44,27 @@ export class WebSocketManager {
                 console.assert(device);
                 if (!device) { return; }
 
-                device.status.wentOffline = Date.now();
-                await req.services.deviceDb.replace(device);
-
-                this.sendHostMessage(device.userId, {
+                const wsEvent: DeviceConnectionEvent = {
                     type: 'deviceConnection',
                     data: {
                         deviceId: device.id,
                         state: 'disconnected'
                     }
-                });
+                };
+
+                device.status.wentOffline = Date.now();
+                await Promise.all([
+                    req.services.deviceLogDb.add({
+                        created: Date.now(),
+                        deviceId: device.id,
+                        from: 'server',
+                        id: v4() as Id,
+                        data: wsEvent
+                    }),
+                    req.services.deviceDb.replace(device)
+                ]);
+
+                this.sendHostMessage(device.userId, wsEvent);
             }
         });
 
@@ -121,15 +132,26 @@ export class WebSocketManager {
             device.status.lastContact = Date.now();
             device.status.wanIp = req.ip;
 
-            await req.services.deviceDb.replace(device);
-
-            this.sendHostMessage(device.userId, {
+            const wsEvent: DeviceConnectionEvent = {
                 type: 'deviceConnection',
                 data: {
                     deviceId: device.id,
                     state: 'connected'
                 }
-            });
+            };
+
+            await Promise.all([
+                req.services.deviceDb.replace(device),
+                req.services.deviceLogDb.add({
+                    created: Date.now(),
+                    deviceId: device.id,
+                    from: 'server',
+                    id: v4() as Id,
+                    data: wsEvent
+                })
+            ]);
+
+            this.sendHostMessage(device.userId, wsEvent);
 
         }
 
