@@ -1,24 +1,19 @@
 import { RouteOptions } from 'fastify';
 import { AnimationPost, parseScript, Animation } from 'netled';
-import { AnimationDb } from '../../db';
+import { jsonSchema } from '@krakerxyz/json-schema-transformer';
+import { jwtAuthentication } from '../../services';
 
 export const postAnimation: RouteOptions = {
     method: 'POST',
     url: '/api/animations',
+    preValidation: [jwtAuthentication],
+    schema: {
+        body: jsonSchema<AnimationPost>()
+    },
     handler: async (req, res) => {
         const animationPost = req.body as AnimationPost;
-        if (!animationPost) {
-            res.status(400).send({ error: 'Missing animationPost body' });
-            return;
-        } else if (!animationPost.script?.trim()) {
-            res.send(400).send({ error: 'Missing script' });
-            return;
-        } else if (!animationPost.id) {
-            res.send(400).send({ error: 'Missing id' });
-            return;
-        }
 
-        const db = new AnimationDb();
+        const db = req.services.animationDb;
 
         const parseResult = parseScript(animationPost.script);
 
@@ -27,25 +22,21 @@ export const postAnimation: RouteOptions = {
             return;
         }
 
-        const existingAnimation = await db.latestById(animationPost.id, true);
+        const existing = await db.latestById(animationPost.id, true);
 
         const animation: Animation = {
             ...animationPost,
             published: false,
-            version: existingAnimation?.published ? existingAnimation.version + 1 : (existingAnimation?.version ?? 0),
+            version: existing?.published ? existing.version + 1 : (existing?.version ?? 0),
             created: Date.now(),
-            author: 'TestUser'
+            author: req.user.sub
         };
 
-        if (existingAnimation) {
-            await db.replace(animation);
-        } else {
-            await db.add(animation);
-        }
+        await (existing ? db.replace : db.add).apply(db, [animation]);
 
         const { script, ...animationMeta } = animation;
 
-        res.send(201).send(animationMeta);
+        res.status(existing ? 200 : 201).send(animationMeta);
 
     }
 };

@@ -1,7 +1,7 @@
-import { Animator, DeviceAnimationSetup, DeviceWsClient } from 'netled';
+import { Animator, AnimationConfig, DeviceWsClient } from 'netled';
 import { deepEquals, useAnimation } from '../services';
 
-export type Callback = (animation: Animator) => void;
+export type Callback = (animation: Animator | null) => void;
 
 export class AnimatorProvider {
 
@@ -9,9 +9,17 @@ export class AnimatorProvider {
 
     public constructor(readonly deviceWs: DeviceWsClient) {
 
-        let lastSetup: DeviceAnimationSetup | null = null;
+        let lastSetup: AnimationConfig | null = null;
         let currentAnimator: Animator | null = null;
-        deviceWs.onAnimationSetup(async setup => {
+        deviceWs.on('animationSetup', async setup => {
+
+            if (!setup) {
+                console.log('Clearing animator');
+                lastSetup = null;
+                currentAnimator = null;
+                this._listeners.forEach(l => l(null));
+                return;
+            }
 
             let dirty = false;
             if (setup.id !== lastSetup?.id || setup.version !== lastSetup.version) {
@@ -29,13 +37,13 @@ export class AnimatorProvider {
 
             lastSetup = setup;
             if (dirty) {
-                this._listeners.forEach(l => l(currentAnimator!));
+                this._listeners.forEach(l => l(currentAnimator));
             }
 
         });
 
         let lastNumLeds = 0;
-        deviceWs.onDeviceSetup(setup => {
+        deviceWs.on('deviceSetup', setup => {
             if (lastNumLeds === setup.numLeds) { return; }
             console.log(`Updating number of leds to ${setup.numLeds}`);
             lastNumLeds = setup.numLeds;

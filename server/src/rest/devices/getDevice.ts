@@ -1,20 +1,25 @@
 import { RouteOptions } from 'fastify';
-import { DeviceDb } from '../../db/DeviceDb';
+import { Id } from 'netled';
 import { jwtAuthentication } from '../../services';
 
 export const getDevice: RouteOptions = {
     method: 'GET',
     url: '/api/devices/:deviceId',
     preValidation: [jwtAuthentication],
+    schema: {
+        params: {
+            type: 'object',
+            properties: {
+                deviceId: { type: 'string', format: 'uuid' }
+            },
+            required: ['deviceId']
+        }
+    },
     handler: async (req, res) => {
 
-        const deviceId = (req.params as any).deviceId as string;
-        if (!deviceId) {
-            res.status(400).send('Missing deviceId');
-            return;
-        }
+        const deviceId = (req.params as any).deviceId as Id;
 
-        const db = new DeviceDb();
+        const db = req.services.deviceDb;
         const device = await db.byId(deviceId);
 
         if (!device) {

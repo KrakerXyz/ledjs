@@ -147,9 +147,8 @@
    import { computed, defineComponent, getCurrentInstance, onUnmounted, reactive, ref, watch } from 'vue';
    import { useRoute } from 'vue-router';
    import LedCanvas from '../LedCanvas.vue';
-   import { AnimationRestClient, ConfigMetaParam, DeviceAnimationPost, DeviceRestClient } from 'netled';
+   import { AnimationRestClient, ConfigMetaParam, deepClone, DeviceAnimationPost, DeviceRestClient, Frame } from 'netled';
    import { useIframeRunner } from '../editor/iframeRunner';
-   import { Frame } from 'netled';
 
    export default defineComponent({
       components: {
@@ -166,9 +165,9 @@
          const animationClient = new AnimationRestClient(restClient);
 
          const devicesClient = new DeviceRestClient(restClient);
-         const devices = await devicesClient.list(false);
+         const devices = deepClone(await devicesClient.list(false));
 
-         const animation = await animationClient.latest(animationId.value, true);
+         const animation = deepClone(await animationClient.latest(animationId.value, true));
          const iframe = await useIframeRunner(animation.script);
 
          const modelJson = localStorage.getItem('config');

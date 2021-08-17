@@ -41,12 +41,13 @@
 <script lang="ts">
 
    import { defineComponent } from 'vue';
+   import { useRouter } from 'vue-router';
    import { useLoginService } from '../services';
 
    export default defineComponent({
       setup() {
-
-         const login = useLoginService();
+         const router = useRouter();
+         const login = useLoginService(() => router);
 
          return { ...login };
       }

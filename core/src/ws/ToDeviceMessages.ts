@@ -1,11 +1,13 @@
+import { AnimationConfig } from '../rest';
 
-import { DeviceAnimationSetup } from '../rest';
+
 
 export type ToDeviceMessage = AnimationSetupMessage | DeviceSetupMessage | AnimationStopMessage;
 
 export type AnimationSetupMessage = {
     type: 'animationSetup',
-    data: DeviceAnimationSetup
+    /** The animation and configuration to load on device or null to clear current animation */
+    data: AnimationConfig | null
 }
 
 export type DeviceSetupMessage = {
@@ -28,4 +30,3 @@ export type AnimationStopMessage = {
 export type AnimationStopData = {
     stop: boolean;
 }
-

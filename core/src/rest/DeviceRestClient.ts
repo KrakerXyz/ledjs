@@ -1,4 +1,5 @@
-import { RestClient } from '.';
+import { DeviceAnimationConfigPost, Id, RestClient } from '.';
+import { AnimationConfig } from '.';
 
 export class DeviceRestClient {
 
@@ -16,8 +17,19 @@ export class DeviceRestClient {
         return this.restClient.post('/api/devices', device);
     }
 
+    /** Resets the device back to it's stored animation config */
+    public resetAnimation(reset: DeviceAnimationResetPost): Promise<void> {
+        return this.restClient.post('/api/devices/animation/reset', reset);
+    }
+
+    /** Sets the device to rendering a specific animation without storing it on the device. */
     public setAnimation(setup: DeviceAnimationPost): Promise<void> {
         return this.restClient.post('/api/devices/animation', setup);
+    }
+
+    /** Stores a animation config to the device so that it'll render on startup */
+    public setAnimationConfig(post: DeviceAnimationConfigPost): Promise<void> {
+        return this.restClient.post('/api/devices/animation-config', post);
     }
 
     public stopAnimation(stop: DeviceStopPost): Promise<void> {
@@ -28,9 +40,9 @@ export class DeviceRestClient {
 
 export interface Device {
     /** GUID id of the device */
-    readonly id: string;
+    readonly id: Id;
     /** GUID id of the user the device belongs to */
-    readonly userId: string;
+    readonly userId: Id;
     /** A name for the device, given by the user */
     name: string;
     /** API secret used for device to server authentication */
@@ -41,8 +53,8 @@ export interface Device {
     setup: DeviceSetup;
     /** Various status details for the device. */
     readonly status: DeviceStatus;
-    /** Last animation setup sent to the device */
-    readonly animation?: DeviceAnimationSetup;
+    /** Id of named animation config assigned to this device */
+    readonly animationNamedConfigId?: Id
     /** Last stop/start state of the animation on the device */
     readonly isStopped: boolean;
 }
@@ -54,15 +66,15 @@ export type DevicePost = Pick<Device, 'id' | 'name' | 'setup'>;
 
 export interface DeviceStatus {
     /** Last time the device made a call to the server */
-    lastContact?: number;
+    readonly lastContact?: number;
     /** Timestamp of when the device last connected */
-    cameOnline: number;
+    readonly cameOnline: number;
     /** Timestamp of when the device last went offline */
-    wentOffline: number;
+    readonly wentOffline: number;
     /** The LAN IP of the device */
-    localIp?: string;
+    readonly localIp?: string;
     /** The WAN IP address the device connected from */
-    wanIp?: string;
+    readonly wanIp?: string;
 }
 
 export interface DeviceSetup {
@@ -74,26 +86,21 @@ export interface DeviceSetup {
 
 export interface DeviceAnimationPost {
     /** One or more device ids to send the stop request to. */
-    deviceIds: [string, ...string[]],
+    deviceIds: [Id, ...Id[]],
     /** Animation and configuration to run on devices */
-    animation: DeviceAnimationSetup
-}
-
-export interface DeviceAnimationSetup {
-    /** Id of the animation to render */
-    id: string;
-    /** Version of animation */
-    version: number;
-    config?: Record<string, any>;
-    /** Interval in milliseconds in which to render a frame. e.g. 33ms for 30FPS */
-    interval: number;
-    /** Global brightness modifiers. A ratio (0-1) applied to each frame's led brightness. */
-    brightness: number;
+    animation: AnimationConfig
 }
 
 export interface DeviceStopPost {
     /** One or more device ids to send the stop request to. */
-    deviceIds: [string, ...string[]],
+    deviceIds: [Id, ...Id[]],
     /** When or not to stop the animation. Send false to restart a previously stopped animation. */
     stop: boolean;
+    /** Whether or not to store this stop state on the device. Defaults to true */
+    persist?: boolean;
+}
+
+/** Resets the device back to it's stored animation config */
+export interface DeviceAnimationResetPost {
+    deviceIds: [Id, ...Id[]];
 }

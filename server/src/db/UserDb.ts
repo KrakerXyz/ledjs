@@ -1,12 +1,11 @@
 import { Filter, TypedEntity } from '@krakerxyz/typed-base';
-import { User } from 'netled';
-import { Writeable } from '.';
+import { Id, User, Writeable } from 'netled';
 
 export class UserDb {
 
     private readonly entity = new TypedEntity<User>();
 
-    public byId(id: string): Promise<User | null> {
+    public byId(id: Id): Promise<User | null> {
         return this.entity.findOneAsync({ id });
     }
 

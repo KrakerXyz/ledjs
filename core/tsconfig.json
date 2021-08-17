@@ -4,6 +4,7 @@
         "module": "ES2020",
         "moduleResolution": "node",
         "declaration": true,
+        "declarationMap": true,
         "rootDir": "src",
         "noEmitOnError": true,
         "strict": true,

@@ -1,3 +1,35 @@
+I used to have Monaco running through CDN which worked really well and kept bundle small but there was an issue when I imported EventEmitter due to conflicts with require. If we want to go back, perhaps because we started using soemthing other than EventEmitter2 in Core, 
+
+#Add after main.ts to index.html
+
+```html
+      
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.21.2/min/vs/loader.min.js"></script>
+
+      <script>
+         require.config({
+            paths: {
+               vs: "https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.21.2/min/vs",
+            },
+         });
+
+         window.MonacoEnvironment = {
+            getWorkerUrl: function (workerId, label) {
+               return `data:text/javascript;charset=utf-8,${encodeURIComponent(`
+                      self.MonacoEnvironment = {
+                        baseUrl: 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.21.2/min/'
+                      };
+                      importScripts('https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.21.2/min/vs/base/worker/workerMain.js');`)}`;
+            },
+         };
+
+      </script>
+
+```
+
+monacoEditor.ts
+```typescript
+
 
 import type * as monaco from 'monaco-editor';
 import { ComponentInternalInstance, onMounted, onUnmounted, ref, Ref, watch } from 'vue';
@@ -75,3 +107,5 @@ export interface EditorConfig {
         [name: string]: string
     }
 }
+
+```

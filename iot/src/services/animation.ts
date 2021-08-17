@@ -1,10 +1,10 @@
-import { AnimationRestClient, Animator, AnimatorType, netLedGlobal } from 'netled';
+import { AnimationRestClient, Animator, AnimatorType, Id, netLedGlobal } from 'netled';
 import { useRestClient } from '.';
 import { NodeVM, VMScript } from 'vm2';
 
 let theVm: NodeVM | undefined;
 
-export async function useAnimation(id: string, version: number, trusted: boolean): Promise<Animator> {
+export async function useAnimation(id: Id, version: number, trusted: boolean): Promise<Animator> {
 
     const restClient = useRestClient();
     const animationClient = new AnimationRestClient(restClient);

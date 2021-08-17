@@ -1,5 +1,4 @@
 import { RouteOptions } from 'fastify';
-import { DeviceDb } from '../../db/DeviceDb';
 import { jwtAuthentication, awaitAll } from '../../services';
 
 export const getDevices: RouteOptions = {
@@ -8,7 +7,7 @@ export const getDevices: RouteOptions = {
     preValidation: [jwtAuthentication],
     handler: async (req, res) => {
 
-        const db = new DeviceDb();
+        const db = req.services.deviceDb;
         const all = await awaitAll(db.byUserId(req.user.sub));
         res.send(all);
     }

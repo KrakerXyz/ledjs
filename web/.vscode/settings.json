@@ -1,9 +1,16 @@
 {
    "cSpell.words": [
+      "Iframe",
       "Leds",
       "cooldown",
-      "heatramp"
+      "gapi",
+      "heatramp",
+      "netled",
+      "postcss",
+      "typecheck",
+      "typeof"
    ],
-   "vetur.format.scriptInitialIndent": true,
-   "vetur.format.styleInitialIndent": true
+   "[vue]": {
+      "editor.defaultFormatter": "johnsoncodehk.volar"
+   },
 }

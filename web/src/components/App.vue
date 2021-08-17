@@ -10,19 +10,29 @@
                <li class="nav-item">
                   <router-link
                      class="nav-link"
-                     :to="{ name: 'animation-list' }"
+                     :to="{name: 'home'}"
                   >
-                     Animations
+                     Home
                   </router-link>
                </li>
-               <li class="nav-item">
-                  <router-link
-                     class="nav-link"
-                     :to="{ name: 'device-list' }"
-                  >
-                     Devices
-                  </router-link>
-               </li>
+               <template v-if="isLoggedIn">
+                  <li class="nav-item">
+                     <router-link
+                        class="nav-link"
+                        :to="{ name: 'animation-list' }"
+                     >
+                        Animations
+                     </router-link>
+                  </li>
+                  <li class="nav-item">
+                     <router-link
+                        class="nav-link"
+                        :to="{ name: 'device-list' }"
+                     >
+                        Devices
+                     </router-link>
+                  </li>
+               </template>
             </ul>
             <ul class="navbar-nav">
                <li class="nav-item">
@@ -47,7 +57,9 @@
 
 <script lang="ts">
 
-   import { defineComponent } from 'vue';
+   import { computed, defineComponent } from 'vue';
+   import { useRouter } from 'vue-router';
+   import { useLoginService } from '../services';
    import User from './User.vue';
 
    export default defineComponent({
@@ -55,7 +67,12 @@
          User
       },
       setup() {
-         return {};
+         const router = useRouter();
+         const loginService = useLoginService(() => router);
+
+         const isLoggedIn = computed(() => loginService.status.value === 'signedIn');
+
+         return { isLoggedIn };
       }
    });
 

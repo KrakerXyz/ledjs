@@ -19,7 +19,8 @@
             "preLaunchTask": "build-iot",
             "outFiles": [
                 "${workspaceFolder}/iot/dist/**/*.js"
-            ]
+            ],
+            "internalConsoleOptions": "openOnSessionStart"
         },
         {
             "type": "node",
@@ -36,7 +37,9 @@
             "preLaunchTask": "build-server",
             "outFiles": [
                 "${workspaceFolder}/server/dist/**/*.js"
-            ]
+            ],
+            "internalConsoleOptions": "openOnSessionStart",
+            "outputCapture": "std" //to capture winston console logs
         }
     ]
 }

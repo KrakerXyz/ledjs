@@ -2,30 +2,43 @@ import { Animator, ARGB, DeviceWsClient, Frame } from 'netled';
 import { AnimatorProvider } from './AnimatorProvider';
 import { Clock } from './Clock';
 import rpio from 'rpio';
+import { HealthReporter } from '../services';
 
 export class LedController {
-
-    static readonly REPORT_INTERVAL = 15_000;
 
     private _animator: Animator | null = null;
     private _buffer: Buffer | null = null;
     private _framesDrawn = 0;
+    private _isStopped = false;
+    private _lastNumLeds = 0;
 
-    public constructor(readonly deviceWs: DeviceWsClient) {
+    public constructor(readonly deviceWs: DeviceWsClient, readonly healthReporter: HealthReporter) {
 
         this.initSpi(25);
+
+        //Draw an arbitrarily huge number of dark leds to clear string on startup
+        const darkLeds: ARGB = [255, 0, 0, 0];
+        const darkFrame: Frame = [];
+        for (let i = 0; i < 1000; i++) {
+            darkFrame.push(darkLeds);
+        }
+        this.rpioDraw(darkFrame);
 
         new Clock(deviceWs, () => this.tick());
 
         const animatorProvider = new AnimatorProvider(deviceWs);
         animatorProvider.onAnimation(animator => {
             this._animator = animator;
+            if (!animator) {
+                this.drawDarkFrame();
+            }
         });
 
-        let lastNumLeds = 0;
-        deviceWs.onDeviceSetup(setup => {
-            if (lastNumLeds !== setup.numLeds) {
-                lastNumLeds = setup.numLeds;
+        healthReporter.addHealthData('fps', () => this.getFps());
+
+        deviceWs.on('deviceSetup', setup => {
+            if (this._lastNumLeds !== setup.numLeds) {
+                this._lastNumLeds = setup.numLeds;
                 const startFrameBytes = 4;
                 const numEndFrameBytes = Math.max(4, Math.ceil(setup.numLeds / 16));
                 console.log(`Initalizing buffer for ${setup.numLeds} leds`);
@@ -35,36 +48,27 @@ export class LedController {
             this.initSpi(setup.spiSpeed);
         });
 
-        let reportInterval: NodeJS.Timeout | null = setInterval(() => {
-            this.report();
-        }, LedController.REPORT_INTERVAL);
-
-        deviceWs.onAnimationStop(data => {
+        deviceWs.on('animationStop', data => {
+            this._isStopped = data.stop;
             if (data.stop) {
-                if (reportInterval) {
-                    console.debug('Stopping report interval');
-                    clearInterval(reportInterval);
-                    reportInterval = null;
+                if (this._lastNumLeds) {
+                    this.drawDarkFrame();
                 }
-
-                if (lastNumLeds) {
-                    console.log('Drawing dark frame to clear leds');
-                    const darkLeds: ARGB = [255, 0, 0, 0];
-                    const darkFrame: Frame = [];
-                    for (let i = 0; i < lastNumLeds; i++) {
-                        darkFrame.push(darkLeds);
-                    }
-                    this.rpioDraw(darkFrame);
-                }
-
-            } else if (!reportInterval) {
-                console.debug('Starting report interval');
-                reportInterval = setInterval(() => {
-                    this.report();
-                }, LedController.REPORT_INTERVAL);
+            } else {
+                this.resetFps();
             }
         });
 
+    }
+
+    private drawDarkFrame() {
+        console.log('Drawing dark frame to clear leds');
+        const darkLeds: ARGB = [255, 0, 0, 0];
+        const darkFrame: Frame = [];
+        for (let i = 0; i < this._lastNumLeds; i++) {
+            darkFrame.push(darkLeds);
+        }
+        this.rpioDraw(darkFrame);
     }
 
     private _spiBegun = false;
@@ -83,10 +87,18 @@ export class LedController {
         this._spiBegun = true;
     }
 
-    private report() {
-        const fps = Math.round(this._framesDrawn / LedController.REPORT_INTERVAL * 1000);
+    private resetFps() {
+        this._lastFpsCalc = Date.now();
         this._framesDrawn = 0;
-        console.log(`Avg FPS: ${fps}`);
+    }
+
+    private _lastFpsCalc = Date.now();
+    private getFps(): number | undefined {
+        if (this._isStopped) { return undefined; }
+        const elapsedSeconds = (Date.now() - this._lastFpsCalc) / 1000;
+        const fps = Math.round(this._framesDrawn / elapsedSeconds);
+        this.resetFps();
+        return fps;
     }
 
     private tick() {

@@ -10,7 +10,9 @@
         "googleusercontent",
         "heatramp",
         "icdocd",
+        "joshkrak",
         "jwtid",
+        "multiline",
         "netled",
         "parameterless",
         "prestart",
@@ -19,7 +21,8 @@
         "rpio",
         "ttsc",
         "ttypescript",
-        "typecheck"
+        "typecheck",
+        "vetur"
     ],
     "typescript.tsdk": "node_modules\\typescript\\lib",
     "html.format.wrapAttributes": "aligned-multiple",

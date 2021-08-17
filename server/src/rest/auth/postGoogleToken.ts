@@ -1,13 +1,18 @@
 import { RouteOptions } from 'fastify';
 import { OAuth2Client } from 'google-auth-library';
 import { v4 } from 'uuid';
-import { GoogleToken } from 'netled';
+import { GoogleToken, Id, User } from 'netled';
 import { UserDb } from '../../db';
 import { EnvKey, getRequiredConfig } from '../../services';
+import { jsonSchema } from '@krakerxyz/json-schema-transformer';
 
 export const postGoogleToken: RouteOptions = {
     method: 'POST',
     url: '/api/auth/google-token',
+    schema: {
+        body: jsonSchema<GoogleToken>(),
+        response: jsonSchema<User>()
+    },
     handler: async (req, res) => {
         const googleToken = req.body as GoogleToken;
 
@@ -39,7 +44,7 @@ export const postGoogleToken: RouteOptions = {
             const isNewUser = !user;
             if (!user) {
                 user = {
-                    id: v4(),
+                    id: v4() as Id,
                     email: payload.email,
                     created: Date.now(),
                     lastSeen: Date.now()
