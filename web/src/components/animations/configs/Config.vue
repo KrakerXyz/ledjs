@@ -172,6 +172,8 @@
                               type="color"
                               v-model="p.value"
                            >
+
+                           {{p.value}}
                         </div>
                      </div>
                      <small class="text-muted">

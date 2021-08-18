@@ -3,7 +3,10 @@
       <h1>{{ animation.name }} Configs</h1>
       <div class="row">
          <div class="col">
-            <div class="list-group" v-if="configs">
+            <div
+               class="list-group"
+               v-if="configs"
+            >
                <router-link
                   class="list-group-item list-group-item-action"
                   v-for="c of configs"
@@ -27,47 +30,51 @@
 </template>
 
 <script lang="ts">
-import { useRestClient } from '@/services';
-import { AnimationNamedConfigPost, AnimationRestClient, Id } from 'netled';
-import { v4 } from 'uuid';
-import { defineComponent } from 'vue';
+   import { useRestClient } from '@/services';
+   import { AnimationNamedConfigPost, AnimationRestClient, Id } from 'netled';
+   import { v4 } from 'uuid';
+   import { defineComponent } from 'vue';
+   import { useRouter } from 'vue-router';
 
-export default defineComponent({
-   props: {
-      animationId: { type: String as () => Id, required: true },
-      version: { type: Number, required: true },
-   },
-   async setup(props) {
-      const restClient = useRestClient();
-      const animationRestClient = new AnimationRestClient(restClient);
+   export default defineComponent({
+      props: {
+         animationId: { type: String as () => Id, required: true },
+         version: { type: Number, required: true },
+      },
+      async setup(props) {
+         const restClient = useRestClient();
+         const animationRestClient = new AnimationRestClient(restClient);
 
-      const animationProm = animationRestClient.byId(
-         props.animationId,
-         props.version
-      );
-      const configs = await animationRestClient.config.list(
-         props.animationId,
-         props.version
-      );
+         const router = useRouter();
 
-      const animation = await animationProm;
+         const animationProm = animationRestClient.byId(
+            props.animationId,
+            props.version
+         );
+         const configs = await animationRestClient.config.list(
+            props.animationId,
+            props.version
+         );
 
-      if (!configs.length) {
-         const newConfig: AnimationNamedConfigPost = {
-            id: v4() as Id,
-            name: 'Default',
-            animation: {
-               id: props.animationId,
-               version: props.version,
-               interval: 33,
-               brightness: 0.5,
-            },
-         };
-         console.log(newConfig);
-         await animationRestClient.config.save(newConfig);
-      }
+         const animation = await animationProm;
 
-      return { configs, animation };
-   },
-});
+         if (!configs.length) {
+            const newConfig: AnimationNamedConfigPost = {
+               id: v4() as Id,
+               name: 'Default',
+               animation: {
+                  id: props.animationId,
+                  version: props.version,
+                  interval: 33,
+                  brightness: 128,
+               },
+            };
+            console.log(newConfig);
+            await animationRestClient.config.save(newConfig);
+            router.push({ name: 'animation-config', params: { configId: newConfig.id } });
+         }
+
+         return { configs, animation };
+      },
+   });
 </script>
