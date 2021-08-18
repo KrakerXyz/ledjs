@@ -10,6 +10,7 @@ export class RestClient {
 
     public constructor(config?: Partial<RestConfig>) {
         if (config?.origin) { this.origin = config.origin; }
+        if (!this.origin.startsWith('http')) { throw new Error('Origin should start with http'); }
 
         this.axiosInstance = axios.create({
             baseURL: this.origin

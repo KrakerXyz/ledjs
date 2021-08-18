@@ -36,7 +36,8 @@
             </div>
 
             <div class="row">
-               <div class="col-lg-6 col-xl mb-3">
+
+               <div class="col-lg-6 col-xl mb-3 d-flex flex-column justify-content-end">
                   <label
                      for="c-interval"
                      class="form-label"
@@ -94,6 +95,24 @@
                      v-model.number="dirtyConfig.animation.interval"
                   />
                </div>
+
+               <div class="col-lg-6 col-xl mb-3 d-flex flex-column justify-content-end">
+                  <label
+                     for="c-brightness"
+                     class="form-label"
+                  >
+                     Brightness ({{Math.round(dirtyConfig.animation.brightness / 255 * 100)}}%)
+                  </label>
+                  <input
+                     type="range"
+                     class="form-range"
+                     id="c-brightness"
+                     min="0"
+                     max="255"
+                     v-model.number="dirtyConfig.animation.brightness"
+                  />
+               </div>
+
             </div>
 
             <div class="row">

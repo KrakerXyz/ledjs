@@ -11,6 +11,7 @@ export class LedController {
     private _framesDrawn = 0;
     private _isStopped = false;
     private _lastNumLeds = 0;
+    private _brightness: number = 1;
 
     public constructor(readonly deviceWs: DeviceWsClient, readonly healthReporter: HealthReporter) {
 
@@ -46,6 +47,13 @@ export class LedController {
             }
 
             this.initSpi(setup.spiSpeed);
+        });
+
+        deviceWs.on('animationSetup', setup => {
+            if (!setup) { return; }
+            if (setup.brightness === this._brightness) { return; }
+            this._brightness = setup.brightness / 255;
+            console.log(`Updated brightness to ${setup.brightness} (${Math.round(this._brightness * 100)}%)`);
         });
 
         deviceWs.on('animationStop', data => {
@@ -110,6 +118,9 @@ export class LedController {
     private rpioDraw(frame: Frame) {
         if (!this._buffer) { return; }
 
+        //APA 102 brightness frame is 11100000 (=224) + 5 (11111=31) bits for brightness.
+        const brightness = 224 + Math.round(31 * this._brightness);
+
 
         for (let i = 0; i < frame.length; i++) {
 
@@ -117,7 +128,7 @@ export class LedController {
 
             const led = frame[i];
 
-            this._buffer[buffPos] = 228; //Brightness
+            this._buffer[buffPos] = brightness;
             this._buffer[buffPos + 1] = led[3]; //B
             this._buffer[buffPos + 2] = led[2]; //G
             this._buffer[buffPos + 3] = led[1]; //R
