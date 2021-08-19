@@ -5,7 +5,7 @@ require('dotenv').config();
 import * as os from 'os';
 
 import { EnvKey, getConfig, getRequiredConfig, HealthReporter, useRestClient } from './services';
-import { DeviceWsClient } from 'netled';
+import { DeviceWsClient, DeviceWsOptions, RestConfig } from 'netled';
 import { LedController } from './controller/LedController';
 
 if (!getConfig(EnvKey.DeviceId) || !getConfig(EnvKey.DeviceSecret)) {
@@ -15,19 +15,13 @@ if (!getConfig(EnvKey.DeviceId) || !getConfig(EnvKey.DeviceSecret)) {
 
 (async () => {
 
-    const remoteAddress = getConfig(EnvKey.WsHost, 'dev.netled.io');
-
-    const protocol = getConfig(EnvKey.WsProtocol);
-    if (protocol !== undefined && protocol !== 'ws' && protocol !== 'wss') { throw new Error(`Invalid protocol ${protocol}. Expected ws | wss`); }
-
-    useRestClient(getConfig(EnvKey.ApiAddress));
+    useRestClient(getConfig(EnvKey.ApiBaseUrl) as RestConfig['baseUrl']);
 
     const deviceWs = new DeviceWsClient(
         getRequiredConfig(EnvKey.DeviceId),
         getRequiredConfig(EnvKey.DeviceSecret),
         {
-            protocol,
-            host: remoteAddress
+            baseUrl: getConfig(EnvKey.WsBaseUrl) as DeviceWsOptions['baseUrl']
         }
     );
 

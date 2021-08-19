@@ -1,5 +1,6 @@
 {
    "cSpell.words": [
+      "ARGB",
       "Iframe",
       "Leds",
       "cooldown",
@@ -11,6 +12,6 @@
       "typeof"
    ],
    "[vue]": {
-      "editor.defaultFormatter": "johnsoncodehk.volar"
+      "editor.defaultFormatter": "octref.vetur"
    },
 }

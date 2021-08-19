@@ -53,7 +53,7 @@ export const postAnimationReset: RouteOptions = {
             req.services.webSocketManager.sendDeviceMessage({
                 type: 'animationStop',
                 data: {
-                    stop: !d.isStopped
+                    stop: d.isStopped
                 }
             }, d.id);
 

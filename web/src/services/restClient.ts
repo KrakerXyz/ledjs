@@ -3,7 +3,7 @@ import { AnimationRestClient, DeviceRestClient, RestClient, RestConfig } from 'n
 
 let restClient: RestClient | undefined;
 export function useRestClient(): RestClient {
-    return restClient ?? (restClient = new RestClient({ origin: window.location.origin as RestConfig['origin'] }));
+    return restClient ?? (restClient = new RestClient({ baseUrl: window.location.origin as RestConfig['baseUrl'] }));
 }
 
 let animationClient: AnimationRestClient | undefined;

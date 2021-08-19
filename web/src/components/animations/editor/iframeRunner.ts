@@ -1,4 +1,4 @@
-import { ConfigMeta, Frame, hslToRgb, rgbToHex, rotateFrame, shade } from 'netled';
+import { ConfigMeta, Frame, hslToRgb, rgbToHex, rotateFrame, shade, hexToRgb } from 'netled';
 
 export function useIframeRunner(script: string): Promise<IFrameContext> {
 
@@ -20,7 +20,8 @@ export function useIframeRunner(script: string): Promise<IFrameContext> {
                 color: {
                     hslToRgb: ${hslToRgb},
                     rgbToHex: ${rgbToHex},
-                    shade: ${shade}
+                    shade: ${shade},
+                    hexToRgb: ${hexToRgb}
                 },
                 frame: {
                     rotateFrame: ${rotateFrame}
