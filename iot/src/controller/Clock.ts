@@ -7,7 +7,13 @@ export class Clock {
 
         deviceWs.on('animationSetup', setup => {
             //If the animation was cleared, we can just ignore this. The interval will run but it'll basically be a noop. Once the next animation is set, it will override if necessary
-            if (!setup) { return; }
+            if (!setup) {
+                //This will cause the loop to terminate
+                this._interval = 0;
+                this._tickNum++;
+                return;
+            }
+
             this.setInterval(setup.interval);
         });
 
