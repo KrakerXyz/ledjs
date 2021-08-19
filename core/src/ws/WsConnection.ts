@@ -22,10 +22,9 @@ export class WsConnection<
 
     public constructor(type: 'device' | 'client', options?: Partial<WsOptions>) {
 
-        const host = options?.host ?? 'netled.io';
-        const protocol = options?.protocol ?? (host.includes('localhost') ? 'ws' : 'wss');
-        this._url = `${protocol}://${host}/ws/${type}`;
+        this._url = (options?.baseUrl ?? 'wss://netled.io') + `/ws/${type}`;
         this._auth = options?.auth ? { auth: options.auth } : undefined;
+
         this.startWebsocket();
     }
 
@@ -114,8 +113,5 @@ export class WsConnection<
 
 export interface WsOptions {
     auth: string;
-    /** Protocol to use for connection */
-    protocol: 'ws' | 'wss';
-    /** Server origin. Defaults to netled.io */
-    host: string;
+    baseUrl: `ws://${string}` | `wss://${string}`;
 }

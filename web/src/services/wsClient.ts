@@ -1,5 +1,6 @@
 import { Disposable, HostWsClient } from 'netled';
 import { getCurrentInstance, onUnmounted } from 'vue';
+import { HostWsOptions } from 'netled';
 
 type WsClient = Pick<HostWsClient, 'on'>;
 
@@ -14,7 +15,8 @@ export function useWsClient(): WsClient {
     }
 
     if (!ws) {
-        ws = new HostWsClient({ host: window.location.host });
+        const baseUrl = (window.location.protocol === 'http:' ? 'ws' : 'wss') + '://' + window.location.host as HostWsOptions['baseUrl'];
+        ws = new HostWsClient({ baseUrl });
     }
 
     const subscriptions: Disposable[] = [];

@@ -41,4 +41,4 @@ export class DeviceWsClient {
     }
 }
 
-export type DeviceWsOptions = Pick<WsOptions, 'protocol' | 'host'>;
+export type DeviceWsOptions = Pick<WsOptions, 'baseUrl'>;

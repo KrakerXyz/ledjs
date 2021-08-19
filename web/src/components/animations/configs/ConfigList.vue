@@ -24,14 +24,19 @@
          </div>
       </div>
       <div class="row mt-3">
-         <div class="col">New Config</div>
+         <div class="col">
+            <button
+               class="btn btn-link p-0"
+               @click.once="addConfig()"
+            >New Config</button>
+         </div>
       </div>
    </div>
 </template>
 
 <script lang="ts">
    import { useRestClient } from '@/services';
-   import { AnimationNamedConfigPost, AnimationRestClient, Id } from 'netled';
+   import { AnimationNamedConfigPost, AnimationRestClient, deepClone, Id } from 'netled';
    import { v4 } from 'uuid';
    import { defineComponent } from 'vue';
    import { useRouter } from 'vue-router';
@@ -51,17 +56,18 @@
             props.animationId,
             props.version
          );
-         const configs = await animationRestClient.config.list(
+         const configs = deepClone(await animationRestClient.config.list(
             props.animationId,
             props.version
-         );
+         )).sort((a, b) => a.name.localeCompare(b.name));
 
          const animation = await animationProm;
 
-         if (!configs.length) {
+
+         const addConfig = async () => {
             const newConfig: AnimationNamedConfigPost = {
                id: v4() as Id,
-               name: 'Default',
+               name: configs.length ? `Config ${configs.length + 1}` : 'Default',
                animation: {
                   id: props.animationId,
                   version: props.version,
@@ -72,9 +78,13 @@
             console.log(newConfig);
             await animationRestClient.config.save(newConfig);
             router.push({ name: 'animation-config', params: { configId: newConfig.id } });
+         };
+
+         if (!configs.length) {
+            addConfig();
          }
 
-         return { configs, animation };
+         return { configs, animation, addConfig };
       },
    });
 </script>

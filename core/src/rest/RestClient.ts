@@ -5,15 +5,16 @@ type Query = Record<string, OrArray<string> | OrArray<boolean> | OrArray<number>
 
 export class RestClient {
 
-    public readonly origin: string = 'https://netled.io';
+    public readonly baseUrl: string;
     private readonly axiosInstance;
 
     public constructor(config?: Partial<RestConfig>) {
-        if (config?.origin) { this.origin = config.origin; }
-        if (!this.origin.startsWith('http')) { throw new Error('Origin should start with http'); }
+        this.baseUrl = config?.baseUrl ?? 'https://netled.io';
+        if (!this.baseUrl.startsWith('http')) { throw new Error('Origin should start with http'); }
+        if (this.baseUrl.endsWith('/')) { throw new Error('baseUrl should not have a trailing slash'); }
 
         this.axiosInstance = axios.create({
-            baseURL: this.origin
+            baseURL: this.baseUrl
         });
     }
 
@@ -32,7 +33,7 @@ export class RestClient {
 }
 
 export interface RestConfig {
-    origin: `${'http' | 'https'}://${string}`;
+    baseUrl: `${'http' | 'https'}://${string}`;
 }
 
 export function deepFreeze<T>(o: T): T {

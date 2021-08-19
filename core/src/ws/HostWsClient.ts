@@ -34,4 +34,4 @@ export class HostWsClient {
 }
 
 
-export type HostWsOptions = Pick<WsOptions, 'protocol' | 'host'>;
+export type HostWsOptions = Pick<WsOptions, 'baseUrl'>;
