@@ -12,6 +12,8 @@ export interface Animator {
 }
 
 export interface ConfigMeta {
+    /** When true, the animation will render one frame then stop the clock */
+    oneShot?: boolean;
     params: ConfigMetaParams;
 }
 

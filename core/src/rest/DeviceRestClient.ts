@@ -5,16 +5,24 @@ export class DeviceRestClient {
 
     constructor(private readonly restClient: RestClient) { }
 
+    /** Get a list of devices */
     public list<T extends boolean>(includeStatus?: T): Promise<T extends true ? Device[] : DeviceShallow[]> {
         return this.restClient.get('/api/devices', { includeStatus });
     }
 
+    /** Get a device by it's id */
     public byId<T extends boolean = false>(deviceId: string, includeStatus?: T): Promise<T extends true ? Device | null : DeviceShallow | null> {
         return this.restClient.get(`/api/devices/${deviceId}`, { includeStatus });
     }
 
+    /** Create/save a device */
     public save(device: DevicePost): Promise<Device> {
         return this.restClient.post('/api/devices', device);
+    }
+
+    /** Delete a device */
+    public delete(deviceId: Id): Promise<void> {
+        return this.restClient.delete(`/api/devices/${deviceId}`);
     }
 
     /** Resets the device back to it's stored animation config */
@@ -32,6 +40,7 @@ export class DeviceRestClient {
         return this.restClient.post('/api/devices/animation-config', post);
     }
 
+    /** Set device animation clock to a paused/running state without changing the current animation */
     public stopAnimation(stop: DeviceStopPost): Promise<void> {
         return this.restClient.post('/api/devices/animation/stop', stop);
     }
