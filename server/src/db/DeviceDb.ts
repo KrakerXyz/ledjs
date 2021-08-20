@@ -25,4 +25,8 @@ export class DeviceDb {
         return this.entity.replaceOneAsync(device);
     }
 
+    public deleteById(id: Id): Promise<void> {
+        return this.entity.deleteOneAsync(id);
+    }
+
 }

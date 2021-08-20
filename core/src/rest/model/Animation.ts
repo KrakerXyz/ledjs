@@ -1,13 +1,14 @@
+import { Id } from '..';
 
 export interface Animation {
-    readonly id: string;
+    readonly id: Id;
     name: string;
     description?: string | null;
     script: string;
     readonly published: boolean;
     readonly version: number;
     readonly created: number;
-    readonly author: string;
+    readonly author: Id;
 }
 
 export type AnimationMeta = Omit<Animation, 'script'>;

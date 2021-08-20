@@ -184,6 +184,12 @@ export class WebSocketManager {
         await Promise.all(logProms);
     }
 
+    public async disconnectDevice(deviceId: Id) {
+        const con = this._connections.get(deviceId);
+        if (!con?.length) { return; }
+        con.forEach(c => c.socketStream.end());
+    }
+
     public sendHostMessage(userId: Id, msg: ToHostMessage) {
         const msgJson = JSON.stringify(msg);
 

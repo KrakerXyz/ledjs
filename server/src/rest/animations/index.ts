@@ -7,6 +7,8 @@ import { postConfig } from './postConfig';
 import { getById } from './getById';
 import { getConfigById } from './getConfigById';
 import { getConfigs } from './getConfigs';
+import { deleteById } from './deleteById';
+import { deleteConfigById } from './deleteConfigById';
 
 export const animationRoutes = [
     getAnimations,
@@ -18,4 +20,6 @@ export const animationRoutes = [
     getById,
     getConfigs,
     getConfigById,
+    deleteById,
+    deleteConfigById
 ];
