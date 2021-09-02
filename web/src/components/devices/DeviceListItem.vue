@@ -10,6 +10,12 @@
                      :class="{ 'bg-success': deviceCopy.status.cameOnline > deviceCopy.status.wentOffline, 'bg-danger': deviceCopy.status.wentOffline >= deviceCopy.status.cameOnline }"
                   ></span>
                   {{ deviceCopy.name }}
+                  <router-link
+                     :to="{ name: 'device-view', params: { deviceId: deviceCopy.id } }"
+                     class="text-body ms-2"
+                  >
+                     <i class="fal fa-pencil"></i>
+                  </router-link>
                </div>
             </div>
             <div class="col-auto">
@@ -53,18 +59,11 @@
          <router-link
             class="small"
             v-if="selectedConfigId"
-            :to="{name: 'animation-config', params: { configId: selectedConfigId } }"
+            :to="{ name: 'animation-config', params: { configId: selectedConfigId } }"
          >Edit Config</router-link>
 
-         <div
-            v-if="telemetry.length"
-            class="mt-3"
-         >
-            <div
-               class="alert alert-primary mb-2"
-               v-for="item of telemetry"
-               :key="item.name"
-            >
+         <div v-if="telemetry.length" class="mt-3">
+            <div class="alert alert-primary mb-2" v-for="item of telemetry" :key="item.name">
                <div class="row">
                   <div class="col">{{ item.name }}</div>
                   <div class="col-auto">{{ item.value }}</div>
@@ -77,84 +76,84 @@
 
 <script lang="ts">
 
-   import { useDevicesRestClient, useWsClient } from '@/services';
-   import { AnimationNamedConfigSummary, deepClone, Device, DeviceHealthData, Id } from 'netled';
-   import { computed, defineComponent, reactive, ref } from 'vue';
+import { useDevicesRestClient, useWsClient } from '@/services';
+import { AnimationNamedConfigSummary, deepClone, Device, DeviceHealthData, Id } from 'netled';
+import { computed, defineComponent, reactive, ref } from 'vue';
 
-   export default defineComponent({
-      props: {
-         device: { type: Object as () => Device, required: true },
-         configs: { type: Array as () => AnimationNamedConfigSummary[], required: true }
-      },
-      setup(props) {
+export default defineComponent({
+   props: {
+      device: { type: Object as () => Device, required: true },
+      configs: { type: Array as () => AnimationNamedConfigSummary[], required: true }
+   },
+   setup(props) {
 
-         const devicesClient = useDevicesRestClient();
-         const ws = useWsClient();
+      const devicesClient = useDevicesRestClient();
+      const ws = useWsClient();
 
-         const deviceCopy = reactive(deepClone(props.device));
+      const deviceCopy = reactive(deepClone(props.device));
 
-         const selectedConfigId = computed({
-            get() {
-               return deviceCopy.animationNamedConfigId ?? '';
-            },
-            set(configId: string) {
-               devicesClient.setAnimationConfig({
-                  deviceIds: [props.device.id],
-                  configId: configId as Id || null
-               });
-               deviceCopy.animationNamedConfigId = configId as Id;
-            }
-         });
+      const selectedConfigId = computed({
+         get() {
+            return deviceCopy.animationNamedConfigId ?? '';
+         },
+         set(configId: string) {
+            devicesClient.setAnimationConfig({
+               deviceIds: [props.device.id],
+               configId: configId as Id || null
+            });
+            deviceCopy.animationNamedConfigId = configId as Id;
+         }
+      });
 
-         const stop = (device: Device, value: boolean) => {
-            devicesClient.stopAnimation({ deviceIds: [device.id], stop: value });
-            //Need to clone and make the in-memory devices writeable
-            deviceCopy.isStopped = value;
-         };
+      const stop = (device: Device, value: boolean) => {
+         devicesClient.stopAnimation({ deviceIds: [device.id], stop: value });
+         //Need to clone and make the in-memory devices writeable
+         deviceCopy.isStopped = value;
+      };
 
-         const telemetry = ref<TelementryItem[]>([]);
+      const telemetry = ref<TelementryItem[]>([]);
 
-         ws.on('deviceMessage', msg => {
-            if (msg.deviceId !== props.device.id) { return; }
-            if (msg.type === 'health') {
-               telemetry.value = Object.entries(msg.data).map(kvp => {
-                  return {
-                     name: kvp[0] as keyof DeviceHealthData,
-                     value: kvp[1].toString()
-                  };
-               });
-            }
-         });
-
-
-         ws.on('deviceConnection', data => {
-            if (data.deviceId !== deviceCopy.id) { return; }
-            if (data.state === 'connected') {
-               deviceCopy.status.cameOnline = Date.now();
-            } else {
-               telemetry.value = [];
-               deviceCopy.status.wentOffline = Date.now();
-            }
-         });
-
-         return { stop, selectedConfigId, deviceCopy, telemetry };
-      }
-   });
+      ws.on('deviceMessage', msg => {
+         if (msg.deviceId !== props.device.id) { return; }
+         if (msg.type === 'health') {
+            telemetry.value = Object.entries(msg.data).map(kvp => {
+               return {
+                  name: kvp[0] as keyof DeviceHealthData,
+                  value: kvp[1].toString()
+               };
+            });
+         }
+      });
 
 
-   interface TelementryItem {
-      name: keyof DeviceHealthData,
-      value: string;
+      ws.on('deviceConnection', data => {
+         if (data.deviceId !== deviceCopy.id) { return; }
+         if (data.state === 'connected') {
+            deviceCopy.status.cameOnline = Date.now();
+         } else {
+            telemetry.value = [];
+            deviceCopy.status.wentOffline = Date.now();
+         }
+      });
+
+      return { stop, selectedConfigId, deviceCopy, telemetry };
    }
+});
+
+
+interface TelementryItem {
+   name: keyof DeviceHealthData,
+   value: string;
+}
 
 </script>
 
 
 <style lang="postcss" scoped>
-   .online-status {
-      --size: 1rem;
-      height: var(--size);
-      width: var(--size);
-      border-radius: var(--size);
-   }
+.online-status {
+   --size: 1rem;
+   height: var(--size);
+   width: var(--size);
+   border-radius: var(--size);
+}
 </style>

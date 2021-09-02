@@ -12,6 +12,6 @@
       "typeof"
    ],
    "[vue]": {
-      "editor.defaultFormatter": "octref.vetur"
+      "editor.defaultFormatter": "johnsoncodehk.volar"
    },
 }

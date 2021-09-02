@@ -224,7 +224,7 @@
          LedCanvas
       },
       props: {
-         configId: { type: String, required: true },
+         configId: { type: String as () => Id, required: true },
       },
       async setup(props) {
          const stops: WatchStopHandle[] = [];

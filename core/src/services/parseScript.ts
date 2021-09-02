@@ -61,7 +61,7 @@ export function parseScript(script: string): ParseResult {
             valid: true
         };
 
-    } catch (e) {
+    } catch (e: any) {
         return {
             valid: false,
             errors: ['Script parsing failed', e.toString()]

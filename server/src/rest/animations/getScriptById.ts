@@ -9,7 +9,7 @@ export const getScriptById: RouteOptions = {
         params: jsonSchema<{ animationId: Id, version: number }>()
     },
     handler: async (req, res) => {
-        const animationId = (req.params as any)['animationId'] as string;
+        const animationId = (req.params as any)['animationId'] as Id;
         const version = (req.params as any)['version'] as number;
 
         const db = req.services.animationDb;
