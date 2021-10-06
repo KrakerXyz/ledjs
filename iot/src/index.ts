@@ -15,13 +15,21 @@ if (!getConfig(EnvKey.DeviceId) || !getConfig(EnvKey.DeviceSecret)) {
 
 (async () => {
 
-    useRestClient(getConfig(EnvKey.ApiBaseUrl) as RestConfig['baseUrl']);
+    const restBaseUrl = getConfig(EnvKey.ApiBaseUrl) as RestConfig['baseUrl'];
+    console.log(`Initializing REST client @ ${restBaseUrl ?? '[defaultUrl]'}`);
+
+    useRestClient(restBaseUrl);
+
+    const deviceId = getRequiredConfig(EnvKey.DeviceId);
+    const wsBaseUrl = getConfig(EnvKey.WsBaseUrl) as DeviceWsOptions['baseUrl'];
+
+    console.log(`Initializing WS connection for device ${deviceId} @ ${wsBaseUrl ?? '[defaultUrl]'}`);
 
     const deviceWs = new DeviceWsClient(
-        getRequiredConfig(EnvKey.DeviceId),
+        deviceId,
         getRequiredConfig(EnvKey.DeviceSecret),
         {
-            baseUrl: getConfig(EnvKey.WsBaseUrl) as DeviceWsOptions['baseUrl']
+            baseUrl: wsBaseUrl
         }
     );
 
