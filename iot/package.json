@@ -27,11 +27,11 @@
     "vm2": "^3.9.3"
   },
   "devDependencies": {
-    "@types/node": "^14.17.5",
+    "@types/node": "^16",
     "@types/rpio": "^2.4.2",
-    "@typescript-eslint/eslint-plugin": "^4.22.0",
-    "@typescript-eslint/parser": "^4.22.0",
-    "eslint": "^7.24.0",
+    "@typescript-eslint/eslint-plugin": "^5",
+    "@typescript-eslint/parser": "^5",
+    "eslint": "^8",
     "nodemon": "^2.0.12",
     "rimraf": "^3.0.0",
     "ts-node": "^10.1.0",
