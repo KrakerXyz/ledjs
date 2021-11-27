@@ -1,0 +1,1 @@
+- When I unplug the pi, it continues to show connected on the site. I waited ~30 then refreshed the page and it showed offline. Not sure if it was just timing coincidence or if for some reason the ws is not working on power disconnect
