@@ -1,5 +1,5 @@
 import { RouteOptions } from 'fastify';
-import { Id } from 'netled';
+import { Id } from '@krakerxyz/netled-core';
 import { jwtAuthentication } from '../../services';
 
 export const getConfigById: RouteOptions = {

@@ -5,11 +5,30 @@ require('dotenv').config();
 import * as os from 'os';
 
 import { EnvKey, getConfig, getRequiredConfig, HealthReporter, useRestClient } from './services';
-import { DeviceWsClient, DeviceWsOptions, RestConfig } from 'netled';
+import { DeviceWsClient, DeviceWsOptions, RestConfig } from '@krakerxyz/netled-core';
 import { LedController } from './controller/LedController';
+import * as commandLineArgs from 'command-line-args';
+
+if (process.argv.length > 2) {
+    const argsDefinition: commandLineArgs.OptionDefinition[] = [
+        { name: EnvKey.DeviceId, alias: 'i', type: String },
+        { name: EnvKey.DeviceSecret, alias: 's', type: String },
+        { name: EnvKey.ApiBaseUrl, alias: 'a', type: String },
+        { name: EnvKey.WsBaseUrl, alias: 'w', type: String }
+    ];
+
+    const options = commandLineArgs.default(argsDefinition);
+
+    for (const key of Object.getOwnPropertyNames(options)) {
+        const value = options[key];
+        if (!value) { continue; }
+        process.env[key] = value;
+    }
+
+}
 
 if (!getConfig(EnvKey.DeviceId) || !getConfig(EnvKey.DeviceSecret)) {
-    console.error('Missing config - deviceId/secret. Quitting');
+    console.error(`Missing config - ${EnvKey.DeviceId} and/or ${EnvKey.DeviceSecret}. Quitting`);
     process.exit();
 }
 

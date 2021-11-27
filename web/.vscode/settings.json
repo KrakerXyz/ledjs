@@ -1,17 +1,18 @@
 {
    "cSpell.words": [
       "ARGB",
-      "Iframe",
-      "Leds",
       "cooldown",
       "gapi",
       "heatramp",
+      "Iframe",
+      "Leds",
       "netled",
       "postcss",
+      "raspi",
       "typecheck",
       "typeof"
    ],
    "[vue]": {
-      "editor.defaultFormatter": "johnsoncodehk.volar"
+      "editor.defaultFormatter": "esbenp.prettier-vscode"
    },
 }

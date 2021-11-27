@@ -52,7 +52,7 @@
                      />
                      ms,
                      {{
-                        Math.round(10000 / dirtyConfig.animation.interval) / 10
+                     Math.round(10000 / dirtyConfig.animation.interval) / 10
                      }}fps
                      <button
                         class="btn btn-primary py-0 px-2 ms-3"
@@ -197,7 +197,7 @@
 
 <script lang="ts">
 import { useAnimationRestClient, useDevicesRestClient, useThrottledProxy } from '@/services';
-import { AnimationNamedConfigPost, ConfigMetaParam, deepClone, deepEquals, DeviceAnimationPost, DeviceAnimationResetPost, Frame, Id } from 'netled';
+import { AnimationNamedConfigPost, ConfigMetaParam, deepClone, deepEquals, DeviceAnimationPost, DeviceAnimationResetPost, Frame, Id } from '@krakerxyz/netled-core';
 import { defineComponent, onUnmounted, reactive, watch, WatchStopHandle, ref, computed } from 'vue';
 import LedCanvas from '@/components/LedCanvas.vue';
 import { useIframeRunner } from '../editor/iframeRunner';

@@ -1,4 +1,4 @@
-import { ConfigMeta, Frame, hslToRgb, rgbToHex, rotateFrame, shade, hexToRgb } from 'netled';
+import { ConfigMeta, Frame, hslToRgb, rgbToHex, rotateFrame, shade, hexToRgb } from '@krakerxyz/netled-core';
 
 export function useIframeRunner(script: string): Promise<IFrameContext> {
 

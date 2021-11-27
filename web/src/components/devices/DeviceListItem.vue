@@ -77,7 +77,7 @@
 <script lang="ts">
 
 import { useDevicesRestClient, useWsClient } from '@/services';
-import { AnimationNamedConfigSummary, deepClone, Device, DeviceHealthData, Id } from 'netled';
+import { AnimationNamedConfigSummary, deepClone, Device, DeviceHealthData, Id } from '@krakerxyz/netled-core';
 import { computed, defineComponent, reactive, ref } from 'vue';
 
 export default defineComponent({

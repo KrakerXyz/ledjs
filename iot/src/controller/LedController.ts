@@ -1,4 +1,4 @@
-import { Animator, ARGB, DeviceWsClient, Frame } from 'netled';
+import { Animator, ARGB, DeviceWsClient, Frame } from '@krakerxyz/netled-core';
 import { AnimatorProvider } from './AnimatorProvider';
 import { Clock } from './Clock';
 import rpio from 'rpio';
@@ -42,7 +42,7 @@ export class LedController {
                 this._lastNumLeds = setup.numLeds;
                 const startFrameBytes = 4;
                 const numEndFrameBytes = Math.max(4, Math.ceil(setup.numLeds / 16));
-                console.log(`Initalizing buffer for ${setup.numLeds} leds`);
+                console.log(`Initializing buffer for ${setup.numLeds} leds`);
                 this._buffer = Buffer.alloc((setup.numLeds * 4) + startFrameBytes + numEndFrameBytes);
             }
 

@@ -1,4 +1,4 @@
-import { DeviceConnectionEvent, DeviceHealthMessage, DeviceInfoMessage, Id } from 'netled';
+import { DeviceConnectionEvent, DeviceHealthMessage, DeviceInfoMessage, Id } from '@krakerxyz/netled-core';
 
 export interface DeviceLogBase {
     id: Id;

@@ -4,6 +4,7 @@
         "leds",
         "netled",
         "prestart",
+        "raspi",
         "rpio"
     ]
 }

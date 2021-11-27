@@ -1,6 +1,6 @@
 import { RouteOptions } from 'fastify';
 import { jsonSchema } from '@krakerxyz/json-schema-transformer';
-import { Id } from 'netled';
+import { Id } from '@krakerxyz/netled-core';
 
 export const getScriptById: RouteOptions = {
     method: 'GET',

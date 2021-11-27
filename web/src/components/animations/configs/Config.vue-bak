@@ -147,7 +147,7 @@
    import { computed, defineComponent, getCurrentInstance, onUnmounted, reactive, ref, watch } from 'vue';
    import { useRoute } from 'vue-router';
    import LedCanvas from '../LedCanvas.vue';
-   import { AnimationRestClient, ConfigMetaParam, deepClone, DeviceAnimationPost, DeviceRestClient, Frame } from 'netled';
+   import { AnimationRestClient, ConfigMetaParam, deepClone, DeviceAnimationPost, DeviceRestClient, Frame } from '@krakerxyz/netled-core';
    import { useIframeRunner } from '../editor/iframeRunner';
 
    export default defineComponent({

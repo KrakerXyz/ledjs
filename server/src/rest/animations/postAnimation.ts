@@ -1,5 +1,5 @@
 import { RouteOptions } from 'fastify';
-import { AnimationPost, parseScript, Animation } from 'netled';
+import { AnimationPost, parseScript, Animation } from '@krakerxyz/netled-core';
 import { jsonSchema } from '@krakerxyz/json-schema-transformer';
 import { jwtAuthentication } from '../../services';
 

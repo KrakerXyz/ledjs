@@ -1,5 +1,5 @@
 import { Filter, TypedEntity } from '@krakerxyz/typed-base';
-import { AnimationNamedConfig, Id, Writeable } from 'netled';
+import { AnimationNamedConfig, Id, Writeable } from '@krakerxyz/netled-core';
 
 export class AnimationConfigDb {
     private readonly entity = new TypedEntity<AnimationNamedConfig>();

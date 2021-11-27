@@ -1,8 +1,6 @@
-import { DeviceHealthData, DeviceWsClient } from 'netled';
+import { DeviceHealthData, DeviceWsClient } from '@krakerxyz/netled-core';
 
 export class HealthReporter {
-
-
 
     public constructor(private readonly _ws: DeviceWsClient) {
         setInterval(() => this.report(), 15_000);

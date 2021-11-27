@@ -11,10 +11,6 @@
 		},
 		{
 			"path": "iot"
-		},
-		{
-			"path": ".",
-			"name": "workspace"
 		}
 	],
 	"settings": {

@@ -17,6 +17,21 @@
             <div class="col">
                <div class="form-floating">
                   <textarea
+                     id="device-install"
+                     class="form-control font-monospace"
+                     placeholder="*"
+                     readonly
+                     :value="install"
+                  ></textarea>
+                  <label for="device-config">Install/Start</label>
+               </div>
+            </div>
+         </div>
+
+         <div class="row mt-3">
+            <div class="col">
+               <div class="form-floating">
+                  <textarea
                      id="device-config"
                      class="form-control font-monospace"
                      placeholder="*"
@@ -40,7 +55,7 @@
 <script lang="ts">
 
 import { ref } from '@vue/reactivity';
-import { DeviceRestClient, Device, Id } from 'netled';
+import { DeviceRestClient, Device, Id } from '@krakerxyz/netled-core';
 import { computed, defineComponent } from 'vue';
 import { useRouter } from 'vue-router';
 import { useRestClient } from '@/services';
@@ -59,6 +74,14 @@ export default defineComponent({
       const deviceClient = new DeviceRestClient(restClient);
       device.value = await deviceClient.byId(props.deviceId, true);
 
+      const install = computed(() => {
+         if (!device.value) { return ''; }
+         return [
+            'sudo npm install -g @krakerxyz/netled-raspi',
+            `sudo netled -i ${device.value.id} -s ${device.value.secret}`
+         ].join('\r\n');
+      });
+
       const dotEnv = computed(() => {
          if (!device.value) { return ''; }
          return [
@@ -74,7 +97,7 @@ export default defineComponent({
          router.replace({ name: 'device-list' });
       };
 
-      return { device, dotEnv, deleteConfirmation, deleteDevice };
+      return { device, dotEnv, deleteConfirmation, deleteDevice, install };
    }
 });
 

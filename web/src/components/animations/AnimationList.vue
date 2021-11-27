@@ -47,7 +47,7 @@
 </template>
 
 <script lang="ts">
-import { AnimationRestClient, AnimationMeta } from 'netled';
+import { AnimationRestClient, AnimationMeta } from '@krakerxyz/netled-core';
 import { defineComponent, ref } from 'vue';
 import { useRestClient } from '../../services';
 

@@ -1,5 +1,5 @@
 import { RouteOptions } from 'fastify';
-import { DeviceStopPost } from 'netled';
+import { DeviceStopPost } from '@krakerxyz/netled-core';
 import { jwtAuthentication } from '../../services';
 import { jsonSchema } from '@krakerxyz/json-schema-transformer';
 

@@ -1,25 +1,22 @@
 {
-  "name": "netled",
+  "name": "@krakerxyz/netled-core",
   "description": "",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "repository": {
     "type": "git",
     "url": "https://github.com/KrakerXyz/netled"
   },
+  "author": {
+    "name": "Josh Kraker",
+    "email": "joshkrak@gmail.com"
+  },
+  "license": "MIT",
   "type": "commonjs",
   "main": "./dist/cjs/index.js",
   "module": "./dist/esm/index.js",
   "files": [
     "dist/"
   ],
-  "keywords": [
-    "led"
-  ],
-  "author": {
-    "name": "Josh Kraker",
-    "email": "joshkrak@gmail.com"
-  },
-  "license": "MIT",
   "scripts": {
     "clean": "rimraf ./dist/*",
     "build": "npm run clean && tsc && tsc -p tsconfig-cjs.json",
@@ -30,10 +27,12 @@
     "@babel/parser": "^7.14.8",
     "axios": "^0.24",
     "eventemitter3": "^4.0.7",
+    "uuid": "^8.3.2",
     "ws": "^8.0.0"
   },
   "devDependencies": {
     "@babel/types": "^7.14.8",
+    "@types/uuid": "^8.3.3",
     "@types/ws": "^8",
     "@typescript-eslint/eslint-plugin": "^5",
     "@typescript-eslint/parser": "^5",

@@ -1,5 +1,5 @@
 import { Filter, TypedEntity } from '@krakerxyz/typed-base';
-import { Id, User, Writeable } from 'netled';
+import { Id, User, Writeable } from '@krakerxyz/netled-core';
 
 export class UserDb {
 

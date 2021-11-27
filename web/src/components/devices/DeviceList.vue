@@ -23,7 +23,7 @@
 
 <script lang="ts">
 
-import { deepClone } from 'netled';
+import { deepClone } from '@krakerxyz/netled-core';
 import { defineComponent } from 'vue';
 import { useAnimationRestClient, useDevicesRestClient } from '../../services';
 import DeviceListItem from './DeviceListItem.vue';

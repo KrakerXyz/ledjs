@@ -1,5 +1,5 @@
 
-import { GoogleToken, AuthRestClient } from 'netled';
+import { GoogleToken, AuthRestClient } from '@krakerxyz/netled-core';
 import { ref } from 'vue';
 import { Router } from 'vue-router';
 import { useRestClient } from './restClient';
