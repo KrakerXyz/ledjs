@@ -1,14 +1,14 @@
 import { Filter, TypedEntity } from '@krakerxyz/typed-base';
-import { AnimationNamedConfig, Id } from 'netled';
+import { AnimationNamedConfig, Id, Writeable } from '@krakerxyz/netled-core';
 
 export class AnimationConfigDb {
     private readonly entity = new TypedEntity<AnimationNamedConfig>();
 
-    public byAnimationId(animationId: string, userId: string, version?: number): AsyncGenerator<AnimationNamedConfig> {
-        const filter: Filter<AnimationNamedConfig> = {
-            userId,
+    public byAnimationId(animationId: string, userId?: string, version?: number): AsyncGenerator<AnimationNamedConfig> {
+        const filter: Filter<Writeable<AnimationNamedConfig>> = {
             'animation.id': animationId
         };
+        if (userId) { filter['userId'] = userId; }
         if (version !== undefined) { filter['animation.version'] = version; }
         return this.entity.find(filter);
     }
@@ -27,5 +27,9 @@ export class AnimationConfigDb {
 
     public replace(config: AnimationNamedConfig): Promise<void> {
         return this.entity.replaceOneAsync(config);
+    }
+
+    public deleteById(id: Id): Promise<void> {
+        return this.entity.deleteOneAsync(id);
     }
 }

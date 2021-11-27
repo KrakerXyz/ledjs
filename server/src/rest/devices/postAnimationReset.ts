@@ -1,5 +1,5 @@
 import { RouteOptions } from 'fastify';
-import { AnimationNamedConfig, DeviceAnimationResetPost } from 'netled';
+import { AnimationNamedConfig, DeviceAnimationResetPost } from '@krakerxyz/netled-core';
 import { jsonSchema } from '@krakerxyz/json-schema-transformer';
 import { jwtAuthentication } from '../../services';
 

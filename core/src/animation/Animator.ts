@@ -12,6 +12,8 @@ export interface Animator {
 }
 
 export interface ConfigMeta {
+    /** When true, the animation will render one frame then stop the clock */
+    oneShot?: boolean;
     params: ConfigMetaParams;
 }
 
@@ -37,10 +39,11 @@ export type ConfigMetaParamString = {
     default: string;
 };
 
+export type HexColor = `#${string}`;
 export type ConfigMetaParamColor = {
     description: string;
-    type: `#${string}`;
-    default: string;
+    type: 'color';
+    default: HexColor;
 };
 
 export function createType(script: string): Promise<AnimatorType> {

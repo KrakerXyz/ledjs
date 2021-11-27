@@ -30,6 +30,10 @@ export class RestClient {
         }).then(r => deepFreeze(r.data));
     }
 
+    public delete(path: string): Promise<void> {
+        return this.axiosInstance.delete(path);
+    }
+
 }
 
 export interface RestConfig {

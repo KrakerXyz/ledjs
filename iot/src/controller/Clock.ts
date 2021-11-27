@@ -1,4 +1,4 @@
-import { DeviceWsClient } from 'netled';
+import { DeviceWsClient } from '@krakerxyz/netled-core';
 import { performance } from 'perf_hooks';
 
 export class Clock {

@@ -1,5 +1,5 @@
 import { RouteOptions } from 'fastify';
-import { Animation, AnimationNamedConfig, AnimationNamedConfigSummary, Id } from 'netled';
+import { Animation, AnimationNamedConfig, AnimationNamedConfigSummary, Id } from '@krakerxyz/netled-core';
 import { jwtAuthentication } from '../../services';
 
 export const getConfigs: RouteOptions = {

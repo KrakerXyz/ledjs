@@ -1,40 +1,49 @@
 {
-  "name": "stub",
+  "name": "@krakerxyz/netled-raspi",
   "description": "",
-  "version": "0.0.1",
+  "version": "0.0.9",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/KrakerXyz/netled"
+  },
   "author": {
     "name": "Josh Kraker",
     "email": "joshkrak@gmail.com"
   },
+  "license": "MIT",
   "type": "commonjs",
   "main": "./dist/index.js",
   "files": [
-    "dist/"
+    "dist/",
+    "./bin.js"
   ],
-  "license": "MIT",
+  "bin": {
+    "netled": "./bin.js"
+  },
   "scripts": {
     "clean": "rimraf ./dist/*",
     "prestart": "npm run build",
     "start": "node --unhandled-rejections=strict --trace-warnings .",
-    "start-mon": "nodemon --config nodemon.json src/index.ts",
     "build": "npm run clean && tsc",
-    "lint": "eslint ./src/**/*.ts"
+    "lint": "eslint ./src/**/*.ts",
+    "prepublishOnly": "npm run build"
   },
   "dependencies": {
+    "@krakerxyz/netled-core": "^0.0.1",
+    "command-line-args": "^5.2.0",
     "dotenv": "^10.0.0",
-    "netled": "file:../core",
     "rpio": "^2.4.2",
+    "tslib": "^2.3.1",
     "vm2": "^3.9.3"
   },
   "devDependencies": {
-    "@types/node": "^14.17.5",
+    "@types/command-line-args": "^5.2.0",
+    "@types/node": "^16",
     "@types/rpio": "^2.4.2",
-    "@typescript-eslint/eslint-plugin": "^4.22.0",
-    "@typescript-eslint/parser": "^4.22.0",
-    "eslint": "^7.24.0",
-    "nodemon": "^2.0.12",
+    "@typescript-eslint/eslint-plugin": "^5",
+    "@typescript-eslint/parser": "^5",
+    "eslint": "^8",
     "rimraf": "^3.0.0",
-    "ts-node": "^10.1.0",
     "typescript": "^4.2.4"
   }
 }

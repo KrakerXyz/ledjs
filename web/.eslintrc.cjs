@@ -28,6 +28,10 @@ module.exports = {
 
    'rules': {
 
+      'vue/multi-word-component-names': [
+         'off'
+      ],
+
       'vue/require-default-prop': [
          //Seems like a good idea but when you have a default, it breaks the typings. Eg, even if I put { type: String, default: null }, it just shows the type as string.
          'off'

@@ -1,6 +1,6 @@
 import { FastifyLoggerInstance, FastifyRequest } from 'fastify';
 import { SocketStream } from 'fastify-websocket';
-import { Device, DeviceConnectionEvent, FromDeviceMessage, Id, ToDeviceMessage, ToHostMessage } from 'netled';
+import { Device, DeviceConnectionEvent, FromDeviceMessage, Id, ToDeviceMessage, ToHostMessage } from '@krakerxyz/netled-core';
 import { v4 } from 'uuid';
 import { DeviceLogDb } from '../db';
 import { RequestServicesContainer } from './RequestServicesContainer';
@@ -182,6 +182,12 @@ export class WebSocketManager {
         }
 
         await Promise.all(logProms);
+    }
+
+    public async disconnectDevice(deviceId: Id) {
+        const con = this._connections.get(deviceId);
+        if (!con?.length) { return; }
+        con.forEach(c => c.socketStream.end());
     }
 
     public sendHostMessage(userId: Id, msg: ToHostMessage) {

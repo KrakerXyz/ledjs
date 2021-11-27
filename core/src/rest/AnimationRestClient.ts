@@ -32,6 +32,11 @@ export class AnimationRestClient {
         return this.restClient.post('/api/animations', animation);
     }
 
+    /** Deletes the draft (unpublished) version of the given animationId */
+    public deleteDraft(animationId: Id): Promise<void> {
+        return this.restClient.delete(`/api/animations/${animationId}`);
+    }
+
     /** Gets a list of all configs for the users. Does not return the configuration detail. */
     private configList(): Promise<AnimationNamedConfigSummary[]>
     /** Get all configs for all versions of a an animation */
@@ -49,12 +54,16 @@ export class AnimationRestClient {
     public readonly config = {
         /** Get a list of configs for this animation */
         list: this.configList.bind(this),
-        byId: (configId: string): Promise<AnimationNamedConfig> => {
+        byId: (configId: Id): Promise<AnimationNamedConfig> => {
             return this.restClient.get(`/api/animations/configs/${configId}`);
         },
         /** Saves/Updates a named animation config */
         save: (config: AnimationNamedConfigPost): Promise<AnimationNamedConfig> => {
             return this.restClient.post('/api/animations/configs', config);
+        },
+        /** Delete a config by it's id */
+        delete: (configId: Id): Promise<void> => {
+            return this.restClient.delete(`/api/animations/configs/${configId}`);
         }
     }
 

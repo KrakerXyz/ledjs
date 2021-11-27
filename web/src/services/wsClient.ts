@@ -1,6 +1,6 @@
-import { Disposable, HostWsClient } from 'netled';
+import { Disposable, HostWsClient } from '@krakerxyz/netled-core';
 import { getCurrentInstance, onUnmounted } from 'vue';
-import { HostWsOptions } from 'netled';
+import { HostWsOptions } from '@krakerxyz/netled-core';
 
 type WsClient = Pick<HostWsClient, 'on'>;
 

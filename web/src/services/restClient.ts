@@ -1,5 +1,5 @@
 
-import { AnimationRestClient, DeviceRestClient, RestClient, RestConfig } from 'netled';
+import { AnimationRestClient, DeviceRestClient, RestClient, RestConfig } from '@krakerxyz/netled-core';
 
 let restClient: RestClient | undefined;
 export function useRestClient(): RestClient {

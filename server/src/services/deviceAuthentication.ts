@@ -1,5 +1,5 @@
 import { preValidationHookHandler } from 'fastify';
-import { Id } from 'netled';
+import { Id } from '@krakerxyz/netled-core';
 
 export const deviceAuthentication: preValidationHookHandler = async (req, res) => {
     const authParts = req.headers?.authorization?.split(' ');

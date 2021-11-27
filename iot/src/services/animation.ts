@@ -1,4 +1,4 @@
-import { AnimationRestClient, Animator, AnimatorType, Id, netLedGlobal } from 'netled';
+import { AnimationRestClient, Animator, AnimatorType, Id, netLedGlobal } from '@krakerxyz/netled-core';
 import { useRestClient } from '.';
 import { NodeVM, VMScript } from 'vm2';
 

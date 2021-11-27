@@ -1,9 +1,10 @@
+
 import { RouteOptions } from 'fastify';
 import { Id } from '@krakerxyz/netled-core';
 import { jwtAuthentication } from '../../services';
 
-export const getDevice: RouteOptions = {
-    method: 'GET',
+export const deleteById: RouteOptions = {
+    method: 'DELETE',
     url: '/api/devices/:deviceId',
     preValidation: [jwtAuthentication],
     schema: {
@@ -16,22 +17,22 @@ export const getDevice: RouteOptions = {
         }
     },
     handler: async (req, res) => {
+        const deviceId = (req.params as any)['deviceId'] as Id;
 
-        const deviceId = (req.params as any).deviceId as Id;
-
-        const db = req.services.deviceDb;
-        const device = await db.byId(deviceId);
-
+        const device = await req.services.deviceDb.byId(deviceId);
         if (!device) {
-            res.status(404).send('Device with that id does not exist');
+            res.status(404).send({ error: 'A device with that id does not exist' });
             return;
         }
 
         if (device.userId !== req.user.sub) {
-            res.status(403).send('User does not have access to this device');
+            res.status(403).send({ error: 'Device does not belong to authorized user' });
             return;
         }
 
-        res.send(device);
+        await req.services.deviceDb.deleteById(device.id);
+        req.services.webSocketManager.disconnectDevice(device.id);
+
+        res.status(200).send();
     }
 };

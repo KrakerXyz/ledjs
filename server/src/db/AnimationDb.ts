@@ -1,5 +1,5 @@
 import { Filter, TypedEntity } from '@krakerxyz/typed-base';
-import { Animation, AnimationMeta, Writeable } from 'netled';
+import { Animation, AnimationMeta, Id, Writeable } from '@krakerxyz/netled-core';
 
 export class AnimationDb {
 
@@ -9,7 +9,7 @@ export class AnimationDb {
         return this.entity.find({}, c => c.project({ script: false } as any));
     }
 
-    public async latestById(id: string, includeDraft: boolean = false): Promise<Animation | null> {
+    public async latestById(id: Id, includeDraft: boolean = false): Promise<Animation | null> {
         const filter: Filter<Writeable<Animation>> = { id };
         if (!includeDraft) { filter.published = true; }
 
@@ -21,7 +21,7 @@ export class AnimationDb {
         return null;
     }
 
-    public byId(id: string, version: number): Promise<Animation | null> {
+    public byId(id: Id, version: number): Promise<Animation | null> {
         const filter: Filter<Writeable<Animation>> = { id, version };
 
         const cur = this.entity.findOneAsync(filter);
@@ -36,6 +36,10 @@ export class AnimationDb {
 
     public replace(animation: Animation): Promise<void> {
         return this.entity.replaceOneAsync(animation);
+    }
+
+    public deleteById(animationId: Id, version: number): Promise<void> {
+        return this.entity.deleteAsync({ id: animationId, version });
     }
 
 }

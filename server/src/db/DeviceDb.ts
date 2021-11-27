@@ -1,5 +1,5 @@
 import { TypedEntity } from '@krakerxyz/typed-base';
-import { Device, Id, Writeable } from 'netled';
+import { Device, Id, Writeable } from '@krakerxyz/netled-core';
 
 export class DeviceDb {
 
@@ -23,6 +23,10 @@ export class DeviceDb {
 
     public replace(device: Device): Promise<void> {
         return this.entity.replaceOneAsync(device);
+    }
+
+    public deleteById(id: Id): Promise<void> {
+        return this.entity.deleteOneAsync(id);
     }
 
 }

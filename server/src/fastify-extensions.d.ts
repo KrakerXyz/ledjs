@@ -1,6 +1,6 @@
 
 import 'fastify';
-import { Id } from 'netled';
+import { Id } from '@krakerxyz/netled-core';
 import { RequestServicesContainer } from './services';
 
 declare module 'fastify' {

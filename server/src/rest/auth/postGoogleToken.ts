@@ -1,7 +1,7 @@
 import { RouteOptions } from 'fastify';
 import { OAuth2Client } from 'google-auth-library';
 import { v4 } from 'uuid';
-import { GoogleToken, Id, User } from 'netled';
+import { GoogleToken, Id, User } from '@krakerxyz/netled-core';
 import { UserDb } from '../../db';
 import { EnvKey, getRequiredConfig } from '../../services';
 import { jsonSchema } from '@krakerxyz/json-schema-transformer';

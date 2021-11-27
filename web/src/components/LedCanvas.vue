@@ -1,19 +1,13 @@
 
 <template>
-   <div
-      class="overflow-hidden"
-      ref="wrapper"
-   >
-      <canvas
-         ref="can"
-         class="d-block"
-      ></canvas>
+   <div class="overflow-hidden" ref="wrapper">
+      <canvas ref="can" class="d-block"></canvas>
    </div>
 </template>
 
 <script lang="ts">
 
-   import { Frame, rgbToHex } from 'netled';
+   import { Frame, rgbToHex } from '@krakerxyz/netled-core';
    import { defineComponent, watch, ref, computed, onMounted, onUnmounted } from 'vue';
 
 

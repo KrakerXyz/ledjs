@@ -1,4 +1,5 @@
 import { RouteOptions } from 'fastify';
+import { Id } from '@krakerxyz/netled-core';
 
 export const getById: RouteOptions = {
     method: 'GET',
@@ -14,7 +15,7 @@ export const getById: RouteOptions = {
         }
     },
     handler: async (req, res) => {
-        const animationId = (req.params as any)['animationId'] as string;
+        const animationId = (req.params as any)['animationId'] as Id;
         const version = (req.params as any)['version'] as number;
 
         const db = req.services.animationDb;
