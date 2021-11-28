@@ -42,6 +42,21 @@
             "outputCapture": "std" //to capture winston console logs
         },
         {
+            "name": "Debug Server Tests",
+            "type": "node",
+            "request": "launch",
+            "cwd": "${workspaceFolder}\\server",
+            "runtimeArgs": [
+                "--inspect-brk",
+                "./node_modules/jest/bin/jest.js",
+                "--runInBand",
+                "--coverage",
+                "false"
+            ],
+            "console": "integratedTerminal",
+            "internalConsoleOptions": "neverOpen"
+        },
+        {
             "name": "Debug Core Tests",
             "type": "node",
             "request": "launch",
