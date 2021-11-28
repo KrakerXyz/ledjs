@@ -40,6 +40,21 @@
             ],
             "internalConsoleOptions": "openOnSessionStart",
             "outputCapture": "std" //to capture winston console logs
+        },
+        {
+            "name": "Debug Core Tests",
+            "type": "node",
+            "request": "launch",
+            "cwd": "${workspaceFolder}\\core",
+            "runtimeArgs": [
+                "--inspect-brk",
+                "./node_modules/jest/bin/jest.js",
+                "--runInBand",
+                "--coverage",
+                "false"
+            ],
+            "console": "integratedTerminal",
+            "internalConsoleOptions": "neverOpen"
         }
     ]
 }

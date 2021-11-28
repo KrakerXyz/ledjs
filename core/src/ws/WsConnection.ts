@@ -1,5 +1,5 @@
 
-import * as WsWebSocket from 'ws';
+import WsWebSocket from 'ws';
 import { EventEmitter } from 'eventemitter3';
 import { Disposable } from '../Disposable';
 

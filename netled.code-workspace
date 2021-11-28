@@ -11,6 +11,9 @@
 		},
 		{
 			"path": "iot"
+		},
+		{
+			"path": "."
 		}
 	],
 	"settings": {
