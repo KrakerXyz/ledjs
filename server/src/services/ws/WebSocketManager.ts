@@ -2,18 +2,21 @@ import { FastifyLoggerInstance, FastifyRequest } from 'fastify';
 import { SocketStream } from 'fastify-websocket';
 import { Device, DeviceConnectionEvent, FromDeviceMessage, Id, ToDeviceMessage, ToHostMessage } from '@krakerxyz/netled-core';
 import { v4 } from 'uuid';
-import { DeviceLogDb } from '../db';
-import { RequestServicesContainer } from './RequestServicesContainer';
+import { DeviceLogDb } from '../../db';
+import { RequestServicesContainer } from '../RequestServicesContainer';
+import { onClose } from './onClose';
 
 export class WebSocketManager {
 
-    public constructor(private _log: FastifyLoggerInstance) {
+    public constructor(private _rootLog: FastifyLoggerInstance) {
 
     }
 
-    private _connections: Map<string, WsConnection[]> = new Map();
+    public readonly connections: Map<string, WsConnection[]> = new Map();
 
     public handler = async (socketStream: SocketStream, req: FastifyRequest) => {
+
+        const log = req.log.child({ name: 'services.ws.WebSocketManager.handler' });
 
         const wsConnection: WsConnection = {
             type: req.url.endsWith('/device') ? 'device' : 'user',
@@ -21,55 +24,12 @@ export class WebSocketManager {
             socketStream
         };
 
-        this._log.info('Incoming WS connection for %s:%s', wsConnection.type, wsConnection.id);
+        log.info('Incoming WS connection for %s:%s', wsConnection.type, wsConnection.id);
 
-        socketStream.socket.on('close', async () => {
-            this._log.info('WS %s:%s disconnected', wsConnection.type, wsConnection.id);
-
-            const connections = this._connections.get(req.user.sub);
-            console.assert(connections);
-            if (!connections) { return; }
-
-            const connectionIndex = connections.findIndex(c => c === wsConnection);
-            console.assert(connectionIndex !== -1);
-            if (connectionIndex === -1) { return; }
-
-            connections.splice(connectionIndex, 1);
-            if (!connections.length) {
-                this._connections.delete(wsConnection.id);
-            }
-
-            if (wsConnection.type === 'device') {
-                const device = await req.services.deviceDb.byId(wsConnection.id);
-                console.assert(device);
-                if (!device) { return; }
-
-                const wsEvent: DeviceConnectionEvent = {
-                    type: 'deviceConnection',
-                    data: {
-                        deviceId: device.id,
-                        state: 'disconnected'
-                    }
-                };
-
-                device.status.wentOffline = Date.now();
-                await Promise.all([
-                    req.services.deviceLogDb.add({
-                        created: Date.now(),
-                        deviceId: device.id,
-                        from: 'server',
-                        id: v4() as Id,
-                        data: wsEvent
-                    }),
-                    req.services.deviceDb.replace(device)
-                ]);
-
-                this.sendHostMessage(device.userId, wsEvent);
-            }
-        });
+        socketStream.socket.on('close', onClose(wsConnection, req));
 
         wsConnection.socketStream.socket.on('message', async (json: string) => {
-            this._log.info('WS message from %s:%s', wsConnection.type, wsConnection.id);
+            log.info('WS message from %s:%s', wsConnection.type, wsConnection.id);
 
             if (wsConnection.type === 'device') {
                 const msg: FromDeviceMessage = JSON.parse(json);
@@ -105,13 +65,13 @@ export class WebSocketManager {
             }
         });
 
-        let connections = this._connections.get(wsConnection.id);
+        let connections = this.connections.get(wsConnection.id);
 
         if (wsConnection.type === 'device' && connections?.length) {
             wsConnection.socketStream.destroy(new Error('Device already connected'));
         }
 
-        if (!connections) { this._connections.set(wsConnection.id, (connections = [])); }
+        if (!connections) { this.connections.set(wsConnection.id, (connections = [])); }
 
         connections.push(wsConnection);
 
@@ -155,16 +115,16 @@ export class WebSocketManager {
 
         }
 
-    }
+    };
 
     public async sendDeviceMessage(msg: ToDeviceMessage, ...deviceIds: [Id, ...Id[]]) {
-        this._log.trace('Sending %s message to device %s', msg.type, deviceIds.join(', '));
+        this._rootLog.trace('Sending %s message to device %s', msg.type, deviceIds.join(', '));
         const msgJson = JSON.stringify(msg);
 
         const deviceLogDb = new DeviceLogDb();
         const logProms: Promise<any>[] = [];
         for (const did of deviceIds) {
-            const con = this._connections.get(did);
+            const con = this.connections.get(did);
             if (!con?.length) { continue; }
             console.assert(con.length === 1);
             con[0].socketStream.socket.send(msgJson);
@@ -185,7 +145,7 @@ export class WebSocketManager {
     }
 
     public async disconnectDevice(deviceId: Id) {
-        const con = this._connections.get(deviceId);
+        const con = this.connections.get(deviceId);
         if (!con?.length) { return; }
         con.forEach(c => c.socketStream.end());
     }
@@ -193,7 +153,7 @@ export class WebSocketManager {
     public sendHostMessage(userId: Id, msg: ToHostMessage) {
         const msgJson = JSON.stringify(msg);
 
-        const userConnections = this._connections.get(userId);
+        const userConnections = this.connections.get(userId);
         if (!userConnections?.length) { return; }
 
         userConnections.forEach(c => {
@@ -206,7 +166,7 @@ export class WebSocketManager {
 
         if (!device) { return; }
 
-        this._log.info('Sending %s initial deviceSetup', device.id);
+        this._rootLog.info('Sending %s initial deviceSetup', device.id);
         this.sendDeviceMessage({
             type: 'deviceSetup',
             data: {
@@ -235,7 +195,7 @@ export class WebSocketManager {
 
 }
 
-interface WsConnection {
+export interface WsConnection {
     type: 'device' | 'user';
     id: Id;
     socketStream: SocketStream;

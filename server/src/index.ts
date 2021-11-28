@@ -8,11 +8,9 @@ import fastifyCookie from 'fastify-cookie';
 import fastifyJWT from 'fastify-jwt';
 import fastifyStatic from 'fastify-static';
 
-import { WebSocketManager } from './services/WebSocketManager';
-import { EnvKey, getRequiredConfig } from './services/config';
+import { WebSocketManager, EnvKey, getRequiredConfig, deviceAuthentication, jwtAuthentication, RequestServicesContainer } from './services';
 import { configureDb } from '@krakerxyz/typed-base';
 import { apiRoutes } from './rest';
-import { deviceAuthentication, jwtAuthentication, RequestServicesContainer } from './services';
 import Ajv from 'ajv';
 import path from 'path';
 
@@ -65,7 +63,7 @@ server.setValidatorCompiler(req => {
     return compiler.compile(req.schema);
 });
 
-const webSocketManager = new WebSocketManager(server.log.child({ loggerName: 'WebSocketManager' }));
+const webSocketManager = new WebSocketManager(server.log.child({ name: 'ws.services.WebSocketManager' }));
 
 server.decorateRequest('services', { getter: () => new RequestServicesContainer(webSocketManager) });
 

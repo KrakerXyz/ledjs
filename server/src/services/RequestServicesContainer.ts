@@ -1,5 +1,5 @@
 import { DeviceDb, AnimationConfigDb, AnimationDb, UserDb, DeviceLogDb } from '../db';
-import { WebSocketManager } from './WebSocketManager';
+import { WebSocketManager } from './ws/WebSocketManager';
 
 export class RequestServicesContainer {
 

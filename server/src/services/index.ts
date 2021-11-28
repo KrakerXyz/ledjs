@@ -1,5 +1,5 @@
 
-export * from './WebSocketManager';
+export * from './ws/WebSocketManager';
 export * from './awaitAll';
 export * from './config';
 export * from './jwtAuthentication';
