@@ -24,36 +24,36 @@ export function parseScript(script: string): ParseResult {
             };
         }
 
+
+        const errors: string[] = [];
+
         const classDeclaration = defaultExport.declaration as ClassDeclaration;
 
         const nextFrameMethod = classDeclaration.body.body.find(t => t.type === 'ClassMethod' && t.key.type === 'Identifier' && t.key.name === 'nextFrame') as ClassMethod | undefined;
         if (!nextFrameMethod) {
-            return {
-                valid: false,
-                errors: ['Class does not contain a nextFrame method']
-            };
-        }
+            errors.push('Class does not contain a nextFrame method');
+        } else {
 
-        if (nextFrameMethod.async) {
-            return {
-                valid: false,
-                errors: ['nextFrame method cannot be async']
-            };
+            if (nextFrameMethod.async) {
+                errors.push('nextFrame method cannot be async');
+            }
+
         }
 
         const setNumLedsMethod = classDeclaration.body.body.find(t => t.type === 'ClassMethod' && t.key.type === 'Identifier' && t.key.name === 'setNumLeds') as ClassMethod | undefined;
 
         if (!setNumLedsMethod) {
-            return {
-                valid: false,
-                errors: ['Class does not contain a setNumLeds method']
-            };
+            errors.push('Class does not contain a setNumLeds method');
+        } else {
+            if (setNumLedsMethod.params.length !== 1) {
+                errors.push('setNumLeds should have one parameter');
+            }
         }
 
-        if (setNumLedsMethod.params.length !== 1) {
+        if (errors.length) {
             return {
                 valid: false,
-                errors: ['setNumLeds should have one parameter']
+                errors: errors as [string, ...string[]]
             };
         }
 

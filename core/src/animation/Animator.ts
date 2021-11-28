@@ -46,6 +46,7 @@ export type ConfigMetaParamColor = {
     default: HexColor;
 };
 
+/** Returns a module instance of the supplied script */
 export function createType(script: string): Promise<AnimatorType> {
     const blob = new Blob([script], { type: 'text/javascript' });
     const url = URL.createObjectURL(blob);

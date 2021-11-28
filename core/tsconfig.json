@@ -3,6 +3,7 @@
         "target": "ES2019",
         "module": "ES2020",
         "moduleResolution": "node",
+        "esModuleInterop": true, //I don't think we need this but it gets rid of a warning with jest
         "declaration": true,
         "declarationMap": true,
         "rootDir": "src",
@@ -14,9 +15,16 @@
         "forceConsistentCasingInFileNames": true,
         "removeComments": true,
         "importHelpers": true,
-        "outDir": "dist/esm"
+        "outDir": "dist/esm",
+        "types": [
+            "jest"
+        ]
     },
     "include": [
-        "./src/**/*"
+        "src/**/*"
+    ],
+    "exclude": [
+        "src/**/*.spec.ts",
+        "dist/**/*"
     ]
 }

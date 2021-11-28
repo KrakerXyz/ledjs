@@ -18,10 +18,12 @@
     "start": "node --unhandled-rejections=strict --trace-warnings .",
     "start-mon": "nodemon --config nodemon.json --unhandled-rejections=strict --trace-warnings src/index.ts",
     "build": "npm run clean && ttsc",
-    "lint": "eslint ./src/**/*.ts"
+    "lint": "eslint ./src/**/*.ts",
+    "test": "jest"
   },
   "dependencies": {
     "@krakerxyz/json-schema-transformer": "^0.1.0",
+    "@krakerxyz/netled-core": "file:../core",
     "@krakerxyz/typed-base": "^0.0.12",
     "ajv": "^6.12.6",
     "dotenv": "^10.0.0",
@@ -31,18 +33,20 @@
     "fastify-static": "^4.2.3",
     "fastify-websocket": "^4",
     "google-auth-library": "^7.4.1",
-    "@krakerxyz/netled-core": "file:../core",
     "uuid": "^8.3.2"
   },
   "devDependencies": {
+    "@types/jest": "^27.0.3",
     "@types/node": "^16.11.9",
     "@types/uuid": "^8.3.1",
     "@typescript-eslint/eslint-plugin": "^5",
     "@typescript-eslint/parser": "^5",
     "eslint": "^8",
+    "jest": "^27.3.1",
     "nodemon": "^2.0.12",
     "pino-pretty": "^7",
     "rimraf": "^3.0.0",
+    "ts-jest": "^27.0.7",
     "ts-node": "^10.1.0",
     "ttypescript": "^1.5.12",
     "typescript": "^4.2.4"

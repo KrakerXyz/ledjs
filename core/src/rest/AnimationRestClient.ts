@@ -65,7 +65,7 @@ export class AnimationRestClient {
         delete: (configId: Id): Promise<void> => {
             return this.restClient.delete(`/api/animations/configs/${configId}`);
         }
-    }
+    };
 
 
 }

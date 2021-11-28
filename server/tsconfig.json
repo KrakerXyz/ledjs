@@ -23,9 +23,15 @@
             {
                 "transform": "@krakerxyz/json-schema-transformer/dist/cjs/transformer/transformer"
             }
+        ],
+        "types": [
+            "jest"
         ]
     },
     "include": [
-        "./src/**/*"
+        "src/**/*"
+    ],
+    "exclude": [
+        "src/**/*.spec.ts"
     ]
 }
