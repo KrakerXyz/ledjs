@@ -1,11 +1,12 @@
 import { Animator, AnimationConfig, DeviceWsClient } from '@krakerxyz/netled-core';
-import { deepEquals, useAnimation } from '../services';
+import { deepEquals, getLogger, useAnimation } from '../services';
 
 export type Callback = (animation: Animator | null) => void;
 
 export class AnimatorProvider {
 
     private readonly _listeners: Callback[] = [];
+    private readonly _log = getLogger('controller.AnimationProvider');
 
     public constructor(readonly deviceWs: DeviceWsClient) {
 
@@ -14,7 +15,7 @@ export class AnimatorProvider {
         deviceWs.on('animationSetup', async setup => {
 
             if (!setup) {
-                console.log('Clearing animator');
+                this._log.info('Clearing animator');
                 lastSetup = null;
                 currentAnimator = null;
                 this._listeners.forEach(l => l(null));
@@ -24,14 +25,14 @@ export class AnimatorProvider {
             let dirty = false;
             if (setup.id !== lastSetup?.id || setup.version !== lastSetup.version) {
 
-                console.log(`Loading animator ${setup.id}:${setup.version}`);
+                this._log.info(`Loading animator ${setup.id}:${setup.version}`);
                 currentAnimator = await useAnimation(setup.id, setup.version, true);
                 if (lastNumLeds > 0) { currentAnimator.setNumLeds(lastNumLeds); }
                 if (setup.config && currentAnimator.setConfig) { currentAnimator.setConfig(setup.config); }
 
                 dirty = true;
             } else if (currentAnimator?.setConfig && setup.config && !deepEquals(lastSetup.config, setup.config)) {
-                console.log('Updating animator config');
+                this._log.info('Updating animator config');
                 currentAnimator.setConfig(setup.config);
             }
 
@@ -45,7 +46,7 @@ export class AnimatorProvider {
         let lastNumLeds = 0;
         deviceWs.on('deviceSetup', setup => {
             if (lastNumLeds === setup.numLeds) { return; }
-            console.log(`Updating number of leds to ${setup.numLeds}`);
+            this._log.info(`Updating number of leds to ${setup.numLeds}`);
             lastNumLeds = setup.numLeds;
             currentAnimator?.setNumLeds(setup.numLeds);
         });

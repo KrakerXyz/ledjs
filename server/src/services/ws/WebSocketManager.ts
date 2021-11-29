@@ -33,7 +33,7 @@ export class WebSocketManager {
 
             if (wsConnection.type === 'device') {
                 const msg: FromDeviceMessage = JSON.parse(json);
-                console.log('Device message', msg);
+                log.debug('Device message', msg);
 
                 const device = await req.services.deviceDb.byId(wsConnection.id);
                 console.assert(device);

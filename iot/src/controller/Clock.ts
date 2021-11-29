@@ -1,7 +1,10 @@
 import { DeviceWsClient } from '@krakerxyz/netled-core';
 import { performance } from 'perf_hooks';
+import { getLogger } from '../services';
 
 export class Clock {
+
+    private readonly _log = getLogger('controller.Clock');
 
     public constructor(readonly deviceWs: DeviceWsClient, private readonly _onTick: () => void) {
 
@@ -28,7 +31,7 @@ export class Clock {
     private _tickNum: number = 0;
     private setInterval(interval: number) {
         if (interval === this._interval) { return; }
-        console.log(`Updated interval to ${interval}ms`);
+        this._log.info(`Updated interval to ${interval}ms`);
         this._interval = interval;
         if (this._isStopped) { return; }
         this._tickNum++;
@@ -39,9 +42,9 @@ export class Clock {
         if (stopped === this._isStopped) { return; }
         this._isStopped = stopped;
         if (stopped) {
-            console.log('Animator clock stopped');
+            this._log.info('Animator clock stopped');
         } else {
-            console.log('Animator clock started');
+            this._log.info('Animator clock started');
             //Change the next to now otherwise it'll play catch up and render all frames that otherwise would have been due during the pause period.
             this._nextDue = performance.now();
             this._tickNum++;

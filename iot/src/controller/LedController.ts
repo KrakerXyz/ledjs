@@ -2,7 +2,7 @@ import { Animator, ARGB, DeviceWsClient, Frame } from '@krakerxyz/netled-core';
 import { AnimatorProvider } from './AnimatorProvider';
 import { Clock } from './Clock';
 import rpio from 'rpio';
-import { HealthReporter } from '../services';
+import { getLogger, HealthReporter } from '../services';
 
 export class LedController {
 
@@ -12,6 +12,7 @@ export class LedController {
     private _isStopped = false;
     private _lastNumLeds = 0;
     private _brightness: number = 1;
+    private readonly _log = getLogger('controller.LedController');
 
     public constructor(readonly deviceWs: DeviceWsClient, readonly healthReporter: HealthReporter) {
 
@@ -42,7 +43,7 @@ export class LedController {
                 this._lastNumLeds = setup.numLeds;
                 const startFrameBytes = 4;
                 const numEndFrameBytes = Math.max(4, Math.ceil(setup.numLeds / 16));
-                console.log(`Initializing buffer for ${setup.numLeds} leds`);
+                this._log.info(`Initializing buffer for ${setup.numLeds} leds`);
                 this._buffer = Buffer.alloc((setup.numLeds * 4) + startFrameBytes + numEndFrameBytes);
             }
 
@@ -53,7 +54,7 @@ export class LedController {
             if (!setup) { return; }
             if (setup.brightness === this._brightness) { return; }
             this._brightness = setup.brightness / 255;
-            console.log(`Updated brightness to ${setup.brightness} (${Math.round(this._brightness * 100)}%)`);
+            this._log.info(`Updated brightness to ${setup.brightness} (${Math.round(this._brightness * 100)}%)`);
         });
 
         deviceWs.on('animationStop', data => {
@@ -70,7 +71,7 @@ export class LedController {
     }
 
     private drawDarkFrame() {
-        console.log('Drawing dark frame to clear leds');
+        this._log.info('Drawing dark frame to clear leds');
         const darkLeds: ARGB = [255, 0, 0, 0];
         const darkFrame: Frame = [];
         for (let i = 0; i < this._lastNumLeds; i++) {
@@ -88,7 +89,7 @@ export class LedController {
         const divisor = 250 / mhz;
         const divider = divisor - (divisor % 2);
 
-        console.log(`Initializing SPI to ~${mhz}mhz using divider ${divider}`);
+        this._log.info(`Initializing SPI to ~${mhz}mhz using divider ${divider}`);
         if (this._spiBegun) { rpio.spiEnd(); }
         rpio.spiBegin();
         rpio.spiSetClockDivider(divider);

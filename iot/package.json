@@ -29,7 +29,7 @@
     "prepublishOnly": "npm run build"
   },
   "dependencies": {
-    "@krakerxyz/netled-core": "^0.0.1",
+    "@krakerxyz/netled-core": "file:../core",
     "command-line-args": "^5.2.0",
     "dotenv": "^10.0.0",
     "rpio": "^2.4.2",

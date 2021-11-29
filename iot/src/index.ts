@@ -4,10 +4,13 @@ require('dotenv').config();
 
 import * as os from 'os';
 
-import { EnvKey, getConfig, getRequiredConfig, HealthReporter, useRestClient } from './services';
+import { EnvKey, getConfig, getRequiredConfig, HealthReporter, getLogger, useRestClient, setLoggerDeviceWsClient } from './services';
 import { DeviceWsClient, DeviceWsOptions, RestConfig } from '@krakerxyz/netled-core';
 import { LedController } from './controller/LedController';
 import * as commandLineArgs from 'command-line-args';
+import { readFileSync } from 'fs';
+
+const log = getLogger('index');
 
 if (process.argv.length > 2) {
     const argsDefinition: commandLineArgs.OptionDefinition[] = [
@@ -28,21 +31,21 @@ if (process.argv.length > 2) {
 }
 
 if (!getConfig(EnvKey.DeviceId) || !getConfig(EnvKey.DeviceSecret)) {
-    console.error(`Missing config - ${EnvKey.DeviceId} and/or ${EnvKey.DeviceSecret}. Quitting`);
+    log.fatal(`Missing config - ${EnvKey.DeviceId} and/or ${EnvKey.DeviceSecret}. Quitting`);
     process.exit();
 }
 
 (async () => {
 
     const restBaseUrl = getConfig(EnvKey.ApiBaseUrl) as RestConfig['baseUrl'];
-    console.log(`Initializing REST client @ ${restBaseUrl ?? '[defaultUrl]'}`);
+    log.info(`Initializing REST client @ ${restBaseUrl ?? '[defaultUrl]'}`);
 
     useRestClient(restBaseUrl);
 
     const deviceId = getRequiredConfig(EnvKey.DeviceId);
     const wsBaseUrl = getConfig(EnvKey.WsBaseUrl) as DeviceWsOptions['baseUrl'];
 
-    console.log(`Initializing WS connection for device ${deviceId} @ ${wsBaseUrl ?? '[defaultUrl]'}`);
+    log.info(`Initializing WS connection for device ${deviceId} @ ${wsBaseUrl ?? '[defaultUrl]'}`);
 
     const deviceWs = new DeviceWsClient(
         deviceId,
@@ -53,14 +56,26 @@ if (!getConfig(EnvKey.DeviceId) || !getConfig(EnvKey.DeviceSecret)) {
     );
 
     deviceWs.on('connectionChange', state => {
-        console.log(`WebSocket ${state}`);
+
+        log.info(`WebSocket ${state}`);
 
         if (state === 'connected') {
+            setLoggerDeviceWsClient(deviceWs);
+
+            log.debug('Reading package.json');
+            const packagesJsonContent = readFileSync('../package.json');
+            const packageJson = JSON.parse(packagesJsonContent.toString());
+
+            log.debug('Sending info message');
             deviceWs.postMessage({
                 type: 'info',
                 data: {
                     os: `${os.platform()}|${os.release()}`,
-                    cores: os.cpus().length
+                    cores: os.cpus().length,
+                    package: {
+                        version: packageJson.version,
+                        name: packageJson.name
+                    }
                 }
             });
         }
@@ -73,7 +88,7 @@ if (!getConfig(EnvKey.DeviceId) || !getConfig(EnvKey.DeviceSecret)) {
     healthReporter.addHealthData('uptimeSystem', () => Math.floor(os.uptime()));
 
 
-    console.log('Initializing leds');
+    log.info('Initializing leds');
 
     new LedController(deviceWs, healthReporter);
 

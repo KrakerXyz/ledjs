@@ -3,6 +3,7 @@
         "ARGB",
         "leds",
         "netled",
+        "pino",
         "prestart",
         "raspi",
         "rpio"

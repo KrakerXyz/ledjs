@@ -14,7 +14,7 @@
         "forceConsistentCasingInFileNames": true,
         "importHelpers": true,
         "removeComments": true,
-        "outDir": "dist",
+        "outDir": "dist"
     },
     "include": [
         "./src/**/*"

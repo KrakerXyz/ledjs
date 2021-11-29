@@ -1,4 +1,4 @@
-import { DeviceConnectionEvent, DeviceHealthMessage, DeviceInfoMessage, Id } from '@krakerxyz/netled-core';
+import { DeviceConnectionEvent, DeviceHealthMessage, DeviceInfoMessage, Id, DeviceLogMessage as CoreDeviceLogMessage } from '@krakerxyz/netled-core';
 
 export interface DeviceLogBase {
     id: Id;
@@ -22,5 +22,5 @@ export type ServerDeviceSocketSendMessage = {
 
 export interface DeviceLogMessage extends DeviceLogBase {
     from: 'device'
-    data: DeviceHealthMessage | DeviceInfoMessage
+    data: DeviceHealthMessage | DeviceInfoMessage | CoreDeviceLogMessage
 }
