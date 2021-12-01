@@ -7,5 +7,6 @@ import { postStop } from './postStop';
 import { postAnimationConfig } from './postAnimationConfig';
 import { postAnimationReset } from './postAnimationReset';
 import { deleteById } from './deleteById';
+import { postDeviceLogsList } from './postDeviceLogsList';
 
-export const deviceRoutes = [getDevices, postDevice, getDevice, postAnimation, postStop, postAnimationConfig, postAnimationReset, deleteById];
+export const deviceRoutes = [getDevices, postDevice, getDevice, postAnimation, postStop, postAnimationConfig, postAnimationReset, deleteById, postDeviceLogsList];

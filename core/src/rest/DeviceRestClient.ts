@@ -1,5 +1,6 @@
-import { DeviceAnimationConfigPost, Id, RestClient } from '.';
+import { DeviceAnimationConfigPost, DeviceLogsFilter, Id, RestClient } from '.';
 import { AnimationConfig } from '.';
+import { FromDeviceMessage } from '..';
 
 export class DeviceRestClient {
 
@@ -45,6 +46,15 @@ export class DeviceRestClient {
         return this.restClient.post('/api/devices/animation/stop', stop);
     }
 
+    /** Gets a list of logs emitted by devices. Sorted in reverse chronological order base on created. Returns max of 100 records. */
+    public logs(filter?: DeviceLogsFilter): Promise<FromDeviceMessageLog[]> {
+        return this.restClient.post('/api/devices/logs/list', filter ?? {});
+    }
+
+}
+
+export type FromDeviceMessageLog = FromDeviceMessage & {
+    created: number;
 }
 
 export interface Device {

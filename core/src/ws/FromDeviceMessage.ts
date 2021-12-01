@@ -1,9 +1,15 @@
 
 export type FromDeviceMessage = DeviceHealthMessage | DeviceInfoMessage | DeviceLogMessage;
 
+export enum DeviceLogType {
+    Info = 'info',
+    Health = 'health',
+    Log = 'log'
+}
+
 /** Device health metrics message */
 export type DeviceHealthMessage = {
-    type: 'health',
+    type: DeviceLogType.Health,
     /** Device health metrics */
     data: DeviceHealthData
 }
@@ -22,13 +28,21 @@ export type DeviceHealthData = Partial<{
 
 /** Device log messages */
 export type DeviceLogMessage = {
-    type: 'log',
+    type: DeviceLogType.Log,
     data: DeviceLogData
 }
 
+export enum DeviceLogLevel {
+    Debug = 20,
+    Info = 30,
+    Warn = 40,
+    Error = 50,
+    Fatal = 60
+}
+
 export type DeviceLogData = {
-    /** The level of the log. Default levels start at debug:20, info:30, warn:40, error:50, fatal:60 */
-    level: number;
+    /** The severity level of the log */
+    level: DeviceLogLevel | number;
     /** The time (ticks) on the device at time of log */
     time: number;
     /** The name of the logger that produced the message */
@@ -40,13 +54,13 @@ export type DeviceLogData = {
 
 /** Information about the device's hardware and software */
 export type DeviceInfoMessage = {
-    type: 'info',
+    type: DeviceLogType.Info,
     /** Information about the device's hardware and software */
     data: DeviceInfoData,
 }
 
 /** Information about the device's hardware and software */
-export type DeviceInfoData = {
+export type DeviceInfoData = Partial<{
     /** The os that the device is running */
     os: string;
     /** Number of processor cores */
@@ -56,4 +70,4 @@ export type DeviceInfoData = {
         name: string;
         version: string;
     }
-}
+}>

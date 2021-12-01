@@ -22,7 +22,7 @@
     "test": "jest"
   },
   "dependencies": {
-    "@krakerxyz/json-schema-transformer": "^0.1.0",
+    "@krakerxyz/json-schema-transformer": "file:../../json-schema-transformer",
     "@krakerxyz/netled-core": "file:../core",
     "@krakerxyz/typed-base": "^0.0.12",
     "ajv": "^6.12.6",

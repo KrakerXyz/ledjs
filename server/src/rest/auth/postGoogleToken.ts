@@ -11,7 +11,9 @@ export const postGoogleToken: RouteOptions = {
     url: '/api/auth/google-token',
     schema: {
         body: jsonSchema<GoogleToken>(),
-        response: jsonSchema<User>()
+        response: {
+            '2xx': jsonSchema<User>()
+        }
     },
     handler: async (req, res) => {
         const googleToken = req.body as GoogleToken;
