@@ -1,4 +1,4 @@
-import { DeviceWsClient } from '@krakerxyz/netled-core';
+import { DeviceLogType, DeviceWsClient } from '@krakerxyz/netled-core';
 
 type LogMethods = 'fatal' | 'error' | 'warn' | 'info' | 'debug';
 export type Logger = Record<LogMethods, (msg: string, data?: Record<string, any>) => void> & { readonly name: string };
@@ -23,7 +23,7 @@ export function getLogger(name: string, parentLogger?: Logger): Logger {
         }
         if (deviceWs) {
             deviceWs.postMessage({
-                type: 'log',
+                type: DeviceLogType.Log,
                 data: {
                     level,
                     msg,

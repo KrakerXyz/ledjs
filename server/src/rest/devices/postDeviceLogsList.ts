@@ -50,7 +50,7 @@ export const postDeviceLogsList: RouteOptions = {
         const logsGen = req.services.deviceLogDb.get(filter, 100);
         const logs = await awaitAll(logsGen);
 
-        const logData = logs.map(l => ({ ...l.data, created: l.created }));
+        const logData = logs.map(l => ({ ...l.data, id: l.id, created: l.created }));
 
         res.send(logData);
     }

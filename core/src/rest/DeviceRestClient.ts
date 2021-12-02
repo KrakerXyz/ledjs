@@ -54,6 +54,7 @@ export class DeviceRestClient {
 }
 
 export type FromDeviceMessageLog = FromDeviceMessage & {
+    id: Id;
     created: number;
 }
 

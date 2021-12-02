@@ -1,5 +1,5 @@
 <template>
-   <div class="container h-100 shadow bg-white p-3">
+   <div class="container h-100 shadow bg-white p-3 d-flex flex-column">
       <template v-if="device">
          <div class="row">
             <div class="col">
@@ -12,6 +12,7 @@
             </div>
          </div>
 
+         <h3>Setup</h3>
          <div class="row">
             <div class="col">
                <div class="form-floating">
@@ -21,17 +22,9 @@
             </div>
          </div>
 
-         <div class="row mt-3">
-            <div class="col">
-               <div class="form-floating">
-                  <textarea id="device-config" class="form-control font-monospace" placeholder="*" readonly :value="dotEnv"></textarea>
-                  <label for="device-config">.env</label>
-               </div>
-            </div>
-         </div>
+         <h3 class="mt-3">Logs</h3>
+         <device-view-logs class="flex-grow-1 shadow-sm rounded border-top" :deviceId="deviceId"></device-view-logs>
       </template>
-
-      <device-view-logs :deviceId="deviceId"></device-view-logs>
 
       <v-confirmation-modal v-if="deleteConfirmation" @cancel="deleteConfirmation = false" @confirm="deleteDevice()">
          Are you sure you want to delete this device?
@@ -84,13 +77,6 @@
             return textArr.join();
          });
 
-         const dotEnv = computed(() => {
-            if (!device.value) {
-               return '';
-            }
-            return [`DEVICE_ID=${device.value.id}`, `DEVICE_SECRET=${device.value.secret}`].join('\r\n');
-         });
-
          const deleteConfirmation = ref(false);
 
          const deleteDevice = async () => {
@@ -98,7 +84,7 @@
             router.replace({ name: 'device-list' });
          };
 
-         return { device, dotEnv, deleteConfirmation, deleteDevice, install };
+         return { device, deleteConfirmation, deleteDevice, install };
       },
    });
 </script>

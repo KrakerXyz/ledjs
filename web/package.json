@@ -16,6 +16,7 @@
   },
   "dependencies": {
     "@krakerxyz/netled-core": "file:../core",
+    "date-fns": "^2.27.0",
     "monaco-editor": "^0.26.1",
     "vue": "^3.1.1",
     "vue-router": "^4.0.8"

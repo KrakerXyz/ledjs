@@ -5,7 +5,7 @@ require('dotenv').config();
 import * as os from 'os';
 
 import { EnvKey, getConfig, getRequiredConfig, HealthReporter, getLogger, useRestClient, setLoggerDeviceWsClient } from './services';
-import { DeviceWsClient, DeviceWsOptions, RestConfig } from '@krakerxyz/netled-core';
+import { DeviceLogType, DeviceWsClient, DeviceWsOptions, RestConfig } from '@krakerxyz/netled-core';
 import { LedController } from './controller/LedController';
 import * as commandLineArgs from 'command-line-args';
 import { readFileSync } from 'fs';
@@ -63,12 +63,12 @@ if (!getConfig(EnvKey.DeviceId) || !getConfig(EnvKey.DeviceSecret)) {
             setLoggerDeviceWsClient(deviceWs);
 
             log.debug('Reading package.json');
-            const packagesJsonContent = readFileSync('../package.json');
+            const packagesJsonContent = readFileSync('package.json');
             const packageJson = JSON.parse(packagesJsonContent.toString());
 
             log.debug('Sending info message');
             deviceWs.postMessage({
-                type: 'info',
+                type: DeviceLogType.Info,
                 data: {
                     os: `${os.platform()}|${os.release()}`,
                     cores: os.cpus().length,

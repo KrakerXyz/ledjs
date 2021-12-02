@@ -1,4 +1,4 @@
-import { DeviceHealthData, DeviceWsClient } from '@krakerxyz/netled-core';
+import { DeviceHealthData, DeviceLogType, DeviceWsClient } from '@krakerxyz/netled-core';
 
 export class HealthReporter {
 
@@ -22,7 +22,7 @@ export class HealthReporter {
 
         const data: DeviceHealthData = Object.fromEntries(dataEntries);
         this._ws.postMessage({
-            type: 'health',
+            type: DeviceLogType.Health,
             data
         });
     }

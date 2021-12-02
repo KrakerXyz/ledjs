@@ -67,7 +67,7 @@ export type DeviceInfoData = Partial<{
     cores: number;
     /** Information from the package.json file */
     package: {
-        name: string;
-        version: string;
+        name?: string;
+        version?: string;
     }
 }>
