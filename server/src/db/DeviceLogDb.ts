@@ -18,7 +18,7 @@ export class DeviceLogDb {
         }
 
         if (filter.type) {
-            mdbFilter['data.type'] = filter.type;
+            (mdbFilter as any)['data.type'] = filter.type;
         }
 
         if (filter.created?.after) {

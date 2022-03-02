@@ -1,12 +1,12 @@
 
 <template>
-   <div class="container h-100 shadow bg-white p-3">
-      <div class="row">
-         <div class="col">
-            {{status === 'initializing'? 'Logging in' : 'Login' }}
-         </div>
+  <div class="container h-100 shadow bg-white p-3">
+    <div class="row">
+      <div class="col">
+        {{status === 'initializing'? 'Logging in' : 'Login' }}
       </div>
-   </div>
+    </div>
+  </div>
 </template>
 
 <script lang="ts">

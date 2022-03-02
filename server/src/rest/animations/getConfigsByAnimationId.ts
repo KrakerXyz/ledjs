@@ -1,3 +1,4 @@
+import { Id } from '@krakerxyz/netled-core';
 import { RouteOptions } from 'fastify';
 import { awaitAll, jwtAuthentication } from '../../services';
 
@@ -18,7 +19,7 @@ export const getConfigsByAnimationId: RouteOptions = {
         }
     },
     handler: async (req, res) => {
-        const animationId: string = (req.params as any).animationId;
+        const animationId: Id = (req.params as any).animationId;
         const version: number | undefined = (req.query as any).version;
         const db = req.services.animationConfigDb;
         const allAsync = db.byAnimationId(animationId, req.user.sub, version);

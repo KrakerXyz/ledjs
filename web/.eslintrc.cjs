@@ -28,6 +28,14 @@ module.exports = {
 
    'rules': {
 
+      'vue/html-button-has-type': [
+         'error'
+      ],
+
+      'vue/eqeqeq': [
+         'error'
+      ],
+
       'vue/multi-word-component-names': [
          'off'
       ],
@@ -46,13 +54,11 @@ module.exports = {
       ],
 
       'vue/html-indent': [
-         //Turned off because I like 3, not 2
-         'off'
+         'error'
       ],
 
       'vue/attribute-hyphenation': [
-         //Typing hyphens is annoying
-         'off'
+         'error'
       ],
 
       'vue/no-multiple-template-root': [
@@ -64,8 +70,7 @@ module.exports = {
       ],
 
       'vue/singleline-html-element-content-newline': [
-         //Wants content on it's own line for single line elements like span, label, h1-5, etc. 
-         'off'
+         'error'
       ],
 
       'vue/component-definition-name-casing': [
@@ -102,12 +107,22 @@ module.exports = {
          'error'
       ],
 
-      'vue/max-attributes-per-line': [
-         'off'
-      ],
+      'vue/max-attributes-per-line': ['error', {
+         'singleline': {
+            'max': 3
+         },
+         'multiline': {
+            'max': 1
+         }
+      }],
 
       'vue/multiline-html-element-content-newline': [
-         'off'
+         'error',
+         {
+            "ignoreWhenEmpty": true,
+            "ignores": [],
+            "allowEmptyLines": false
+         }
       ],
 
       '@typescript-eslint/explicit-module-boundary-types': [

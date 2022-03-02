@@ -2,6 +2,7 @@
    "cSpell.words": [
       "ARGB",
       "cooldown",
+      "eqeqeq",
       "gapi",
       "heatramp",
       "Iframe",
@@ -10,9 +11,20 @@
       "postcss",
       "raspi",
       "typecheck",
-      "typeof"
+      "typeof",
+      "vitejs",
+      "vuedx"
    ],
    "[vue]": {
-      "editor.defaultFormatter": "esbenp.prettier-vscode"
+      "editor.defaultFormatter": "dbaeumer.vscode-eslint"
    },
+   "editor.codeActionsOnSave": {
+      "source.fixAll.eslint": true
+   },
+   "eslint.validate": [
+      "javascript",
+      "javascript",
+      "vue",
+      "html"
+   ]
 }

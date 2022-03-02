@@ -10,7 +10,7 @@
           </div>
 
           <div class="col-auto d-flex align-items-center">
-            <button class="btn text-danger" @click="deleteConfirmation = true">
+            <button type="button" class="btn text-danger" @click="deleteConfirmation = true">
               <i class="fal fa-trash-alt fa-lg"></i>
             </button>
           </div>
@@ -19,14 +19,24 @@
         <div class="row">
           <div class="col-sm-6 col-lg-4 mb-3">
             <div class="form-floating">
-              <input id="config-name" class="form-control" placeholder="*" v-model="dirtyConfig.name" />
+              <input
+                id="config-name"
+                class="form-control"
+                placeholder="*"
+                v-model="dirtyConfig.name"
+              />
               <label for="config-name">Name</label>
             </div>
           </div>
 
           <div class="col mb-3">
             <div class="form-floating">
-              <input id="config-description" class="form-control" placeholder="*" v-model="description" />
+              <input
+                id="config-description"
+                class="form-control"
+                placeholder="*"
+                v-model="description"
+              />
               <label for="config-description">Description</label>
             </div>
           </div>
@@ -39,26 +49,40 @@
               <input class="interval" v-model.number.lazy="dirtyConfig.animation.interval" />
               ms,
               {{ Math.round(10000 / dirtyConfig.animation.interval) / 10 }}fps
-              <button class="btn btn-primary py-0 px-2 ms-3" @click="dirtyConfig.animation.interval = 16">60fps</button>
+              <button type="button" class="btn btn-primary py-0 px-2 ms-3" @click="dirtyConfig.animation.interval = 16">60fps</button>
 
-              <button class="btn btn-primary py-0 px-2 ms-1" @click="dirtyConfig.animation.interval = 33">30fps</button>
+              <button type="button" class="btn btn-primary py-0 px-2 ms-1" @click="dirtyConfig.animation.interval = 33">30fps</button>
 
-              <button class="btn btn-primary py-0 px-2 ms-1" @click="dirtyConfig.animation.interval = 66">15fps</button>
+              <button type="button" class="btn btn-primary py-0 px-2 ms-1" @click="dirtyConfig.animation.interval = 66">15fps</button>
 
-              <button class="btn btn-primary py-0 px-2 ms-1" @click="dirtyConfig.animation.interval = 200">5fps</button>
+              <button type="button" class="btn btn-primary py-0 px-2 ms-1" @click="dirtyConfig.animation.interval = 200">5fps</button>
 
-              <button class="btn btn-primary py-0 px-2 ms-1" @click="dirtyConfig.animation.interval = 500">2fps</button>
+              <button type="button" class="btn btn-primary py-0 px-2 ms-1" @click="dirtyConfig.animation.interval = 500">2fps</button>
 
-              <button class="btn btn-primary py-0 px-2 ms-1" @click="dirtyConfig.animation.interval = 1000">1fps</button>
+              <button type="button" class="btn btn-primary py-0 px-2 ms-1" @click="dirtyConfig.animation.interval = 1000">1fps</button>
 
-              <button class="btn btn-primary py-0 px-2 ms-1" @click="dirtyConfig.animation.interval = 2000">0.5fps</button>
+              <button type="button" class="btn btn-primary py-0 px-2 ms-1" @click="dirtyConfig.animation.interval = 2000">0.5fps</button>
             </label>
-            <input type="range" class="form-range" id="c-interval" min="5" max="2000" v-model.number="dirtyConfig.animation.interval" />
+            <input
+              type="range"
+              class="form-range"
+              id="c-interval"
+              min="5"
+              max="2000"
+              v-model.number="dirtyConfig.animation.interval"
+            />
           </div>
 
           <div class="col-lg-6 col-xl mb-3 d-flex flex-column justify-content-end">
             <label for="c-brightness" class="form-label">Brightness ({{ Math.round((dirtyConfig.animation.brightness / 255) * 100) }}%)</label>
-            <input type="range" class="form-range" id="c-brightness" min="0" max="255" v-model.number="dirtyConfig.animation.brightness" />
+            <input
+              type="range"
+              class="form-range"
+              id="c-brightness"
+              min="0"
+              max="255"
+              v-model.number="dirtyConfig.animation.brightness"
+            />
           </div>
         </div>
 
@@ -68,7 +92,12 @@
               <div class="row">
                 <div class="col-lg-auto">
                   <div class="form-floating">
-                    <input :id="`config-${p.name}`" class="form-control" placeholder="*" v-model="p.value" />
+                    <input
+                      :id="`config-${p.name}`"
+                      class="form-control"
+                      placeholder="*"
+                      v-model="p.value"
+                    />
                     <label :for="`config-${p.name}`">{{ p.name }}</label>
                   </div>
                 </div>
@@ -109,6 +138,7 @@
             <p>Preview Devices</p>
             <div class="btn-group w-100">
               <button
+                type="button"
                 v-for="d of deviceVms"
                 :key="d.id"
                 class="btn btn-device"
@@ -121,10 +151,24 @@
           </div>
 
           <div class="col-md-3 col-xxl-2 d-flex align-items-end mb-md-4">
-            <button v-if="isDirty" class="btn w-100 btn-primary" @click="saveConfig(false)">Save</button>
+            <button
+              type="button"
+              v-if="isDirty"
+              class="btn w-100 btn-primary"
+              @click="saveConfig(false)"
+            >
+              Save
+            </button>
           </div>
           <div class="col-md-2 col-xxl-1 d-flex align-items-end mb-md-4">
-            <button v-if="isDirty" class="btn w-100 btn-info" @click="saveConfig(true)">As New</button>
+            <button
+              type="button"
+              v-if="isDirty"
+              class="btn w-100 btn-info"
+              @click="saveConfig(true)"
+            >
+              As New
+            </button>
           </div>
         </div>
       </div>

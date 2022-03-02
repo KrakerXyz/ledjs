@@ -15,27 +15,17 @@
       "importHelpers": true,
       "removeComments": true,
       "outDir": "./dist",
-      "rootDirs": [
-         "src",
-      ],
-      "lib": [
-         "esnext",
-         "DOM"
-      ],
+      "rootDirs": ["src"],
+      "lib": ["esnext", "DOM"],
       "baseUrl": ".",
       "paths": {
-         "@/*": [
-            "src/*"
-         ]
+         "@/*": ["src/*"]
       },
-      "types": [
-         "gapi",
-         "gapi.auth2",
-      ],
+      "types": ["gapi", "gapi.auth2"],
       "plugins": [
          {
             "name": "@vuedx/typescript-plugin-vue"
          }
-      ],
+      ]
    }
 }

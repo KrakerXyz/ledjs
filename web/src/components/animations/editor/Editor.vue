@@ -1,6 +1,11 @@
 <template>
   <div class="h-100 d-flex flex-column">
-    <led-canvas id="canvas" class="bg-secondary" :frame="frame" @draw-error="onDrawError($event)" />
+    <led-canvas
+      id="canvas"
+      class="bg-secondary"
+      :frame="frame"
+      @draw-error="onDrawError($event)"
+    />
 
     <div class="flex-grow-1 container shadow bg-white p-3">
       <div class="row g-0 h-100">
@@ -10,18 +15,37 @@
         </div>
 
         <div class="col-auto col-right p-1">
-          <button v-if="!isRunning" class="btn btn-link p-0" @click="testScript()">Test script</button>
+          <button
+            type="button"
+            v-if="!isRunning"
+            class="btn btn-link p-0"
+            @click="testScript()"
+          >
+            Test script
+          </button>
 
           <div v-if="executionError" class="alert alert-danger px-1 py-0 mt-2 small">
             <span>{{ executionError }}</span>
           </div>
 
-          <button v-if="isRunning" class="btn btn-link p-0" @click="stopScript()">Stop script</button>
+          <button
+            type="button"
+            v-if="isRunning"
+            class="btn btn-link p-0"
+            @click="stopScript()"
+          >
+            Stop script
+          </button>
 
           <div class="row mt-3">
             <div class="col">
               <div class="form-floating">
-                <input id="editor-script-name" class="form-control" placeholder="*" v-model.trim="animationPost.name" />
+                <input
+                  id="editor-script-name"
+                  class="form-control"
+                  placeholder="*"
+                  v-model.trim="animationPost.name"
+                />
                 <label for="editor-script-name">Animation Name</label>
               </div>
             </div>
@@ -30,7 +54,12 @@
           <div class="row mt-3">
             <div class="col">
               <div class="form-floating">
-                <textarea id="editor-script-description" class="form-control" placeholder="*" v-model.trim="animationPost.description" />
+                <textarea
+                  id="editor-script-description"
+                  class="form-control"
+                  placeholder="*"
+                  v-model.trim="animationPost.description"
+                />
                 <label for="editor-script-description">Description</label>
               </div>
             </div>
@@ -38,7 +67,9 @@
 
           <div v-if="!executionError && !errorMessages.length" class="row mt-2">
             <div class="col">
-              <button class="btn btn-primary w-100" @click="saveScript()">Save Draft</button>
+              <button type="button" class="btn btn-primary w-100" @click="saveScript()">
+                Save Draft
+              </button>
             </div>
           </div>
 

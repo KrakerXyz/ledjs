@@ -13,7 +13,9 @@
             <div class="row">
               <div class="col">
                 {{ c.name }}
-                <div v-if="c.description">{{ c.description }}</div>
+                <div v-if="c.description">
+                  {{ c.description }}
+                </div>
               </div>
             </div>
           </router-link>
@@ -22,7 +24,9 @@
     </div>
     <div class="row mt-3">
       <div class="col">
-        <button class="btn btn-link p-0" @click.once="addConfig()">New Config</button>
+        <button type="button" class="btn btn-link p-0" @click.once="addConfig()">
+          New Config
+        </button>
       </div>
     </div>
   </div>

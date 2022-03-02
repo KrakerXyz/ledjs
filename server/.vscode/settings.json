@@ -1,11 +1,17 @@
 {
     "cSpell.words": [
         "fastify",
-        "jwtid",
         "netled",
         "pino",
         "prestart",
         "ttsc",
         "ttypescript"
+    ],
+    "editor.codeActionsOnSave": {
+        "source.fixAll.eslint": true
+    },
+    "eslint.validate": [
+        "javascript",
+        "javascript"
     ]
 }

@@ -31,7 +31,7 @@
   "dependencies": {
     "@krakerxyz/netled-core": "file:../core",
     "command-line-args": "^5.2.0",
-    "dotenv": "^10.0.0",
+    "dotenv": "^16.0.0",
     "rpio": "^2.4.2",
     "tslib": "^2.3.1",
     "vm2": "^3.9.3"

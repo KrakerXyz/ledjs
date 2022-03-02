@@ -4,7 +4,7 @@ import { AnimationNamedConfig, Id, Writeable } from '@krakerxyz/netled-core';
 export class AnimationConfigDb {
     private readonly entity = new TypedEntity<AnimationNamedConfig>();
 
-    public byAnimationId(animationId: string, userId?: string, version?: number): AsyncGenerator<AnimationNamedConfig> {
+    public byAnimationId(animationId: Id, userId?: string, version?: number): AsyncGenerator<AnimationNamedConfig> {
         const filter: Filter<Writeable<AnimationNamedConfig>> = {
             'animation.id': animationId
         };
