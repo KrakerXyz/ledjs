@@ -1,19 +1,16 @@
 {
-  "folders": [
-    {
-      "path": "web"
-    },
-    {
-      "path": "server"
-    },
-    {
-      "path": "core"
-    },
-    {
-      "path": "iot"
-    },
-    {
-      "path": "."
-    }
-  ],
+    "folders": [
+        {
+            "path": "web"
+        },
+        {
+            "path": "server"
+        },
+        {
+            "path": "core"
+        },
+        {
+            "path": "iot"
+        }
+    ],
 }

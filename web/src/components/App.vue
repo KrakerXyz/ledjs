@@ -1,16 +1,10 @@
 <template>
-   <div
-      id="app-wrapper"
-      class="vh-100 bg-light d-flex flex-column"
-   >
+   <div id="app-wrapper" class="vh-100 bg-light d-flex flex-column">
       <div class="navbar navbar-expand navbar-dark bg-dark sticky-top">
          <div class="container">
             <ul class="navbar-nav">
                <li class="nav-item">
-                  <router-link
-                     class="nav-link" 
-                     :to="useRoute(RouteName.Home)"
-                  >
+                  <router-link class="nav-link" :to="useRoute(RouteName.Home)">
                      Home
                   </router-link>
                </li>
@@ -87,6 +81,6 @@ export default defineComponent({
 
 <style lang="postcss">
 .clickable {
-   cursor: pointer;
+    cursor: pointer;
 }
 </style>
