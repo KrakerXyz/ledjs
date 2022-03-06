@@ -1,44 +1,44 @@
 {
-  "name": "netled-web",
-  "version": "0.0.1",
-  "author": "Josh Kraker <joshkrak@gmail.com>",
-  "type": "module",
-  "main": "./dist/index.js",
-  "files": [
-    "dist/"
-  ],
-  "license": "MIT",
-  "scripts": {
-    "start": "vite",
-    "build": "vite build",
-    "lint": "vuedx-typecheck . && eslint src/**/*.{ts,vue}",
-    "lint-tsc": "vue-tsc --noEmit && eslint src/**/*.{ts,vue}",
-    "lint-eslint": "eslint src/**/*.{ts,vue}"
-  },
-  "dependencies": {
-    "@krakerxyz/netled-core": "file:../core",
-    "date-fns": "^2.27.0",
-    "vue": "^3.1.1",
-    "vue-router": "^4.0.8"
-  },
-  "devDependencies": {
-    "@types/gapi": "^0.0.41",
-    "@types/gapi.auth2": "^0.0.56",
-    "@types/uuid": "^8.3.0",
-    "@typescript-eslint/eslint-plugin": "^5",
-    "@typescript-eslint/parser": "^5",
-    "@vitejs/plugin-vue": "^2.2.4",
-    "@vue/compiler-sfc": "^3.1.1",
-    "@vuedx/typecheck": "^0.7.4",
-    "@vuedx/typescript-plugin-vue": "^0.7.4",
-    "eslint": "^8",
-    "eslint-plugin-vue": "^8",
-    "monaco-editor": "^0.32.1",
-    "postcss-nested": "^5.0.5",
-    "typescript": "^4.3.2",
-    "vite": "^2.3.7",
-    "vue-tsc": "^0.32.1"
-  },
-  "keywords": [],
-  "description": ""
+    "name": "netled-web",
+    "version": "0.0.1",
+    "author": "Josh Kraker <joshkrak@gmail.com>",
+    "type": "module",
+    "main": "./dist/index.js",
+    "files": [
+        "dist/"
+    ],
+    "license": "MIT",
+    "scripts": {
+        "start": "vite",
+        "build": "vite build",
+        "lint": "vuedx-typecheck . && eslint src/**/*.{ts,vue}",
+        "lint-tsc": "vue-tsc --noEmit && eslint src/**/*.{ts,vue}",
+        "lint-es-fix": "eslint src/**/*.{ts,vue} --fix"
+    },
+    "dependencies": {
+        "@krakerxyz/netled-core": "file:../core",
+        "date-fns": "^2.27.0",
+        "vue": "^3.1.1",
+        "vue-router": "^4.0.8"
+    },
+    "devDependencies": {
+        "@types/gapi": "^0.0.41",
+        "@types/gapi.auth2": "^0.0.56",
+        "@types/uuid": "^8.3.0",
+        "@typescript-eslint/eslint-plugin": "^5",
+        "@typescript-eslint/parser": "^5",
+        "@vitejs/plugin-vue": "^2.2.4",
+        "@vue/compiler-sfc": "^3.1.1",
+        "@vuedx/typecheck": "^0.7.4",
+        "@vuedx/typescript-plugin-vue": "^0.7.4",
+        "eslint": "^8",
+        "eslint-plugin-vue": "^8",
+        "monaco-editor": "^0.32.1",
+        "postcss-nested": "^5.0.5",
+        "typescript": "^4.3.2",
+        "vite": "^2.3.7",
+        "vue-tsc": "^0.32.1"
+    },
+    "keywords": [],
+    "description": ""
 }

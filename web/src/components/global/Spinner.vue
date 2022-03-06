@@ -1,18 +1,18 @@
 
 <template>
-  <i class="fad fa-asterisk fa-spin"></i>
+    <i class="fad fa-asterisk fa-spin"></i>
 </template>
 
 <script lang="ts">
 
-   import { defineComponent } from 'vue';
+import { defineComponent } from 'vue';
 
-   export default defineComponent({
-      props: {
-      },
-      setup() {
-         return {};
-      }
-   });
+export default defineComponent({
+    props: {
+    },
+    setup() {
+        return {};
+    }
+});
 
 </script>
