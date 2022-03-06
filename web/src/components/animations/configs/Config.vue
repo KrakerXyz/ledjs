@@ -1,183 +1,183 @@
 <template>
-    <div class="h-100 d-flex flex-column">
-        <led-canvas id="canvas" :frame="frame"></led-canvas>
+   <div class="h-100 d-flex flex-column">
+      <led-canvas id="canvas" :frame="frame"></led-canvas>
 
-        <div class="flex-grow-1 container shadow bg-white p-3 d-flex flex-column">
-            <div class="flex-grow-1">
-                <div class="row">
-                    <div class="col">
-                        <h1>{{ animation.name }}</h1>
-                    </div>
+      <div class="flex-grow-1 container shadow bg-white p-3 d-flex flex-column">
+         <div class="flex-grow-1">
+            <div class="row">
+               <div class="col">
+                  <h1>{{ animation.name }}</h1>
+               </div>
 
-                    <div class="col-auto d-flex align-items-center">
-                        <button type="button" class="btn text-danger" @click="deleteConfirmation = true">
-                            <i class="fal fa-trash-alt fa-lg"></i>
-                        </button>
-                    </div>
-                </div>
-
-                <div class="row">
-                    <div class="col-sm-6 col-lg-4 mb-3">
-                        <div class="form-floating">
-                            <input
-                                id="config-name"
-                                class="form-control"
-                                placeholder="*"
-                                v-model="dirtyConfig.name"
-                            />
-                            <label for="config-name">Name</label>
-                        </div>
-                    </div>
-
-                    <div class="col mb-3">
-                        <div class="form-floating">
-                            <input
-                                id="config-description"
-                                class="form-control"
-                                placeholder="*"
-                                v-model="description"
-                            />
-                            <label for="config-description">Description</label>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="row">
-                    <div class="col-lg-6 col-xl mb-3 d-flex flex-column justify-content-end">
-                        <label for="c-interval" class="form-label">
-                            Interval:
-                            <input class="interval" v-model.number.lazy="dirtyConfig.animation.interval" />
-                            ms,
-                            {{ Math.round(10000 / dirtyConfig.animation.interval) / 10 }}fps
-                            <button type="button" class="btn btn-primary py-0 px-2 ms-3" @click="dirtyConfig.animation.interval = 16">60fps</button>
-
-                            <button type="button" class="btn btn-primary py-0 px-2 ms-1" @click="dirtyConfig.animation.interval = 33">30fps</button>
-
-                            <button type="button" class="btn btn-primary py-0 px-2 ms-1" @click="dirtyConfig.animation.interval = 66">15fps</button>
-
-                            <button type="button" class="btn btn-primary py-0 px-2 ms-1" @click="dirtyConfig.animation.interval = 200">5fps</button>
-
-                            <button type="button" class="btn btn-primary py-0 px-2 ms-1" @click="dirtyConfig.animation.interval = 500">2fps</button>
-
-                            <button type="button" class="btn btn-primary py-0 px-2 ms-1" @click="dirtyConfig.animation.interval = 1000">1fps</button>
-
-                            <button type="button" class="btn btn-primary py-0 px-2 ms-1" @click="dirtyConfig.animation.interval = 2000">0.5fps</button>
-                        </label>
-                        <input
-                            type="range"
-                            class="form-range"
-                            id="c-interval"
-                            min="5"
-                            max="2000"
-                            v-model.number="dirtyConfig.animation.interval"
-                        />
-                    </div>
-
-                    <div class="col-lg-6 col-xl mb-3 d-flex flex-column justify-content-end">
-                        <label for="c-brightness" class="form-label">Brightness ({{ Math.round((dirtyConfig.animation.brightness / 255) * 100) }}%)</label>
-                        <input
-                            type="range"
-                            class="form-range"
-                            id="c-brightness"
-                            min="0"
-                            max="255"
-                            v-model.number="dirtyConfig.animation.brightness"
-                        />
-                    </div>
-                </div>
-
-                <div class="row">
-                    <div class="col-lg-6 mb-3" v-for="p of paramVms" :key="p.name">
-                        <div v-if="p.meta.type === 'number'" class="mb-3">
-                            <div class="row">
-                                <div class="col-lg-auto">
-                                    <div class="form-floating">
-                                        <input
-                                            :id="`config-${p.name}`"
-                                            class="form-control"
-                                            placeholder="*"
-                                            v-model="p.value"
-                                        />
-                                        <label :for="`config-${p.name}`">{{ p.name }}</label>
-                                    </div>
-                                </div>
-                                <div class="col-lg d-flex align-items-end">
-                                    <input
-                                        type="range"
-                                        v-if="p.meta.type === 'number'"
-                                        :id="`c-param-${p.name}`"
-                                        class="form-range"
-                                        :min="p.meta.min"
-                                        :max="p.meta.maxRecommended ?? p.meta.max"
-                                        v-model="p.value"
-                                    />
-                                </div>
-                            </div>
-                            <small class="text-muted">{{ p.meta.description }}. Default {{ p.meta.default }}</small>
-                        </div>
-
-                        <div class="mb-3" v-if="p.meta.type === 'color'">
-                            <div class="row">
-                                <div class="col-auto">
-                                    <label>{{ p.name }}</label>
-                                </div>
-                                <div class="col">
-                                    <input type="color" v-model="p.value" />
-                                    {{ p.value }}
-                                </div>
-                            </div>
-                            <small class="text-muted">{{ p.meta.description }}. Default {{ p.meta.default }}</small>
-                        </div>
-                    </div>
-                </div>
+               <div class="col-auto d-flex align-items-center">
+                  <button type="button" class="btn text-danger" @click="deleteConfirmation = true">
+                     <i class="fal fa-trash-alt fa-lg"></i>
+                  </button>
+               </div>
             </div>
 
-            <div>
-                <div class="row g-4">
-                    <div class="col-12 col-md mb-4">
-                        <p>Preview Devices</p>
-                        <div class="btn-group w-100">
-                            <button
-                                type="button"
-                                v-for="d of deviceVms"
-                                :key="d.id"
-                                class="btn btn-device"
-                                :class="{ 'btn-primary': d.selected, 'btn-outline-primary': !d.selected }"
-                                @click="toggleDevice(d)"
-                            >
-                                {{ d.name }}
-                            </button>
-                        </div>
-                    </div>
+            <div class="row">
+               <div class="col-sm-6 col-lg-4 mb-3">
+                  <div class="form-floating">
+                     <input
+                        id="config-name"
+                        class="form-control"
+                        placeholder="*"
+                        v-model="dirtyConfig.name"
+                     />
+                     <label for="config-name">Name</label>
+                  </div>
+               </div>
 
-                    <div class="col-md-3 col-xxl-2 d-flex align-items-end mb-md-4">
-                        <button
-                            type="button"
-                            v-if="isDirty"
-                            class="btn w-100 btn-primary"
-                            @click="saveConfig(false)"
-                        >
-                            Save
-                        </button>
-                    </div>
-                    <div class="col-md-2 col-xxl-1 d-flex align-items-end mb-md-4">
-                        <button
-                            type="button"
-                            v-if="isDirty"
-                            class="btn w-100 btn-info"
-                            @click="saveConfig(true)"
-                        >
-                            As New
-                        </button>
-                    </div>
-                </div>
+               <div class="col mb-3">
+                  <div class="form-floating">
+                     <input
+                        id="config-description"
+                        class="form-control"
+                        placeholder="*"
+                        v-model="description"
+                     />
+                     <label for="config-description">Description</label>
+                  </div>
+               </div>
             </div>
-        </div>
 
-        <v-confirmation-modal v-if="deleteConfirmation" @cancel="deleteConfirmation = false" @confirm="deleteConfig()">
-            Are you sure you want to delete this configuration?
-        </v-confirmation-modal>
-    </div>
+            <div class="row">
+               <div class="col-lg-6 col-xl mb-3 d-flex flex-column justify-content-end">
+                  <label for="c-interval" class="form-label">
+                     Interval:
+                     <input class="interval" v-model.number.lazy="dirtyConfig.animation.interval" />
+                     ms,
+                     {{ Math.round(10000 / dirtyConfig.animation.interval) / 10 }}fps
+                     <button type="button" class="btn btn-primary py-0 px-2 ms-3" @click="dirtyConfig.animation.interval = 16">60fps</button>
+
+                     <button type="button" class="btn btn-primary py-0 px-2 ms-1" @click="dirtyConfig.animation.interval = 33">30fps</button>
+
+                     <button type="button" class="btn btn-primary py-0 px-2 ms-1" @click="dirtyConfig.animation.interval = 66">15fps</button>
+
+                     <button type="button" class="btn btn-primary py-0 px-2 ms-1" @click="dirtyConfig.animation.interval = 200">5fps</button>
+
+                     <button type="button" class="btn btn-primary py-0 px-2 ms-1" @click="dirtyConfig.animation.interval = 500">2fps</button>
+
+                     <button type="button" class="btn btn-primary py-0 px-2 ms-1" @click="dirtyConfig.animation.interval = 1000">1fps</button>
+
+                     <button type="button" class="btn btn-primary py-0 px-2 ms-1" @click="dirtyConfig.animation.interval = 2000">0.5fps</button>
+                  </label>
+                  <input
+                     type="range"
+                     class="form-range"
+                     id="c-interval"
+                     min="5"
+                     max="2000"
+                     v-model.number="dirtyConfig.animation.interval"
+                  />
+               </div>
+
+               <div class="col-lg-6 col-xl mb-3 d-flex flex-column justify-content-end">
+                  <label for="c-brightness" class="form-label">Brightness ({{ Math.round((dirtyConfig.animation.brightness / 255) * 100) }}%)</label>
+                  <input
+                     type="range"
+                     class="form-range"
+                     id="c-brightness"
+                     min="0"
+                     max="255"
+                     v-model.number="dirtyConfig.animation.brightness"
+                  />
+               </div>
+            </div>
+
+            <div class="row">
+               <div class="col-lg-6 mb-3" v-for="p of paramVms" :key="p.name">
+                  <div v-if="p.meta.type === 'number'" class="mb-3">
+                     <div class="row">
+                        <div class="col-lg-auto">
+                           <div class="form-floating">
+                              <input
+                                 :id="`config-${p.name}`"
+                                 class="form-control"
+                                 placeholder="*"
+                                 v-model="p.value"
+                              />
+                              <label :for="`config-${p.name}`">{{ p.name }}</label>
+                           </div>
+                        </div>
+                        <div class="col-lg d-flex align-items-end">
+                           <input
+                              type="range"
+                              v-if="p.meta.type === 'number'"
+                              :id="`c-param-${p.name}`"
+                              class="form-range"
+                              :min="p.meta.min"
+                              :max="p.meta.maxRecommended ?? p.meta.max"
+                              v-model="p.value"
+                           />
+                        </div>
+                     </div>
+                     <small class="text-muted">{{ p.meta.description }}. Default {{ p.meta.default }}</small>
+                  </div>
+
+                  <div class="mb-3" v-if="p.meta.type === 'color'">
+                     <div class="row">
+                        <div class="col-auto">
+                           <label>{{ p.name }}</label>
+                        </div>
+                        <div class="col">
+                           <input type="color" v-model="p.value" />
+                           {{ p.value }}
+                        </div>
+                     </div>
+                     <small class="text-muted">{{ p.meta.description }}. Default {{ p.meta.default }}</small>
+                  </div>
+               </div>
+            </div>
+         </div>
+
+         <div>
+            <div class="row g-4">
+               <div class="col-12 col-md mb-4">
+                  <p>Preview Devices</p>
+                  <div class="btn-group w-100">
+                     <button
+                        type="button"
+                        v-for="d of deviceVms"
+                        :key="d.id"
+                        class="btn btn-device"
+                        :class="{ 'btn-primary': d.selected, 'btn-outline-primary': !d.selected }"
+                        @click="toggleDevice(d)"
+                     >
+                        {{ d.name }}
+                     </button>
+                  </div>
+               </div>
+
+               <div class="col-md-3 col-xxl-2 d-flex align-items-end mb-md-4">
+                  <button
+                     type="button"
+                     v-if="isDirty"
+                     class="btn w-100 btn-primary"
+                     @click="saveConfig(false)"
+                  >
+                     Save
+                  </button>
+               </div>
+               <div class="col-md-2 col-xxl-1 d-flex align-items-end mb-md-4">
+                  <button
+                     type="button"
+                     v-if="isDirty"
+                     class="btn w-100 btn-info"
+                     @click="saveConfig(true)"
+                  >
+                     As New
+                  </button>
+               </div>
+            </div>
+         </div>
+      </div>
+
+      <v-confirmation-modal v-if="deleteConfirmation" @cancel="deleteConfirmation = false" @confirm="deleteConfig()">
+         Are you sure you want to delete this configuration?
+      </v-confirmation-modal>
+   </div>
 </template>
 
 <script lang="ts">

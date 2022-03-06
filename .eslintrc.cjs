@@ -126,6 +126,11 @@ module.exports = {
             }
         ],
 
+        'vue/object-curly-spacing': [
+            'error',
+            'always'
+        ],
+
         '@typescript-eslint/explicit-module-boundary-types': [
             //https://github.com/typescript-eslint/typescript-eslint/blob/master/packages/eslint-plugin/docs/rules/explicit-module-boundary-types.md
             'off'
@@ -146,6 +151,11 @@ module.exports = {
 
         '@typescript-eslint/no-non-null-assertion': [
             'off'
+        ],
+
+        'object-curly-spacing': [
+            'error',
+            'always'
         ],
 
         'max-lines': [

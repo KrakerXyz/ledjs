@@ -1,35 +1,35 @@
 <template>
-    <div class="container h-100 shadow bg-white p-3">
-        <h1>{{ animation.name }} Configs</h1>
-        <div class="row">
-            <div class="col">
-                <div class="list-group" v-if="configs">
-                    <router-link
-                        class="list-group-item list-group-item-action"
-                        v-for="c of configs"
-                        :key="c.id"
-                        :to="{ name: 'animation-config', params: { configId: c.id } }"
-                    >
-                        <div class="row">
-                            <div class="col">
-                                {{ c.name }}
-                                <div v-if="c.description">
-                                    {{ c.description }}
-                                </div>
-                            </div>
+   <div class="container h-100 shadow bg-white p-3">
+      <h1>{{ animation.name }} Configs</h1>
+      <div class="row">
+         <div class="col">
+            <div class="list-group" v-if="configs">
+               <router-link
+                  class="list-group-item list-group-item-action"
+                  v-for="c of configs"
+                  :key="c.id"
+                  :to="{ name: 'animation-config', params: { configId: c.id } }"
+               >
+                  <div class="row">
+                     <div class="col">
+                        {{ c.name }}
+                        <div v-if="c.description">
+                           {{ c.description }}
                         </div>
-                    </router-link>
-                </div>
+                     </div>
+                  </div>
+               </router-link>
             </div>
-        </div>
-        <div class="row mt-3">
-            <div class="col">
-                <button type="button" class="btn btn-link p-0" @click.once="addConfig()">
-                    New Config
-                </button>
-            </div>
-        </div>
-    </div>
+         </div>
+      </div>
+      <div class="row mt-3">
+         <div class="col">
+            <button type="button" class="btn btn-link p-0" @click.once="addConfig()">
+               New Config
+            </button>
+         </div>
+      </div>
+   </div>
 </template>
 
 <script lang="ts">

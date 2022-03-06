@@ -1,49 +1,46 @@
 {
-  "name": "@krakerxyz/netled-raspi",
-  "description": "",
-  "version": "0.0.9",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/KrakerXyz/netled"
-  },
-  "author": {
-    "name": "Josh Kraker",
-    "email": "joshkrak@gmail.com"
-  },
-  "license": "MIT",
-  "type": "commonjs",
-  "main": "./dist/index.js",
-  "files": [
-    "dist/",
-    "./bin.js"
-  ],
-  "bin": {
-    "netled": "./bin.js"
-  },
-  "scripts": {
-    "clean": "rimraf ./dist/*",
-    "prestart": "npm run build",
-    "start": "node --unhandled-rejections=strict --trace-warnings .",
-    "build": "npm run clean && tsc",
-    "lint": "eslint ./src/**/*.ts",
-    "prepublishOnly": "npm run build"
-  },
-  "dependencies": {
-    "@krakerxyz/netled-core": "file:../core",
-    "command-line-args": "^5.2.0",
-    "dotenv": "^16.0.0",
-    "rpio": "^2.4.2",
-    "tslib": "^2.3.1",
-    "vm2": "^3.9.3"
-  },
-  "devDependencies": {
-    "@types/command-line-args": "^5.2.0",
-    "@types/node": "^16",
-    "@types/rpio": "^2.4.2",
-    "@typescript-eslint/eslint-plugin": "^5",
-    "@typescript-eslint/parser": "^5",
-    "eslint": "^8",
-    "rimraf": "^3.0.0",
-    "typescript": "^4.2.4"
-  }
+    "name": "@krakerxyz/netled-raspi",
+    "description": "",
+    "version": "0.0.9",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/KrakerXyz/netled"
+    },
+    "author": {
+        "name": "Josh Kraker",
+        "email": "joshkrak@gmail.com"
+    },
+    "license": "MIT",
+    "type": "commonjs",
+    "main": "./dist/index.js",
+    "files": [
+        "dist/",
+        "./bin.js"
+    ],
+    "bin": {
+        "netled": "./bin.js"
+    },
+    "scripts": {
+        "clean": "rimraf ./dist/*",
+        "prestart": "npm run build",
+        "start": "node --unhandled-rejections=strict --trace-warnings .",
+        "build": "npm run clean && tsc",
+        "lint": "eslint ./src/**/*.ts",
+        "prepublishOnly": "npm run build"
+    },
+    "dependencies": {
+        "@krakerxyz/netled-core": "file:../core",
+        "command-line-args": "^5.2.0",
+        "dotenv": "^16.0.0",
+        "rpio": "^2.4.2",
+        "tslib": "^2.3.1",
+        "vm2": "^3.9.3"
+    },
+    "devDependencies": {
+        "@types/command-line-args": "^5.2.0",
+        "@types/node": "^16",
+        "@types/rpio": "^2.4.2",
+        "rimraf": "^3.0.0",
+        "typescript": "^4.2.4"
+    }
 }

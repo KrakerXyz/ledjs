@@ -38,7 +38,7 @@ export function useMonacoEditor(containerId: string, config?: Partial<EditorConf
                 lineNumbers: 'on',
             }) as monaco.editor.IStandaloneCodeEditor;
 
-            editor.getModel()?.updateOptions({ tabSize: 3});
+            editor.getModel()?.updateOptions({ tabSize: 3 });
 
             let isOutgoingValue = false;
             editor.onDidChangeModelContent(() => {

@@ -1,7 +1,6 @@
 {
     "cSpell.words": [
         "ARGB",
-        "Leds",
         "cooldown",
         "eitmuf",
         "fastify",
@@ -11,9 +10,11 @@
         "heatramp",
         "icdocd",
         "joshkrak",
+        "Leds",
         "multiline",
         "netled",
         "parameterless",
+        "pino",
         "prestart",
         "raspi",
         "referrerpolicy",
@@ -23,6 +24,13 @@
         "typecheck",
         "vetur"
     ],
-    "html.format.wrapAttributes": "aligned-multiple",
-    "html.format.wrapLineLength": 0,
+    "editor.codeActionsOnSave": {
+        "source.fixAll.eslint": true
+    },
+    "eslint.validate": [
+        "javascript",
+        "typescript",
+        "vue",
+        "html"
+    ]
 }

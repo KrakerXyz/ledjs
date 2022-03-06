@@ -1,12 +1,12 @@
 
 <template>
-    <div class="modal-wrapper shadow" @click.self="shadowClick()">
-        <div
-            class="modal-content-x container-fluid p-4 shadow bg-white border rounded position-absolute col-sm-10 col-lg-8 col-xl-6 col-xxl-5"
-        >
-            <slot></slot>
-        </div>
-    </div>
+   <div class="modal-wrapper shadow" @click.self="shadowClick()">
+      <div
+         class="modal-content-x container-fluid p-4 shadow bg-white border rounded position-absolute col-sm-10 col-lg-8 col-xl-6 col-xxl-5"
+      >
+         <slot></slot>
+      </div>
+   </div>
 </template>
 
 <script lang="ts">

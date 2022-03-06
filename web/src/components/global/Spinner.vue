@@ -1,6 +1,6 @@
 
 <template>
-    <i class="fad fa-asterisk fa-spin"></i>
+   <i class="fad fa-asterisk fa-spin"></i>
 </template>
 
 <script lang="ts">

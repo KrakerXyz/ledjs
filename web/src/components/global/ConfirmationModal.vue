@@ -1,21 +1,21 @@
 
 <template>
-    <v-modal @close="response(false)">
-        <slot></slot>
+   <v-modal @close="response(false)">
+      <slot></slot>
 
-        <div class="row mt-4">
-            <div class="col">
-                <button type="button" class="btn btn-success w-100" @click="response(true)">
-                    Confirm
-                </button>
-            </div>
-            <div class="col">
-                <button type="button" class="btn btn-secondary w-100" @click="response(false)">
-                    Cancel
-                </button>
-            </div>
-        </div>
-    </v-modal>
+      <div class="row mt-4">
+         <div class="col">
+            <button type="button" class="btn btn-success w-100" @click="response(true)">
+               Confirm
+            </button>
+         </div>
+         <div class="col">
+            <button type="button" class="btn btn-secondary w-100" @click="response(false)">
+               Cancel
+            </button>
+         </div>
+      </div>
+   </v-modal>
 </template>
 
 <script lang="ts">

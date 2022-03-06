@@ -3,10 +3,16 @@
     "scripts": {
         "start-web": "cd web && npm run start",
         "start-server": "cd server && npm run start",
-        "start": "concurrently -k -n web,server -c bgBlue.black,bgGreen.black \"npm run start-web\" \"npm run start-server\""
+        "start": "concurrently -k -n web,server -c bgBlue.black,bgGreen.black \"npm run start-web\" \"npm run start-server\"",
+        "lint": "eslint **/src/**/*.{ts,vue}",
+        "lint-fix": "eslint **/src/**/*.{ts,vue} --fix"
     },
     "devDependencies": {
-        "concurrently": "^6.2.0",
+        "@typescript-eslint/eslint-plugin": "^5",
+        "@typescript-eslint/parser": "^5",
+        "concurrently": "^7.0.0",
+        "eslint": "^8",
+        "eslint-plugin-vue": "^8",
         "ncp": "^2.0.0"
     }
 }

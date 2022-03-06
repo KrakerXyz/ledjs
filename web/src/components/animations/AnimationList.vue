@@ -7,7 +7,7 @@
                   class="list-group-item list-group-item-action"
                   v-for="a of animations"
                   :key="a.id"
-                  :to="useRoute(RouteName.AnimationConfigs, {animationId: a.id, version: a.version})"
+                  :to="useRoute(RouteName.AnimationConfigs, { animationId: a.id, version: a.version })"
                >
                   <div class="row">
                      <div class="col">
@@ -34,7 +34,7 @@
             <teleport to="#portal-header">
                <router-link
                   class="btn btn-primary"
-                  :to="useRoute(RouteName.AnimationEditor, {animationId: 'new'})"
+                  :to="useRoute(RouteName.AnimationEditor, { animationId: 'new' })"
                >
                   New Animation
                </router-link>

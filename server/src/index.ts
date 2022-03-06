@@ -16,51 +16,51 @@ import path from 'path';
 
 console.log('Configuring db');
 configureDb({
-   dbName: 'netled',
-   uri: getRequiredConfig(EnvKey.DbConnectionString)
+    dbName: 'netled',
+    uri: getRequiredConfig(EnvKey.DbConnectionString)
 });
 
 console.log('Initializing Fastify');
 
 const server = fastify({
-   logger: {
-      level: 'trace',
-      prettyPrint: process.env.NODE_ENV === 'development' && {
-         translateTime: 'SYS:h:MM:ss TT Z o',
-         colorize: true,
-         ignore: 'pid,hostname'
-      },
-   }
+    logger: {
+        level: 'trace',
+        prettyPrint: process.env.NODE_ENV === 'development' && {
+            translateTime: 'SYS:h:MM:ss TT Z o',
+            colorize: true,
+            ignore: 'pid,hostname'
+        },
+    }
 });
 
 const schemaCompilers: Record<string, Ajv.Ajv> = {
-   'body': new Ajv({
-      removeAdditional: false,
-      coerceTypes: false,
-      allErrors: true
-   }),
-   'params': new Ajv({
-      removeAdditional: false,
-      coerceTypes: true,
-      allErrors: true
-   }),
-   'querystring': new Ajv({
-      removeAdditional: false,
-      coerceTypes: true,
-      allErrors: true,
-   })
+    'body': new Ajv({
+        removeAdditional: false,
+        coerceTypes: false,
+        allErrors: true
+    }),
+    'params': new Ajv({
+        removeAdditional: false,
+        coerceTypes: true,
+        allErrors: true
+    }),
+    'querystring': new Ajv({
+        removeAdditional: false,
+        coerceTypes: true,
+        allErrors: true,
+    })
 };
 
 server.setValidatorCompiler(req => {
-   if (!req.httpPart) {
-      throw new Error('Missing httpPart');
-   }
-   const compiler = schemaCompilers[req.httpPart];
-   if (!compiler) {
-      throw new Error(`Missing compiler for ${req.httpPart}`);
-   }
+    if (!req.httpPart) {
+        throw new Error('Missing httpPart');
+    }
+    const compiler = schemaCompilers[req.httpPart];
+    if (!compiler) {
+        throw new Error(`Missing compiler for ${req.httpPart}`);
+    }
 
-   return compiler.compile(req.schema);
+    return compiler.compile(req.schema);
 });
 
 const webSocketManager = new WebSocketManager(server.log.child({ name: 'ws.services.WebSocketManager' }));
@@ -68,26 +68,26 @@ const webSocketManager = new WebSocketManager(server.log.child({ name: 'ws.servi
 server.decorateRequest('services', { getter: () => new RequestServicesContainer(webSocketManager) });
 
 server.register(fastifyJWT, {
-   secret: getRequiredConfig(EnvKey.JwtSecret),
-   cookie: {
-      cookieName: 'jwt',
-      signed: false
-   }
+    secret: getRequiredConfig(EnvKey.JwtSecret),
+    cookie: {
+        cookieName: 'jwt',
+        signed: false
+    }
 });
 
 server.register(fastifyCookie);
 
 server.register(fastifyWebsocket, {
-   errorHandler: (_, conn) => {
-      conn.socket.close(4001, 'Unauthorized');
-      conn.destroy();
-   }
+    errorHandler: (_, conn) => {
+        conn.socket.close(4001, 'Unauthorized');
+        conn.destroy();
+    }
 });
 
 server.register(fastifyStatic, {
-   root: path.join(__dirname, '.web'),
-   immutable: true,
-   maxAge: '1d'
+    root: path.join(__dirname, '.web'),
+    immutable: true,
+    maxAge: '1d'
 });
 
 server.get('/ws/device', { websocket: true, preValidation: [deviceAuthentication] }, webSocketManager.handler);
@@ -96,21 +96,21 @@ server.get('/ws/client', { websocket: true, preValidation: [jwtAuthentication] }
 apiRoutes.forEach(r => server.route(r));
 
 server.setNotFoundHandler((req, res) => {
-   if (req.method !== 'GET') { return res.status(404).send(); }
-   if (req.url.startsWith('/api')) { return res.status(404).send(); }
-   return res.sendFile('index.html');
+    if (req.method !== 'GET') { return res.status(404).send(); }
+    if (req.url.startsWith('/api')) { return res.status(404).send(); }
+    return res.sendFile('index.html');
 });
 
 server.ready(() => {
-   server.log.info('Fastify ready');
+    server.log.info('Fastify ready');
 });
 
 const start = async () => {
-   try {
-      await server.listen(3001, '0.0.0.0');
-   } catch (err) {
-      server.log.error(err);
-      process.exit(1);
-   }
+    try {
+        await server.listen(3001, '0.0.0.0');
+    } catch (err) {
+        server.log.error(err);
+        process.exit(1);
+    }
 };
 start();
