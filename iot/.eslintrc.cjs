@@ -63,7 +63,7 @@ module.exports = {
 
       'indent': [
          //Turning off because I'm not sure how to get it to require initial indent in vue scripts
-         'off',
+         'error',
          3
       ],
 

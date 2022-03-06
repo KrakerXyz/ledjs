@@ -12,6 +12,8 @@
     },
     "eslint.validate": [
         "javascript",
-        "javascript"
+        "typescript",
+        "vue",
+        "html"
     ]
 }

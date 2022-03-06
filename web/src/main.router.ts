@@ -45,52 +45,52 @@ export function useRoute(name: RouteName, params?: any): RouteLocationRaw {
 }
 
 const routes: RouteRecordRaw[] = [
-   {
-      name: RouteName.Home,
-      path: '/',
-      component: () => import('./components/Home.vue')
-   },
-   {
-      name: RouteName.Login,
-      path: '/login',
-      component: () => import('./components/Login.vue')
-   },
-   {
-      name: RouteName.AnimationList,
-      path: '/animations',
-      beforeEnter: requireLogin,
-      component: () => import('./components/animations/AnimationList.vue')
-   },
-   {
-      name: RouteName.AnimationConfigs,
-      path: '/animations/:animationId.:version/configs',
-      beforeEnter: requireLogin,
-      component: () => import('./components/animations/configs/ConfigList.vue'),
-      props: r => {
-         return {
-            animationId: r.params.animationId,
-            version: parseInt(r.params.version as string)
-         };
-      }
-   },
-   {
-      name: RouteName.AnimationConfig,
-      path: '/animations/configs/:configId',
-      beforeEnter: requireLogin,
-      component: () => import('./components/animations/configs/Config.vue'),
-      props: true
-   },
-   {
-      name: RouteName.AnimationEditor,
-      path: '/animations/:animationId/editor',
-      beforeEnter: requireLogin,
-      component: () => import('./components/animations/editor/AnimationEditor.vue')
-   },
-   {
-      name: RouteName.PostList,
-      path: '/posts',
-      beforeEnter: requireLogin,
-      component: () => import('./components/posts/PostList.vue')
+    {
+        name: RouteName.Home,
+        path: '/',
+        component: () => import('./components/Home.vue')
+    },
+    {
+        name: RouteName.Login,
+        path: '/login',
+        component: () => import('./components/Login.vue')
+    },
+    {
+        name: RouteName.AnimationList,
+        path: '/animations',
+        beforeEnter: requireLogin,
+        component: () => import('./components/animations/AnimationList.vue')
+    },
+    {
+        name: RouteName.AnimationConfigs,
+        path: '/animations/:animationId.:version/configs',
+        beforeEnter: requireLogin,
+        component: () => import('./components/animations/configs/ConfigList.vue'),
+        props: r => {
+            return {
+                animationId: r.params.animationId,
+                version: parseInt(r.params.version as string)
+            };
+        }
+    },
+    {
+        name: RouteName.AnimationConfig,
+        path: '/animations/configs/:configId',
+        beforeEnter: requireLogin,
+        component: () => import('./components/animations/configs/Config.vue'),
+        props: true
+    },
+    {
+        name: RouteName.AnimationEditor,
+        path: '/animations/:animationId/editor',
+        beforeEnter: requireLogin,
+        component: () => import('./components/animations/editor/AnimationEditor.vue')
+    },
+    {
+        name: RouteName.PostList,
+        path: '/posts',
+        beforeEnter: requireLogin,
+        component: () => import('./components/posts/PostList.vue')
     },
     {
         name: RouteName.PostEditor,
@@ -98,26 +98,26 @@ const routes: RouteRecordRaw[] = [
         beforeEnter: requireLogin,
         component: () => import('./components/posts/editor/PostEditor.vue'),
         props: true
-   },
-   {
-      name: RouteName.DeviceList,
-      path: '/devices',
-      beforeEnter: requireLogin,
-      component: () => import('./components/devices/DeviceList.vue')
-   },
-   {
-      name: RouteName.DeviceAdd,
-      path: '/devices/add',
-      beforeEnter: requireLogin,
-      component: () => import('./components/devices/DeviceAdd.vue')
-   },
-   {
-      name: RouteName.DeviceView,
-      path: '/devices/:deviceId',
-      beforeEnter: requireLogin,
-      component: () => import('./components/devices/DeviceView.vue'),
-      props: true
-   },
+    },
+    {
+        name: RouteName.DeviceList,
+        path: '/devices',
+        beforeEnter: requireLogin,
+        component: () => import('./components/devices/DeviceList.vue')
+    },
+    {
+        name: RouteName.DeviceAdd,
+        path: '/devices/add',
+        beforeEnter: requireLogin,
+        component: () => import('./components/devices/DeviceAdd.vue')
+    },
+    {
+        name: RouteName.DeviceView,
+        path: '/devices/:deviceId',
+        beforeEnter: requireLogin,
+        component: () => import('./components/devices/DeviceView.vue'),
+        props: true
+    },
 ];
 
 export const router = createRouter({

@@ -1,24 +1,39 @@
 
 export const defaultPostScript = [
-/*
-"use strict";
+    '\'use strict\';',
+    '',
+    'export default class {',
+    '',
+    '   static configMeta = {',
+    '      params: {',
+    '         shift: {',
+    '            type: \'number\',',
+    '            description: \'Number of leds to shift by\',',
+    '            default: 1,',
+    '         }',
+    '      }',
+    '   }',
+    '',
+    '   #shift = 1;',
+    '',
+    '   setConfig(config) {',
+    '      this.#shift = config.shift;',
+    '   }',
+    '',
+    '   post(frame) {',
+    '      if (this.#shift > 0) {',
+    '         for (let i = 0; i < this.#shift; i++) {',
+    '            const v = frame.shift();',
+    '            frame.push(v);',
+    '         }',
+    '      } else {',
+    '         for (let i = 0; i < this.#shift; i++) {',
+    '            const v = frame.pop();',
+    '            frame.unshift(v);',
+    '         }',
+    '      }',
+    '   }',
+    '',
+    '}',
 
-export default class {
-
-    post(frame) {
-        const shift = Math.min(frame.length, 5);
-
-        const first = frame.slice(0, shift);
-
-        for(let i = shift; i < frame.length; i++) {
-            frame[i - shift] = frame[i];
-        }
-
-        for(let i = 0; i < shift; i++) {
-            frame[frame.length - i] = first[i + (shift - 1)];
-        }
-    }
-
-}
-*/
 ];

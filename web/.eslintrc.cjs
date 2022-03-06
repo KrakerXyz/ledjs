@@ -55,7 +55,7 @@ module.exports = {
 
         'vue/html-indent': [
             'error',
-            4
+            3
         ],
 
         'vue/attribute-hyphenation': [

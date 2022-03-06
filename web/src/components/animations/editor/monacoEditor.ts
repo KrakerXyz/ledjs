@@ -32,8 +32,13 @@ export function useMonacoEditor(containerId: string, config?: Partial<EditorConf
                 value: content.value,
                 language: 'javascript',
                 renderValidationDecorations: 'off',
-                theme: 'vs-dark'
+                theme: 'vs-dark',
+                wordWrap: 'on',
+                wrappingIndent: 'indent',
+                lineNumbers: 'on',
             }) as monaco.editor.IStandaloneCodeEditor;
+
+            editor.getModel()?.updateOptions({ tabSize: 3});
 
             let isOutgoingValue = false;
             editor.onDidChangeModelContent(() => {
@@ -42,11 +47,6 @@ export function useMonacoEditor(containerId: string, config?: Partial<EditorConf
                 isOutgoingValue = true;
                 content.value = newContent;
             });
-
-            // editor.onDidChangeModelDecorations(e => {
-            //     const markers = thisMonaco.editor.getModelMarkers({ owner: 'javascript' });
-            //     errorMarkers.value = markers.filter(m => m.severity === 8);
-            // });
 
             watch(content, c => {
                 if (isOutgoingValue) { isOutgoingValue = false; return; }
