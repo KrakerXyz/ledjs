@@ -24,6 +24,7 @@ console.log('Initializing Fastify');
 
 const server = fastify({
     logger: {
+        level: 'trace',
         transport: process.env.NODE_ENV === 'development' ? {
             target: 'pino-pretty',
             options: {

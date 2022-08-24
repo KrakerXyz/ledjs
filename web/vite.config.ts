@@ -5,30 +5,29 @@ import vue from '@vitejs/plugin-vue';
 //https://github.com/vitejs/vite/discussions/1791
 
 const config: UserConfig = {
-   plugins: [vue()],
-   resolve: {
-      alias: {
-         '@/': '/src/'
-      }
-   },
-   build: {
-      //Defaults to 500 but firebase itself is about 475.
-      chunkSizeWarningLimit: 600
-   },
-   server: {
-      host: '0.0.0.0',
-      proxy: {
-         '/api': {
-            target: 'http://localhost:3001',
-            changeOrigin: true,
-         },
-         '/ws': {
-            target: 'http://localhost:3001',
-            changeOrigin: true,
-            ws: true
-         }
-      }
-   }
+    plugins: [vue()],
+    resolve: {
+        alias: {
+            '@/': '/src/'
+        }
+    },
+    build: {
+        //Defaults to 500 but firebase itself is about 475.
+        chunkSizeWarningLimit: 600
+    },
+    server: {
+        host: '0.0.0.0',
+        proxy: {
+            '/api': {
+                target: 'http://localhost:3001',
+                changeOrigin: true,
+            },
+            '/ws': {
+                target: 'ws://localhost:3001',
+                ws: true
+            }
+        }
+    }
 };
 
 export default config;

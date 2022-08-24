@@ -14,7 +14,7 @@ export class WebSocketManager {
 
     public readonly connections: Map<string, WsConnection[]> = new Map();
 
-    public handler = async (req: FastifyRequest, _res: any) => {
+    public handler = async (req: FastifyRequest, _res: any, ..._params: any[]) => {
 
         const log = req.log.child({ name: 'services.ws.WebSocketManager.handler' });
 
