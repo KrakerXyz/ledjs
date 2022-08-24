@@ -4,6 +4,6 @@ export const jwtAuthentication: preValidationHookHandler = async (req, res) => {
     try {
         await req.jwtVerify();
     } catch (err) {
-        res.send(err);
+        await res.send(err);
     }
 };

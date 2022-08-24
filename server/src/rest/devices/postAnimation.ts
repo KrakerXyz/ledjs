@@ -19,12 +19,12 @@ export const postAnimation: RouteOptions = {
         const devices = await Promise.all(deviceSetup.deviceIds.map(did => db.byId(did)));
 
         if (devices.some(d => !d)) {
-            res.status(400).send('One or more devices did not exist');
+            await res.status(400).send('One or more devices did not exist');
             return;
         }
 
         if (devices.some(d => d?.userId !== req.user.sub)) {
-            res.status(403).send('User does not have access to one or more devices');
+            await res.status(403).send('User does not have access to one or more devices');
             return;
         }
 
@@ -43,7 +43,7 @@ export const postAnimation: RouteOptions = {
             data: deviceSetup.animation
         }, ...deviceSetup.deviceIds);
 
-        res.send();
+        await res.send();
 
     }
 };

@@ -1,34 +1,34 @@
-import { FastifyLoggerInstance, FastifyRequest } from 'fastify';
-import { SocketStream } from '@fastify/websocket';
+import { FastifyBaseLogger, FastifyRequest } from 'fastify';
 import { Device, DeviceConnectionEvent, FromDeviceMessage, Id, ToDeviceMessage, ToHostMessage } from '@krakerxyz/netled-core';
 import { v4 } from 'uuid';
 import { DeviceLogDb } from '../../db';
 import { RequestServicesContainer } from '../RequestServicesContainer';
 import { onClose } from './onClose';
+import { SocketStream } from '@fastify/websocket';
 
 export class WebSocketManager {
 
-    public constructor(private _rootLog: FastifyLoggerInstance) {
+    public constructor(private _rootLog: FastifyBaseLogger) {
 
     }
 
     public readonly connections: Map<string, WsConnection[]> = new Map();
 
-    public handler = async (socketStream: SocketStream, req: FastifyRequest) => {
+    public handler = async (req: FastifyRequest, _res: any) => {
 
         const log = req.log.child({ name: 'services.ws.WebSocketManager.handler' });
 
         const wsConnection: WsConnection = {
             type: req.url.endsWith('/device') ? 'device' : 'user',
             id: req.user.sub,
-            socketStream
+            socket: req.socket
         };
 
         log.info('Incoming WS connection for %s:%s', wsConnection.type, wsConnection.id);
 
-        socketStream.socket.on('close', onClose(wsConnection, req));
+        req.socket.on('close', onClose(wsConnection, req));
 
-        wsConnection.socketStream.socket.on('message', async (json: string) => {
+        req.socket.on('message', async (json: string) => {
             log.info('WS message from %s:%s', wsConnection.type, wsConnection.id);
 
             if (wsConnection.type === 'device') {
@@ -68,7 +68,7 @@ export class WebSocketManager {
         let connections = this.connections.get(wsConnection.id);
 
         if (wsConnection.type === 'device' && connections?.length) {
-            wsConnection.socketStream.destroy(new Error('Device already connected'));
+            wsConnection.socket.destroy(new Error('Device already connected'));
         }
 
         if (!connections) { this.connections.set(wsConnection.id, (connections = [])); }
@@ -127,7 +127,7 @@ export class WebSocketManager {
             const con = this.connections.get(did);
             if (!con?.length) { continue; }
             console.assert(con.length === 1);
-            con[0].socketStream.socket.send(msgJson);
+            (con[0].socket as any).send(msgJson);
 
             logProms.push(deviceLogDb.add({
                 id: v4() as Id,
@@ -147,7 +147,7 @@ export class WebSocketManager {
     public async disconnectDevice(deviceId: Id) {
         const con = this.connections.get(deviceId);
         if (!con?.length) { return; }
-        con.forEach(c => c.socketStream.end());
+        con.forEach(c => c.socket.end());
     }
 
     public sendHostMessage(userId: Id, msg: ToHostMessage) {
@@ -157,7 +157,7 @@ export class WebSocketManager {
         if (!userConnections?.length) { return; }
 
         userConnections.forEach(c => {
-            c.socketStream.socket.send(msgJson);
+            (c.socket as any).send(msgJson);
         });
 
     }
@@ -198,5 +198,5 @@ export class WebSocketManager {
 export interface WsConnection {
     type: 'device' | 'user';
     id: Id;
-    socketStream: SocketStream;
+    socket: SocketStream['socket'];
 }

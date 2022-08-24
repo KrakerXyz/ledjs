@@ -16,7 +16,7 @@ export const postConfig: RouteOptions = {
 
         const existing = await db.byId(post.id);
         if (existing && existing.userId !== req.user.sub) {
-            res.status(401).send({ error: 'Config does not belong to you' });
+            await res.status(401).send({ error: 'Config does not belong to you' });
             return;
         }
 
@@ -37,6 +37,6 @@ export const postConfig: RouteOptions = {
             }
         }
 
-        res.status(existing ? 200 : 201).send(newConfig);
+        await res.status(existing ? 200 : 201).send(newConfig);
     }
 };

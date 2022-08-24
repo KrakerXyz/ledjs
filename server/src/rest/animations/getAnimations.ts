@@ -7,6 +7,6 @@ export const getAnimations: RouteOptions = {
     handler: async (req, res) => {
         const db = req.services.animationDb;
         const all = await awaitAll(db.all());
-        res.send(all);
+        await res.send(all);
     }
 };

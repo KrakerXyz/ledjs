@@ -10,9 +10,9 @@ import fastifyStatic from '@fastify/static';
 
 import { WebSocketManager, EnvKey, getRequiredConfig, deviceAuthentication, jwtAuthentication, RequestServicesContainer } from './services';
 import { configureDb } from '@krakerxyz/typed-base';
-import { apiRoutes } from './rest';
 import Ajv from 'ajv';
 import path from 'path';
+import { apiRoutes } from './rest';
 
 console.log('Configuring db');
 configureDb({
@@ -97,10 +97,17 @@ server.get('/ws/client', { websocket: true, preValidation: [jwtAuthentication] }
 
 apiRoutes.forEach(r => server.route(r));
 
-server.setNotFoundHandler({}, (req, res) => {
-    if (req.method !== 'GET') { res.status(404).send(); }
-    if (req.url.startsWith('/api')) { res.status(404).send(); }
-    res.sendFile('index.html');
+
+server.setNotFoundHandler({}, async (req, res) => {
+    if (req.method !== 'GET') {
+        await res.status(404).send();
+        return;
+    }
+    if (req.url.startsWith('/api')) {
+        await res.status(404).send();
+        return;
+    }
+    await res.sendFile('index.html');
 });
 
 server.ready(() => {

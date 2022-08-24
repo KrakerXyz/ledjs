@@ -16,10 +16,10 @@ export const getScriptById: RouteOptions = {
         const animation = await db.byId(animationId, version);
 
         if (!animation) {
-            res.status(404).send({ error: 'An animation with that id/version does not exist' });
+            await res.status(404).send({ error: 'An animation with that id/version does not exist' });
             return;
         }
 
-        res.status(200).header('Content-Type', 'text/javascript').send(animation.script);
+        await res.status(200).header('Content-Type', 'text/javascript').send(animation.script);
     }
 };

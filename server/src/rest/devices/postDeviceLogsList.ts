@@ -25,12 +25,12 @@ export const postDeviceLogsList: RouteOptions = {
             const devices = await Promise.all(filter.deviceIds.map(did => db.byId(did)));
 
             if (devices.some(d => !d)) {
-                res.status(400).send('One or more devices did not exist');
+                await res.status(400).send('One or more devices did not exist');
                 return;
             }
 
             if (devices.some(d => d?.userId !== req.user.sub)) {
-                res.status(403).send('User does not have access to one or more devices');
+                await res.status(403).send('User does not have access to one or more devices');
                 return;
             }
         } else {
@@ -41,7 +41,7 @@ export const postDeviceLogsList: RouteOptions = {
             }
             if (!ids.length) {
                 //If user has no devices, there wont be any logs
-                res.send([]);
+                await res.send([]);
                 return;
             }
             filter.deviceIds = ids as [Id, ...Id[]];
@@ -52,6 +52,6 @@ export const postDeviceLogsList: RouteOptions = {
 
         const logData = logs.map(l => ({ ...l.data, id: l.id, created: l.created }));
 
-        res.send(logData);
+        await res.send(logData);
     }
 };

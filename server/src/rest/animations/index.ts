@@ -11,6 +11,7 @@ import { deleteById } from './deleteById';
 import { deleteConfigById } from './deleteConfigById';
 
 export const animationRoutes = [
+    getConfigs,
     getAnimations,
     getLatestById,
     getScriptById,
@@ -18,7 +19,6 @@ export const animationRoutes = [
     postConfig,
     getConfigsByAnimationId,
     getById,
-    getConfigs,
     getConfigById,
     deleteById,
     deleteConfigById

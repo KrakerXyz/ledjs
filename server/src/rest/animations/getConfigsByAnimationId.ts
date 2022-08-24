@@ -10,12 +10,9 @@ export const getConfigsByAnimationId: RouteOptions = {
         params: {
             type: 'object',
             properties: {
-                animationId: { type: 'string', format: 'uuid' }
+                animationId: { type: 'string' }
             },
             required: ['animationId']
-        },
-        querystring: {
-            version: { type: 'number', min: 0 }
         }
     },
     handler: async (req, res) => {
@@ -24,6 +21,6 @@ export const getConfigsByAnimationId: RouteOptions = {
         const db = req.services.animationConfigDb;
         const allAsync = db.byAnimationId(animationId, req.user.sub, version);
         const all = await awaitAll(allAsync);
-        res.send(all);
+        await res.send(all);
     }
 };

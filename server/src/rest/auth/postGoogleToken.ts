@@ -67,7 +67,7 @@ export const postGoogleToken: RouteOptions = {
                 sameSite: true,
             });
 
-            res.status(isNewUser ? 201 : 200).send(user);
+            await res.status(isNewUser ? 201 : 200).send(user);
         } catch (e) {
             req.log.warn(e, 'Error validating google auth token');
             res.status(401).send('Error during token/user validation');

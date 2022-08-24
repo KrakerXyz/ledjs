@@ -20,7 +20,7 @@ export const postDevice: RouteOptions = {
         const existingDevice = await db.byId(device.id);
 
         if (existingDevice && existingDevice.userId !== req.user.sub) {
-            res.send(409).send('A device with this id has already been created');
+            await res.send(409).send('A device with this id has already been created');
             return;
         }
 
@@ -41,6 +41,6 @@ export const postDevice: RouteOptions = {
 
         await (existingDevice ? db.replace : db.add).apply(db, [newDevice]);
 
-        res.status(existingDevice ? 200 : 201).send(newDevice);
+        await res.status(existingDevice ? 200 : 201).send(newDevice);
     }
 };

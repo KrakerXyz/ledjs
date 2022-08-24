@@ -11,7 +11,7 @@ export const deleteById: RouteOptions = {
         params: {
             type: 'object',
             properties: {
-                deviceId: { type: 'string', format: 'uuid' }
+                deviceId: { type: 'string' }
             },
             required: ['deviceId']
         }
@@ -21,18 +21,18 @@ export const deleteById: RouteOptions = {
 
         const device = await req.services.deviceDb.byId(deviceId);
         if (!device) {
-            res.status(404).send({ error: 'A device with that id does not exist' });
+            await res.status(404).send({ error: 'A device with that id does not exist' });
             return;
         }
 
         if (device.userId !== req.user.sub) {
-            res.status(403).send({ error: 'Device does not belong to authorized user' });
+            await res.status(403).send({ error: 'Device does not belong to authorized user' });
             return;
         }
 
         await req.services.deviceDb.deleteById(device.id);
         req.services.webSocketManager.disconnectDevice(device.id);
 
-        res.status(200).send();
+        await res.status(200).send();
     }
 };

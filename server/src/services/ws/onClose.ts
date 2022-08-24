@@ -9,7 +9,7 @@ export function onClose(
 
     const log = req.log.child({ name: 'services.ws.onClose' });
 
-    return async () => {
+    return async (..._params: any[]) => {
         log.info('WS %s:%s disconnected', wsConnection.type, wsConnection.id);
 
         const wsManager = req.services.webSocketManager;

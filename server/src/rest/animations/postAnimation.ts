@@ -18,7 +18,7 @@ export const postAnimation: RouteOptions = {
         const parseResult = parseScript(animationPost.script);
 
         if (parseResult.valid === false) {
-            res.status(400).send({ error: `Script contains errors: ${JSON.stringify(parseResult.errors)}` });
+            await res.status(400).send({ error: `Script contains errors: ${JSON.stringify(parseResult.errors)}` });
             return;
         }
 
@@ -36,7 +36,7 @@ export const postAnimation: RouteOptions = {
 
         const { script, ...animationMeta } = animation;
 
-        res.status(existing ? 200 : 201).send(animationMeta);
+        await res.status(existing ? 200 : 201).send(animationMeta);
 
     }
 };

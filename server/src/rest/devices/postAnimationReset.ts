@@ -17,12 +17,12 @@ export const postAnimationReset: RouteOptions = {
         const devices = await Promise.all(post.deviceIds.map(deviceId => req.services.deviceDb.byId(deviceId)));
 
         if (devices.some(d => !d)) {
-            res.status(400).send({ error: 'One or more devices not found' });
+            await res.status(400).send({ error: 'One or more devices not found' });
             return;
         }
 
         if (devices.some(d => d!.userId !== req.user.sub)) {
-            res.status(403).send({ error: 'Access denied to one or more devices' });
+            await res.status(403).send({ error: 'Access denied to one or more devices' });
             return;
         }
 
@@ -66,7 +66,7 @@ export const postAnimationReset: RouteOptions = {
             }
         }
 
-        res.send();
+        await res.send();
 
     }
 };

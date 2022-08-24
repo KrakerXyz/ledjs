@@ -8,7 +8,7 @@ export const getById: RouteOptions = {
         params: {
             type: 'object',
             properties: {
-                animationId: { type: 'string', format: 'uuid' },
+                animationId: { type: 'string' },
                 version: { type: 'number' }
             },
             required: ['animationId', 'version']
@@ -21,10 +21,10 @@ export const getById: RouteOptions = {
         const db = req.services.animationDb;
         const animation = await db.byId(animationId, version);
         if (!animation) {
-            res.status(404).send({ error: 'An animation with that id/version does not exist' });
+            await res.status(404).send({ error: 'An animation with that id/version does not exist' });
             return;
         }
 
-        res.status(200).send(animation);
+        await res.status(200).send(animation);
     }
 };
