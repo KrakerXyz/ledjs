@@ -22,7 +22,8 @@
         "ttsc",
         "ttypescript",
         "typecheck",
-        "vetur"
+        "vetur",
+        "vitejs"
     ],
     "editor.codeActionsOnSave": {
         "source.fixAll.eslint": true

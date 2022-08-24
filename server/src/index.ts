@@ -3,10 +3,10 @@
 require('dotenv').config();
 
 import fastify from 'fastify';
-import fastifyWebsocket from 'fastify-websocket';
-import fastifyCookie from 'fastify-cookie';
-import fastifyJWT from 'fastify-jwt';
-import fastifyStatic from 'fastify-static';
+import fastifyWebsocket from '@fastify/websocket';
+import fastifyCookie from '@fastify/cookie';
+import fastifyJWT from '@fastify/jwt';
+import fastifyStatic from '@fastify/static';
 
 import { WebSocketManager, EnvKey, getRequiredConfig, deviceAuthentication, jwtAuthentication, RequestServicesContainer } from './services';
 import { configureDb } from '@krakerxyz/typed-base';
@@ -24,16 +24,18 @@ console.log('Initializing Fastify');
 
 const server = fastify({
     logger: {
-        level: 'trace',
-        prettyPrint: process.env.NODE_ENV === 'development' && {
-            translateTime: 'SYS:h:MM:ss TT Z o',
-            colorize: true,
-            ignore: 'pid,hostname'
-        },
+        transport: process.env.NODE_ENV === 'development' ? {
+            target: 'pino-pretty',
+            options: {
+                translateTime: 'SYS:h:MM:ss TT Z o',
+                colorize: true,
+                ignore: 'pid,hostname'
+            }
+        } : undefined
     }
 });
 
-const schemaCompilers: Record<string, Ajv.Ajv> = {
+const schemaCompilers: Record<string, Ajv> = {
     'body': new Ajv({
         removeAdditional: false,
         coerceTypes: false,
@@ -95,10 +97,10 @@ server.get('/ws/client', { websocket: true, preValidation: [jwtAuthentication] }
 
 apiRoutes.forEach(r => server.route(r));
 
-server.setNotFoundHandler((req, res) => {
-    if (req.method !== 'GET') { return res.status(404).send(); }
-    if (req.url.startsWith('/api')) { return res.status(404).send(); }
-    return res.sendFile('index.html');
+server.setNotFoundHandler({}, (req, res) => {
+    if (req.method !== 'GET') { res.status(404).send(); }
+    if (req.url.startsWith('/api')) { res.status(404).send(); }
+    res.sendFile('index.html');
 });
 
 server.ready(() => {
@@ -107,7 +109,7 @@ server.ready(() => {
 
 const start = async () => {
     try {
-        await server.listen(3001, '0.0.0.0');
+        await server.listen({ port: 3001, host: '0.0.0.0' });
     } catch (err) {
         server.log.error(err);
         process.exit(1);

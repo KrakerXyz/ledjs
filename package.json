@@ -8,11 +8,9 @@
         "lint-fix": "eslint **/src/**/*.{ts,vue} --fix"
     },
     "devDependencies": {
-        "@typescript-eslint/eslint-plugin": "^5",
-        "@typescript-eslint/parser": "^5",
+        "@krakerxyz/eslint-config": "^1.0.0",
         "concurrently": "^7.0.0",
         "eslint": "^8",
-        "eslint-plugin-vue": "^8",
         "ncp": "^2.0.0"
     }
 }

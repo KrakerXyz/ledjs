@@ -1,5 +1,5 @@
 import { FastifyLoggerInstance, FastifyRequest } from 'fastify';
-import { SocketStream } from 'fastify-websocket';
+import { SocketStream } from '@fastify/websocket';
 import { Device, DeviceConnectionEvent, FromDeviceMessage, Id, ToDeviceMessage, ToHostMessage } from '@krakerxyz/netled-core';
 import { v4 } from 'uuid';
 import { DeviceLogDb } from '../../db';

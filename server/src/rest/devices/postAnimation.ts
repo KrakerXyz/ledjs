@@ -1,4 +1,4 @@
-import { RouteOptions } from 'fastify-websocket';
+import { RouteOptions } from '@fastify/websocket';
 import { DeviceAnimationPost } from '@krakerxyz/netled-core';
 import { jsonSchema } from '@krakerxyz/json-schema-transformer';
 import { jwtAuthentication } from '../../services';
