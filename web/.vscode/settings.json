@@ -3,7 +3,9 @@
         "editor.defaultFormatter": "dbaeumer.vscode-eslint"
     },
     "cSpell.words": [
+        "ARGB",
         "gapi",
+        "Leds",
         "NETLED"
     ]
 }

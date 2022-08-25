@@ -23,14 +23,16 @@ export enum RouteName {
     DeviceAdd = 'device-add',
     DeviceView = 'device-view',
     PostList = 'post-list',
-    PostEditor = 'post-editor'
+    PostEditor = 'post-editor',
+    Test = 'test',
 }
 
 export function useRoute(name: RouteName.Home): RouteLocationRaw
+export function useRoute(name: RouteName.Test): RouteLocationRaw
 export function useRoute(name: RouteName.Login): RouteLocationRaw
 export function useRoute(name: RouteName.AnimationList): RouteLocationRaw
 export function useRoute(name: RouteName.AnimationConfigs, params: { animationId: string, version: number }): RouteLocationRaw
-export function useRoute(name: RouteName.AnimationConfig, params: {configId: Id}): RouteLocationRaw
+export function useRoute(name: RouteName.AnimationConfig, params: { configId: Id }): RouteLocationRaw
 export function useRoute(name: RouteName.AnimationEditor, params: { animationId: Id | 'new' }): RouteLocationRaw
 export function useRoute(name: RouteName.PostList): RouteLocationRaw
 export function useRoute(name: RouteName.PostEditor, params: { postId: Id | 'new' }): RouteLocationRaw
@@ -49,6 +51,11 @@ const routes: RouteRecordRaw[] = [
         name: RouteName.Home,
         path: '/',
         component: () => import('./components/Home.vue')
+    },
+    {
+        name: RouteName.Test,
+        path: `/${RouteName.Test}`,
+        component: () => import('./components/test/Test.vue')
     },
     {
         name: RouteName.Login,

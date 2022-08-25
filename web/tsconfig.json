@@ -15,6 +15,7 @@
         "importHelpers": true,
         "removeComments": true,
         "outDir": "./dist",
+        "jsx": "preserve",
         "rootDirs": [
             "src"
         ],
