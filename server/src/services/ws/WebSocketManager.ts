@@ -14,14 +14,14 @@ export class WebSocketManager {
 
     public readonly connections: Map<string, WsConnection[]> = new Map();
 
-    public handler = async (req: FastifyRequest, _res: any, ..._params: any[]) => {
+    public handler = async (conn: SocketStream, req: FastifyRequest, ..._params: any[]) => {
 
         const log = req.log.child({ name: 'services.ws.WebSocketManager.handler' });
 
         const wsConnection: WsConnection = {
             type: req.url.endsWith('/device') ? 'device' : 'user',
             id: req.user.sub,
-            socket: req.socket
+            socket: conn.socket
         };
 
         log.info('Incoming WS connection for %s:%s', wsConnection.type, wsConnection.id);

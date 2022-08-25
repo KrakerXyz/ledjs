@@ -78,8 +78,6 @@ server.register(fastifyJWT, {
     }
 });
 
-server.register(fastifyCookie);
-
 server.register(fastifyWebsocket, {
     errorHandler: (_, conn) => {
         conn.socket.close(4001, 'Unauthorized');
@@ -87,14 +85,19 @@ server.register(fastifyWebsocket, {
     }
 });
 
+server.register(async function (fastify) {
+    //Since updating to the new fastify, this must be inside this server.register or we'll get ws connection failed errors on client
+    fastify.get('/ws/device', { websocket: true, preValidation: [deviceAuthentication] }, webSocketManager.handler);
+    fastify.get('/ws/client', { websocket: true, preValidation: [jwtAuthentication] }, webSocketManager.handler);
+});
+
+server.register(fastifyCookie);
+
 server.register(fastifyStatic, {
     root: path.join(__dirname, '.web'),
     immutable: true,
     maxAge: '1d'
 });
-
-server.get('/ws/device', { websocket: true, preValidation: [deviceAuthentication] }, webSocketManager.handler);
-server.get('/ws/client', { websocket: true, preValidation: [jwtAuthentication] }, webSocketManager.handler);
 
 apiRoutes.forEach(r => server.route(r));
 
