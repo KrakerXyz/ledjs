@@ -40,7 +40,8 @@ const schemaCompilers: Record<string, Ajv> = {
     'body': new Ajv({
         removeAdditional: false,
         coerceTypes: false,
-        allErrors: true
+        allErrors: true,
+        strictTuples: false // without this we get warning about the json schema generated from [string, ...string[]]
     }),
     'params': new Ajv({
         removeAdditional: false,
