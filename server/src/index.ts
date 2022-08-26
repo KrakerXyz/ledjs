@@ -94,10 +94,18 @@ server.register(async function (fastify) {
 
 server.register(fastifyCookie);
 
+const staticHeaders = {
+    'Cross-Origin-Opener-Policy': 'same-origin',
+    'Cross-Origin-Embedder-Policy': 'require-corp'
+};
+
 server.register(fastifyStatic, {
     root: path.join(__dirname, '.web'),
     immutable: true,
-    maxAge: '1d'
+    maxAge: '1d',
+    setHeaders: res => {
+        res.headers(staticHeaders);
+    }
 });
 
 apiRoutes.forEach(r => server.route(r));
@@ -112,7 +120,7 @@ server.setNotFoundHandler({}, async (req, res) => {
         await res.status(404).send();
         return;
     }
-    await res.sendFile('index.html');
+    await res.headers(staticHeaders).sendFile('index.html');
 });
 
 server.ready(() => {

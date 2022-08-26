@@ -12,6 +12,7 @@ export class LedArray {
         this.#sendCb = sendCb;
     }
 
+    /** The number of leds in the array */
     public get length(): number {
         return this.#numLeds;
     }
@@ -24,10 +25,13 @@ export class LedArray {
             throw new Error(`Index ${index} is out of bounds`);
         }
 
+        const pos = index * 4;
         if (component === undefined) {
-            return [this.#arr[index], this.#arr[index + 1], this.#arr[index + 2], this.#arr[index + 3]];
+            const led: ARGB = [this.#arr[pos], this.#arr[pos + 1], this.#arr[pos + 2], this.#arr[pos + 3]];
+            return led;
         }
-        return this.#arr[index + component];
+
+        return this.#arr[pos + component];
 
     }
 
@@ -40,24 +44,25 @@ export class LedArray {
             throw new Error(`Index ${index} is out of bounds`);
         }
 
+        const pos = index * 4;
         if (args.length === 1) {
             const color = args[0];
-            this.#arr[index] = color[0];
-            this.#arr[index + 1] = color[1];
-            this.#arr[index + 2] = color[2];
-            this.#arr[index + 3] = color[3];
+            this.#arr[pos] = color[0];
+            this.#arr[pos + 1] = color[1];
+            this.#arr[pos + 2] = color[2];
+            this.#arr[pos + 3] = color[3];
         } else if (args.length === 4) {
             const [a, r, g, b] = args;
-            this.#arr[index] = a;
-            this.#arr[index + 1] = r;
-            this.#arr[index + 2] = g;
-            this.#arr[index + 3] = b;
+            this.#arr[pos] = a;
+            this.#arr[pos + 1] = r;
+            this.#arr[pos + 2] = g;
+            this.#arr[pos + 3] = b;
         } else if (args.length === 2) {
             const [component, value] = args;
             if (component < 0 || component > 3) {
                 throw new Error(`Component ${component} is out of bounds`);
             }
-            this.#arr[index + component] = value;
+            this.#arr[pos + component] = value;
         } else {
             throw new Error('Invalid number of arguments');
         }
