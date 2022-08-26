@@ -28,6 +28,10 @@ export default defineComponent({
         const script = new Script(ledArray, timer);
         script.run();
 
+        // setTimeout(() => {
+        //     script.pause();
+        // }, 5000);
+
         return { ledCanvas };
     },
 });

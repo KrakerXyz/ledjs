@@ -10,12 +10,8 @@ export class Script {
     private _running = false;
     public async run(): Promise<void> {
         this._running = true;
-        this._interval = this._timer.createInterval(100, { started: true });
+        this._interval = this._timer.createInterval(20, this.nextFrame.bind(this), { started: true });
         this.nextFrame();
-        while (this._running) {
-            await this._interval.nextTick();
-            this.nextFrame();
-        }
     }
 
     private _color = 0;

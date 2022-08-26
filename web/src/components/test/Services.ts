@@ -1,7 +1,6 @@
-import { assertTrue } from './assertsTrue';
+
 
 export type TimerInterval = {
-    nextTick(): Promise<number>,
     start(): void,
     stop(): void
 }
@@ -10,43 +9,42 @@ export type TimerOptions = { started?: boolean }
 
 export class Timer {
 
-    public createInterval(interval: number, options: TimerOptions): TimerInterval {
+    public createInterval(interval: number, cb: () => void, options: TimerOptions): TimerInterval {
 
         let running: symbol | null = null;
-        let now = Date.now();
-        let next: Promise<number> | null = null;
-        let tickNum = 0;
+        let next = 0;
 
         const run = () => {
             const thisRunSymbol = running;
-            next = new Promise<number>(resolve => {
-                const drift = Date.now() - now;
-                now = Date.now();
-                setTimeout(() => {
-                    if (running !== thisRunSymbol) { return; }
-                    run();
-                    resolve(++tickNum);
-                }, interval - drift);
-            });
+            const now = Date.now();
+            const drift = now - next;
+            const nextInterval = interval - drift;
+            next += interval;
+            console.log(`Now ${now}, Expected ${next}, Drift ${drift}, Next Interval ${nextInterval}, Next ${next}`);
+            setTimeout(() => {
+                if (running !== thisRunSymbol) { return; }
+                run();
+                cb();
+            }, nextInterval);
+        };
+
+        const start = () => {
+            running = Symbol();
+            next = Date.now();
+            run();
         };
 
         if (options.started) {
-            running = Symbol();
-            run();
+            start();  
         }
 
         return {
-            nextTick() {
-                if (!running) { throw new Error('Interval is stopped'); }
-                assertTrue(!!next);
-                return next;
-            },
             start: () => {
                 if (running) {
                     throw new Error('Interval is already running');
                 }
                 running = Symbol();
-                run();
+                start();
             },
             stop: () => {
                 if (!running) {
