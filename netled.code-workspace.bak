@@ -13,4 +13,7 @@
             "path": "iot"
         }
     ],
+    "settings": {
+        "eslint.format.enable": true
+    },
 }
