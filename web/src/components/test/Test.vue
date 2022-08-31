@@ -46,18 +46,27 @@ export {};
 
 declare global {
     type TimerInterval = {
+        /** Start the timer */
         start(): void;
+        /** Stop the timer */
         stop(): void;
     }
+    
     type TimerOptions = {
+        /** Immediately start the timer. Defaults to false which requires an explicit call to start() after creating the timer */
         started?: boolean;
     }
+
+    /** Service to creating timers and intervals */
     interface ITimer {
+        /** Creates a interval that runs a callback at a specified intercal */
         createInterval(interval: number, cb: () => void, options: TimerOptions): TimerInterval;
     }
 
     /** Animation script interface */
     interface IAnimationScript {
+        /** Called to start the animation after script instantiation as well as any time the LedArray needs to be reset or settings have changed. */
+        run(arr: ILedArray, settings: Record<string, string | number | boolean>): void;
         /** Called to temporarily pause the script with the expectation that a subsequent resume() will pick up where it left off */
         pause(): void;
         /** Resume the script after a previous pause() call */
@@ -79,13 +88,13 @@ declare global {
         setLed(index: number, component: 0 | 1 | 2 | 3, value: number): void;
 
         /** Gets current color values of LED at specified index returns as a four-element array of bytes representing [Alpha, Red, Green, Blue]  */
-        getLed(index: number): ARGB;
+        getLed(index: number): [number, number, number, number];
         /** Gets byte of specified color component (0: Alpha, 1: Red, 2: Green, 3: Blue) of LED at given index */
         getLed(index: number, component: 0 | 1 | 2 | 3): number;
-    }
 
-    /** Linting for IAnimationScript constructor. Options and can be removed **/
-    function AnimationScript(ctor: { new(arr: ILedArray, ...args: (Timer)[]): IAnimationScript })
+        /** Notifies the renderer that a new frame is ready to be drawn on the LEDs */
+        send(): void;
+    }
 }
                     `
                 }
@@ -94,24 +103,53 @@ declare global {
 
         content.value = `
         
-@AnimationScript
 export class Script implements IAnimationScript {
 
-    public constructor(private readonly _arr: ILedArray, private readonly _timer: ITimer) {
-
+    public constructor(private readonly _timer: ITimer) {
     }
 
-    public pause(): void {
-        throw new Error('Method not implemented');
+    private _interval: TimerInterval | null = null;
+    private _running = false;
+
+    public run(arr: ILedArray): void {
+        this._running = true;
+        this._interval = this._timer.createInterval(100, this.nextFrame.bind(this, arr), { started: true });
+        this.nextFrame(arr);
     }
 
-    public resume(): void {
-        throw new Error('Method not implemented');
+    private _color = 0;
+    private nextFrame(arr: ILedArray) {
+        if (!this._running) {
+            return;
+        }
+        this._color++;
+        if (this._color === 255) {
+            this._color = 0;
+        }
+        for (let i = 0; i < arr.length; i++) {
+            if (!(i % 5)) {
+                arr.setLed(i, 255, this._color, 0, 0);
+            } else {
+                arr.setLed(i, 255, 0, 0, 0);
+            }
+        }
+        arr.send();
+    }
+
+    public pause() {
+        this._interval?.stop();
+        this._running = false;
+    }
+
+    public resume() {
+        this._running = true;
+        this._interval?.start();
     }
 
     public disposeAsync(): Promise<void> {
-        // This method is optional and can be deleted
-        throw new Error('Method not implemented');
+        this._interval?.stop();
+        this._running = false;
+        return Promise.resolve();
     }
 
 }
