@@ -20,7 +20,7 @@ export class Timer {
             const drift = now - next;
             const nextInterval = interval - drift;
             next += interval;
-            console.log(`Now ${now}, Expected ${next}, Drift ${drift}, Next Interval ${nextInterval}, Next ${next}`);
+            //console.log(`Now ${now}, Expected ${next}, Drift ${drift}, Next Interval ${nextInterval}, Next ${next}`);
             setTimeout(() => {
                 if (running !== thisRunSymbol) { return; }
                 run();

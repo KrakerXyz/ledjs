@@ -1,6 +1,6 @@
 import { ARGB } from '@krakerxyz/netled-core';
 
-export class LedArray {
+export class LedArray implements ILedArray {
 
     readonly #arr: Uint8ClampedArray;
     readonly #numLeds: number;
@@ -72,4 +72,22 @@ export class LedArray {
         return this.#sendCb();
     }
 
+}
+
+/** Method for assigning color values to LEDs in an array */
+interface ILedArray {
+    /** The number of LEDs in the array */
+    readonly length: number;
+
+    /** Set LED at specified index using a four-element array representing [Alpha, Red, Green, Blue] bytes */
+    setLed(index: number, argb: [number, number, number, number]): void;
+    /** Set LED at specified index to Alpha, Red, Green, Blue byte values */
+    setLed(index: number, a: number, r: number, g: number, b: number): void;
+    /** Set color component (0: Alpha, 1: Red, 2: Green, 3: Blue) of specified LED to given byte */
+    setLed(index: number, component: 0 | 1 | 2 | 3, value: number): void;
+
+    /** Gets current color values of LED at specified index returns as a four-element array of bytes representing [Alpha, Red, Green, Blue]  */
+    getLed(index: number): ARGB;
+    /** Gets byte of specified color component (0: Alpha, 1: Red, 2: Green, 3: Blue) of LED at given index */
+    getLed(index: number, component: 0 | 1 | 2 | 3): number;
 }

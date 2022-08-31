@@ -1,7 +1,7 @@
 import { LedArray } from './LedArray';
 import { Timer, TimerInterval } from './Services';
 
-export class Script {
+export class Script implements IAnimationScript {
 
     public constructor(private readonly _arr: LedArray, private readonly _timer: Timer) {
     }
@@ -10,7 +10,7 @@ export class Script {
     private _running = false;
     public async run(): Promise<void> {
         this._running = true;
-        this._interval = this._timer.createInterval(20, this.nextFrame.bind(this), { started: true });
+        this._interval = this._timer.createInterval(100, this.nextFrame.bind(this), { started: true });
         this.nextFrame();
     }
 
@@ -33,14 +33,29 @@ export class Script {
         await this._arr.send();
     }
 
-    public async pause() {
+    public pause() {
         this._interval?.stop();
         this._running = false;
     }
 
-    public dispose(): void {
+    public resume() {
+        this._running = true;
+        this._interval?.start();
+    }
+
+    public dispose(): Promise<void> {
         this._interval?.stop();
         this._running = false;
+        return Promise.resolve();
     }
 
 }
+
+interface IAnimationScript {
+    /** Called to temporarily pause the script with the expectation that a subsequent resume() will pick up where it left off */
+    pause(): void;
+    /** Resume the script after a previous pause() call */
+    resume(): void;
+    /** Called before unloading the script */
+    dispose(): Promise<void>;
+} 
