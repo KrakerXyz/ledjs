@@ -8,7 +8,7 @@ import FullReload from 'vite-plugin-full-reload';
 const config: UserConfig = {
     plugins: [
         vue(),
-        FullReload('src/components/**/*Test.vue', { always: true })
+        FullReload('src/components/**/test/*', { always: true })
     ],
     resolve: {
         alias: {

@@ -1,12 +1,13 @@
 
 
-import type * as monaco from 'monaco-editor';
-import { ComponentInternalInstance, getCurrentInstance, onMounted, onUnmounted, ref, Ref, watch } from 'vue';
+import * as monaco from 'monaco-editor';
+import { ComponentInternalInstance, computed, ComputedRef, getCurrentInstance, onMounted, onUnmounted, ref, Ref, watch } from 'vue';
 
-export function useMonacoEditor(containerId: string, config?: Partial<EditorConfig>, componentTarget?: ComponentInternalInstance): { content: Ref<string>, errorMarkers: Ref<monaco.editor.IMarker[]> } {
+export function useMonacoEditor(containerId: string, config?: Partial<EditorConfig>, componentTarget?: ComponentInternalInstance): Editor {
 
     const content = ref('');
-    const errorMarkers = ref<monaco.editor.IMarker[]>([]);
+    const javascript = ref('');
+    const issues = ref<CodeIssue[]>([]);
 
     let editor: monaco.editor.IStandaloneCodeEditor | undefined;
 
@@ -40,8 +41,6 @@ export function useMonacoEditor(containerId: string, config?: Partial<EditorConf
                 }
             }
 
-
-
             editor = thisMonaco.editor.create(ideContainer, {
                 value: content.value,
                 language: 'typescript',
@@ -52,14 +51,49 @@ export function useMonacoEditor(containerId: string, config?: Partial<EditorConf
                 lineNumbers: 'on',
             }) as monaco.editor.IStandaloneCodeEditor;
 
-            editor.getModel()?.updateOptions({ tabSize: 3 });
+            const model = editor.getModel();
+            if (!model) {
+                throw new Error('Expected model');
+            }
+            model.updateOptions({ tabSize: 3 });
 
+            let typescriptWorker: monaco.languages.typescript.TypeScriptWorker | null = null;
+            thisMonaco.languages.typescript.getTypeScriptWorker().then(worker => {
+                worker(model.uri).then(client => {
+                    typescriptWorker = client;
+                    updateJavascript();
+                });
+            });
+
+            const updateJavascript = () => {
+                typescriptWorker?.getEmitOutput(model.uri.toString()).then(output => {
+                    javascript.value = output.outputFiles[0].text;
+                });
+            };
+
+            editor.onDidChangeModelDecorations(() => {
+                if (!editor) {
+                    return;
+                }
+                const markers = thisMonaco.editor.getModelMarkers({ owner: 'typescript' });
+                const filtered = markers.filter(x => (x.severity == thisMonaco.MarkerSeverity.Error || x.severity === thisMonaco.MarkerSeverity.Warning) && x.resource.path !== 'filename/global.d.ts');
+                issues.value = filtered.map(x => {
+                    return {
+                        severity: x.severity === thisMonaco.MarkerSeverity.Warning ? 'warning' : 'error',
+                        col: x.startColumn,
+                        line: x.startLineNumber,
+                        message: x.message
+                    };
+                });
+            });
+            
             let isOutgoingValue = false;
             editor.onDidChangeModelContent(() => {
                 if (!editor) { return; }
                 const newContent = editor.getValue();
                 isOutgoingValue = true;
                 content.value = newContent;
+                updateJavascript();
             });
 
             watch(content, c => {
@@ -82,11 +116,24 @@ export function useMonacoEditor(containerId: string, config?: Partial<EditorConf
 
     }, componentTarget);
 
-    return { content, errorMarkers };
+    return { content, issues: computed(() => issues.value), javascript: computed(() => javascript.value) };
 }
 
 export interface EditorConfig {
     typescriptLib: {
         [name: string]: string
     }
+}
+
+export interface Editor {
+    content: Ref<string>;
+    issues: ComputedRef<CodeIssue[]>;
+    javascript: ComputedRef<string>
+}
+
+export interface CodeIssue {
+    severity: 'error' | 'warning';
+    line: number;
+    col: number;
+    message: string;
 }

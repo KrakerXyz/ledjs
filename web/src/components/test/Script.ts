@@ -1,13 +1,12 @@
-import { LedArray } from './LedArray';
-import { Timer, TimerInterval } from './Services';
 
-export class Script implements IAnimationScript {
+export class Script implements IAnimationScript2 {
 
-    public constructor(private readonly _arr: LedArray, private readonly _timer: Timer) {
+    public constructor(private readonly _arr: ILedArray, private readonly _timer: ITimer) {
     }
 
     private _interval: TimerInterval | null = null;
     private _running = false;
+
     public async run(): Promise<void> {
         this._running = true;
         this._interval = this._timer.createInterval(100, this.nextFrame.bind(this), { started: true });
@@ -38,24 +37,4 @@ export class Script implements IAnimationScript {
         this._running = false;
     }
 
-    public resume() {
-        this._running = true;
-        this._interval?.start();
-    }
-
-    public dispose(): Promise<void> {
-        this._interval?.stop();
-        this._running = false;
-        return Promise.resolve();
-    }
-
 }
-
-interface IAnimationScript {
-    /** Called to temporarily pause the script with the expectation that a subsequent resume() will pick up where it left off */
-    pause(): void;
-    /** Resume the script after a previous pause() call */
-    resume(): void;
-    /** Called before unloading the script */
-    dispose(): Promise<void>;
-} 

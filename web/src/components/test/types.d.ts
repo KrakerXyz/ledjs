@@ -15,12 +15,10 @@ declare global {
 
     /** Animation script interface */
     interface IAnimationScript {
+        /** Called after instantiation, on setting(s) change and after pauses to start the script */
+        run(settings: Record<string, string | number | boolean>);
         /** Called to temporarily pause the script with the expectation that a subsequent resume() will pick up where it left off */
         pause(): void;
-        /** Resume the script after a previous pause() call */
-        resume(): void;
-        /** Called before unloading the script */
-        disposeAsync?(): Promise<void>;
     } 
 
     /** Method for assigning color values to LEDs in an array */
@@ -39,6 +37,9 @@ declare global {
         getLed(index: number): ARGB;
         /** Gets byte of specified color component (0: Alpha, 1: Red, 2: Green, 3: Blue) of LED at given index */
         getLed(index: number, component: 0 | 1 | 2 | 3): number;
+        
+        /** Output the current array to the leds */
+        send(): void;
     }
 
     function AnimationScript(ctor: { new(arr: ILedArray, ...args: (Timer)[]): IAnimationScript })
