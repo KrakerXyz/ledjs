@@ -76,15 +76,17 @@ export function useMonacoEditor(containerId: string, config?: Partial<EditorConf
                     return;
                 }
                 const markers = thisMonaco.editor.getModelMarkers({ owner: 'typescript' });
-                const filtered = markers.filter(x => (x.severity == thisMonaco.MarkerSeverity.Error || x.severity === thisMonaco.MarkerSeverity.Warning) && x.resource.path !== 'filename/global.d.ts');
-                issues.value = filtered.map(x => {
+                const filtered = markers.filter(x => x.resource.path !== 'filename/global.d.ts');
+                const newIssues: CodeIssue[] = filtered.map(x => {
                     return {
-                        severity: x.severity === thisMonaco.MarkerSeverity.Warning ? 'warning' : 'error',
+                        severity: x.severity === thisMonaco.MarkerSeverity.Error ? 'error' : 'warning',
                         col: x.startColumn,
                         line: x.startLineNumber,
                         message: x.message
                     };
                 });
+                newIssues.sort((a, b) => a.line - b.line);
+                issues.value = newIssues;
             });
             
             let isOutgoingValue = false;

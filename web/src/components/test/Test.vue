@@ -11,11 +11,11 @@
                     <div id="editor-ide-container" class="h-100 w-100 position-absolute" />
                 </div>
     
-                <div v-if="issues.length" class="ide-errors bg-secondary p-1">
-                    <ul class="list-group font-monospace">
-                        <li v-for="(i, $index) of issues" :key="$index">
-                            <span v-if="i.severity === 'warning'"><i class="fal fa-exclamation-triangle"></i> Warning</span>
-                            <span v-else><i class="fal fa-bomb"></i> Error</span>
+                <div v-if="issues.length" class="ide-errors bg-dark">
+                    <ul class="list-group font-monospace text-white">
+                        <li v-for="(i, $index) of issues" :key="$index" class="p-1">
+                            <span v-if="i.severity === 'warning'" class="text-warning"><i class="fa-solid fa-lg fa-fw fa-exclamation-triangle"></i></span>
+                            <span v-else class="text-danger"><i class="fa-solid fa-lg fa-fw fa-bomb"></i></span>
                             {{i.message}} [{{ i.line }}, {{ i.col }}]
                         </li>
                     </ul>
