@@ -1,7 +1,7 @@
 
-export default class Script implements IAnimationScript {
+export default class Script implements netled.IAnimationScript {
 
-    public constructor(private readonly _arr: ILedArray, private readonly _timer: ITimer) {
+    public constructor(private readonly _arr: netled.ILedArray, private readonly _timer: netled.services.ITimer) {
 
         const space = 360 / _arr.length;
         for (let i = 0; i < _arr.length; i++) {
@@ -12,7 +12,7 @@ export default class Script implements IAnimationScript {
 
     }
 
-    private _interval: TimerInterval | null = null;
+    private _interval: netled.services.TimerInterval | null = null;
     private _running = false;
 
     public async run(): Promise<void> {

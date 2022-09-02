@@ -75,7 +75,7 @@ export default defineComponent({
         const moduleIssues = ref<CodeIssue[]>([]);
         
         // eslint-disable-next-line no-undef
-        let inst: IAnimationScript | null = null;
+        let inst: netled.IAnimationScript | null = null;
 
         watch(javascript, async js => {
             if (!js) { return; }
@@ -99,7 +99,7 @@ export default defineComponent({
                 const newTimer = new Timer();
 
                 // eslint-disable-next-line no-undef
-                const newInst = new module.default(ledArray, newTimer) as IAnimationScript;
+                const newInst = new module.default(ledArray, newTimer) as netled.IAnimationScript;
                 newInst.run({});
 
                 console.log('Started new instance');
