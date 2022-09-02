@@ -9,27 +9,44 @@ export type TimerOptions = { started?: boolean }
 
 export class Timer {
 
-    public createInterval(interval: number, cb: () => void, options: TimerOptions): TimerInterval {
+    #disposed = false;
+    #running: symbol | null = null;
 
-        let running: symbol | null = null;
+    public createInterval(interval: number, cb: () => void, options: TimerOptions): TimerInterval {
         let next = 0;
 
+        //const weakCb = new WeakRef(cb);
+        const weakCb = { deref: () => cb };
+
         const run = () => {
-            const thisRunSymbol = running;
+            const thisRunSymbol = this.#running;
             const now = Date.now();
             const drift = now - next;
             const nextInterval = interval - drift;
             next += interval;
             //console.log(`Now ${now}, Expected ${next}, Drift ${drift}, Next Interval ${nextInterval}, Next ${next}`);
             setTimeout(() => {
-                if (running !== thisRunSymbol) { return; }
+                if (this.#running !== thisRunSymbol) { return; }
+                const thisCb = weakCb.deref();
+                if (!thisCb) {
+                    return;
+                }
                 run();
-                cb();
+                thisCb();
             }, nextInterval);
         };
 
         const start = () => {
-            running = Symbol();
+            if (this.#disposed) {
+                throw new Error('Timer has been disposed');
+
+            }
+
+            if (!weakCb.deref) {
+                throw new Error('callback as been gc\'d');
+            }
+
+            this.#running = Symbol();
             next = Date.now();
             run();
         };
@@ -40,20 +57,30 @@ export class Timer {
 
         return {
             start: () => {
-                if (running) {
+                if (this.#running) {
                     throw new Error('Interval is already running');
                 }
-                running = Symbol();
+
+                if (!weakCb.deref()) {
+                    throw new Error('Callback has been garbage collected');
+                }
+
+                this.#running = Symbol();
                 start();
             },
             stop: () => {
-                if (!running) {
+                if (!this.#running) {
                     throw new Error('Interval is not running');
                 }
-                running = null;
+                this.#running = null;
             }
         };
 
+    }
+
+    public dispose() {
+        this.#running = null;
+        this.#disposed = true;
     }
 
 }

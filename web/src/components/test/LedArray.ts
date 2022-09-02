@@ -6,9 +6,9 @@ export class LedArray implements ILedArray {
     readonly #numLeds: number;
     readonly #sendCb: () => Promise<void>;
 
-    public constructor(sab: SharedArrayBuffer, sendCb: () => Promise<void>) {
-        this.#arr = new Uint8ClampedArray(sab);
-        this.#numLeds = this.#arr.length / 4;
+    public constructor(sab: SharedArrayBuffer, numLeds: number, ledOffset: number, sendCb: () => Promise<void>) {
+        this.#arr = new Uint8ClampedArray(sab, ledOffset * 4, numLeds * 4);
+        this.#numLeds = numLeds;
         this.#sendCb = sendCb;
     }
 
@@ -26,6 +26,7 @@ export class LedArray implements ILedArray {
         }
 
         const pos = index * 4;
+
         if (component === undefined) {
             const led: ARGB = [this.#arr[pos], this.#arr[pos + 1], this.#arr[pos + 2], this.#arr[pos + 3]];
             return led;
@@ -67,6 +68,32 @@ export class LedArray implements ILedArray {
             throw new Error('Invalid number of arguments');
         }
     }
+
+    /** Shift LEDs to the right */
+    public shift(dir?: 1 | true): void;
+    /** shift LEDs to the left */
+    public shift(dir: 0 | false): void;
+    public shift(dir?: 0 | 1 | boolean): void {
+        if (dir === undefined || dir) {
+            let iter = 4;
+            while (iter--) {
+                const endByte = this.#arr.at(-1);
+                for (let i = this.#arr.length - 2; i > -1; i--) {
+                    this.#arr[i + 1] = this.#arr[i];
+                }
+                this.#arr[0] = endByte!;
+            }
+        } else {
+            let iter = 4;
+            while (iter--) {
+                const startByte = this.#arr[0];
+                for (let i = 0; i < this.#arr.length - 1; i++) {
+                    this.#arr[i] = this.#arr[i + 1];
+                }
+                this.#arr[this.#arr.length - 1] = startByte;
+            }
+        }
+    } 
 
     public send(): Promise<void> {
         return this.#sendCb();

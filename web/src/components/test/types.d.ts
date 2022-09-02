@@ -37,6 +37,11 @@ declare global {
         getLed(index: number): ARGB;
         /** Gets byte of specified color component (0: Alpha, 1: Red, 2: Green, 3: Blue) of LED at given index */
         getLed(index: number, component: 0 | 1 | 2 | 3): number;
+
+        /** Shift LEDs to the right */
+        shift(dir?: 1 | true): void;
+        /** shift LEDs to the left */
+        shift(dir: 0 | false): void;
         
         /** Output the current array to the leds */
         send(): void;
