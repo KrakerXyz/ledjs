@@ -55,7 +55,7 @@ export function useMonacoEditor(containerId: string, config?: Partial<EditorConf
             if (!model) {
                 throw new Error('Expected model');
             }
-            model.updateOptions({ tabSize: 3 });
+            model.updateOptions({ tabSize: 4 });
 
             let typescriptWorker: monaco.languages.typescript.TypeScriptWorker | null = null;
             thisMonaco.languages.typescript.getTypeScriptWorker().then(worker => {
@@ -88,15 +88,23 @@ export function useMonacoEditor(containerId: string, config?: Partial<EditorConf
                 newIssues.sort((a, b) => a.line - b.line);
                 issues.value = newIssues;
             });
-            
+
             let isOutgoingValue = false;
-            editor.onDidChangeModelContent(() => {
+            editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyS, () => {
                 if (!editor) { return; }
                 const newContent = editor.getValue();
                 isOutgoingValue = true;
                 content.value = newContent;
                 updateJavascript();
             });
+            
+            // editor.onDidChangeModelContent(() => {
+            //     if (!editor) { return; }
+            //     const newContent = editor.getValue();
+            //     isOutgoingValue = true;
+            //     content.value = newContent;
+            //     updateJavascript();
+            // });
 
             watch(content, c => {
                 if (isOutgoingValue) { isOutgoingValue = false; return; }

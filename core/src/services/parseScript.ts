@@ -1,5 +1,5 @@
 import { parse } from '@babel/parser';
-import { ClassDeclaration, ClassMethod, ExportDefaultDeclaration, ReturnStatement } from '@babel/types';
+import type { ClassDeclaration, ClassMethod, ExportDefaultDeclaration, ReturnStatement } from '@babel/types';
 
 export function parseScript(script: string): ParseResult {
 

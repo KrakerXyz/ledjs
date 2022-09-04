@@ -2,14 +2,6 @@
 export default class Script implements netled.IAnimationScript {
 
     public constructor(private readonly _arr: netled.ILedArray, private readonly _timer: netled.services.ITimer) {
-
-        const space = 360 / _arr.length;
-        for (let i = 0; i < _arr.length; i++) {
-            const h = i * space;
-            const rgb = this.hslToRgb(h, 100 ,50);
-            _arr.setLed(i, rgb);
-        }
-
     }
 
     private _interval: netled.services.TimerInterval | null = null;
@@ -17,16 +9,30 @@ export default class Script implements netled.IAnimationScript {
 
     public async run(): Promise<void> {
         this._running = true;
-        this._interval = this._timer.createInterval(250, this.nextFrame.bind(this), { started: true });
+        this._interval = this._timer.createInterval(100, this.nextFrame.bind(this), { started: true });
         this.nextFrame();
     }
 
+    private _pos = 0;
     public async nextFrame() {
         if (!this._running) {
             return;
         }
 
-        this._arr.shift();
+        const degPerLed = 100;
+
+        for (let i = 0; i < this._arr.length; i++) {
+            const thisPos = this._pos + (i * degPerLed);
+            const h = thisPos % 360;
+            const rgb = netled.utils.color.hslToRgb(h, 100, 50);
+            this._arr.setLed(i, rgb);
+        }
+
+        this._pos += degPerLed;
+        if (this._pos === 360) {
+            this._pos = 0;
+        }
+
         this._arr.send();
     }
 
@@ -35,34 +41,24 @@ export default class Script implements netled.IAnimationScript {
         this._running = false;
     }
 
-    private hslToRgb(h: number, s: number, l: number): [number, number, number, number] {
-    // Must be fractions of 1
-        s /= 100;
-        l /= 100;
-
-        const c = (1 - Math.abs(2 * l - 1)) * s;
-        const x = c * (1 - Math.abs((h / 60) % 2 - 1));
-        const m = l - c / 2;
-        let r = 0, g = 0, b = 0;
-
-        if (0 <= h && h < 60) {
-            r = c; g = x; b = 0;
-        } else if (60 <= h && h < 120) {
-            r = x; g = c; b = 0;
-        } else if (120 <= h && h < 180) {
-            r = 0; g = c; b = x;
-        } else if (180 <= h && h < 240) {
-            r = 0; g = x; b = c;
-        } else if (240 <= h && h < 300) {
-            r = x; g = 0; b = c;
-        } else if (300 <= h && h < 360) {
-            r = c; g = 0; b = x;
-        }
-        r = Math.round((r + m) * 255);
-        g = Math.round((g + m) * 255);
-        b = Math.round((b + m) * 255);
-
-        return [255, r, g, b];
-    }
-
 }
+
+export const config: netled.IAnimationConfig = {
+    fields: {
+        speed: {
+            name: 'Speed',
+            description: 'Delay in milliseconds between cycles',
+            type: 'number',
+            minValue: 10,
+            default: 100
+        },
+        degPerLed: {
+            name: 'Degrees / Led',
+            description: 'Change in Hue value for each consecutive led',
+            type: 'number',
+            minValue: 0.1,
+            default: 1,
+            maxValue: 180
+        }
+    }
+};

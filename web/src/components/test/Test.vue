@@ -44,10 +44,21 @@ import { CodeIssue, useMonacoEditor } from './monacoEditor';
 import { Timer } from './Timer';
 import types from './types.d.ts?raw';
 import example from './Script.ts?raw';
+import { hslToRgb } from '@krakerxyz/netled-core';
+import { computed } from '@vue/reactivity';
 
 export default defineComponent({
     components: { LedCanvas },
     setup() {
+
+        (window as any).netled = {
+            utils: {
+                color: {
+                    hslToRgb
+                }
+            }
+        };
+
         const ledCanvas = ref<any>();
 
         const numLeds = 100;
@@ -114,10 +125,11 @@ export default defineComponent({
                 timer = newTimer;
             } catch (e: any) {
                 moduleIssues.value = [{ severity: 'error', line: 0, col: 0, message: `Error creating instance of script: ${e.message ?? e.toString()}` }];
+                console.error(e);
             }
         }, { immediate: true });
 
-        return { issues, ledCanvas };
+        return { issues: computed(() => [...issues.value, ...moduleIssues.value]), ledCanvas };
     },
 });
 

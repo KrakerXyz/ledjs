@@ -39,6 +39,25 @@ declare global {
             pause(): void;
         }
 
+        type IAnimationConfig = {
+            fields: Record<string, {
+                name: string,
+                description?: string,
+
+            } & (
+                {
+                    type: 'number',
+                    minValue?: number,
+                    maxValue?: number,
+                    default?: number
+                }
+                | {
+                    type: 'select',
+                    options: { text: string, value: string}[]
+                }
+            )>
+        }
+
         namespace services {
 
             type TimerInterval = {
@@ -53,6 +72,16 @@ declare global {
             interface ITimer {
                 /** Create a stable interval that invokes a callback on a regular period */
                 createInterval(interval: number, cb: () => void, options: TimerOptions): TimerInterval;
+            }
+
+        }
+
+        namespace utils {
+
+            namespace color {
+
+                function hslToRgb(h: number, s: number, l: number): [number, number, number, number]
+
             }
 
         }
