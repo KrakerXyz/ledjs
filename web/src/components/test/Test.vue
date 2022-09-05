@@ -51,7 +51,7 @@ import { CodeIssue, useMonacoEditor } from './monacoEditor';
 import types from './types.d.ts?raw';
 import example from './Script.ts?raw';
 import { computed } from '@vue/reactivity';
-import AnimationWorker from './worker?worker';
+import AnimationWorker from './animationWorker?worker';
 import config from './Config.vue';
 import { deepClone } from '@krakerxyz/netled-core';
 
@@ -107,7 +107,7 @@ export default defineComponent({
                 worker?.terminate();
                 worker = null;
 
-                worker = new AnimationWorker() as Worker;
+                worker = new AnimationWorker();
 
                 worker.addEventListener('message', (e: MessageEvent<any>) => {
                     const data = e.data;
@@ -154,6 +154,7 @@ export default defineComponent({
 <style lang="postcss" scoped>
     .ide-errors {
         min-height: 100px;
+        max-height: 50%;
     }
 
     .led-canvas {

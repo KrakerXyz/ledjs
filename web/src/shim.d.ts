@@ -13,7 +13,7 @@ declare module '*?raw' {
 }
 
 declare module '*?worker' {
-    const content: any;
+    const content: { new(): Worker };
     export default content;
 }
 

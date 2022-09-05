@@ -1,5 +1,9 @@
 import { parse } from '@babel/parser';
-import type { ClassDeclaration, ClassMethod, ExportDefaultDeclaration, ReturnStatement } from '@babel/types';
+import type * as AstTypes from '@babel/types';
+
+
+export const parseAsAst = parse;
+export type { AstTypes };
 
 export function parseScript(script: string): ParseResult {
 
@@ -24,7 +28,7 @@ export function parseScript(script: string): ParseResult {
             };
         }
 
-        const defaultExport = defaultExports[0] as ExportDefaultDeclaration;
+        const defaultExport = defaultExports[0] as AstTypes.ExportDefaultDeclaration;
         if (defaultExport.declaration.type !== 'ClassDeclaration') {
             return {
                 valid: false,
@@ -38,9 +42,9 @@ export function parseScript(script: string): ParseResult {
             errors.push('More than one export found');
         }
 
-        const classDeclaration = defaultExport.declaration as ClassDeclaration;
+        const classDeclaration = defaultExport.declaration as AstTypes.ClassDeclaration;
 
-        const nextFrameMethod = classDeclaration.body.body.find(t => t.type === 'ClassMethod' && t.key.type === 'Identifier' && t.key.name === 'nextFrame') as ClassMethod | undefined;
+        const nextFrameMethod = classDeclaration.body.body.find(t => t.type === 'ClassMethod' && t.key.type === 'Identifier' && t.key.name === 'nextFrame') as AstTypes.ClassMethod | undefined;
         if (!nextFrameMethod) {
             errors.push('Class does not contain a nextFrame method');
         } else {
@@ -49,7 +53,7 @@ export function parseScript(script: string): ParseResult {
                 errors.push('nextFrame method cannot be async');
             }
 
-            const returnStatement = nextFrameMethod.body.body.find(b => b.type === 'ReturnStatement') as ReturnStatement;
+            const returnStatement = nextFrameMethod.body.body.find(b => b.type === 'ReturnStatement') as AstTypes.ReturnStatement;
 
             if (!returnStatement || !returnStatement.argument) {
                 errors.push('nextFrame does not return anything');
@@ -57,7 +61,7 @@ export function parseScript(script: string): ParseResult {
 
         }
 
-        const setNumLedsMethod = classDeclaration.body.body.find(t => t.type === 'ClassMethod' && t.key.type === 'Identifier' && t.key.name === 'setNumLeds') as ClassMethod | undefined;
+        const setNumLedsMethod = classDeclaration.body.body.find(t => t.type === 'ClassMethod' && t.key.type === 'Identifier' && t.key.name === 'setNumLeds') as AstTypes.ClassMethod | undefined;
 
         if (!setNumLedsMethod) {
             errors.push('Class does not contain a setNumLeds method');

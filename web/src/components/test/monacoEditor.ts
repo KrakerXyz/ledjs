@@ -2,12 +2,14 @@
 
 import * as monaco from 'monaco-editor';
 import { ComponentInternalInstance, computed, ComputedRef, getCurrentInstance, onMounted, onUnmounted, ref, Ref, watch } from 'vue';
+import ValidationWorker from './validationWorker?worker';
 
 export function useMonacoEditor(containerId: string, config?: Partial<EditorConfig>, componentTarget?: ComponentInternalInstance): Editor {
 
     const content = ref('');
     const javascript = ref('');
     const issues = ref<CodeIssue[]>([]);
+    const validationIssues= ref<CodeIssue[]>([]);
 
     let editor: monaco.editor.IStandaloneCodeEditor | undefined;
 
@@ -71,6 +73,19 @@ export function useMonacoEditor(containerId: string, config?: Partial<EditorConf
                 });
             };
 
+            const validationWorker = new ValidationWorker();
+            validationWorker.addEventListener('message', e => {
+                if (e.data.name === 'issues') {
+                    validationIssues.value = e.data.issues;
+                }
+            });
+
+            editor.onDidChangeModelContent(() => {
+                if (!editor) { return; }
+                const ts = editor.getValue();
+                validationWorker.postMessage({ name: 'validate', ts });
+            });
+
             editor.onDidChangeModelDecorations(() => {
                 if (!editor) {
                     return;
@@ -126,7 +141,7 @@ export function useMonacoEditor(containerId: string, config?: Partial<EditorConf
 
     }, componentTarget);
 
-    return { content, issues: computed(() => issues.value), javascript: computed(() => javascript.value) };
+    return { content, issues: computed(() => [...issues.value, ...validationIssues.value]), javascript: computed(() => javascript.value) };
 }
 
 export interface EditorConfig {
