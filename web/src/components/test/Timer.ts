@@ -12,12 +12,8 @@ export class Timer {
     #disposed = false;
     #running: symbol | null = null;
 
-    public createInterval(interval: number, cb: () => void, options: TimerOptions): TimerInterval {
+    public createInterval(interval: number, cb: () => void | Promise<void>, options: TimerOptions): TimerInterval {
         let next = 0;
-
-        //const weakCb = new WeakRef(cb);
-        const weakCb = { deref: () => cb };
-
         const run = () => {
             const thisRunSymbol = this.#running;
             const now = Date.now();
@@ -27,23 +23,21 @@ export class Timer {
             //console.log(`Now ${now}, Expected ${next}, Drift ${drift}, Next Interval ${nextInterval}, Next ${next}`);
             setTimeout(() => {
                 if (this.#running !== thisRunSymbol) { return; }
-                const thisCb = weakCb.deref();
-                if (!thisCb) {
-                    return;
-                }
                 run();
-                thisCb();
+                //const now = performance.now();
+                Promise.resolve(cb()).then(() => {
+                    // const elapsed = performance.now() - now;
+                    // console.log(elapsed);
+                    // if(elapsed> interval) {
+                    //     console.log('Callback took longer than interval');
+                    // }
+                });
             }, nextInterval);
         };
 
         const start = () => {
             if (this.#disposed) {
                 throw new Error('Timer has been disposed');
-
-            }
-
-            if (!weakCb.deref) {
-                throw new Error('callback as been gc\'d');
             }
 
             this.#running = Symbol();
@@ -59,10 +53,6 @@ export class Timer {
             start: () => {
                 if (this.#running) {
                     throw new Error('Interval is already running');
-                }
-
-                if (!weakCb.deref()) {
-                    throw new Error('Callback has been garbage collected');
                 }
 
                 this.#running = Symbol();

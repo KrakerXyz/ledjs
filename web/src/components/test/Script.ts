@@ -7,28 +7,26 @@ export default class Script implements netled.IAnimationScript {
     private _interval: netled.services.TimerInterval | null = null;
     private _running = false;
 
-    public async run(): Promise<void> {
+    public async run(settings: netled.IAnimationConfigValues<typeof config>): Promise<void> {
         this._running = true;
-        this._interval = this._timer.createInterval(100, this.nextFrame.bind(this), { started: true });
-        this.nextFrame();
+        this._interval = this._timer.createInterval(settings.speed, this.nextFrame.bind(this, settings), { started: true });
+        this.nextFrame(settings);
     }
 
     private _pos = 0;
-    public async nextFrame() {
+    public async nextFrame(settings: netled.IAnimationConfigValues<typeof config>) {
         if (!this._running) {
             return;
         }
 
-        const degPerLed = 2;
-
         for (let i = 0; i < this._arr.length; i++) {
-            const thisPos = this._pos + (i * degPerLed);
+            const thisPos = this._pos + (i * settings.degPerLed);
             const h = thisPos % 360;
-            const rgb = netled.utils.color.hslToRgb(h, 100, 50);
+            const rgb = netled.utils.color.hslToRgb(h, 100, settings.luminosity);
             this._arr.setLed(i, rgb);
         }
 
-        this._pos += degPerLed;
+        this._pos += settings.step;
         if (this._pos === 360) {
             this._pos = 0;
         }
@@ -48,17 +46,32 @@ export const config: netled.IAnimationConfig = {
         speed: {
             name: 'Speed',
             description: 'Delay in milliseconds between cycles',
-            type: 'number',
+            type: 'int',
             minValue: 10,
             default: 100
         },
         degPerLed: {
             name: 'Degrees / Led',
             description: 'Change in Hue value for each consecutive led',
-            type: 'number',
+            type: 'decimal',
             minValue: 0.1,
-            default: 1,
-            maxValue: 180
+            maxValue: 180,
+            default: 3.6
+        },
+        step: {
+            name: 'Step',
+            description: 'The number of pixels to shift by on each cycle',
+            type: 'decimal',
+            minValue: 0.1,
+            default: 1
+        },
+        luminosity: {
+            name: 'Luminosity',
+            description: 'The luminosity of each color',
+            type: 'int',
+            minValue: 1,
+            maxValue: 100,
+            default: 10
         }
     }
 };

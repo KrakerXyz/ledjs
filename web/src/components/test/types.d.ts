@@ -34,7 +34,7 @@ declare global {
         /** Animation script interface */
         interface IAnimationScript {
             /** Called after instantiation, on setting(s) change and after pauses to start the script */
-            run(settings: Record<string, string | number | boolean>);
+            run(settings: netled.IAnimationConfigValues<unknown>);
             /** Called to temporarily pause the script with the expectation that a subsequent resume() will pick up where it left off */
             pause(): void;
         }
@@ -45,20 +45,28 @@ declare global {
 
         } & (
             {
-                type: 'number',
+                type: 'int' | 'decimal',
                 minValue?: number,
                 maxValue?: number,
-                default?: number
+                default: number
             }
             | {
                 type: 'select',
                 options: { text: string, value: string}[],
-                default?: string
+                default: string
             }
         )
 
         type IAnimationConfig = {
             fields: Record<string, IAnimationConfigField>
+        }
+
+        type IAnimationConfigValues<TConfig extends IAnimationConfig> = {
+            [K in keyof TConfig['fields']]: 
+            'int' extends TConfig['fields'][K]['type'] ? number
+                : 'decimal' extends TConfig['fields'][K]['type'] ? number 
+                    : 'string' extends TConfig['fields'][K]['type']  ? string 
+                        : never;
         }
 
         namespace services {

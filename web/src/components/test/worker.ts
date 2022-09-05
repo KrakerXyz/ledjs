@@ -36,8 +36,15 @@ onmessage = async (e: any) => {
                 return;
             }
 
+            const settings: netled.IAnimationConfigValues<any> = {};
+
             if(module.config) {
                 postMessage({ name: 'config', config: module.config });
+
+                for(const key of Object.keys(module.config.fields)) {
+                    (settings as any)[key] = module.config.fields[key].default;
+                }
+
             }
 
             const ledArray = new LedArray(sab, numLeds, arrayOffset, async () => postMessage({ name: 'render' }));
@@ -45,7 +52,7 @@ onmessage = async (e: any) => {
             const newTimer = new Timer();
 
             const newInst = new module.default(ledArray, newTimer) as netled.IAnimationScript;
-            newInst.run({});
+            newInst.run(settings);
 
             break;
 
