@@ -8,6 +8,7 @@ export default class Script implements netled.IAnimationScript {
     private _running = false;
 
     public async run(settings: netled.IAnimationConfigValues<typeof config>): Promise<void> {
+        this._interval?.stop();
         this._running = true;
         this._interval = this._timer.createInterval(settings.speed, this.nextFrame.bind(this, settings), { started: true });
         this.nextFrame(settings);
@@ -52,7 +53,7 @@ export const config: netled.IAnimationConfig = {
         },
         degPerLed: {
             name: 'Degrees / Led',
-            description: 'Change in Hue value for each consecutive led',
+            description: 'Change in hue degrees per LED',
             type: 'decimal',
             minValue: 0.1,
             maxValue: 180,
@@ -60,18 +61,18 @@ export const config: netled.IAnimationConfig = {
         },
         step: {
             name: 'Step',
-            description: 'The number of pixels to shift by on each cycle',
+            description: 'The number of hue degrees to shift by on each cycle',
             type: 'decimal',
             minValue: 0.1,
             default: 1
         },
         luminosity: {
             name: 'Luminosity',
-            description: 'The luminosity of each color',
+            description: 'Luminosity',
             type: 'int',
             minValue: 1,
             maxValue: 100,
-            default: 10
+            default: 50
         }
     }
 };

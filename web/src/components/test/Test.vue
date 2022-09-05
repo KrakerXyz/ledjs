@@ -35,7 +35,7 @@
                     <h3 class="mt-3">
                         Config
                     </h3>
-                    <config :config="config"></config>
+                    <config :config="config" @update:settings="s => settings = s"></config>
                 </template>
             </div>
         </div>
@@ -53,6 +53,7 @@ import example from './Script.ts?raw';
 import { computed } from '@vue/reactivity';
 import AnimationWorker from './worker?worker';
 import config from './Config.vue';
+import { deepClone } from '@krakerxyz/netled-core';
 
 export default defineComponent({
     components: { LedCanvas, config },
@@ -135,7 +136,16 @@ export default defineComponent({
             }
         }, { immediate: true });
 
-        return { issues: computed(() => [...issues.value, ...moduleIssues.value]), ledCanvas, config };
+        // eslint-disable-next-line no-undef
+        const settings = ref<netled.IAnimationConfigValues<any>>();
+        watch(settings, settings => {
+            if(!worker) { return; }
+            settings = deepClone(settings);
+            console.log(settings);
+            worker.postMessage({ name: 'update-settings', settings });
+        });
+
+        return { issues: computed(() => [...issues.value, ...moduleIssues.value]), ledCanvas, config, settings };
     },
 });
 

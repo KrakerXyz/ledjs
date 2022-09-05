@@ -8,7 +8,7 @@
                         :id="vm.field"
                         class="form-control"
                         placeholder="*"
-                        v-model="vm.value"
+                        v-model.lazy="vm.value"
                     >
                     <label :for="vm.field">{{vm.meta.name}}</label>
                     <div v-if="vm.meta.description" class="form-text">
@@ -22,14 +22,18 @@
 
 <script lang="ts">
 
-import { computed, defineComponent } from 'vue';
+import { computed, defineComponent, reactive, watch } from 'vue';
 
 export default defineComponent({
     props: {
         // eslint-disable-next-line no-undef
         config: { type: Object as () => netled.IAnimationConfig, required: true }
     },
-    setup(props) {
+    emits: {
+        // eslint-disable-next-line no-undef
+        'update:settings': (s: netled.IAnimationConfigValues<any>) => !!s
+    },
+    setup(props, { emit }) {
 
         const fieldVms = computed<FieldVm[]>(() => {
             const vms: FieldVm[] = [];
@@ -37,12 +41,31 @@ export default defineComponent({
                 const meta = props.config.fields[key];
                 vms.push({
                     field: key,
-                    value: meta.default ?? null,
+                    value: meta.default.toString(),
                     meta
                 });
             }
-            return vms;
+            return reactive(vms);
         });
+
+        watch(fieldVms, () => {
+            
+            // eslint-disable-next-line no-undef
+            const settings: netled.IAnimationConfigValues<any> = {};
+
+            for(const vm of fieldVms.value) {
+                let value: string | number = vm.value || vm.meta.default.toString();
+                if(vm.meta.type === 'int') {
+                    value = parseInt(value);
+                } else if(vm.meta.type === 'decimal') {
+                    value = parseFloat(value);
+                }
+                (settings as any)[vm.field] = value;
+            }
+
+            emit('update:settings', settings);
+
+        }, { deep: true });
 
         return { fieldVms };
     }
@@ -50,7 +73,7 @@ export default defineComponent({
 
 interface FieldVm {
     field: string;
-    value: string | number | boolean | null;
+    value: string;
     // eslint-disable-next-line no-undef
     meta: netled.IAnimationConfigField
 }

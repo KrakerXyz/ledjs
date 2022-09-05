@@ -10,6 +10,11 @@ import { Timer } from './Timer';
     }
 };
 
+let ledArray: LedArray | null = null;
+let instance: netled.IAnimationScript | null = null;
+let settings: netled.IAnimationConfigValues<any> | null = null;
+let timer: netled.services.ITimer | null = null;
+
 onmessage = async (e: any) => {
     const data = e.data;
     console.log('Incoming message', data);
@@ -36,26 +41,42 @@ onmessage = async (e: any) => {
                 return;
             }
 
-            const settings: netled.IAnimationConfigValues<any> = {};
+            settings = data.settings ?? null;
+            if(!settings) {
+                settings = {};
+                
+                if(module.config) {
+                    postMessage({ name: 'config', config: module.config });
 
-            if(module.config) {
-                postMessage({ name: 'config', config: module.config });
+                    for(const key of Object.keys(module.config.fields)) {
+                        (settings as any)[key] = module.config.fields[key].default;
+                    }
 
-                for(const key of Object.keys(module.config.fields)) {
-                    (settings as any)[key] = module.config.fields[key].default;
                 }
-
             }
 
-            const ledArray = new LedArray(sab, numLeds, arrayOffset, async () => postMessage({ name: 'render' }));
+            ledArray = new LedArray(sab, numLeds, arrayOffset, async () => postMessage({ name: 'render' }));
 
-            const newTimer = new Timer();
+            timer = new Timer();
 
-            const newInst = new module.default(ledArray, newTimer) as netled.IAnimationScript;
-            newInst.run(settings);
+            instance = new module.default(ledArray, timer) as netled.IAnimationScript;
+            instance.run(settings);
 
             break;
 
+        }
+        case 'update-settings': {
+            settings = data.settings;
+
+            if(!settings) {
+                throw new Error('No settings provided');
+            }
+
+            if(instance) {
+                instance.run(settings);
+            }
+
+            break;
         }
         default: throw new Error(`Unknown message: ${data.name}`);
     }
