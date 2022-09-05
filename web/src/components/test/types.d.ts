@@ -39,23 +39,26 @@ declare global {
             pause(): void;
         }
 
-        type IAnimationConfig = {
-            fields: Record<string, {
-                name: string,
-                description?: string,
+        type IAnimationConfigField = {
+            name: string,
+            description?: string,
 
-            } & (
-                {
-                    type: 'number',
-                    minValue?: number,
-                    maxValue?: number,
-                    default?: number
-                }
-                | {
-                    type: 'select',
-                    options: { text: string, value: string}[]
-                }
-            )>
+        } & (
+            {
+                type: 'number',
+                minValue?: number,
+                maxValue?: number,
+                default?: number
+            }
+            | {
+                type: 'select',
+                options: { text: string, value: string}[],
+                default?: string
+            }
+        )
+
+        type IAnimationConfig = {
+            fields: Record<string, IAnimationConfigField>
         }
 
         namespace services {

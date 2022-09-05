@@ -21,7 +21,7 @@
                 </div>
             </div>
             <div class="col-lg-3 p-2">
-                <h3>Device</h3>
+                <h3>Setup</h3>
                 <div class="form-floating">
                     <input
                         id="d-leds"
@@ -30,6 +30,13 @@
                     >
                     <label for="d-leds"># LEDs</label>
                 </div>
+
+                <template v-if="config">
+                    <h3 class="mt-3">
+                        Config
+                    </h3>
+                    <config :config="config"></config>
+                </template>
             </div>
         </div>
     </div>
@@ -41,33 +48,23 @@ import { defineComponent, ref, watch } from 'vue';
 import { LedArray } from './LedArray';
 import LedCanvas from './LedCanvas.vue';
 import { CodeIssue, useMonacoEditor } from './monacoEditor';
-import { Timer } from './Timer';
 import types from './types.d.ts?raw';
 import example from './Script.ts?raw';
-import { hslToRgb } from '@krakerxyz/netled-core';
 import { computed } from '@vue/reactivity';
+import AnimationWorker from './worker?worker';
+import config from './Config.vue';
 
 export default defineComponent({
-    components: { LedCanvas },
+    components: { LedCanvas, config },
     setup() {
-
-        (window as any).netled = {
-            utils: {
-                color: {
-                    hslToRgb
-                }
-            }
-        };
 
         const ledCanvas = ref<any>();
 
         const numLeds = 100;
+        const arrayOffset = 0;
+
         const sab = new SharedArrayBuffer(numLeds * 4);
-        const fullArray = new LedArray(sab, numLeds, 0, () => Promise.resolve());
-        const ledArray = new LedArray(sab, 100, 0, () => {
-            ledCanvas.value?.render(fullArray);
-            return Promise.resolve();
-        });
+        const fullArray = new LedArray(sab, numLeds, arrayOffset , () => Promise.resolve());
 
         const { content, issues, javascript } = useMonacoEditor(
             'editor-ide-container',
@@ -80,13 +77,12 @@ export default defineComponent({
 
         content.value = example;
 
-        // eslint-disable-next-line no-undef
-        let timer: Timer | null = null;
-
         const moduleIssues = ref<CodeIssue[]>([]);
-        
+
+        let worker: Worker | null = null;
+
         // eslint-disable-next-line no-undef
-        let inst: netled.IAnimationScript | null = null;
+        const config = ref<netled.IAnimationConfig>();
 
         watch(javascript, async js => {
             if (!js) { return; }
@@ -107,29 +103,39 @@ export default defineComponent({
                     return;
                 }
 
-                const newTimer = new Timer();
+                worker?.terminate();
+                worker = null;
 
-                // eslint-disable-next-line no-undef
-                const newInst = new module.default(ledArray, newTimer) as netled.IAnimationScript;
-                newInst.run({});
+                worker = new AnimationWorker() as Worker;
 
-                console.log('Started new instance');
+                worker.addEventListener('message', (e: MessageEvent<any>) => {
+                    const data = e.data;
+                    switch(data.name) {
+                        case 'moduleError': {
+                            moduleIssues.value = data.errors;
+                            break;
+                        }
+                        case 'render': {
+                            ledCanvas.value?.render(fullArray);
+                            break;
+                        }
+                        case 'config': {
+                            config.value = data.config;
+                            break;
+                        }
+                    }
+                });
 
-                if (inst) {
-                    inst.pause();
-                }
+                worker.postMessage({ name: 'init', sab, js, numLeds, arrayOffset });
 
-                timer?.dispose();
                 
-                inst = newInst;
-                timer = newTimer;
             } catch (e: any) {
                 moduleIssues.value = [{ severity: 'error', line: 0, col: 0, message: `Error creating instance of script: ${e.message ?? e.toString()}` }];
                 console.error(e);
             }
         }, { immediate: true });
 
-        return { issues: computed(() => [...issues.value, ...moduleIssues.value]), ledCanvas };
+        return { issues: computed(() => [...issues.value, ...moduleIssues.value]), ledCanvas, config };
     },
 });
 

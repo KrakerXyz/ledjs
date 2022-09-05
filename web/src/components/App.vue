@@ -83,4 +83,8 @@ export default defineComponent({
 .clickable {
     cursor: pointer;
 }
+
+.mt-n3 {
+    margin-top: -1rem;
+}
 </style>

@@ -12,6 +12,11 @@ declare module '*?raw' {
     export default content;
 }
 
+declare module '*?worker' {
+    const content: any;
+    export default content;
+}
+
 declare module '*.vue' {
     import { defineComponent } from 'vue';
     const component: ReturnType<typeof defineComponent>;

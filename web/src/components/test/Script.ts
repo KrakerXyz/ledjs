@@ -19,7 +19,7 @@ export default class Script implements netled.IAnimationScript {
             return;
         }
 
-        const degPerLed = 100;
+        const degPerLed = 2;
 
         for (let i = 0; i < this._arr.length; i++) {
             const thisPos = this._pos + (i * degPerLed);

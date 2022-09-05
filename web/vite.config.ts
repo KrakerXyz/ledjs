@@ -1,12 +1,14 @@
 import type { UserConfig } from 'vite';
 import vue from '@vitejs/plugin-vue';
+import FullReload from 'vite-plugin-full-reload';
 
 //Monaco related changes came from 
 //https://github.com/vitejs/vite/discussions/1791
 
 const config: UserConfig = {
     plugins: [
-        vue()
+        vue(),
+        FullReload('src/components/test/**/*')
     ],
     resolve: {
         alias: {
@@ -14,8 +16,6 @@ const config: UserConfig = {
         }
     },
     build: {
-        //Defaults to 500 but firebase itself is about 475.
-        chunkSizeWarningLimit: 600
     },
     server: {
         host: '0.0.0.0',
