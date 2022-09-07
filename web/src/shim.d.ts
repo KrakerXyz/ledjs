@@ -42,3 +42,8 @@ declare module 'monaco-editor/esm/vs/language/html/html.worker?worker' {
 declare module 'monaco-editor/esm/vs/language/typescript/ts.worker?worker' {
     const tsWorker: any;
 }
+
+declare global {
+    const google: typeof import('google.accounts');
+    const gapi: typeof import('gapi.auth2');
+}

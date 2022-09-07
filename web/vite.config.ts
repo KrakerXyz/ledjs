@@ -2,9 +2,6 @@ import type { UserConfig } from 'vite';
 import vue from '@vitejs/plugin-vue';
 import FullReload from 'vite-plugin-full-reload';
 
-//Monaco related changes came from 
-//https://github.com/vitejs/vite/discussions/1791
-
 const config: UserConfig = {
     plugins: [
         vue(),
@@ -20,8 +17,8 @@ const config: UserConfig = {
     server: {
         host: '0.0.0.0',
         headers: {
-            'Cross-Origin-Opener-Policy': 'same-origin',
-            'Cross-Origin-Embedder-Policy': 'require-corp'
+            // 'Cross-Origin-Opener-Policy': 'same-origin',
+            // 'Cross-Origin-Embedder-Policy': 'require-corp'
         },
         proxy: {
             '/api': {

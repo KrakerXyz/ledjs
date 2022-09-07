@@ -1,27 +1,22 @@
 import { RouteOptions } from 'fastify';
 import { OAuth2Client } from 'google-auth-library';
 import { v4 } from 'uuid';
-import { GoogleToken, Id, User } from '@krakerxyz/netled-core';
+import { GoogleJwt, Id, User } from '@krakerxyz/netled-core';
 import { UserDb } from '../../db';
 import { EnvKey, getRequiredConfig } from '../../services';
 import { jsonSchema } from '@krakerxyz/json-schema-transformer';
 
-export const postGoogleToken: RouteOptions = {
+export const postGoogleJwt: RouteOptions = {
     method: 'POST',
-    url: '/api/auth/google-token',
+    url: '/api/auth/google-jwt',
     schema: {
-        body: jsonSchema<GoogleToken>(),
+        body: jsonSchema<GoogleJwt>(),
         response: {
             '2xx': jsonSchema<User>(),
         },
     },
     handler: async (req, res) => {
-        const googleToken = req.body as GoogleToken;
-
-        if (!googleToken?.idToken) {
-            res.status(400).send('Missing idToken');
-            return;
-        }
+        const googleJwt = req.body as GoogleJwt;
 
         const clientId = getRequiredConfig(EnvKey.GoogleClientId);
 
@@ -29,7 +24,7 @@ export const postGoogleToken: RouteOptions = {
 
         try {
             const ticket = await oauthClient.verifyIdToken({
-                idToken: googleToken.idToken,
+                idToken: googleJwt.jwt,
                 audience: clientId,
             });
 
@@ -78,8 +73,8 @@ export const postGoogleToken: RouteOptions = {
 
             await res.status(isNewUser ? 201 : 200).send(user);
         } catch (e) {
-            req.log.warn(e, 'Error validating google auth token');
-            res.status(401).send('Error during token/user validation');
+            req.log.warn(e, 'Error validating google jwt');
+            res.status(401).send('Error during google jwt/user validation');
             return;
         }
     },

@@ -1,15 +1,16 @@
 
 import { Id } from '@krakerxyz/netled-core';
 import { createRouter, createWebHistory, NavigationGuard, RouteLocationRaw, RouteRecordRaw } from 'vue-router';
-import { useLoginService } from './services';
+//import { useLoginService } from './services';
 
-const isLoggedIn = useLoginService(() => router).status;
+//const isLoggedIn = useLoginService(() => router).status;
 
 const requireLogin: NavigationGuard = (to, _from, next) => {
-    if (isLoggedIn.value === 'signedIn') { return next(); }
-    if (to.name === 'home') { return next(); }
-    const loginRoute: RouteLocationRaw = { name: 'login', query: { ret: to.fullPath } };
-    next(loginRoute);
+    // if (isLoggedIn.value === 'signedIn') { return next(); }
+    // if (to.name === 'home') { return next(); }
+    // const loginRoute: RouteLocationRaw = { name: 'login', query: { ret: to.fullPath } };
+    // next(loginRoute);
+    return next();
 };
 
 export enum RouteName {

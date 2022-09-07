@@ -51,7 +51,7 @@ export function createType(script: string): Promise<AnimatorType> {
     const blob = new Blob([script], { type: 'text/javascript' });
     const url = URL.createObjectURL(blob);
 
-    return import( /* @vite-ignore */ url).then(s => {
+    return import(url).then(s => {
         if (!s.default) { throw new Error('Script did not contain a default export'); }
         return s.default;
     });

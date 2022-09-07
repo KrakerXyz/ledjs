@@ -5,6 +5,7 @@ import SpinnerVue from '@/components/global/Spinner.vue';
 import ModalVue from '@/components/global/Modal.vue';
 import ConfirmationModalVue from '@/components/global/ConfirmationModal.vue';
 import CreatedVue from './components/global/Created.vue';
+import './services/loginGoogleIdentity';
 
 const vueApp = createApp(App);
 

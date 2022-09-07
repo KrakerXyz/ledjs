@@ -59,8 +59,8 @@
 
 <script lang="ts">
 import { computed, defineComponent } from 'vue';
-import { useRouter } from 'vue-router';
-import { useLoginService } from '../services';
+//import { useRouter } from 'vue-router';
+//import { useLoginService } from '../services';
 import User from './User.vue';
 import { useRoute, RouteName } from '@/main.router';
 
@@ -69,10 +69,11 @@ export default defineComponent({
         User,
     },
     setup() {
-        const router = useRouter();
-        const loginService = useLoginService(() => router);
+        //const router = useRouter();
+        //const loginService = useLoginService(() => router);
 
-        const isLoggedIn = computed(() => loginService.status.value === 'signedIn');
+        //const isLoggedIn = computed(() => loginService.status.value === 'signedIn');
+        const isLoggedIn = computed(() => true);
 
         return { isLoggedIn, useRoute, RouteName };
     },
