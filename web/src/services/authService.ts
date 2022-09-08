@@ -2,10 +2,16 @@ import { ref } from 'vue';
 import { AuthRestClient, GoogleJwt, User } from '@krakerxyz/netled-core';
 import { useRestClient } from '.';
 import Cookies from 'js-cookie';
+import { computed } from '@vue/reactivity';
+import { loginRedirect, logoutRedirect } from '@/main.router';
 
-const status = ref<'signedOut' | 'initializing' | 'signedIn' | 'NOT INITIALIZED'>('NOT INITIALIZED');
+let initResolver: (() => void) | null = null;
+const initPromise = new Promise<void>(r => initResolver = r);
+const status = ref<'signedOut' | 'initializing' | 'signedIn'>('initializing');
+const user = ref<User>();
 
 const GoogleJwtCookieName = 'g-jwt';
+const NetLedJwtCookieName = 'jwt';
 
 export async function initGoogleLoginButton(container: HTMLDivElement) {
     status.value = 'initializing';
@@ -14,12 +20,16 @@ export async function initGoogleLoginButton(container: HTMLDivElement) {
     if (cookieJwt) {
         try {
             console.debug('Loading user from existing g-jwt');
-            const user = await verifyToken(cookieJwt);
+            user.value = await verifyToken(cookieJwt);
+            status.value = 'signedIn';
             console.debug('Loaded user from existing g-jwt', user);
-            return;
+            loginRedirect();
         } catch (e) {
             console.warn('Could not validate existing g-jwt', e);
             Cookies.remove(GoogleJwtCookieName);
+            Cookies.remove(NetLedJwtCookieName);
+        } finally {
+            initResolver!();
         }
     }
 
@@ -45,27 +55,34 @@ export async function initGoogleLoginButton(container: HTMLDivElement) {
         google.accounts.id.prompt(notification => {
             console.debug('Got notification', notification);
         });
+
+        status.value = 'signedOut';
         
     }, { once: true });
+    
+    initResolver!();
 
 }
 
-async function handleCredentialResponse(response: google.accounts.id.CredentialResponse): Promise<User | null> {
-    console.debug('Encoded JWT ID token: ' + response.credential);
+async function handleCredentialResponse(response: google.accounts.id.CredentialResponse): Promise<void> {
+    status.value = 'initializing';
+    console.debug('Got GIS JWT. Validating');
     try {
-        const user = await verifyToken(response.credential);
+        user.value = await verifyToken(response.credential);
         Cookies.set(GoogleJwtCookieName, response.credential, {
             secure: window.location.protocol === 'https',
             sameSite: 'strict',
             expires: 365
         });
+        status.value = 'signedIn';
         console.debug('Got NetLed user', user);
-        return user;
+        loginRedirect();
     } catch (e) {
         console.error('Error verifying token', e);
         Cookies.remove(GoogleJwtCookieName);
+        Cookies.remove(NetLedJwtCookieName);
         google.accounts.id.disableAutoSelect();
-        return null;
+        status.value = 'signedOut';
     }
 }
 
@@ -83,4 +100,21 @@ async function verifyToken(jwt: string): Promise<User> {
     } catch {
         throw new Error('Error validating token');
     }
+}
+
+const authService = Object.freeze({
+    status: computed(() => status.value),
+    user: computed(() => user.value),
+    initialized: initPromise,
+    logout: () => {
+        google.accounts.id.disableAutoSelect();
+        Cookies.remove(GoogleJwtCookieName);
+        Cookies.remove(NetLedJwtCookieName);
+        status.value = 'signedOut';
+        logoutRedirect();
+    }
+});
+
+export function useAuthService() {
+    return authService;
 }

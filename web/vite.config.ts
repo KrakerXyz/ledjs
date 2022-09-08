@@ -1,11 +1,24 @@
-import type { UserConfig } from 'vite';
+
 import vue from '@vitejs/plugin-vue';
+import { defineConfig } from 'vite';
 import FullReload from 'vite-plugin-full-reload';
 
-const config: UserConfig = {
+export default defineConfig({
     plugins: [
         vue(),
-        FullReload('src/components/test/**/*')
+        FullReload('src/components/test/**/*'),
+        {
+            name: 'configure-server',
+            configureServer: server => {
+                server.middlewares.use((req, res, next) => {
+                    if (req.originalUrl.startsWith('/user/')) {
+                        res.setHeader('Cross-Origin-Opener-Policy', 'same-origin');
+                        res.setHeader('Cross-Origin-Embedder-Policy', 'require-corp');
+                    }
+                    next();
+                });
+            }
+        }
     ],
     resolve: {
         alias: {
@@ -16,10 +29,6 @@ const config: UserConfig = {
     },
     server: {
         host: '0.0.0.0',
-        headers: {
-            // 'Cross-Origin-Opener-Policy': 'same-origin',
-            // 'Cross-Origin-Embedder-Policy': 'require-corp'
-        },
         proxy: {
             '/api': {
                 target: 'http://localhost:3001',
@@ -31,6 +40,4 @@ const config: UserConfig = {
             }
         }
     }
-};
-
-export default config;
+});

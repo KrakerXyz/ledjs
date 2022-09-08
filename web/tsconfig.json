@@ -10,6 +10,7 @@
         "noImplicitReturns": true,
         "noEmitOnError": true,
         "skipLibCheck": true,
+        "isolatedModules": true, //https://vitejs.dev/guide/features.html
         "allowSyntheticDefaultImports": true,
         "forceConsistentCasingInFileNames": true,
         "importHelpers": true,

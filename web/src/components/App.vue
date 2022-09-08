@@ -3,7 +3,7 @@
         <div class="navbar navbar-expand navbar-dark bg-dark sticky-top">
             <div class="container">
                 <ul class="navbar-nav">
-                    <li class="nav-item">
+                    <li v-if="!isLoggedIn" class="nav-item">
                         <router-link class="nav-link" :to="useRoute(RouteName.Home)">
                             Home
                         </router-link>
@@ -31,6 +31,14 @@
                                 :to="useRoute(RouteName.DeviceList)"
                             >
                                 Devices
+                            </router-link>
+                        </li>
+                        <li class="nav-item">
+                            <router-link
+                                class="nav-link"
+                                :to="useRoute(RouteName.Test)"
+                            >
+                                Test
                             </router-link>
                         </li>
                     </template>
@@ -63,17 +71,15 @@ import { computed, defineComponent } from 'vue';
 //import { useLoginService } from '../services';
 import User from './User.vue';
 import { useRoute, RouteName } from '@/main.router';
+import { useAuthService } from '@/services/authService';
 
 export default defineComponent({
     components: {
         User,
     },
     setup() {
-        //const router = useRouter();
-        //const loginService = useLoginService(() => router);
-
-        //const isLoggedIn = computed(() => loginService.status.value === 'signedIn');
-        const isLoggedIn = computed(() => true);
+        const authService = useAuthService();
+        const isLoggedIn = computed(() => authService.status.value === 'signedIn');
 
         return { isLoggedIn, useRoute, RouteName };
     },
