@@ -1,0 +1,119 @@
+"use strict";
+
+export default class {
+
+   static configMeta = {
+      params: {
+         meteorWidth: {
+            type: 'number',
+            description: 'Number of leds wide that meteor is',
+            min: 1,
+            default: 3,
+            max: 255,
+            maxRecommended: 20
+         },
+         decay: {
+            type: 'number',
+            description: 'Rate at which the trail leds fade',
+            min: 1,
+            default: 30,
+            max: 255,
+            maxRecommended: 50
+         },
+         cutoff: {
+            type: 'number',
+            description: 'Point at which a trail led will stop fading and turn off',
+            min: 1,
+            default: 10,
+            max: 255
+         },
+         recurrenceDelay: {
+            type: 'number',
+            description: 'Delay between last metero fully fading and when the next starts',
+            min: 0,
+            default: 0,
+            max: 255,
+         },
+         meteorColor: {
+            type: 'color',
+            description: 'The color of the meteor',
+            default: '#7734eb'
+         }
+      }
+   }
+
+   #color = [255, 119, 52, 235];
+   #meteorWidth = 3;
+   #decay = 30;
+   #cutoff = 10;
+   #recurrenceDelay = 0;
+
+   #frame;
+   constructor() {
+      this.#frame = [];
+   }
+
+   setNumLeds(numLeds) {
+      this.#frame = [];
+      for (let i = 0; i < numLeds; i++) {
+         this.#frame.push([0, 0, 0, 0]);
+      }
+   }
+
+   setConfig(config) {
+      this.#meteorWidth = config.meteorWidth;
+      this.#decay = config.decay;
+      this.#cutoff = config.cutoff;
+      this.#recurrenceDelay = config.recurrenceDelay;
+      this.#color = netled.util.color.hexToRgb(config.meteorColor);
+   }
+
+   #meteorPosition = 0;
+   nextFrame() {
+
+      const frame = this.#frame;
+      const shade = this.#decay / 255;
+      const meteorBeg = this.#meteorPosition - this.#meteorWidth;
+
+      for (let i = 0; i < frame.length; i++) {
+
+         const led = frame[i];
+
+         if (i > this.#meteorPosition) {
+            //If we're on a led ahead of the meteor there shouldn't be anything 
+            //  to change from the last frame since all pixels should already be dark
+            break;
+         } else if (i >= meteorBeg) {
+            led[0] = this.#color[0];
+            led[1] = this.#color[1];
+            led[2] = this.#color[2];
+            led[3] = this.#color[3];
+         } else if (getRandomInt(2) === 1) {
+            //we're in the trail.. Cool it off
+            led[1] = led[1] < this.#cutoff ? 0 : Math.floor(led[1] - (led[1] * shade));
+            led[2] = led[2] < this.#cutoff ? 0 : Math.floor(led[2] - (led[2] * shade));
+            led[3] = led[3] < this.#cutoff ? 0 : Math.floor(led[3] - (led[3] * shade));
+         }
+
+      }
+
+      if (meteorBeg < frame.length) {
+         this.#meteorPosition++;
+      } else {
+         for (let i = frame.length - 1; i > -1; i--) {
+            const led = frame[i];
+            if (led[1] > 0 || led[2] > 0 || led[3] > 0) { break; }
+            if (i === 0) {
+               this.#meteorPosition = this.#recurrenceDelay * -1;
+            }
+         }
+      }
+
+      return this.#frame;
+   }
+
+}
+
+function getRandomInt(maxExclusive) {
+   return Math.floor(Math.random() * maxExclusive);
+}
