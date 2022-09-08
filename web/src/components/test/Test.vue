@@ -27,6 +27,7 @@
                         id="d-leds"
                         class="form-control"
                         placeholder="*"
+                        v-model.lazy.number="numLeds"
                     >
                     <label for="d-leds"># LEDs</label>
                 </div>
@@ -44,13 +45,12 @@
 
 <script lang="ts">
 
-import { defineComponent, ref, watch } from 'vue';
+import { defineComponent, ref, watch, computed } from 'vue';
 import { LedArray } from './LedArray';
 import LedCanvas from './LedCanvas.vue';
 import { CodeIssue, useMonacoEditor } from './monacoEditor';
 import types from './types.d.ts?raw';
 import example from './Script.ts?raw';
-import { computed } from '@vue/reactivity';
 import AnimationWorker from './animationWorker?worker';
 import config from './Config.vue';
 import { deepClone } from '@krakerxyz/netled-core';
@@ -61,11 +61,17 @@ export default defineComponent({
 
         const ledCanvas = ref<any>();
 
-        const numLeds = 100;
         const arrayOffset = 0;
 
-        const sab = new SharedArrayBuffer(numLeds * 4);
-        const fullArray = new LedArray(sab, numLeds, arrayOffset , () => Promise.resolve());
+        const numLeds = ref(100);
+
+        const buffers = computed(() => {
+            const sab = new SharedArrayBuffer(numLeds.value * 4);
+            const fullArray = new LedArray(sab, numLeds.value, arrayOffset, () => Promise.resolve());
+            return {
+                sab, fullArray
+            };
+        });
 
         const { content, issues, javascript } = useMonacoEditor(
             'editor-ide-container',
@@ -85,7 +91,9 @@ export default defineComponent({
         // eslint-disable-next-line no-undef
         const config = ref<netled.IAnimationConfig>();
 
-        watch(javascript, async js => {
+        watch([javascript, buffers], async x => {
+            const [js, buffers] = x;
+            const { fullArray, sab } = buffers;
             if (!js) { return; }
             if (issues.value.length) {
                 return;
@@ -127,9 +135,8 @@ export default defineComponent({
                     }
                 });
 
-                worker.postMessage({ name: 'init', sab, js, numLeds, arrayOffset });
+                worker.postMessage({ name: 'init', sab, js, numLeds: numLeds.value, arrayOffset });
 
-                
             } catch (e: any) {
                 moduleIssues.value = [{ severity: 'error', line: 0, col: 0, message: `Error creating instance of script: ${e.message ?? e.toString()}` }];
                 console.error(e);
@@ -145,7 +152,7 @@ export default defineComponent({
             worker.postMessage({ name: 'update-settings', settings });
         });
 
-        return { issues: computed(() => [...issues.value, ...moduleIssues.value]), ledCanvas, config, settings };
+        return { issues: computed(() => [...issues.value, ...moduleIssues.value]), ledCanvas, config, settings, numLeds };
     },
 });
 
