@@ -1,5 +1,4 @@
-import { DeviceAnimationConfigPost, DeviceLogsFilter, Id, RestClient } from '.';
-import { AnimationConfig } from '.';
+import { DeviceAnimationConfigPost, DeviceLogsFilter, Id, RestClient, AnimationVersion } from '.';
 import { FromDeviceMessage } from '..';
 
 export class DeviceRestClient {
@@ -7,12 +6,12 @@ export class DeviceRestClient {
     constructor(private readonly restClient: RestClient) { }
 
     /** Get a list of devices */
-    public list<T extends boolean>(includeStatus?: T): Promise<T extends true ? Device[] : DeviceShallow[]> {
+    public list<T extends boolean>(includeStatus?: T): Promise<T extends true ? Device[] : DeviceSummary[]> {
         return this.restClient.get('/api/devices', { includeStatus });
     }
 
     /** Get a device by it's id */
-    public byId<T extends boolean = false>(deviceId: string, includeStatus?: T): Promise<T extends true ? Device | null : DeviceShallow | null> {
+    public byId<T extends boolean = false>(deviceId: string, includeStatus?: T): Promise<T extends true ? Device | null : DeviceSummary | null> {
         return this.restClient.get(`/api/devices/${deviceId}`, { includeStatus });
     }
 
@@ -80,7 +79,7 @@ export interface Device {
 }
 
 /** Device object without the current animation, or status */
-export type DeviceShallow = Omit<Device, 'status' | 'animation'>
+export type DeviceSummary = Omit<Device, 'status' | 'animation'>
 
 export type DevicePost = Pick<Device, 'id' | 'name' | 'setup'>;
 
@@ -108,7 +107,12 @@ export interface DeviceAnimationPost {
     /** One or more device ids to send the stop request to. */
     deviceIds: [Id, ...Id[]],
     /** Animation and configuration to run on devices */
-    animation: AnimationConfig
+    animation: {
+        id: Id;
+        version: AnimationVersion
+    },
+    /** Optional id of the saved config to use for the animation */
+    configId?: Id;
 }
 
 export interface DeviceStopPost {

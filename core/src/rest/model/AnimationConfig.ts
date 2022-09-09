@@ -1,14 +1,23 @@
-import { Id } from '..';
+import { Id, AnimationVersion } from '..';
 
 export interface AnimationConfig {
-    /** Id of the animation to render */
+    /** Id of this specific animation config */
     readonly id: Id;
-    /** Version of animation */
-    version: number;
-    /** Animation configuration */
-    config?: Record<string, any>;
-    /** Interval in milliseconds in which to render a frame. e.g. 33ms for 30FPS */
-    interval: number;
-    /** Global brightness modifiers. A ratio (0-1) applied to each frame's led brightness. */
-    brightness: number;
+    readonly userId: Id;
+    /** Id of the animation to render */
+    readonly animationId: Id;
+    /** Version of animation this config is for */
+    readonly version: AnimationVersion;
+    /** Name for this configuration */
+    name: string;
+    /** Description for the configuration */
+    description?: string | null;
+    /** Configuration data for the animation */
+    config: Record<string, number | string>;
 }
+
+export interface AnimationConfigSummary extends Omit<AnimationConfig, 'config'> {
+    animationName: string;
+}
+
+export type AnimationConfigPost = Omit<AnimationConfig, 'userId'>;

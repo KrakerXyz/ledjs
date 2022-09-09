@@ -1,6 +1,5 @@
 
-import { AnimationMeta, AnimationNamedConfig, AnimationPost, Animation, Id } from '.';
-import { AnimationNamedConfigPost, AnimationNamedConfigSummary } from './model';
+import { AnimationSummary, AnimationConfig, AnimationPost, Animation, Id, AnimationConfigSummary, AnimationConfigPost, AnimationVersion } from '.';
 import { RestClient } from './RestClient';
 
 export class AnimationRestClient {
@@ -8,7 +7,7 @@ export class AnimationRestClient {
     constructor(private readonly restClient: RestClient) { }
 
     /** Returns a list of all published animations. Optionally include unpublished versions of your own scripts. */
-    public list<T extends boolean = false>(withScript?: T): Promise<T extends true ? Animation[] : AnimationMeta[]> {
+    public list<T extends boolean = false>(withScript?: T): Promise<T extends true ? Animation[] : AnimationSummary[]> {
         return this.restClient.get('/api/animations', { withScript });
     }
 
@@ -18,17 +17,17 @@ export class AnimationRestClient {
     }
 
     /** Return specific animation version */
-    public byId(animationId: Id, version: number): Promise<Animation> {
+    public byId(animationId: Id, version: AnimationVersion): Promise<Animation> {
         return this.restClient.get(`/api/animations/${animationId}/${version}`);
     }
 
     /** Returns the script text of the given animation */
-    public async script(animationId: Id, version: number): Promise<string> {
+    public async script(animationId: Id, version: AnimationVersion): Promise<string> {
         return this.restClient.get(`/api/animations/${animationId}/${version}/script`);
     }
 
     /** Creates or updates a draft version of an animation script */
-    public saveDraft(animation: AnimationPost): Promise<AnimationMeta> {
+    public saveDraft(animation: AnimationPost): Promise<AnimationSummary> {
         return this.restClient.post('/api/animations', animation);
     }
 
@@ -38,27 +37,27 @@ export class AnimationRestClient {
     }
 
     /** Gets a list of all configs for the users. Does not return the configuration detail. */
-    private configList(): Promise<AnimationNamedConfigSummary[]>
+    private configList(): Promise<AnimationConfigSummary[]>
     /** Get all configs for all versions of a an animation */
-    private configList(animationId: Id): Promise<AnimationNamedConfig[]>
+    private configList(animationId: Id): Promise<AnimationConfig[]>
     /** Get all configs for a specific animation.version */
-    private configList(animationId: Id, version: number): Promise<AnimationNamedConfig[]>
-    private configList(animationId?: Id, version?: number): Promise<AnimationNamedConfig[]> | Promise<AnimationNamedConfigSummary[]> {
+    private configList(animationId: Id, version: AnimationVersion): Promise<AnimationConfig[]>
+    private configList(animationId?: Id, version?: AnimationVersion): Promise<AnimationConfig[]> | Promise<AnimationConfigSummary[]> {
         if (animationId) {
-            return this.restClient.get<AnimationNamedConfig[]>(`/api/animations/${animationId}/configs`, { version });
+            return this.restClient.get<AnimationConfig[]>(`/api/animations/${animationId}/configs`, { version });
         } else {
-            return this.restClient.get<AnimationNamedConfigSummary[]>('/api/animations/configs');
+            return this.restClient.get<AnimationConfigSummary[]>('/api/animations/configs');
         }
     }
 
     public readonly config = {
         /** Get a list of configs for this animation */
         list: this.configList.bind(this),
-        byId: (configId: Id): Promise<AnimationNamedConfig> => {
+        byId: (configId: Id): Promise<AnimationConfig> => {
             return this.restClient.get(`/api/animations/configs/${configId}`);
         },
         /** Saves/Updates a named animation config */
-        save: (config: AnimationNamedConfigPost): Promise<AnimationNamedConfig> => {
+        save: (config: AnimationConfigPost): Promise<AnimationConfig> => {
             return this.restClient.post('/api/animations/configs', config);
         },
         /** Delete a config by it's id */

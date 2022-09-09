@@ -1,5 +1,8 @@
 import { Id } from '..';
 
+export type AnimationVersion = number | 'draft';
+
+/** A animation script */
 export interface Animation {
     readonly id: Id;
     name: string;
@@ -9,11 +12,11 @@ export interface Animation {
     /** Typescript-based animation script */
     ts: string;
     readonly published: boolean;
-    readonly version: number;
+    readonly version: AnimationVersion
     readonly created: number;
     readonly author: Id;
     readonly $v: 2;
 }
 
-export type AnimationMeta = Omit<Animation, 'script' | 'js' | 'ts'>;
+export type AnimationSummary = Omit<Animation, 'script' | 'js' | 'ts'>;
 export type AnimationPost = Omit<Animation, 'version' | 'created' | 'author' | 'published'| 'js'>;
