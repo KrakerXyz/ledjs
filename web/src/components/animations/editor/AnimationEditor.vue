@@ -1,251 +1,170 @@
+
 <template>
-    <div class="h-100 d-flex flex-column">
-        <led-canvas
-            id="canvas"
-            class="bg-secondary"
-            :frame="frame"
-            @draw-error="onDrawError($event)"
-        />
-
-        <div class="flex-grow-1 container shadow bg-white p-3">
-            <div class="row g-0 h-100">
-                <!-- The positioning here was to get monaco to resize to fill the col. -->
-                <div class="col position-relative">
-                    <div id="editor-ide-container" class="h-100 w-100 position-absolute" />
-                </div>
-
-                <div class="col-auto col-right p-1">
-                    <button
-                        type="button"
-                        v-if="!isRunning"
-                        class="btn btn-link p-0"
-                        @click="testScript()"
-                    >
-                        Test script
-                    </button>
-
-                    <div v-if="executionError" class="alert alert-danger px-1 py-0 mt-2 small">
-                        <span>{{ executionError }}</span>
+    <div class="d-flex flex-column h-100">
+        <LedCanvas class="led-canvas" ref="ledCanvas"></LedCanvas>
+        <div class="flex-grow-1 row g-0">
+            <div class="col">
+                <div class="h-100 d-flex flex-column">
+                    <div class="flex-grow-1 position-relative">
+                        <div id="editor-ide-container" class="h-100 w-100 position-absolute" />
                     </div>
-
-                    <button
-                        type="button"
-                        v-if="isRunning"
-                        class="btn btn-link p-0"
-                        @click="stopScript()"
-                    >
-                        Stop script
-                    </button>
-
-                    <div class="row mt-3">
-                        <div class="col">
-                            <div class="form-floating">
-                                <input
-                                    id="editor-script-name"
-                                    class="form-control"
-                                    placeholder="*"
-                                    v-model.trim="animationPost.name"
-                                />
-                                <label for="editor-script-name">Animation Name</label>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="row mt-3">
-                        <div class="col">
-                            <div class="form-floating">
-                                <textarea
-                                    id="editor-script-description"
-                                    class="form-control"
-                                    placeholder="*"
-                                    v-model.trim="animationPost.description"
-                                />
-                                <label for="editor-script-description">Description</label>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div v-if="!executionError && !errorMessages.length" class="row mt-2">
-                        <div class="col">
-                            <button type="button" class="btn btn-primary w-100" @click="saveScript()">
-                                Save Draft
-                            </button>
-                        </div>
-                    </div>
-
-                    <div class="mt-3" v-if="errorMessages.length">
-                        <div class="alert alert-danger px-1 py-0 small" v-for="(e, i) of errorMessages" :key="i">
-                            <small>{{ e }}</small>
-                        </div>
+        
+                    <div v-if="issues.length" class="ide-errors bg-dark">
+                        <ul class="list-group font-monospace text-white">
+                            <li v-for="(i, $index) of issues" :key="$index" class="p-1">
+                                <span v-if="i.severity === 'warning'" class="text-warning"><i class="fa-solid fa-lg fa-fw fa-exclamation-triangle"></i></span>
+                                <span v-else class="text-danger"><i class="fa-solid fa-lg fa-fw fa-bomb"></i></span>
+                                {{i.message}} [{{ i.line }}, {{ i.col }}]
+                            </li>
+                        </ul>
                     </div>
                 </div>
+            </div>
+            <div class="col-lg-3 p-2">
+                <h3>Setup</h3>
+                <div class="form-floating">
+                    <input
+                        id="d-leds"
+                        class="form-control"
+                        placeholder="*"
+                        v-model.lazy.number="numLeds"
+                    >
+                    <label for="d-leds"># LEDs</label>
+                </div>
+
+                <template v-if="config">
+                    <h3 class="mt-3">
+                        Config
+                    </h3>
+                    <config :config="config" @update:settings="s => settings = s"></config>
+                </template>
             </div>
         </div>
     </div>
 </template>
 
 <script lang="ts">
-import { computed, defineComponent, getCurrentInstance, onUnmounted, reactive, ref, watch } from 'vue';
-import { useDefaultScript } from './defaultScript';
-import { IFrameContext, useIframeRunner } from './iframeRunner';
-import { useJavascriptLib } from './javascriptLib';
-import { useMonacoEditor } from './monacoEditor';
-import { Animation, AnimationRestClient, Frame, parseScript, deepClone, Id, newId } from '@krakerxyz/netled-core';
-import { useRestClient } from '../../../services';
-import LedCanvas from '../../LedCanvas.vue';
-import { useRoute, useRouter } from 'vue-router';
+
+import { defineComponent, ref, watch, computed } from 'vue';
+import { LedArray } from './LedArray';
+import LedCanvas from './LedCanvas.vue';
+import { CodeIssue, useMonacoEditor } from './monacoEditor';
+import types from './types.d.ts?raw';
+import example from './Script.ts?raw';
+import AnimationWorker from './animationWorker?worker';
+import config from './Config.vue';
+import { deepClone } from '@krakerxyz/netled-core';
 
 export default defineComponent({
-    components: {
-        LedCanvas,
-    },
-    async setup() {
-        const componentInstance = getCurrentInstance();
-        const route = useRoute();
-        const router = useRouter();
+    components: { LedCanvas, config },
+    setup() {
 
-        const restClient = useRestClient();
-        const animationClient = new AnimationRestClient(restClient);
+        const ledCanvas = ref<any>();
 
-        const animation: Partial<Animation> =
-        route.params['animationId'] !== 'new'
-            ? deepClone(await animationClient.latest(route.params['animationId'] as Id, true))
-            : {
-                id: newId(),
-                script: useDefaultScript(),
+        const arrayOffset = 0;
+
+        const numLeds = ref(100);
+
+        const buffers = computed(() => {
+            const sab = new SharedArrayBuffer(numLeds.value * 4);
+            const fullArray = new LedArray(sab, numLeds.value, arrayOffset, () => Promise.resolve());
+            return {
+                sab, fullArray
             };
+        });
 
-        const { content } = useMonacoEditor(
+        const { content, issues, javascript } = useMonacoEditor(
             'editor-ide-container',
             {
-                javascriptLib: useJavascriptLib(),
-            },
-            componentInstance ?? undefined
+                typescriptLib: {
+                    'global': types
+                }
+            }
         );
 
-        content.value = animation.script ?? '';
+        content.value = example;
 
-        const scriptParseResult = computed(() => parseScript(content.value));
+        const moduleIssues = ref<CodeIssue[]>([]);
 
-        const errorMessages = computed(() => {
-            if (scriptParseResult.value.valid === false) {
-                return scriptParseResult.value.errors.filter((e) => e !== 'Script parsing failed');
-            }
-            return [];
-        });
+        let worker: Worker | null = null;
 
-        const frame = ref<Frame>([]);
-        const iframeContext = ref<IFrameContext>();
-        const isRunning = computed(() => !!iframeContext.value);
-        let intervalTimeout: number | undefined | null;
+        // eslint-disable-next-line no-undef
+        const config = ref<netled.IAnimationConfig>();
 
-        const executionError = ref<string>();
-        const testScript = async () => {
-            if (!content?.value?.trim()) {
+        watch([javascript, buffers], async x => {
+            const [js, buffers] = x;
+            const { fullArray, sab } = buffers;
+            if (!js) { return; }
+            if (issues.value.length) {
                 return;
             }
-
-            executionError.value = undefined;
-
             try {
-                iframeContext.value = await useIframeRunner(content.value);
+                const b64moduleData = 'data:text/javascript;base64,' + btoa(js);
+                const module = await import(/* @vite-ignore */ b64moduleData);
 
-                try {
-                    await iframeContext.value.setNumLeds(90);
-                } catch (e) {
-                    throw new Error(`setNumLeds: ${e}`);
+                if (!module.default) {
+                    moduleIssues.value = [{ severity: 'error', line: 0, col: 0, message: 'Script has not default export' }];
+                    return;
                 }
 
-                try {
-                    frame.value = [...(await iframeContext.value!.nextFrame())];
-                } catch (e) {
-                    throw new Error(`nextFrame: ${e}`);
+                if (!module.default.prototype.constructor) {
+                    moduleIssues.value = [{ severity: 'error', line: 0, col: 0, message: 'Script has no constructor' }];
+                    return;
                 }
 
-                intervalTimeout = setInterval(async () => {
-                    try {
-                        frame.value = [...(await iframeContext.value!.nextFrame())];
-                    } catch (e) {
-                        executionError.value = `nextFrame: ${e}`;
-                        stopScript();
+                worker?.terminate();
+                worker = null;
+
+                worker = new AnimationWorker();
+
+                worker.addEventListener('message', (e: MessageEvent<any>) => {
+                    const data = e.data;
+                    switch(data.name) {
+                        case 'moduleError': {
+                            moduleIssues.value = data.errors;
+                            break;
+                        }
+                        case 'render': {
+                            ledCanvas.value?.render(fullArray);
+                            break;
+                        }
+                        case 'config': {
+                            config.value = data.config;
+                            break;
+                        }
                     }
-                }, 50);
+                });
+
+                worker.postMessage({ name: 'init', sab, js, numLeds: numLeds.value, arrayOffset });
+
             } catch (e: any) {
-                executionError.value = e.toString();
-                stopScript();
+                moduleIssues.value = [{ severity: 'error', line: 0, col: 0, message: `Error creating instance of script: ${e.message ?? e.toString()}` }];
+                console.error(e);
             }
-        };
+        }, { immediate: true });
 
-        const stopScript = () => {
-            if (!iframeContext.value) {
-                return;
-            }
-            iframeContext.value.dispose();
-            iframeContext.value = undefined;
-            frame.value = [];
-            if (intervalTimeout) {
-                clearInterval(intervalTimeout);
-                intervalTimeout = null;
-            }
-        };
-
-        const animationPost = reactive({
-            id: animation.id!,
-            script: content.value ?? '',
-            name: animation.name ?? '',
-            description: animation.description ?? '',
+        // eslint-disable-next-line no-undef
+        const settings = ref<netled.IAnimationConfigValues<any>>();
+        watch(settings, settings => {
+            if(!worker) { return; }
+            settings = deepClone(settings);
+            console.log(settings);
+            worker.postMessage({ name: 'update-settings', settings });
         });
 
-        const contentStopHandle = watch(content, (s) => (animationPost.script = s));
-
-        const saveScript = async () => {
-            await animationClient.saveDraft(animationPost);
-            console.log('Saved animation');
-            if (route.params['animationId'] === 'new') {
-                router.replace({ params: { animationId: animationPost.id } });
-            }
-        };
-
-        const onDrawError = (e: any) => {
-            executionError.value = `draw: ${e}`;
-            stopScript();
-        };
-
-        onUnmounted(() => {
-            if (iframeContext.value) {
-                iframeContext.value.dispose();
-            }
-            if (intervalTimeout) {
-                clearInterval(intervalTimeout);
-            }
-            contentStopHandle();
-        }, componentInstance);
-
-        return {
-            testScript,
-            errorMessages,
-            saveScript,
-            frame,
-            animationPost,
-            isRunning,
-            stopScript,
-            executionError,
-            onDrawError,
-        };
+        return { issues: computed(() => [...issues.value, ...moduleIssues.value]), ledCanvas, config, settings, numLeds };
     },
 });
+
 </script>
 
 <style lang="postcss" scoped>
-  #canvas {
-    height: 20px;
-  }
+    .ide-errors {
+        min-height: 100px;
+        max-height: 50%;
+    }
 
-  .col-right {
-    width: 200px;
-  }
-
-  #editor-script-description {
-    height: 200px;
-  }
+    .led-canvas {
+        height: 20px;
+    }
 </style>

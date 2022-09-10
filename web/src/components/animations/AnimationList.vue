@@ -3,11 +3,10 @@
         <div class="row">
             <div class="col">
                 <div class="list-group" v-if="animations">
-                    <router-link
+                    <div
                         class="list-group-item list-group-item-action"
                         v-for="a of animations"
                         :key="a.id"
-                        :to="useRoute(RouteName.AnimationConfigs, { animationId: a.id, version: a.version })"
                     >
                         <div class="row">
                             <div class="col">
@@ -27,14 +26,14 @@
                                 </router-link>
                             </div>
                         </div>
-                    </router-link>
+                    </div>
                 </div>
 
  
                 <teleport to="#portal-header">
                     <router-link
                         class="btn btn-primary"
-                        :to="useRoute(RouteName.AnimationEditor, { animationId: 'new' })"
+                        :to="useRoute(RouteName.AnimationNew)"
                     >
                         New Animation
                     </router-link>
@@ -45,19 +44,18 @@
 </template>
 
 <script lang="ts">
-import { AnimationRestClient, AnimationMeta } from '@krakerxyz/netled-core';
+import { AnimationRestClient, AnimationSummary } from '@krakerxyz/netled-core';
 import { defineComponent, ref } from 'vue';
 import { useRestClient } from '../../services';
 import { RouteName, useRoute } from '@/main.router';
 
 export default defineComponent({
     props: {},
-    setup() {
+    async setup() {
         const restClient = useRestClient();
         const animationClient = new AnimationRestClient(restClient);
 
-        const animations = ref<AnimationMeta[]>();
-        animationClient.list().then((a) => (animations.value = a));
+        const animations = ref<AnimationSummary[]>(await animationClient.list());
 
         return { animations, useRoute, RouteName };
     },

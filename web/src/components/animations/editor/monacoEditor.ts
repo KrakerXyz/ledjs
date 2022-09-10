@@ -1,14 +1,22 @@
 
 
-import type * as monaco from 'monaco-editor';
-import { ComponentInternalInstance, onMounted, onUnmounted, ref, Ref, watch } from 'vue';
+import * as monaco from 'monaco-editor';
+import { ComponentInternalInstance, computed, ComputedRef, getCurrentInstance, onMounted, onUnmounted, ref, Ref, watch } from 'vue';
+import ValidationWorker from './validationWorker?worker';
 
-export function useMonacoEditor(containerId: string, config?: Partial<EditorConfig>, componentTarget?: ComponentInternalInstance): { content: Ref<string>, errorMarkers: Ref<monaco.editor.IMarker[]> } {
+export function useMonacoEditor(containerId: string, config?: Partial<EditorConfig>, componentTarget?: ComponentInternalInstance): Editor {
 
     const content = ref('');
-    const errorMarkers = ref<monaco.editor.IMarker[]>([]);
+    const javascript = ref('');
+    const issues = ref<CodeIssue[]>([]);
+    const validationIssues= ref<CodeIssue[]>([]);
 
     let editor: monaco.editor.IStandaloneCodeEditor | undefined;
+
+    componentTarget ??= getCurrentInstance() ?? undefined;
+    if (!componentTarget) {
+        throw new Error('Component instance not defined');
+    }
 
     onMounted(() => {
 
@@ -18,35 +26,100 @@ export function useMonacoEditor(containerId: string, config?: Partial<EditorConf
 
             const thisMonaco: typeof monaco = (window as any).monaco;
 
-            if (config?.javascriptLib) {
-                for (const k of Object.getOwnPropertyNames(config.javascriptLib)) {
+            const defaults = thisMonaco.languages.typescript.typescriptDefaults.getCompilerOptions();
+            defaults.target = thisMonaco.languages.typescript.ScriptTarget.ESNext;
+            defaults.strict = true;
+            defaults.experimentalDecorators = true;
+            defaults.lib = ['esnext'];
+            thisMonaco.languages.typescript.typescriptDefaults.setCompilerOptions(defaults);
+
+            if (config?.typescriptLib) {
+                for (const k of Object.getOwnPropertyNames(config.typescriptLib)) {
                     const libUrl = `ts:filename/${k}.d.ts`;
                     if (thisMonaco.languages.typescript.javascriptDefaults.getExtraLibs()[libUrl]) { continue; }
-                    const lib = config.javascriptLib[k];
-                    thisMonaco.languages.typescript.javascriptDefaults.addExtraLib(lib, libUrl);
+                    const lib = config.typescriptLib[k];
+                    thisMonaco.languages.typescript.typescriptDefaults.addExtraLib(lib, libUrl);
                     thisMonaco.editor.createModel(lib, 'typescript', thisMonaco.Uri.parse(libUrl));
                 }
             }
 
             editor = thisMonaco.editor.create(ideContainer, {
                 value: content.value,
-                language: 'javascript',
-                renderValidationDecorations: 'off',
+                language: 'typescript',
+                //renderValidationDecorations: 'off',
                 theme: 'vs-dark',
                 wordWrap: 'on',
                 wrappingIndent: 'indent',
                 lineNumbers: 'on',
             }) as monaco.editor.IStandaloneCodeEditor;
 
-            editor.getModel()?.updateOptions({ tabSize: 3 });
+            const model = editor.getModel();
+            if (!model) {
+                throw new Error('Expected model');
+            }
+            model.updateOptions({ tabSize: 4 });
+
+            let typescriptWorker: monaco.languages.typescript.TypeScriptWorker | null = null;
+            thisMonaco.languages.typescript.getTypeScriptWorker().then(worker => {
+                worker(model.uri).then(client => {
+                    typescriptWorker = client;
+                    updateJavascript();
+                });
+            });
+
+            const updateJavascript = () => {
+                typescriptWorker?.getEmitOutput(model.uri.toString()).then(output => {
+                    javascript.value = output.outputFiles[0].text;
+                });
+            };
+
+            const validationWorker = new ValidationWorker();
+            validationWorker.addEventListener('message', e => {
+                if (e.data.name === 'issues') {
+                    validationIssues.value = e.data.issues;
+                }
+            });
+
+            editor.onDidChangeModelContent(() => {
+                if (!editor) { return; }
+                const ts = editor.getValue();
+                validationWorker.postMessage({ name: 'validate', ts });
+            });
+
+            editor.onDidChangeModelDecorations(() => {
+                if (!editor) {
+                    return;
+                }
+                const markers = thisMonaco.editor.getModelMarkers({ owner: 'typescript' });
+                const filtered = markers.filter(x => x.resource.path !== 'filename/global.d.ts');
+                const newIssues: CodeIssue[] = filtered.map(x => {
+                    return {
+                        severity: x.severity === thisMonaco.MarkerSeverity.Error ? 'error' : 'warning',
+                        col: x.startColumn,
+                        line: x.startLineNumber,
+                        message: x.message
+                    };
+                });
+                newIssues.sort((a, b) => a.line - b.line);
+                issues.value = newIssues;
+            });
 
             let isOutgoingValue = false;
-            editor.onDidChangeModelContent(() => {
+            editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyS, () => {
                 if (!editor) { return; }
                 const newContent = editor.getValue();
                 isOutgoingValue = true;
                 content.value = newContent;
+                updateJavascript();
             });
+            
+            // editor.onDidChangeModelContent(() => {
+            //     if (!editor) { return; }
+            //     const newContent = editor.getValue();
+            //     isOutgoingValue = true;
+            //     content.value = newContent;
+            //     updateJavascript();
+            // });
 
             watch(content, c => {
                 if (isOutgoingValue) { isOutgoingValue = false; return; }
@@ -68,11 +141,24 @@ export function useMonacoEditor(containerId: string, config?: Partial<EditorConf
 
     }, componentTarget);
 
-    return { content, errorMarkers };
+    return { content, issues: computed(() => [...issues.value, ...validationIssues.value]), javascript: computed(() => javascript.value) };
 }
 
 export interface EditorConfig {
-    javascriptLib: {
+    typescriptLib: {
         [name: string]: string
     }
+}
+
+export interface Editor {
+    content: Ref<string>;
+    issues: ComputedRef<CodeIssue[]>;
+    javascript: ComputedRef<string>
+}
+
+export interface CodeIssue {
+    severity: 'error' | 'warning';
+    line: number;
+    col: number;
+    message: string;
 }

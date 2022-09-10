@@ -13,18 +13,20 @@
 
         <!--:to="{ name: 'device-view', params: { deviceId: d.id } }"-->
 
-        <div class="row mt-3">
-            <div class="col">
-                <router-link :to="{ name: 'device-add' }">
-                    New Device Registration
-                </router-link>
-            </div>
-        </div>
+        <teleport to="#portal-header">
+            <router-link
+                class="btn btn-primary"
+                :to="useRoute(RouteName.DeviceAdd)"
+            >
+                New Device
+            </router-link>
+        </teleport>
     </div>
 </template>
 
 <script lang="ts">
 
+import { RouteName, useRoute } from '@/main.router';
 import { deepClone } from '@krakerxyz/netled-core';
 import { defineComponent } from 'vue';
 import { useAnimationRestClient, useDevicesRestClient } from '../../services';
@@ -44,7 +46,7 @@ export default defineComponent({
         const devices = await devicesClient.list(true);
         const configs = deepClone(await animationClient.config.list()).sort((a, b) => a.name.localeCompare(b.name));
 
-        return { devices, configs };
+        return { devices, configs, useRoute, RouteName };
     }
 });
 

@@ -6,7 +6,7 @@ export type AnimationVersion = number | 'draft';
 export interface Animation {
     readonly id: Id;
     name: string;
-    description?: string | null;
+    description: string | null;
     /** Plain-old-javascript for the animation */
     readonly js: string;
     /** Typescript-based animation script */

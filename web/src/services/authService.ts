@@ -28,40 +28,37 @@ export async function initGoogleLoginButton(container: HTMLDivElement) {
             console.warn('Could not validate existing g-jwt', e);
             Cookies.remove(GoogleJwtCookieName);
             Cookies.remove(NetLedJwtCookieName);
-        } finally {
-            initResolver!();
         }
+
+        window.addEventListener('load', () => {
+            console.debug('Initializing GIS');
+
+            if (!import.meta.env?.VITE_GOOGLE_CLIENT_ID) {
+                throw new Error('Missing VITE_GOOGLE_CLIENT_ID environment variable');
+            }
+
+            google.accounts.id.initialize({
+                client_id: import.meta.env?.VITE_GOOGLE_CLIENT_ID,
+                callback: handleCredentialResponse,
+                auto_select: true
+            });
+
+            google.accounts.id.renderButton(
+                container,
+                { theme: 'outline', size: 'large' } as any
+            );
+
+            google.accounts.id.prompt(notification => {
+                console.debug('Got notification', notification);
+            });
+
+            status.value = 'signedOut';
+
+        }, { once: true });
+
     }
 
-    console.debug('Initializing GIS');
-    window.addEventListener('load', () => {
-
-        if (!import.meta.env?.VITE_GOOGLE_CLIENT_ID) {
-            throw new Error('Missing VITE_GOOGLE_CLIENT_ID environment variable');
-            return;
-        }
-
-        google.accounts.id.initialize({
-            client_id: import.meta.env?.VITE_GOOGLE_CLIENT_ID,
-            callback: handleCredentialResponse,
-            auto_select: true
-        });
-
-        google.accounts.id.renderButton(
-            container,
-            { theme: 'outline', size: 'large' } as any
-        );
-
-        google.accounts.id.prompt(notification => {
-            console.debug('Got notification', notification);
-        });
-
-        status.value = 'signedOut';
-        
-    }, { once: true });
-    
     initResolver!();
-
 }
 
 async function handleCredentialResponse(response: google.accounts.id.CredentialResponse): Promise<void> {

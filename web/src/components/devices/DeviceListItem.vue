@@ -79,13 +79,13 @@
 
 <script lang="ts">
 import { useDevicesRestClient, useWsClient } from '@/services';
-import { animationConfigSummary, deepClone, Device, DeviceHealthData, Disposable, Id } from '@krakerxyz/netled-core';
+import { AnimationConfigSummary, deepClone, Device, DeviceHealthData, Disposable, Id } from '@krakerxyz/netled-core';
 import { computed, defineComponent, onUnmounted, reactive, ref } from 'vue';
 
 export default defineComponent({
     props: {
         device: { type: Object as () => Device, required: true },
-        configs: { type: Array as () => animationConfigSummary[], required: true },
+        configs: { type: Array as () => AnimationConfigSummary[], required: true },
     },
     setup(props) {
         const devicesClient = useDevicesRestClient();

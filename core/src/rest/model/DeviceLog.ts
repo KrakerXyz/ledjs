@@ -24,7 +24,7 @@ interface DeviceLogFilterGeneric extends DeviceLogFilterBase {
 
 interface DeviceLogFilterBase {
     /** Include logs for device id(s) */
-    deviceIds?: [Id, ...Id[]] | null;
+    deviceIds: [Id, ...Id[]] | null;
 
     created?: {
         /** Include logs that were created after time */

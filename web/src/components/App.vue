@@ -20,25 +20,9 @@
                         <li class="nav-item">
                             <router-link
                                 class="nav-link"
-                                :to="useRoute(RouteName.PostList)"
-                            >
-                                Post Processors
-                            </router-link>
-                        </li>
-                        <li class="nav-item">
-                            <router-link
-                                class="nav-link"
                                 :to="useRoute(RouteName.DeviceList)"
                             >
                                 Devices
-                            </router-link>
-                        </li>
-                        <li class="nav-item">
-                            <router-link
-                                class="nav-link"
-                                :to="useRoute(RouteName.Test)"
-                            >
-                                Test
                             </router-link>
                         </li>
                     </template>
