@@ -41,13 +41,13 @@ export const postAnimationConfig: RouteOptions = {
         const deviceSaves: Promise<any>[] = [];
         for (const d of devices) {
             if (!d) { continue; }
-            d.animationNamedConfigId = post.configId ?? undefined;
+            d.animationConfigId = post.configId;
             deviceSaves.push(req.services.deviceDb.replace(d));
         }
 
         req.services.webSocketManager.sendDeviceMessage({
             type: 'animationSetup',
-            data: config?.animation ?? null
+            data: config
         }, ...post.deviceIds);
 
         await Promise.all(deviceSaves);

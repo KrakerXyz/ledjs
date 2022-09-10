@@ -1,5 +1,5 @@
 import { RouteOptions } from 'fastify';
-import { AnimationNamedConfig, AnimationNamedConfigPost } from '@krakerxyz/netled-core';
+import { AnimationConfig, AnimationConfigPost } from '@krakerxyz/netled-core';
 import { jsonSchema } from '@krakerxyz/json-schema-transformer';
 import { jwtAuthentication } from '../../services';
 
@@ -8,10 +8,10 @@ export const postConfig: RouteOptions = {
     url: '/api/animations/configs',
     preValidation: [jwtAuthentication],
     schema: {
-        body: jsonSchema<AnimationNamedConfigPost>()
+        body: jsonSchema<AnimationConfigPost>()
     },
     handler: async (req, res) => {
-        const post = req.body as AnimationNamedConfigPost;
+        const post = req.body as AnimationConfigPost;
         const db = req.services.animationConfigDb;
 
         const existing = await db.byId(post.id);
@@ -20,7 +20,7 @@ export const postConfig: RouteOptions = {
             return;
         }
 
-        const newConfig: AnimationNamedConfig = {
+        const newConfig: AnimationConfig = {
             ...post,
             userId: req.user.sub,
         };
@@ -28,11 +28,11 @@ export const postConfig: RouteOptions = {
         await (existing ? db.replace : db.add).apply(db, [newConfig]);
 
         if (existing) {
-            const devices = req.services.deviceDb.byAnimationNamedConfigId(newConfig.id);
+            const devices = req.services.deviceDb.byAnimationConfigId(newConfig.id);
             for await (const d of devices) {
                 req.services.webSocketManager.sendDeviceMessage({
                     type: 'animationSetup',
-                    data: newConfig.animation
+                    data: newConfig
                 }, d.id);
             }
         }

@@ -1,21 +1,20 @@
+import { jsonSchema } from '@krakerxyz/json-schema-transformer';
+import { Id } from '@krakerxyz/netled-core';
 import { RouteOptions } from 'fastify';
+
+type Params = { animationId: Id, includeDraft?: boolean };
 
 export const getLatestById: RouteOptions = {
     method: 'GET',
     url: '/api/animations/:animationId',
     schema: {
-        params: {
-            type: 'object',
-            properties: {
-                animationId: { type: 'string' }
-            },
-            required: ['animationId']
-        }
+        params: jsonSchema<Params>()
     },
     handler: async (req, res) => {
-        const animationId = (req.params as any)['animationId'];
+        const params = req.params as Params;
         const db = req.services.animationDb;
-        const animation = await db.latestById(animationId, (req.query as any)['includeDraft'] === 'true');
+        let animation = params.includeDraft ? await db.byId(params.animationId, 'draft') : null;
+        if (!animation) { animation = await db.latestById(params.animationId); }
         if (!animation) {
             await res.status(404).send({ error: 'An animation with that id does not exist' });
             return;

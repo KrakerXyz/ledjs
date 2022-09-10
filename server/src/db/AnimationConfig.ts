@@ -1,11 +1,11 @@
 import { Filter, TypedEntity } from '@krakerxyz/typed-base';
-import { AnimationNamedConfig, Id, Writeable } from '@krakerxyz/netled-core';
+import { AnimationConfig, AnimationVersion, Id, Writeable } from '@krakerxyz/netled-core';
 
 export class AnimationConfigDb {
-    private readonly entity = new TypedEntity<AnimationNamedConfig>();
+    private readonly entity = new TypedEntity<AnimationConfig>();
 
-    public byAnimationId(animationId: Id, userId?: string, version?: number): AsyncGenerator<AnimationNamedConfig> {
-        const filter: Filter<Writeable<AnimationNamedConfig>> = {
+    public byAnimationId(animationId: Id, userId?: Id, version?: AnimationVersion): AsyncGenerator<AnimationConfig> {
+        const filter: Filter<Writeable<AnimationConfig>> = {
             'animation.id': animationId
         };
         if (userId) { filter['userId'] = userId; }
@@ -13,19 +13,19 @@ export class AnimationConfigDb {
         return this.entity.find(filter);
     }
 
-    public byUserId(userId: Id): AsyncGenerator<AnimationNamedConfig> {
+    public byUserId(userId: Id): AsyncGenerator<AnimationConfig> {
         return this.entity.find({ userId });
     }
 
-    public byId(id: Id): Promise<AnimationNamedConfig | null> {
+    public byId(id: Id): Promise<AnimationConfig | null> {
         return this.entity.findOneAsync({ id });
     }
 
-    public add(config: AnimationNamedConfig): Promise<void> {
+    public add(config: AnimationConfig): Promise<void> {
         return this.entity.insertAsync(config);
     }
 
-    public replace(config: AnimationNamedConfig): Promise<void> {
+    public replace(config: AnimationConfig): Promise<void> {
         return this.entity.replaceOneAsync(config);
     }
 

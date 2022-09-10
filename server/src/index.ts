@@ -16,7 +16,7 @@ import { apiRoutes } from './rest';
 
 console.log('Configuring db');
 configureDb({
-    dbName: 'netled',
+    dbName: 'netled-dev',
     uri: getRequiredConfig(EnvKey.DbConnectionString)
 });
 

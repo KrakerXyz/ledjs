@@ -5,6 +5,7 @@
         "moduleResolution": "node",
         "esModuleInterop": true, //I don't think we need this but it gets rid of a warning with jest
         "declaration": true,
+        "sourceMap": true,
         "declarationMap": true,
         "rootDir": "src",
         "noEmitOnError": true,

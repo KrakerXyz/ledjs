@@ -15,26 +15,29 @@ export const postAnimation: RouteOptions = {
 
         const db = req.services.animationDb;
 
-        const parseResult = parseScript(animationPost.script);
+        const parseResult = parseScript(animationPost.ts);
 
         if (parseResult.valid === false) {
             await res.status(400).send({ error: `Script contains errors: ${JSON.stringify(parseResult.errors)}` });
             return;
         }
 
-        const existing = await db.latestById(animationPost.id, true);
+        const existing = await db.byId(animationPost.id, 'draft');
+
+        const newJs = '';
 
         const animation: Animation = {
             ...animationPost,
+            js: newJs,
             published: false,
-            version: existing?.published ? existing.version + 1 : (existing?.version ?? 0),
+            version: 'draft',
             created: Date.now(),
             author: req.user.sub
         };
 
         await (existing ? db.replace : db.add).apply(db, [animation]);
 
-        const { script, ...animationMeta } = animation;
+        const { ts, js, ...animationMeta } = animation;
 
         await res.status(existing ? 200 : 201).send(animationMeta);
 

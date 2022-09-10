@@ -1,5 +1,5 @@
 import { RouteOptions } from 'fastify';
-import { AnimationNamedConfig, DeviceAnimationResetPost } from '@krakerxyz/netled-core';
+import { AnimationConfig, DeviceAnimationResetPost } from '@krakerxyz/netled-core';
 import { jsonSchema } from '@krakerxyz/json-schema-transformer';
 import { jwtAuthentication } from '../../services';
 
@@ -26,25 +26,25 @@ export const postAnimationReset: RouteOptions = {
             return;
         }
 
-        const configs: Record<string, AnimationNamedConfig | null> = {};
+        const configs: Record<string, AnimationConfig | null> = {};
 
         for (const d of devices) {
             if (!d) { continue; }
 
             let hadConfig = false;
-            if (d.animationNamedConfigId) {
+            if (d.animationConfigId) {
 
-                let config = configs[d.animationNamedConfigId];
+                let config = configs[d.animationConfigId];
                 if (config === undefined) {
-                    config = await req.services.animationConfigDb.byId(d.animationNamedConfigId);
-                    configs[d.animationNamedConfigId] = config;
+                    config = await req.services.animationConfigDb.byId(d.animationConfigId);
+                    configs[d.animationConfigId] = config;
                 }
 
                 if (config) {
                     hadConfig = true;
                     req.services.webSocketManager.sendDeviceMessage({
                         type: 'animationSetup',
-                        data: config.animation
+                        data: config
                     }, d.id);
                 }
 

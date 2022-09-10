@@ -5,6 +5,7 @@ import { DeviceLogDb } from '../../db';
 import { RequestServicesContainer } from '../RequestServicesContainer';
 import { onClose } from './onClose';
 import { SocketStream } from '@fastify/websocket';
+import { assertTruthy } from '../assert';
 
 export class WebSocketManager {
 
@@ -36,8 +37,7 @@ export class WebSocketManager {
                 log.debug('Device message', msg);
 
                 const device = await req.services.deviceDb.byId(wsConnection.id);
-                console.assert(device);
-                if (!device) { return; }
+                assertTruthy(device);
 
                 const logProm = req.services.deviceLogDb.add({
                     id: v4() as Id,
@@ -78,8 +78,7 @@ export class WebSocketManager {
         if (wsConnection.type === 'device') {
 
             const device = await req.services.deviceDb.byId(wsConnection.id);
-            console.assert(device);
-            if (!device) { return; }
+            assertTruthy(device);
 
             // Calling initialize synchronously definitely does not work. 
             // I tried with immediate and 0 timeout but it's still too quick.  Setting to 10ms
@@ -174,15 +173,14 @@ export class WebSocketManager {
             }
         }, device.id);
 
-        if (device.animationNamedConfigId) {
+        if (device.animationConfigId) {
 
-            const config = await services.animationConfigDb.byId(device.animationNamedConfigId);
-            console.assert(config);
-            if (!config) { return; }
+            const config = await services.animationConfigDb.byId(device.animationConfigId);
+            assertTruthy(config);
 
             this.sendDeviceMessage({
                 type: 'animationSetup',
-                data: config?.animation
+                data: config
             }, device.id);
         }
 

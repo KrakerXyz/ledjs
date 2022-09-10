@@ -15,8 +15,7 @@ export interface Animation {
     readonly version: AnimationVersion
     readonly created: number;
     readonly author: Id;
-    readonly $v: 2;
 }
 
-export type AnimationSummary = Omit<Animation, 'script' | 'js' | 'ts'>;
+export type AnimationSummary = Omit<Animation, 'js' | 'ts'>;
 export type AnimationPost = Omit<Animation, 'version' | 'created' | 'author' | 'published'| 'js'>;

@@ -1,5 +1,5 @@
 import { RouteOptions } from '@fastify/websocket';
-import { DeviceAnimationPost } from '@krakerxyz/netled-core';
+import { Device, DeviceAnimationPost } from '@krakerxyz/netled-core';
 import { jsonSchema } from '@krakerxyz/json-schema-transformer';
 import { jwtAuthentication } from '../../services';
 
@@ -28,10 +28,12 @@ export const postAnimation: RouteOptions = {
             return;
         }
 
+        const config = !deviceSetup.configId ? null : await req.services.animationConfigDb.byId(deviceSetup.configId);
+
         const updateProms: Promise<any>[] = [];
         for (const d of devices) {
             if (!d) { continue; }
-            const newDevice = {
+            const newDevice: Device = {
                 ...d,
                 animation: deviceSetup.animation
             };
@@ -40,7 +42,7 @@ export const postAnimation: RouteOptions = {
 
         req.services.webSocketManager.sendDeviceMessage({
             type: 'animationSetup',
-            data: deviceSetup.animation
+            data: config
         }, ...deviceSetup.deviceIds);
 
         await res.send();

@@ -1,17 +1,16 @@
 import { Filter, TypedEntity } from '@krakerxyz/typed-base';
-import { Animation, AnimationMeta, Id, Writeable } from '@krakerxyz/netled-core';
+import { Animation, AnimationSummary, AnimationVersion, Id, Writeable } from '@krakerxyz/netled-core';
 
 export class AnimationDb {
 
     private readonly entity = new TypedEntity<Animation>();
 
-    public all(): AsyncGenerator<AnimationMeta> {
-        return this.entity.find({}, c => c.project({ script: false } as any));
+    public all(): AsyncGenerator<AnimationSummary> {
+        return this.entity.find({}, c => c.project({ js: false, ts: false } as any));
     }
 
-    public async latestById(id: Id, includeDraft: boolean = false): Promise<Animation | null> {
-        const filter: Filter<Writeable<Animation>> = { id };
-        if (!includeDraft) { filter.published = true; }
+    public async latestById(id: Id): Promise<Animation | null> {
+        const filter: Filter<Writeable<Animation>> = { id, published: true };
 
         const cur = this.entity.find(
             filter,
@@ -21,7 +20,7 @@ export class AnimationDb {
         return null;
     }
 
-    public byId(id: Id, version: number): Promise<Animation | null> {
+    public byId(id: Id, version: AnimationVersion): Promise<Animation | null> {
         const filter: Filter<Writeable<Animation>> = { id, version };
 
         const cur = this.entity.findOneAsync(filter);
@@ -38,7 +37,7 @@ export class AnimationDb {
         return this.entity.replaceOneAsync(animation);
     }
 
-    public deleteById(animationId: Id, version: number): Promise<void> {
+    public deleteById(animationId: Id, version: AnimationVersion): Promise<void> {
         return this.entity.deleteAsync({ id: animationId, version });
     }
 

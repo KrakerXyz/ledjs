@@ -1,5 +1,5 @@
 import { RouteOptions } from 'fastify';
-import { Animation, AnimationNamedConfig, AnimationNamedConfigSummary, Id } from '@krakerxyz/netled-core';
+import { Animation, AnimationConfig, AnimationConfigSummary, AnimationVersion, Id } from '@krakerxyz/netled-core';
 import { jwtAuthentication } from '../../services';
 
 export const getConfigs: RouteOptions = {
@@ -11,17 +11,17 @@ export const getConfigs: RouteOptions = {
         const animationsDb = req.services.animationDb;
         const allAsync = db.byUserId(req.user.sub);
 
-        const animationMap = new Map<`${Id}|${number}`, Promise<Animation | null>>();
+        const animationMap = new Map<`${Id}|${AnimationVersion}`, Promise<Animation | null>>();
 
-        const all: AnimationNamedConfig[] = [];
+        const all: AnimationConfig[] = [];
         for await (const c of allAsync) {
             all.push(c);
-            const key: `${Id}|${number}` = `${c.animation.id}|${c.animation.version}`;
+            const key: `${Id}|${AnimationVersion}` = `${c.animation.id}|${c.animation.version}`;
             if (animationMap.has(key)) { continue; }
             animationMap.set(key, animationsDb.byId(c.animation.id, c.animation.version));
         }
 
-        const ret: AnimationNamedConfigSummary[] = [];
+        const ret: AnimationConfigSummary[] = [];
         for (const c of all) {
             const animProm = animationMap.get(`${c.animation.id}|${c.animation.version}`);
             if (!animProm) {
@@ -39,8 +39,8 @@ export const getConfigs: RouteOptions = {
                 name: c.name,
                 userId: c.userId,
                 description: c.description,
+                animation: c.animation,
                 animationName: anim.name,
-                animationVersion: anim.version
             });
         }
 

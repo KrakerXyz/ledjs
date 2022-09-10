@@ -5,3 +5,4 @@ export * from './config';
 export * from './jwtAuthentication';
 export * from './deviceAuthentication';
 export * from './RequestServicesContainer';
+export * from './assert';

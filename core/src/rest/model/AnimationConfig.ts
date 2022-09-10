@@ -4,10 +4,13 @@ export interface AnimationConfig {
     /** Id of this specific animation config */
     readonly id: Id;
     readonly userId: Id;
-    /** Id of the animation to render */
-    readonly animationId: Id;
-    /** Version of animation this config is for */
-    readonly version: AnimationVersion;
+
+    readonly animation: {
+        /** Id of the animation the config is for */
+        id: Id,
+        /** Version of animation this config is for */
+        version: AnimationVersion
+    }
     /** Name for this configuration */
     name: string;
     /** Description for the configuration */
