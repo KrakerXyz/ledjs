@@ -1,26 +1,26 @@
 
 <template>
-   <div class="container h-100 shadow bg-white p-3">
-      <div class="row">
-         <div
-            class="col-sm-6 col-lg-4 col-xxl-3 text-decoration-none"
-            v-for="d of devices"
-            :key="d.id"
-         >
-            <device-list-item :device="d" :configs="configs"></device-list-item>
-         </div>
-      </div>
+    <div class="container h-100 shadow bg-white p-3">
+        <div class="row">
+            <div
+                class="col-sm-6 col-lg-4 col-xxl-3 text-decoration-none"
+                v-for="d of devices"
+                :key="d.id"
+            >
+                <device-list-item :device="d" :configs="configs"></device-list-item>
+            </div>
+        </div>
 
-      <!--:to="{ name: 'device-view', params: { deviceId: d.id } }"-->
+        <!--:to="{ name: 'device-view', params: { deviceId: d.id } }"-->
 
-      <div class="row mt-3">
-         <div class="col">
-            <router-link :to="{ name: 'device-add' }">
-               New Device Registration
-            </router-link>
-         </div>
-      </div>
-   </div>
+        <div class="row mt-3">
+            <div class="col">
+                <router-link :to="{ name: 'device-add' }">
+                    New Device Registration
+                </router-link>
+            </div>
+        </div>
+    </div>
 </template>
 
 <script lang="ts">

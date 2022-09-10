@@ -1,8 +1,8 @@
 
 <template>
-   <div class="overflow-hidden" ref="wrapper">
-      <canvas ref="can" class="d-block"></canvas>
-   </div>
+    <div class="overflow-hidden" ref="wrapper">
+        <canvas ref="can" class="d-block"></canvas>
+    </div>
 </template>
 
 <script lang="ts">

@@ -1,21 +1,21 @@
 <template>
-   <div class="list-group overflow-auto">
-      <div class="list-group-item" v-for="log of logs" :key="log.id">
-         <div class="row">
-            <div class="col-1 fw-bold">
-               {{ log.type }}
+    <div class="list-group overflow-auto">
+        <div class="list-group-item" v-for="log of logs" :key="log.id">
+            <div class="row">
+                <div class="col-1 fw-bold">
+                    {{ log.type }}
+                </div>
+                <div class="col">
+                    <v-created class="text-muted small" :created="log.created"></v-created>
+                </div>
             </div>
-            <div class="col">
-               <v-created class="text-muted small" :created="log.created"></v-created>
+            <div class="row mt-2">
+                <div class="col font-monospace">
+                    {{ JSON.stringify(log.data) }}
+                </div>
             </div>
-         </div>
-         <div class="row mt-2">
-            <div class="col font-monospace">
-               {{ JSON.stringify(log.data) }}
-            </div>
-         </div>
-      </div>
-   </div>
+        </div>
+    </div>
 </template>
 
 <script lang="ts">

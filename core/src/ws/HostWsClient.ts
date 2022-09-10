@@ -4,8 +4,8 @@ import { WsCallbacks, WsConnection, WsEvents, WsOptions } from './WsConnection';
 
 type HostCallbacks = {
     [T in ToHostMessage['type']]: T extends 'deviceConnection' ? (data: DeviceConnectionData) => void
-    : T extends 'deviceMessage' ? (data: DeviceMessageEventData) => void
-    : never
+        : T extends 'deviceMessage' ? (data: DeviceMessageEventData) => void
+            : never
 }
 
 type HostWsCallbacks = WsCallbacks<ToHostMessage, HostCallbacks>;

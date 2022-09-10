@@ -14,7 +14,7 @@ export class WsConnection<
     TMessage extends Message,
     TMessageCallback extends CallbackType<TMessage>,
     TMessageFrom extends Message | never = never
-    > {
+> {
 
     private readonly _url: string;
     private readonly _auth: { auth: string } | undefined;
