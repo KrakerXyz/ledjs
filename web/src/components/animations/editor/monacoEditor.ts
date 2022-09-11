@@ -1,5 +1,6 @@
 
 
+import { CodeIssue } from '@krakerxyz/netled-core';
 import * as monaco from 'monaco-editor';
 import { ComponentInternalInstance, computed, ComputedRef, getCurrentInstance, onMounted, onUnmounted, ref, Ref, watch } from 'vue';
 import ValidationWorker from './validationWorker?worker';
@@ -36,6 +37,12 @@ export function useMonacoEditor(containerId: string, config?: Partial<EditorConf
             if (config?.typescriptLib) {
                 for (const k of Object.getOwnPropertyNames(config.typescriptLib)) {
                     const libUrl = `ts:filename/${k}.d.ts`;
+                    const libUri = thisMonaco.Uri.parse(libUrl);
+
+                    if (thisMonaco.editor.getModel(libUri)) {
+                        continue;
+                    }
+
                     if (thisMonaco.languages.typescript.javascriptDefaults.getExtraLibs()[libUrl]) { continue; }
                     const lib = config.typescriptLib[k];
                     thisMonaco.languages.typescript.typescriptDefaults.addExtraLib(lib, libUrl);
@@ -154,11 +161,4 @@ export interface Editor {
     content: Ref<string>;
     issues: ComputedRef<CodeIssue[]>;
     javascript: ComputedRef<string>
-}
-
-export interface CodeIssue {
-    severity: 'error' | 'warning';
-    line: number;
-    col: number;
-    message: string;
 }

@@ -1,9 +1,10 @@
 <template>
-    <div class="container h-100 shadow bg-white p-3">
+    <div class="container-fluid p-3">
         <div class="row">
             <div class="col">
                 <div class="list-group" v-if="animations">
-                    <div
+                    <router-link
+                        :to="useRoute(RouteName.AnimationEditor, { animationId: a.id })"
                         class="list-group-item list-group-item-action"
                         v-for="a of animations"
                         :key="a.id"
@@ -15,30 +16,23 @@
                                     {{ a.description }}
                                 </div>
                             </div>
-                            <div class="col-auto d-flex align-items-center">
-                                <router-link
-                                    :to="{
-                                        name: 'animation-editor',
-                                        params: { animationId: a.id },
-                                    }"
-                                >
-                                    <i class="fal fa-edit"></i>
-                                </router-link>
+                            <div v-if="a.version === 'draft'" class="col-auto text-warning">
+                                DRAFT
                             </div>
                         </div>
-                    </div>
+                    </router-link>
                 </div>
+            </div>
 
  
-                <teleport to="#portal-header">
-                    <router-link
-                        class="btn btn-primary"
-                        :to="useRoute(RouteName.AnimationNew)"
-                    >
-                        New Animation
-                    </router-link>
-                </teleport>
-            </div>
+            <teleport to="#portal-header">
+                <router-link
+                    class="btn btn-primary"
+                    :to="useRoute(RouteName.AnimationNew)"
+                >
+                    New Animation
+                </router-link>
+            </teleport>
         </div>
     </div>
 </template>

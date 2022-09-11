@@ -16,7 +16,7 @@ const NetLedJwtCookieName = 'jwt';
 export async function initGoogleLoginButton(container: HTMLDivElement) {
     status.value = 'initializing';
 
-    const cookieJwt = Cookies.get(GoogleJwtCookieName);
+    let cookieJwt = Cookies.get(GoogleJwtCookieName) ?? null;
     if (cookieJwt) {
         try {
             console.debug('Loading user from existing g-jwt');
@@ -28,8 +28,11 @@ export async function initGoogleLoginButton(container: HTMLDivElement) {
             console.warn('Could not validate existing g-jwt', e);
             Cookies.remove(GoogleJwtCookieName);
             Cookies.remove(NetLedJwtCookieName);
+            cookieJwt = null;
         }
+    }
 
+    if (!cookieJwt) {
         window.addEventListener('load', () => {
             console.debug('Initializing GIS');
 
@@ -55,8 +58,8 @@ export async function initGoogleLoginButton(container: HTMLDivElement) {
             status.value = 'signedOut';
 
         }, { once: true });
-
     }
+
 
     initResolver!();
 }

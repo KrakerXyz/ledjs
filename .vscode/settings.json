@@ -23,6 +23,8 @@
         "rpio",
         "signout",
         "singout",
+        "tranpilation",
+        "Transpiles",
         "ttsc",
         "ttypescript",
         "typecheck",

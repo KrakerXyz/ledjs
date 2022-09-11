@@ -1,7 +1,7 @@
 
-export * from './parseScript';
+export * from './validateScript';
 export * from './deepClone';
 export * from './deepEquals';
 export * from './Writeable';
 export * from './newId';
-export * from './parseScriptPost';
+export * from './parseAst';

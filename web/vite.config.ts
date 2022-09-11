@@ -11,7 +11,8 @@ export default defineConfig({
             name: 'configure-server',
             configureServer: server => {
                 server.middlewares.use((req, res, next) => {
-                    if (req.originalUrl.startsWith('/user/')) {
+                    const originalUrl: string = req.originalUrl ?? '';
+                    if (originalUrl.startsWith('/user/') || originalUrl.includes('worker_file')) {
                         res.setHeader('Cross-Origin-Opener-Policy', 'same-origin');
                         res.setHeader('Cross-Origin-Embedder-Policy', 'require-corp');
                     }
