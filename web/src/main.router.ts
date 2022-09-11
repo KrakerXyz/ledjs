@@ -34,14 +34,14 @@ export enum RouteName {
     DeviceView = 'devices/:deviceId',
 }
 
-export function useRoute(name: RouteName.Home): RouteLocationRaw
-export function useRoute(name: RouteName.AnimationList): RouteLocationRaw
-export function useRoute(name: RouteName.AnimationNew): RouteLocationRaw
-export function useRoute(name: RouteName.AnimationEditor, params: {animationId: Id}): RouteLocationRaw
-export function useRoute(name: RouteName.DeviceList): RouteLocationRaw
-export function useRoute(name: RouteName.DeviceAdd): RouteLocationRaw
-export function useRoute(name: RouteName.DeviceView, params: { deviceId: Id }): RouteLocationRaw
-export function useRoute(name: RouteName, params?: any): RouteLocationRaw {
+export function useRouteLocation(name: RouteName.Home): RouteLocationRaw
+export function useRouteLocation(name: RouteName.AnimationList): RouteLocationRaw
+export function useRouteLocation(name: RouteName.AnimationNew): RouteLocationRaw
+export function useRouteLocation(name: RouteName.AnimationEditor, params: {animationId: Id}): RouteLocationRaw
+export function useRouteLocation(name: RouteName.DeviceList): RouteLocationRaw
+export function useRouteLocation(name: RouteName.DeviceAdd): RouteLocationRaw
+export function useRouteLocation(name: RouteName.DeviceView, params: { deviceId: Id }): RouteLocationRaw
+export function useRouteLocation(name: RouteName, params?: any): RouteLocationRaw {
     return {
         name,
         params

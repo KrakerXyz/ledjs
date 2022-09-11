@@ -68,7 +68,7 @@ import config from './Config.vue';
 import { deepClone, CodeIssue, Id, AnimationPost, newId } from '@krakerxyz/netled-core';
 import { useAnimationRestClient } from '@/services';
 import { useRouter } from 'vue-router';
-import { RouteName, useRoute, useRoute as useRouteMain } from '@/main.router';
+import { RouteName, useRouteLocation, useRouteLocation as useRouteMain } from '@/main.router';
 
 export default defineComponent({
     components: { LedCanvas, config },
@@ -195,7 +195,7 @@ export default defineComponent({
             await animationApi.saveDraft(animationPost);
 
             if (animationPost.id !== animation.id) {
-                router.replace(useRoute(RouteName.AnimationEditor, { animationId: animationPost.id }));
+                router.replace(useRouteLocation(RouteName.AnimationEditor, { animationId: animationPost.id }));
             }
         };
 

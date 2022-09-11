@@ -26,7 +26,7 @@
 
 <script lang="ts">
 
-import { RouteName, useRoute } from '@/main.router';
+import { RouteName, useRouteLocation } from '@/main.router';
 import { useRestClient } from '@/services';
 import { AnimationPost, AnimationRestClient, newId } from '@krakerxyz/netled-core';
 import { defineComponent, reactive } from 'vue';
@@ -51,7 +51,7 @@ export default defineComponent({
         const submit = async () => {
             if (!animationPost.name) { return; }
             await animationsApi.saveDraft(animationPost);
-            router.replace(useRoute(RouteName.AnimationEditor, { animationId: animationPost.id }));
+            router.replace(useRouteLocation(RouteName.AnimationEditor, { animationId: animationPost.id }));
         };
 
         return { animationPost, submit };

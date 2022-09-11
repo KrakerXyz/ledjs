@@ -4,7 +4,7 @@
             <div class="container">
                 <ul class="navbar-nav">
                     <li v-if="!isLoggedIn" class="nav-item">
-                        <router-link class="nav-link" :to="useRoute(RouteName.Home)">
+                        <router-link class="nav-link" :to="useRouteLocation(RouteName.Home)">
                             Home
                         </router-link>
                     </li>
@@ -12,7 +12,7 @@
                         <li class="nav-item">
                             <router-link
                                 class="nav-link"
-                                :to="useRoute(RouteName.AnimationList)"
+                                :to="useRouteLocation(RouteName.AnimationList)"
                             >
                                 Animations
                             </router-link>
@@ -20,7 +20,7 @@
                         <li class="nav-item">
                             <router-link
                                 class="nav-link"
-                                :to="useRoute(RouteName.DeviceList)"
+                                :to="useRouteLocation(RouteName.DeviceList)"
                             >
                                 Devices
                             </router-link>
@@ -54,7 +54,7 @@ import { computed, defineComponent } from 'vue';
 //import { useRouter } from 'vue-router';
 //import { useLoginService } from '../services';
 import User from './User.vue';
-import { useRoute, RouteName } from '@/main.router';
+import { useRouteLocation, RouteName } from '@/main.router';
 import { useAuthService } from '@/services/authService';
 
 export default defineComponent({
@@ -65,7 +65,7 @@ export default defineComponent({
         const authService = useAuthService();
         const isLoggedIn = computed(() => authService.status.value === 'signedIn');
 
-        return { isLoggedIn, useRoute, RouteName };
+        return { isLoggedIn, useRouteLocation, RouteName };
     },
 });
 </script>

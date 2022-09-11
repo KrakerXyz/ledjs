@@ -4,7 +4,7 @@
             <div class="col">
                 <div class="list-group" v-if="animations">
                     <router-link
-                        :to="useRoute(RouteName.AnimationEditor, { animationId: a.id })"
+                        :to="useRouteLocation(RouteName.AnimationEditor, { animationId: a.id })"
                         class="list-group-item list-group-item-action"
                         v-for="a of animations"
                         :key="a.id"
@@ -28,7 +28,7 @@
             <teleport to="#portal-header">
                 <router-link
                     class="btn btn-primary"
-                    :to="useRoute(RouteName.AnimationNew)"
+                    :to="useRouteLocation(RouteName.AnimationNew)"
                 >
                     New Animation
                 </router-link>
@@ -41,7 +41,7 @@
 import { AnimationRestClient, AnimationSummary } from '@krakerxyz/netled-core';
 import { defineComponent, ref } from 'vue';
 import { useRestClient } from '../../services';
-import { RouteName, useRoute } from '@/main.router';
+import { RouteName, useRouteLocation } from '@/main.router';
 
 export default defineComponent({
     props: {},
@@ -51,7 +51,7 @@ export default defineComponent({
 
         const animations = ref<AnimationSummary[]>(await animationClient.list());
 
-        return { animations, useRoute, RouteName };
+        return { animations, useRouteLocation, RouteName };
     },
 });
 </script>
