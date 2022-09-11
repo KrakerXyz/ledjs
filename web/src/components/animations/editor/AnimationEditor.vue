@@ -41,7 +41,7 @@
 
                 <div class="row">
                     <div class="col">
-                        <button type="button" class="btn btn-primary w-100">
+                        <button type="button" class="btn btn-primary w-100" @click="saveScript()">
                             Save
                         </button>
                     </div>
@@ -65,10 +65,10 @@ import { useMonacoEditor } from './monacoEditor';
 import types from './types.d.ts?raw';
 import AnimationWorker from './animationWorker?worker';
 import config from './Config.vue';
-import { deepClone, CodeIssue, Id } from '@krakerxyz/netled-core';
+import { deepClone, CodeIssue, Id, AnimationPost, newId } from '@krakerxyz/netled-core';
 import { useAnimationRestClient } from '@/services';
 import { useRouter } from 'vue-router';
-import { RouteName, useRoute as useRouteMain } from '@/main.router';
+import { RouteName, useRoute, useRoute as useRouteMain } from '@/main.router';
 
 export default defineComponent({
     components: { LedCanvas, config },
@@ -184,7 +184,22 @@ export default defineComponent({
             router.replace(useRouteMain(RouteName.AnimationList));
         };
 
-        return { issues: computed(() => [...issues.value, ...moduleIssues.value]), ledCanvas, config, settings, numLeds, deleteScript, animation };
+        const saveScript = async () => {
+            const animationPost: AnimationPost = {
+                id: animation.version === 'draft' ? animation.id : newId(),
+                description: animation.description,
+                name: animation.name,
+                ts: content.value
+            };
+
+            await animationApi.saveDraft(animationPost);
+
+            if (animationPost.id !== animation.id) {
+                router.replace(useRoute(RouteName.AnimationEditor, { animationId: animationPost.id }));
+            }
+        };
+
+        return { issues: computed(() => [...issues.value, ...moduleIssues.value]), ledCanvas, config, settings, numLeds, deleteScript, animation, saveScript };
     },
 });
 
