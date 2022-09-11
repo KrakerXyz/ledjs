@@ -29,8 +29,6 @@ export const postAnimation: RouteOptions = {
             return;
         }
 
-        const existing = await db.byId(animationPost.id, 'draft');
-
         const animation: Animation = {
             ...animationPost,
             js: newJs,
@@ -40,11 +38,11 @@ export const postAnimation: RouteOptions = {
             author: req.user.sub
         };
 
-        await (existing ? db.replace : db.add).apply(db, [animation]);
+        const result = await db.upsert(animation);
 
         const { ts, js, ...animationMeta } = animation;
 
-        await res.status(existing ? 200 : 201).send(animationMeta);
+        await res.status(result.updated ? 200 : 201).send(animationMeta);
 
     }
 };

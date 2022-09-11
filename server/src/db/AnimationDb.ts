@@ -1,4 +1,4 @@
-import { Filter, TypedEntity } from '@krakerxyz/typed-base';
+import { Filter, TypedEntity, UpsertResult } from '@krakerxyz/typed-base';
 import { Animation, AnimationSummary, AnimationVersion, Id, Writeable } from '@krakerxyz/netled-core';
 
 export class AnimationDb {
@@ -28,13 +28,16 @@ export class AnimationDb {
         return cur;
     }
 
-
     public add(animation: Animation): Promise<void> {
         return this.entity.insertAsync(animation);
     }
 
     public replace(animation: Animation): Promise<void> {
         return this.entity.replaceOneAsync(animation);
+    }
+
+    public upsert(animation: Animation): Promise<UpsertResult> {
+        return this.entity.upsertOneAsync(animation);
     }
 
     public deleteById(animationId: Id, version: AnimationVersion): Promise<void> {

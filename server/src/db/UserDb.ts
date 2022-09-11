@@ -24,7 +24,7 @@ export class UserDb {
     }
 
     public updateLastSeen(userId: Id): Promise<void> {
-        return this.entity.updateOne({ id: userId }, { $set: { lastSeen: Date.now() } });
+        return this.entity.updateOneAsync({ id: userId }, { $set: { lastSeen: Date.now() } });
     }
 
 }

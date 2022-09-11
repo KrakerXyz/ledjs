@@ -20,7 +20,7 @@
                     </div>
                 </div>
             </div>
-            <div class="col-lg-3 p-2">
+            <div class="col-lg-3 p-2 d-flex flex-column">
                 <h3>Setup</h3>
                 <div class="form-floating">
                     <input
@@ -32,12 +32,25 @@
                     <label for="d-leds"># LEDs</label>
                 </div>
 
-                <template v-if="config">
+                <div v-if="config" class="flex-grow-1">
                     <h3 class="mt-3">
                         Config
                     </h3>
                     <config :config="config" @update:settings="s => settings = s"></config>
-                </template>
+                </div>
+
+                <div class="row">
+                    <div class="col">
+                        <button type="button" class="btn btn-primary w-100">
+                            Save
+                        </button>
+                    </div>
+                    <div v-if="animation.version === 'draft'" class="col-auto">
+                        <button type="button" class="btn btn-danger w-100" @click.once="deleteScript()">
+                            <i class="fal fa-fw fa-trash-alt"></i>
+                        </button>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -48,16 +61,23 @@
 import { defineComponent, ref, watch, computed } from 'vue';
 import { LedArray } from './LedArray';
 import LedCanvas from './LedCanvas.vue';
-import { CodeIssue, useMonacoEditor } from './monacoEditor';
+import { useMonacoEditor } from './monacoEditor';
 import types from './types.d.ts?raw';
-import example from './Script.ts?raw';
 import AnimationWorker from './animationWorker?worker';
 import config from './Config.vue';
-import { deepClone } from '@krakerxyz/netled-core';
+import { deepClone, CodeIssue, Id } from '@krakerxyz/netled-core';
+import { useAnimationRestClient } from '@/services';
+import { useRouter } from 'vue-router';
+import { RouteName, useRoute as useRouteMain } from '@/main.router';
 
 export default defineComponent({
     components: { LedCanvas, config },
-    setup() {
+    props: {
+        animationId: { type: String as () => Id, required: true }
+    },
+    async setup(props) {
+
+        const router = useRouter();
 
         const ledCanvas = ref<any>();
 
@@ -81,8 +101,6 @@ export default defineComponent({
                 }
             }
         );
-
-        content.value = example;
 
         const moduleIssues = ref<CodeIssue[]>([]);
 
@@ -152,7 +170,21 @@ export default defineComponent({
             worker.postMessage({ name: 'update-settings', settings });
         });
 
-        return { issues: computed(() => [...issues.value, ...moduleIssues.value]), ledCanvas, config, settings, numLeds };
+        const animationApi = useAnimationRestClient();
+        const animation = await animationApi.latest(props.animationId, true);
+
+        content.value = animation.ts;
+
+        const deleteScript = async () => {
+            if (animation.version !== 'draft') {
+                console.warn('Attempted to delete a non-draft animation');
+                return;
+            }
+            await animationApi.deleteDraft(props.animationId);
+            router.replace(useRouteMain(RouteName.AnimationList));
+        };
+
+        return { issues: computed(() => [...issues.value, ...moduleIssues.value]), ledCanvas, config, settings, numLeds, deleteScript, animation };
     },
 });
 

@@ -2,27 +2,24 @@
 import { RouteOptions } from 'fastify';
 import { Id } from '@krakerxyz/netled-core';
 import { jwtAuthentication } from '../../services';
+import { jsonSchema } from '@krakerxyz/json-schema-transformer';
+
+type Params = { animationId: Id };
 
 export const deleteById: RouteOptions = {
     method: 'DELETE',
     url: '/api/animations/:animationId',
     preValidation: [jwtAuthentication],
     schema: {
-        params: {
-            type: 'object',
-            properties: {
-                animationId: { type: 'string' }
-            },
-            required: ['animationId']
-        }
+        params: jsonSchema<Params>()
     },
     handler: async (req, res) => {
-        const animationId = (req.params as any)['animationId'] as Id;
+        const params = req.params as Params;
 
         const db = req.services.animationDb;
-        const animation = await db.latestById(animationId);
+        const animation = await db.byId(params.animationId, 'draft');
         if (!animation) {
-            await res.status(404).send({ error: 'An animation with that id does not exist' });
+            await res.status(404).send({ error: `A draft animation ${params.animationId} does not exist` });
             return;
         }
 
@@ -31,12 +28,7 @@ export const deleteById: RouteOptions = {
             return;
         }
 
-        if (animation.published) {
-            await res.status(400).send({ error: 'Published animation cannot be deleted' });
-            return;
-        }
-
-        const configs = req.services.animationConfigDb.byAnimationId(animationId, req.user.sub, animation.version);
+        const configs = req.services.animationConfigDb.byAnimationId(params.animationId, req.user.sub, animation.version);
 
         const deviceIdsToReset: Id[] = [];
         for await (const config of configs) {
