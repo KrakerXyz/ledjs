@@ -40,7 +40,7 @@ export const postDevice: RouteOptions = {
             animationConfigId: existingDevice?.animationConfigId ?? null
         };
 
-        await (existingDevice ? db.replace : db.add).apply(db, [newDevice]);
+        await db.upsert(newDevice);
 
         await res.status(existingDevice ? 200 : 201).send(newDevice);
     }

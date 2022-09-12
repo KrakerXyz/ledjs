@@ -49,8 +49,6 @@ export function validateScript(ast: ParseResult<AstTypes.File>): CodeIssue[] {
             postMessage({ name: 'issues', codeIssues });
         }
 
-        console.log('Parsed ast', defaultExport);
-
     } catch (e: any) {
         // Probably a script error. Just ignore it
         //console.error(`Error validating script: ${e.message ?? e.toString()}`, e);

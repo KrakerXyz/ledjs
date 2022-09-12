@@ -25,7 +25,7 @@ export const postConfig: RouteOptions = {
             userId: req.user.sub,
         };
 
-        await (existing ? db.replace : db.add).apply(db, [newConfig]);
+        await db.upsert(newConfig);
 
         if (existing) {
             const devices = req.services.deviceDb.byAnimationConfigId(newConfig.id);

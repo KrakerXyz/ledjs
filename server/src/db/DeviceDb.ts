@@ -1,4 +1,4 @@
-import { TypedEntity } from '@krakerxyz/typed-base';
+import { TypedEntity, UpdateResult } from '@krakerxyz/typed-base';
 import { Device, Id, Writeable } from '@krakerxyz/netled-core';
 
 export class DeviceDb {
@@ -21,8 +21,12 @@ export class DeviceDb {
         return this.entity.insertAsync(device);
     }
 
-    public replace(device: Device): Promise<void> {
+    public replace(device: Device): Promise<UpdateResult> {
         return this.entity.replaceOneAsync(device);
+    }
+
+    public upsert(device: Device): Promise<UpdateResult> {
+        return this.entity.replaceOneAsync(device, { upsert: true });
     }
 
     public deleteById(id: Id): Promise<void> {

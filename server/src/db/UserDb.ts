@@ -1,4 +1,4 @@
-import { Filter, TypedEntity } from '@krakerxyz/typed-base';
+import { Filter, TypedEntity, UpdateResult } from '@krakerxyz/typed-base';
 import { Id, User, Writeable } from '@krakerxyz/netled-core';
 
 export class UserDb {
@@ -19,7 +19,7 @@ export class UserDb {
         return this.entity.insertAsync(user);
     }
 
-    public replace(user: User): Promise<void> {
+    public replace(user: User): Promise<UpdateResult> {
         return this.entity.replaceOneAsync(user);
     }
 

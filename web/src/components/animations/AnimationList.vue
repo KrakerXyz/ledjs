@@ -24,7 +24,6 @@
                 </div>
             </div>
 
- 
             <teleport to="#portal-header">
                 <router-link
                     class="btn btn-primary"

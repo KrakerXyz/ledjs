@@ -33,6 +33,7 @@ export async function initGoogleLoginButton(container: HTMLDivElement) {
     }
 
     if (!cookieJwt) {
+        console.debug('Waiting for window load for GIS init');
         window.addEventListener('load', () => {
             console.debug('Initializing GIS');
 
