@@ -19,6 +19,25 @@ export function useMonacoEditor(containerId: string, config?: Partial<EditorConf
         throw new Error('Component instance not defined');
     }
 
+    let typescriptWorker: monaco.languages.typescript.TypeScriptWorker | null = null;
+    let isOutgoingValue = false;
+    const flushContent = () => {
+        if (!editor) { return; }
+        const newContent = editor.getValue();
+        isOutgoingValue = true;
+        content.value = newContent;
+        updateJavascript();
+    };
+
+    const updateJavascript = () => {
+        if (!editor) { return;  }
+        const model = editor.getModel();
+        if (!model) { return;  }
+        typescriptWorker?.getEmitOutput(model.uri.toString()).then(output => {
+            javascript.value = output.outputFiles[0].text;
+        });
+    };
+
     onMounted(() => {
 
         (window as any).require(['vs/editor/editor.main'], function () {
@@ -66,19 +85,12 @@ export function useMonacoEditor(containerId: string, config?: Partial<EditorConf
             }
             model.updateOptions({ tabSize: 4 });
 
-            let typescriptWorker: monaco.languages.typescript.TypeScriptWorker | null = null;
             thisMonaco.languages.typescript.getTypeScriptWorker().then(worker => {
                 worker(model.uri).then(client => {
                     typescriptWorker = client;
                     updateJavascript();
                 });
             });
-
-            const updateJavascript = () => {
-                typescriptWorker?.getEmitOutput(model.uri.toString()).then(output => {
-                    javascript.value = output.outputFiles[0].text;
-                });
-            };
 
             const validationWorker = new ValidationWorker();
             validationWorker.addEventListener('message', e => {
@@ -111,13 +123,8 @@ export function useMonacoEditor(containerId: string, config?: Partial<EditorConf
                 issues.value = newIssues;
             });
 
-            let isOutgoingValue = false;
             editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyS, () => {
-                if (!editor) { return; }
-                const newContent = editor.getValue();
-                isOutgoingValue = true;
-                content.value = newContent;
-                updateJavascript();
+                flushContent();
             });
             
             // editor.onDidChangeModelContent(() => {
@@ -148,7 +155,7 @@ export function useMonacoEditor(containerId: string, config?: Partial<EditorConf
 
     }, componentTarget);
 
-    return { content, issues: computed(() => [...issues.value, ...validationIssues.value]), javascript: computed(() => javascript.value) };
+    return { content, issues: computed(() => [...issues.value, ...validationIssues.value]), javascript: computed(() => javascript.value), flushContent };
 }
 
 export interface EditorConfig {
@@ -160,5 +167,7 @@ export interface EditorConfig {
 export interface Editor {
     content: Ref<string>;
     issues: ComputedRef<CodeIssue[]>;
-    javascript: ComputedRef<string>
+    javascript: ComputedRef<string>;
+    /** Pushes current editor script to content and updates javascript */
+    flushContent: () => void;
 }

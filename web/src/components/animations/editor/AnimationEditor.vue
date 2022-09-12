@@ -93,7 +93,7 @@ export default defineComponent({
             };
         });
 
-        const { content, issues, javascript } = useMonacoEditor(
+        const { content, issues, javascript, flushContent } = useMonacoEditor(
             'editor-ide-container',
             {
                 typescriptLib: {
@@ -166,7 +166,6 @@ export default defineComponent({
         watch(settings, settings => {
             if(!worker) { return; }
             settings = deepClone(settings);
-            console.log(settings);
             worker.postMessage({ name: 'update-settings', settings });
         });
 
@@ -185,6 +184,9 @@ export default defineComponent({
         };
 
         const saveScript = async () => {
+
+            flushContent();
+
             const animationPost: AnimationPost = {
                 id: animation.version === 'draft' ? animation.id : newId(),
                 description: animation.description,
