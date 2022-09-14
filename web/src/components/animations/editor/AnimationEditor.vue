@@ -36,7 +36,7 @@
                     <h3 class="mt-3">
                         Config
                     </h3>
-                    <config :config="config" @update:settings="s => settings = s"></config>
+                    <config :animation="{ id: animationId, version: 'draft' }" :config="config" @update:settings="s => settings = s"></config>
                 </div>
 
                 <div class="row">
@@ -163,10 +163,11 @@ export default defineComponent({
 
         // eslint-disable-next-line no-undef
         const settings = ref<netled.IAnimationConfigValues<any>>();
-        watch(settings, settings => {
+        watch(settings, s => {
+            console.log('Received settings');
             if(!worker) { return; }
-            settings = deepClone(settings);
-            worker.postMessage({ name: 'update-settings', settings });
+            s = deepClone(s);
+            worker.postMessage({ name: 'update-settings', s });
         });
 
         const animationApi = useAnimationRestClient();
