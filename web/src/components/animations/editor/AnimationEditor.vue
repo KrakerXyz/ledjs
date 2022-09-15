@@ -106,7 +106,6 @@ export default defineComponent({
 
         let worker: Worker | null = null;
 
-        // eslint-disable-next-line no-undef
         const config = ref<netled.IAnimationConfig>();
 
         watch([javascript, buffers], async x => {
@@ -161,14 +160,17 @@ export default defineComponent({
             }
         }, { immediate: true });
 
-        // eslint-disable-next-line no-undef
         const settings = ref<netled.IAnimationConfigValues<any>>();
-        watch(settings, s => {
-            console.log('Received settings');
-            if(!worker) { return; }
-            s = deepClone(s);
-            worker.postMessage({ name: 'update-settings', s });
-        });
+        watch(settings, settings => {
+            try {
+                console.log('Received settings');
+                if (!worker) { return; }
+                settings = deepClone(settings);
+                worker.postMessage({ name: 'update-settings', settings });
+            } catch (e: any) {
+                console.error(`Error sending settings to worker: ${e.message ?? e.toString()}`, e);
+            }
+        }, { deep: true });
 
         const animationApi = useAnimationRestClient();
         const animation = await animationApi.latest(props.animationId, true);

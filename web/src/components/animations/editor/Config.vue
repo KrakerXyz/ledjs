@@ -1,18 +1,19 @@
 
 <template>
     <div class="mt-n3">
-        <div v-for="vm of fieldVms" :key="vm.field" class="row mt-3">
+        <div v-for="e of Object.entries(config.fields)" :key="e[0]" class="row mt-3">
             <div class="col">
                 <div class="form-floating">
                     <input
-                        :id="vm.field"
+                        :id="e[0]"
                         class="form-control"
                         placeholder="*"
-                        v-model.lazy="vm.value"
+                        :value="settings[e[0]]"
+                        @change="event => setValue(e[0], e[1], event.target)"
                     >
-                    <label :for="vm.field">{{vm.meta.name}}</label>
-                    <div v-if="vm.meta.description" class="form-text">
-                        {{vm.meta.description}}
+                    <label :for="e[0]">{{e[1].name}}</label>
+                    <div v-if="e[1].description" class="form-text">
+                        {{e[1].description}}
                     </div>
                 </div>
             </div>
@@ -63,61 +64,58 @@
 
 import { useAnimationRestClient } from '@/services';
 import { AnimationConfigPost, AnimationVersion, deepClone, Id, newId } from '@krakerxyz/netled-core';
-import { computed, defineComponent, reactive, ref, watch } from 'vue';
+import { defineComponent, ref, watch } from 'vue';
 
 type SelectOption = { text: string, value: Id | 'new' };
 
 export default defineComponent({
     props: {
         animation: { type: Object as () => { id: Id, version: AnimationVersion }, required: true },
-        // eslint-disable-next-line no-undef
         config: { type: Object as () => netled.IAnimationConfig, required: true }
     },
     emits: {
-        // eslint-disable-next-line no-undef
         'update:settings': (s: netled.IAnimationConfigValues<any>) => !!s
     },
     async setup(props, { emit }) {
             
-        // eslint-disable-next-line no-undef
         let settings = ref<netled.IAnimationConfigValues<any>>({});
 
-        const fieldVms = computed<FieldVm[]>(() => {
-            const vms: FieldVm[] = [];
-            for(const key of Object.keys(props.config.fields)) {
-                const meta = props.config.fields[key];
-                vms.push({
-                    field: key,
-                    value: (settings.value[key] ?? meta.default).toString(),
-                    meta
-                });
+        watch(props.config, c => {
+            const newSettings: netled.IAnimationConfigValues<any> = {};
+            for (const k of Object.getOwnPropertyNames(c.fields)) {
+                newSettings[k] = settings.value[k] ?? c.fields[k].default;
             }
-            return reactive(vms);
-        });
+            settings.value = newSettings;
+        }, { immediate: true });
 
-        watch(fieldVms, () => {
-
-            for(const vm of fieldVms.value) {
-                let value: string | number = vm.value || vm.meta.default.toString();
-                if(vm.meta.type === 'int') {
-                    value = parseInt(value);
-                } else if(vm.meta.type === 'decimal') {
-                    value = parseFloat(value);
-                }
-                (settings.value as any)[vm.field] = value;
+        const setValue = (key: keyof netled.IAnimationConfig['fields'], e: netled.IAnimationConfigField, target: EventTarget | HTMLInputElement | null) => {
+            if (!target) {
+                return;
             }
 
-            emit('update:settings', settings.value);
+            const input  = target as HTMLInputElement;
+            let value: string | number = input.value || e.default;
 
-        }, { deep: true });
+            if (e.type === 'int') {
+                value = parseInt(value.toString());
+            } else if (e.type === 'decimal') {
+                value = parseFloat(value.toString());
+            }
+
+            (settings.value as any)[key] = value;
+
+            emit('update:settings', { ...settings.value });
+
+        };
 
         const selectedConfigId = ref<Id | 'new'>();
         watch(selectedConfigId, id => {
             if (id === 'new') { return; }
             newConfigName.value = undefined;
             const config = existingConfigs.find(x => x.id === id);
-            // eslint-disable-next-line no-undef
+
             settings.value = config?.config as netled.IAnimationConfigValues<any> ?? {};
+            emit('update:settings', { ...settings.value });
         });
 
         const animationClient = useAnimationRestClient();
@@ -152,15 +150,8 @@ export default defineComponent({
             newConfigName.value = undefined;
         };
 
-        return { fieldVms, savedConfigs, selectedConfigId, saveConfig, newConfigName };
+        return { savedConfigs, selectedConfigId, saveConfig, newConfigName, settings, setValue };
     }
 });
-
-interface FieldVm {
-    field: string;
-    value: string;
-    // eslint-disable-next-line no-undef
-    meta: netled.IAnimationConfigField
-}
 
 </script>

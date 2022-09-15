@@ -16,6 +16,9 @@ const NetLedJwtCookieName = 'jwt';
 export async function initGoogleLoginButton(container: HTMLDivElement) {
     status.value = 'initializing';
 
+    // Doing it this way because when I just register the load even after the await  verifyToken it never gets called
+    const windowLoadProm = new Promise<void>(r => window.addEventListener('load', () => r(), { once: true }));
+
     let cookieJwt = Cookies.get(GoogleJwtCookieName) ?? null;
     if (cookieJwt) {
         try {
@@ -34,31 +37,30 @@ export async function initGoogleLoginButton(container: HTMLDivElement) {
 
     if (!cookieJwt) {
         console.debug('Waiting for window load for GIS init');
-        window.addEventListener('load', () => {
-            console.debug('Initializing GIS');
+        await windowLoadProm;
+        console.debug('Initializing GIS');
 
-            if (!import.meta.env?.VITE_GOOGLE_CLIENT_ID) {
-                throw new Error('Missing VITE_GOOGLE_CLIENT_ID environment variable');
-            }
+        if (!import.meta.env?.VITE_GOOGLE_CLIENT_ID) {
+            throw new Error('Missing VITE_GOOGLE_CLIENT_ID environment variable');
+        }
 
-            google.accounts.id.initialize({
-                client_id: import.meta.env?.VITE_GOOGLE_CLIENT_ID,
-                callback: handleCredentialResponse,
-                auto_select: true
-            });
+        google.accounts.id.initialize({
+            client_id: import.meta.env?.VITE_GOOGLE_CLIENT_ID,
+            callback: handleCredentialResponse,
+            auto_select: true
+        });
 
-            google.accounts.id.renderButton(
-                container,
-                { theme: 'outline', size: 'large' } as any
-            );
+        google.accounts.id.renderButton(
+            container,
+            { theme: 'outline', size: 'large' } as any
+        );
 
-            google.accounts.id.prompt(notification => {
-                console.debug('Got notification', notification);
-            });
+        google.accounts.id.prompt(notification => {
+            console.debug('Got notification', notification);
+        });
 
-            status.value = 'signedOut';
+        status.value = 'signedOut';
 
-        }, { once: true });
     }
 
 
