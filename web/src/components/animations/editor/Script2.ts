@@ -48,6 +48,14 @@ type Services<T extends AvailableServices> = {
     [s in Exclude<T[number], undefined>]: s extends 'timer' ? ITimer : never;
 }
 
+type FieldSelectOption = { text: string, value: string };
+
+type FieldSelect = {
+    type: 'select',
+    options: [FieldSelectOption, ...FieldSelectOption[]],
+    default: string
+};
+
 type AnimationConfigField = {
     name: string,
     description?: string,
@@ -59,26 +67,24 @@ type AnimationConfigField = {
         maxValue?: number,
         default: number
     }
-    | {
-        type: 'select',
-        options: [{ text: string, value: string }, ...{ text: string, value: string }[]],
-        default: string
-    }
+    | FieldSelect
 );
 
 type AnimationConfig = Record<string, AnimationConfigField>;
 
-type AnimationConfigValues<TConfig extends AnimationConfig = Record<string, AnimationConfigField>> = {
-    [K in keyof TConfig]:
-    //'int' | 'decimal' | 'select' extends TConfig['fields'][K]['type'] ? number | string :
-    'int' extends TConfig[K]['type'] ? number
-        : 'decimal' extends TConfig[K]['type'] ? number 
-            : 'select' extends TConfig[K]['type']  ? string 
+type SettingType<TField extends AnimationConfigField> =
+    TField extends FieldSelect ? TField['options'][number]['value']
+        : 'int' extends TField['type'] ? number
+            : 'decimal' extends TField['type'] ? number
                 : unknown;
+
+type AnimationSettings<TConfig extends AnimationConfig = Record<string, AnimationConfigField>> = {
+    [K in keyof TConfig]: SettingType<TConfig[K]>
+    //'int' | 'decimal' | 'select' extends TConfig['fields'][K]['type'] ? number | string :
 }
 
 interface AnimationController<TConfig extends AnimationConfig> {
-    run(settings: AnimationConfigValues<TConfig>): void;
+    run(settings: AnimationSettings<TConfig>): void;
     pause(): void;
 }
 
@@ -115,7 +121,7 @@ export const t = defineAnimation({
         preset: {
             type: 'select',
             name: 'Test',
-            options: [{ text: '', value: '' }],
+            options: [{ text: '', value: 'test' }],
             default: ''
         }
     }
