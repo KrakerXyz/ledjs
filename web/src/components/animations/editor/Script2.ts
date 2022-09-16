@@ -94,9 +94,7 @@ interface IAnimation<TServices extends AvailableServices, TConfig extends Animat
     config?: TConfig;
 }
 
-export function defineAnimation<TServices extends AvailableServices, TConfig extends AnimationConfig>(animation: IAnimation<TServices, TConfig>): IAnimation<TServices, TConfig> {
-    return animation;
-}
+declare function defineAnimation<TServices extends AvailableServices, TConfig extends AnimationConfig>(animation: IAnimation<TServices, TConfig>): IAnimation<TServices, TConfig>;
 
 export const t = defineAnimation({
     services: ['timer'],
