@@ -61,8 +61,9 @@ declare global {
             fields: Record<string, IAnimationConfigField>
         }
 
-        type IAnimationConfigValues<TConfig extends IAnimationConfig> = {
-            [K in keyof TConfig['fields']]: 
+        type IAnimationConfigValues<TConfig extends IAnimationConfig = { fields: Record<string, IAnimationConfigField> }> = {
+            [K in keyof TConfig['fields']]:
+            //'int' | 'decimal' | 'select' extends TConfig['fields'][K]['type'] ? number | string :
             'int' extends TConfig['fields'][K]['type'] ? number
                 : 'decimal' extends TConfig['fields'][K]['type'] ? number 
                     : 'string' extends TConfig['fields'][K]['type']  ? string 

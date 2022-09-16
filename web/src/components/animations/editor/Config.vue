@@ -74,21 +74,21 @@ export default defineComponent({
         config: { type: Object as () => netled.IAnimationConfig, required: true }
     },
     emits: {
-        'update:settings': (s: netled.IAnimationConfigValues<any>) => !!s
+        'update:settings': (s: netled.IAnimationConfigValues) => !!s
     },
     async setup(props, { emit }) {
             
-        let settings = ref<netled.IAnimationConfigValues<any>>({});
+        let settings = ref<netled.IAnimationConfigValues>({});
 
         watch(props.config, c => {
-            const newSettings: netled.IAnimationConfigValues<any> = {};
+            const newSettings: netled.IAnimationConfigValues = {};
             for (const k of Object.getOwnPropertyNames(c.fields)) {
                 newSettings[k] = settings.value[k] ?? c.fields[k].default;
             }
             settings.value = newSettings;
         }, { immediate: true });
 
-        const setValue = (key: keyof netled.IAnimationConfig['fields'], e: netled.IAnimationConfigField, target: EventTarget | HTMLInputElement | null) => {
+        const setValue = (key: string, e: netled.IAnimationConfigField, target: EventTarget | HTMLInputElement | null) => {
             if (!target) {
                 return;
             }
