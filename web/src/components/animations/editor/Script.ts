@@ -2,8 +2,7 @@
 export default netled2.defineAnimation({
     services: ['timer'],
     construct(arr, { timer }) {
-
-        let interval: netled2.services.TimerInterval | null = null;
+        let interval: netled2.services.ITimerInterval | null = null;
         let running = false;
 
         let pos = 0;

@@ -71,24 +71,24 @@ type SelectOption = { text: string, value: Id | 'new' };
 export default defineComponent({
     props: {
         animation: { type: Object as () => { id: Id, version: AnimationVersion }, required: true },
-        config: { type: Object as () => netled2.AnimationConfig, required: true }
+        config: { type: Object as () => netled2.IAnimationConfig, required: true }
     },
     emits: {
-        'update:settings': (s: netled2.AnimationSettings) => !!s
+        'update:settings': (s: netled2.IAnimationSettings) => !!s
     },
     async setup(props, { emit }) {
             
-        let settings = ref<netled2.AnimationSettings>({});
+        let settings = ref<netled2.IAnimationSettings>({});
 
         watch(props.config, c => {
-            const newSettings: netled2.AnimationSettings = {};
+            const newSettings: netled2.IAnimationSettings = {};
             for (const k of Object.getOwnPropertyNames(c)) {
                 newSettings[k] = settings.value[k] ?? c[k].default;
             }
             settings.value = newSettings;
         }, { immediate: true });
 
-        const setValue = (key: string, e: netled2.AnimationConfigField, target: EventTarget | HTMLInputElement | null) => {
+        const setValue = (key: string, e: netled2.IAnimationConfigField, target: EventTarget | HTMLInputElement | null) => {
             if (!target) {
                 return;
             }
@@ -114,7 +114,7 @@ export default defineComponent({
             newConfigName.value = undefined;
             const config = existingConfigs.find(x => x.id === id);
 
-            settings.value = config?.config as netled2.AnimationSettings ?? {};
+            settings.value = config?.config as netled2.IAnimationSettings ?? {};
             emit('update:settings', { ...settings.value });
         });
 

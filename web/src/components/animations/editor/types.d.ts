@@ -105,7 +105,7 @@ declare global {
 
     namespace netled2 {
 
-        type ARGB = [number, number, number, number];
+        type IArgb = [number, number, number, number];
 
         /** Method for assigning color values to LEDs in an array */
         interface ILedArray {
@@ -120,7 +120,7 @@ declare global {
             setLed(index: number, component: 0 | 1 | 2 | 3, value: number): void;
 
             /** Gets current color values of LED at specified index returns as a four-element array of bytes representing [Alpha, Red, Green, Blue]  */
-            getLed(index: number): ARGB;
+            getLed(index: number): IArgb;
             /** Gets byte of specified color component (0: Alpha, 1: Red, 2: Green, 3: Blue) of LED at given index */
             getLed(index: number, component: 0 | 1 | 2 | 3): number;
 
@@ -133,26 +133,71 @@ declare global {
             send(): void;
         }
 
+        type IFieldSelectOption = { text: string, value: string };
+
+        type IFieldSelect = {
+            type: 'select',
+            options: [IFieldSelectOption, ...IFieldSelectOption[]],
+            default: string
+        };
+
+        type IAnimationConfigField = {
+            name: string,
+            description?: string,
+
+        } & (
+            {
+                type: 'int' | 'decimal',
+                minValue?: number,
+                maxValue?: number,
+                default: number
+            }
+            | IFieldSelect
+        );
+
+        type IAnimationConfig = Record<string, IAnimationConfigField>;
+
+        type ISettingType<TField extends IAnimationConfigField> =
+            TField extends IFieldSelect ? TField['options'][number]['value']
+                : 'int' extends TField['type'] ? number
+                    : 'decimal' extends TField['type'] ? number
+                        : unknown;
+
+        type IAnimationSettings<TConfig extends IAnimationConfig = Record<string, IAnimationConfigField>> = {
+            [K in keyof TConfig]: ISettingType<TConfig[K]>
+        }
+
+        interface IAnimationController<TConfig extends IAnimationConfig = IAnimationConfig> {
+            run(settings: IAnimationSettings<TConfig>): void;
+            pause(): void;
+        }
+
+        interface IAnimation<TServices extends services.IAvailableServices = services.IAvailableServices, TConfig extends IAnimationConfig = IAnimationConfig> {
+            services?: TServices;
+            construct(ledArray: ILedArray, services: services.IServices<TServices>): IAnimationController<TConfig>,
+            config?: TConfig;
+        }
+
         namespace services {
 
-            type AvailableServices = ('timer' | 'webhook')[];
+            type IAvailableServices = ('timer')[];
 
-            type TimerInterval = {
+            type ITimerInterval = {
                 start(): void;
                 stop(): void;
             }
 
-            type TimerOptions = {
+            type ITimerOptions = {
                 started?: boolean;
             }
 
             /** Creates stable timeouts and intervals */
             interface ITimer {
                 /** Create a stable interval that invokes a callback on a regular period */
-                createInterval(interval: number, cb: () => void, options: TimerOptions): TimerInterval;
+                createInterval(interval: number, cb: () => void, options: ITimerOptions): ITimerInterval;
             }
 
-            type Services<T extends AvailableServices = AvailableServices> = {
+            type IServices<T extends IAvailableServices = IAvailableServices> = {
                 [s in Exclude<T[number], undefined>]: s extends 'timer' ? ITimer : never;
             }
 
@@ -167,52 +212,7 @@ declare global {
             }
 
         }
-
-        type FieldSelectOption = { text: string, value: string };
-
-        type FieldSelect = {
-            type: 'select',
-            options: [FieldSelectOption, ...FieldSelectOption[]],
-            default: string
-        };
-
-        type AnimationConfigField = {
-            name: string,
-            description?: string,
-
-        } & (
-            {
-                type: 'int' | 'decimal',
-                minValue?: number,
-                maxValue?: number,
-                default: number
-            }
-            | FieldSelect
-        );
-
-        type AnimationConfig = Record<string, AnimationConfigField>;
-
-        type SettingType<TField extends AnimationConfigField> =
-            TField extends FieldSelect ? TField['options'][number]['value']
-                : 'int' extends TField['type'] ? number
-                    : 'decimal' extends TField['type'] ? number
-                        : unknown;
-
-        type AnimationSettings<TConfig extends AnimationConfig = Record<string, AnimationConfigField>> = {
-            [K in keyof TConfig]: SettingType<TConfig[K]>
-        }
-
-        interface AnimationController<TConfig extends AnimationConfig = AnimationConfig> {
-            run(settings: AnimationSettings<TConfig>): void;
-            pause(): void;
-        }
-
-        interface IAnimation<TServices extends AvailableServices = AvailableServices, TConfig extends AnimationConfig = AnimationConfig> {
-            services: TServices;
-            construct(ledArray: ILedArray, services: Services<TServices>): AnimationController<TConfig>,
-            config?: TConfig;
-        }
  
-        declare function defineAnimation<TServices extends netled2.AvailableServices, TConfig extends netled2.AnimationConfig>(animation: netled2.IAnimation<TServices, TConfig>): netled2.IAnimation<TServices, TConfig>;
+        declare function defineAnimation<TServices extends netled2.services.IAvailableServices = netled2.services.IAvailableServices, TConfig extends netled2.IAnimationConfig = netled2.IAnimationConfig>(animation: netled2.IAnimation<TServices, TConfig>): netled2.IAnimation<TServices, TConfig>;
     }
 }

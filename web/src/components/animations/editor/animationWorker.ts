@@ -8,13 +8,13 @@ import { Timer } from './Timer';
             hslToRgb
         }
     },
-    defineAnimation(animation: netled2.IAnimation): netled2.IAnimation { return animation; }
+    defineAnimation(animation: netled2.IAnimation<netled2.services.IAvailableServices>): netled2.IAnimation<netled2.services.IAvailableServices> { return animation; }
 };
 
 let ledArray: LedArray | null = null;
 let timer: netled2.services.ITimer | null = null;
-let settings: netled2.AnimationSettings | null = null;
-let controller: netled2.AnimationController | null = null;
+let settings: netled2.IAnimationSettings | null = null;
+let controller: netled2.IAnimationController | null = null;
 
 onmessage = async (e: any) => {
     const data = e.data;
@@ -37,7 +37,7 @@ onmessage = async (e: any) => {
                 return;
             }
 
-            const animation = module.default as netled2.IAnimation<string[], any>;
+            const animation = module.default as netled2.IAnimation;
 
             if (!animation.construct) {
                 postMessage({ name: 'moduleError', errors: [{ severity: 'error', line: 0, col: 0, message: 'Script has no construct function' }] });
@@ -60,15 +60,15 @@ onmessage = async (e: any) => {
 
             ledArray = new LedArray(sab, numLeds, arrayOffset, async () => postMessage({ name: 'render' }));
 
-            const services: Partial<netled2.services.Services> = {};
-            for (const service of animation.services) {
+            const services: Partial<netled2.services.IServices> = {};
+            for (const service of animation.services ?? []) {
                 if (service === 'timer') {
                     timer = new Timer();
                     services['timer'] = timer;
                 }
             }
 
-            controller = animation.construct(ledArray, services);
+            controller = animation.construct(ledArray, services as netled2.services.IServices);
 
             controller.run(settings);
 
