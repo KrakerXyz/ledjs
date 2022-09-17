@@ -4,6 +4,7 @@ module.exports = {
         '@krakerxyz'
     ],
     'globals': {
-        'netled': 'readonly'
+        'netled': 'readonly',
+        'netled2': 'readonly'
     }
 };

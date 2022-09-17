@@ -1,5 +1,5 @@
 import { RouteOptions } from 'fastify';
-import { AnimationPost, Animation, validateScript, parseAst } from '@krakerxyz/netled-core';
+import { AnimationPost, Animation, parseAst } from '@krakerxyz/netled-core';
 import { jsonSchema } from '@krakerxyz/json-schema-transformer';
 import { buildScript, jwtAuthentication } from '../../services';
 
@@ -16,12 +16,12 @@ export const postAnimation: RouteOptions = {
         const db = req.services.animationDb;
 
         const ast = parseAst(animationPost.ts);
-        const codeIssues = validateScript(ast);
+        //const codeIssues = validateScript(ast);
 
-        if (codeIssues.length) {
-            await res.status(400).send({ error: `Script contains errors: ${JSON.stringify(codeIssues)}` });
-            return;
-        }
+        // if (codeIssues.length) {
+        //     await res.status(400).send({ error: `Script contains errors: ${JSON.stringify(codeIssues)}` });
+        //     return;
+        // }
 
         const newJs = await buildScript(ast);
         if (!newJs) {

@@ -1,49 +1,49 @@
 
-export default class Script implements netled.IAnimationScript {
+export default netled2.defineAnimation({
+    services: ['timer'],
+    construct(arr, { timer }) {
 
-    public constructor(private readonly _arr: netled.ILedArray, private readonly _timer: netled.services.ITimer) {
-    }
+        let interval: netled2.services.TimerInterval | null = null;
+        let running = false;
 
-    private _interval: netled.services.TimerInterval | null = null;
-    private _running = false;
+        let pos = 0;
 
-    public async run(settings: netled.IAnimationConfigValues<typeof config>): Promise<void> {
-        this._interval?.stop();
-        this._running = true;
-        this._interval = this._timer.createInterval(settings.speed, this.nextFrame.bind(this, settings), { started: true });
-        this.nextFrame(settings);
-    }
+        return {
+            run: (settings) => {
 
-    private _pos = 0;
-    public async nextFrame(settings: netled.IAnimationConfigValues<typeof config>) {
-        if (!this._running) {
-            return;
-        }
+                const nextFrame = async () => {
+                    if (!running) {
+                        return;
+                    }
 
-        for (let i = 0; i < this._arr.length; i++) {
-            const thisPos = this._pos + (i * settings.degPerLed);
-            const h = thisPos % 360;
-            const rgb = netled.utils.color.hslToRgb(h, 100, settings.luminosity);
-            this._arr.setLed(i, rgb);
-        }
+                    for (let i = 0; i < arr.length; i++) {
+                        const thisPos = pos + (i * settings.degPerLed);
+                        const h = thisPos % 360;
+                        const rgb = netled2.utils.color.hslToRgb(h, 100, settings.luminosity);
+                        arr.setLed(i, rgb);
+                    }
 
-        this._pos += settings.step;
-        if (this._pos === 360) {
-            this._pos = 0;
-        }
+                    pos += settings.step;
+                    if (pos === 360) {
+                        pos = 0;
+                    }
 
-        this._arr.send();
-    }
+                    arr.send();
+                };
 
-    public pause() {
-        this._interval?.stop();
-        this._running = false;
-    }
-
-}
-
-export const config: netled.IAnimationConfig = {
-    fields: {
+                interval?.stop();
+                running = true;
+                interval = timer.createInterval(settings.speed, nextFrame.bind(this, settings), { started: true });
+                nextFrame();
+            },
+            pause() {
+                interval?.stop();
+                interval = null;
+                running = false;
+            }
+        };
+    },
+    config: {
         speed: {
             name: 'Speed',
             description: 'Delay in milliseconds between cycles',
@@ -75,4 +75,4 @@ export const config: netled.IAnimationConfig = {
             default: 50
         }
     }
-};
+});

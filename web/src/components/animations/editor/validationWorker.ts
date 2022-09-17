@@ -1,4 +1,4 @@
-import { validateScript, parseAst } from '@krakerxyz/netled-core';
+//import { validateScript, parseAst } from '@krakerxyz/netled-core';
 
 
 export type ValidationWorkerMessage = {
@@ -10,9 +10,9 @@ onmessage = async (e: MessageEvent<ValidationWorkerMessage>) => {
 
     if (e.data.name === 'validate') {
 
-        const ast = parseAst(e.data.ts);
-        const issues = validateScript(ast);
-        postMessage({ name: 'issues', issues: issues });
+        //const ast = parseAst(e.data.ts);
+        //const issues = validateScript(ast);
+        //postMessage({ name: 'issues', issues: issues });
         
     }
 

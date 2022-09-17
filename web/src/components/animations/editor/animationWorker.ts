@@ -2,18 +2,19 @@ import { hslToRgb } from '@krakerxyz/netled-core';
 import { LedArray } from './LedArray';
 import { Timer } from './Timer';
 
-(self as any).netled = {
+(self as any).netled2 = {
     utils: {
         color: {
             hslToRgb
         }
-    }
+    },
+    defineAnimation(animation: netled2.IAnimation): netled2.IAnimation { return animation; }
 };
 
 let ledArray: LedArray | null = null;
-let instance: netled.IAnimationScript | null = null;
-let settings: netled.IAnimationConfigValues<any> | null = null;
-let timer: netled.services.ITimer | null = null;
+let timer: netled2.services.ITimer | null = null;
+let settings: netled2.AnimationSettings | null = null;
+let controller: netled2.AnimationController | null = null;
 
 onmessage = async (e: any) => {
     const data = e.data;
@@ -36,8 +37,10 @@ onmessage = async (e: any) => {
                 return;
             }
 
-            if (!module.default.prototype.constructor) {
-                postMessage({ name: 'moduleError', errors: [{ severity: 'error', line: 0, col: 0, message: 'Script has no constructor' }] });
+            const animation = module.default as netled2.IAnimation<string[], any>;
+
+            if (!animation.construct) {
+                postMessage({ name: 'moduleError', errors: [{ severity: 'error', line: 0, col: 0, message: 'Script has no construct function' }] });
                 return;
             }
 
@@ -45,11 +48,11 @@ onmessage = async (e: any) => {
             if(!settings) {
                 settings = {};
                 
-                if(module.config) {
-                    postMessage({ name: 'config', config: module.config });
+                if(animation.config) {
+                    postMessage({ name: 'config', config: animation.config });
 
-                    for(const key of Object.keys(module.config.fields)) {
-                        (settings as any)[key] = module.config.fields[key].default;
+                    for(const key of Object.keys(animation.config)) {
+                        (settings as any)[key] = animation.config[key].default;
                     }
 
                 }
@@ -57,10 +60,17 @@ onmessage = async (e: any) => {
 
             ledArray = new LedArray(sab, numLeds, arrayOffset, async () => postMessage({ name: 'render' }));
 
-            timer = new Timer();
+            const services: Partial<netled2.services.Services> = {};
+            for (const service of animation.services) {
+                if (service === 'timer') {
+                    timer = new Timer();
+                    services['timer'] = timer;
+                }
+            }
 
-            instance = new module.default(ledArray, timer) as netled.IAnimationScript;
-            instance.run(settings);
+            controller = animation.construct(ledArray, services);
+
+            controller.run(settings);
 
             break;
 
@@ -72,8 +82,8 @@ onmessage = async (e: any) => {
                 throw new Error('No settings provided');
             }
 
-            if(instance) {
-                instance.run(settings);
+            if(controller) {
+                controller.run(settings);
             }
 
             break;

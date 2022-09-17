@@ -106,7 +106,7 @@ export default defineComponent({
 
         let worker: Worker | null = null;
 
-        const config = ref<netled.IAnimationConfig>();
+        const config = ref<netled2.AnimationConfig>();
 
         watch([javascript, buffers], async x => {
             const [js, buffers] = x;
@@ -116,18 +116,6 @@ export default defineComponent({
                 return;
             }
             try {
-                const b64moduleData = 'data:text/javascript;base64,' + btoa(js);
-                const module = await import(/* @vite-ignore */ b64moduleData);
-
-                if (!module.default) {
-                    moduleIssues.value = [{ severity: 'error', line: 0, col: 0, message: 'Script has not default export' }];
-                    return;
-                }
-
-                if (!module.default.prototype.constructor) {
-                    moduleIssues.value = [{ severity: 'error', line: 0, col: 0, message: 'Script has no constructor' }];
-                    return;
-                }
 
                 worker?.terminate();
                 worker = null;
@@ -160,7 +148,7 @@ export default defineComponent({
             }
         }, { immediate: true });
 
-        const settings = ref<netled.IAnimationConfigValues<any>>();
+        const settings = ref<netled2.AnimationSettings>();
         watch(settings, settings => {
             try {
                 console.log('Received settings');

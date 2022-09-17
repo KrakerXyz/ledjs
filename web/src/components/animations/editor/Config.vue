@@ -1,7 +1,7 @@
 
 <template>
     <div class="mt-n3">
-        <div v-for="e of Object.entries(config.fields)" :key="e[0]" class="row mt-3">
+        <div v-for="e of Object.entries(config)" :key="e[0]" class="row mt-3">
             <div class="col">
                 <div class="form-floating">
                     <input
@@ -71,24 +71,24 @@ type SelectOption = { text: string, value: Id | 'new' };
 export default defineComponent({
     props: {
         animation: { type: Object as () => { id: Id, version: AnimationVersion }, required: true },
-        config: { type: Object as () => netled.IAnimationConfig, required: true }
+        config: { type: Object as () => netled2.AnimationConfig, required: true }
     },
     emits: {
-        'update:settings': (s: netled.IAnimationConfigValues) => !!s
+        'update:settings': (s: netled2.AnimationSettings) => !!s
     },
     async setup(props, { emit }) {
             
-        let settings = ref<netled.IAnimationConfigValues>({});
+        let settings = ref<netled2.AnimationSettings>({});
 
         watch(props.config, c => {
-            const newSettings: netled.IAnimationConfigValues = {};
-            for (const k of Object.getOwnPropertyNames(c.fields)) {
-                newSettings[k] = settings.value[k] ?? c.fields[k].default;
+            const newSettings: netled2.AnimationSettings = {};
+            for (const k of Object.getOwnPropertyNames(c)) {
+                newSettings[k] = settings.value[k] ?? c[k].default;
             }
             settings.value = newSettings;
         }, { immediate: true });
 
-        const setValue = (key: string, e: netled.IAnimationConfigField, target: EventTarget | HTMLInputElement | null) => {
+        const setValue = (key: string, e: netled2.AnimationConfigField, target: EventTarget | HTMLInputElement | null) => {
             if (!target) {
                 return;
             }
@@ -114,7 +114,7 @@ export default defineComponent({
             newConfigName.value = undefined;
             const config = existingConfigs.find(x => x.id === id);
 
-            settings.value = config?.config as netled.IAnimationConfigValues<any> ?? {};
+            settings.value = config?.config as netled2.AnimationSettings ?? {};
             emit('update:settings', { ...settings.value });
         });
 
