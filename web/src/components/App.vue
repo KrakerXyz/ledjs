@@ -20,6 +20,14 @@
                         <li class="nav-item">
                             <router-link
                                 class="nav-link"
+                                :to="useRouteLocation(RouteName.StrandEditor, { strandId: 'a4499840-13b9-4dc9-b27a-2bc92a86a1c7' })"
+                            >
+                                Strands
+                            </router-link>
+                        </li>
+                        <li class="nav-item">
+                            <router-link
+                                class="nav-link"
                                 :to="useRouteLocation(RouteName.DeviceList)"
                             >
                                 Devices

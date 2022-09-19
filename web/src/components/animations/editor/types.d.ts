@@ -108,7 +108,7 @@ declare global {
 
             namespace color {
 
-                /** Convers HSL color values to ARGB */
+                /** Converts HSL color values to ARGB */
                 function hslToRgb(h: number, s: number, l: number): ARGB;
                 /** Converts a hex value such as #ff7734eb to an ARGB array like [255, 119, 52, 235]. If given hex does not contain an Alpha (#7734eb), 255 is defaulted. If hex is malformed, [0, 0, 0, 0] is returned. */
                 function hexToRgb(hex: string): ARGB;

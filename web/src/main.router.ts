@@ -29,6 +29,7 @@ export enum RouteName {
     AnimationList = 'animations',
     AnimationNew = 'animations/new',
     AnimationEditor = 'animations/:animationId/edit',
+    StrandEditor = 'stands/:strandId/edit',
     DeviceList = 'devices',
     DeviceAdd = 'devices/add',
     DeviceView = 'devices/:deviceId',
@@ -37,7 +38,8 @@ export enum RouteName {
 export function useRouteLocation(name: RouteName.Home): RouteLocationRaw
 export function useRouteLocation(name: RouteName.AnimationList): RouteLocationRaw
 export function useRouteLocation(name: RouteName.AnimationNew): RouteLocationRaw
-export function useRouteLocation(name: RouteName.AnimationEditor, params: {animationId: Id}): RouteLocationRaw
+export function useRouteLocation(name: RouteName.AnimationEditor, params: { animationId: Id }): RouteLocationRaw
+export function useRouteLocation(name: RouteName.StrandEditor, params: {strandId: Id}): RouteLocationRaw
 export function useRouteLocation(name: RouteName.DeviceList): RouteLocationRaw
 export function useRouteLocation(name: RouteName.DeviceAdd): RouteLocationRaw
 export function useRouteLocation(name: RouteName.DeviceView, params: { deviceId: Id }): RouteLocationRaw
@@ -76,6 +78,13 @@ const routes: RouteRecordRaw[] = [
                 path: RouteName.AnimationEditor,
                 beforeEnter: requireLogin,
                 component: () => import('./components/animations/editor/AnimationEditor.vue'),
+                props: true
+            },
+            {
+                name: RouteName.StrandEditor,
+                path: RouteName.StrandEditor,
+                beforeEnter: requireLogin,
+                component: () => import('./components/strands/StrandEditor.vue'),
                 props: true
             },
             {
