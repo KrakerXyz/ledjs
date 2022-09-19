@@ -1,6 +1,6 @@
 import { ARGB } from '@krakerxyz/netled-core';
 
-export class LedArray implements netled2.ILedArray {
+export class LedArray implements netled.ILedArray {
 
     readonly #arr: Uint8ClampedArray;
     readonly #numLeds: number;

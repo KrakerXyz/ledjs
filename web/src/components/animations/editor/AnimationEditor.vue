@@ -106,7 +106,7 @@ export default defineComponent({
 
         let worker: Worker | null = null;
 
-        const config = ref<netled2.IAnimationConfig>();
+        const config = ref<netled.IAnimationConfig>();
 
         watch([javascript, buffers], async x => {
             const [js, buffers] = x;
@@ -148,7 +148,7 @@ export default defineComponent({
             }
         }, { immediate: true });
 
-        const settings = ref<netled2.IAnimationSettings>();
+        const settings = ref<netled.IAnimationSettings>();
         watch(settings, settings => {
             try {
                 console.log('Received settings');

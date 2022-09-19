@@ -1,8 +1,8 @@
 
-export default netled2.defineAnimation({
+export default netled.defineAnimation({
     services: ['timer'],
     construct(arr, { timer }) {
-        let interval: netled2.services.ITimerInterval | null = null;
+        let interval: netled.services.ITimerInterval | null = null;
         let running = false;
 
         let pos = 0;
@@ -18,7 +18,7 @@ export default netled2.defineAnimation({
                     for (let i = 0; i < arr.length; i++) {
                         const thisPos = pos + (i * settings.degPerLed);
                         const h = thisPos % 360;
-                        const rgb = netled2.utils.color.hslToRgb(h, 100, settings.luminosity);
+                        const rgb = netled.utils.color.hslToRgb(h, 100, settings.luminosity);
                         arr.setLed(i, rgb);
                     }
 

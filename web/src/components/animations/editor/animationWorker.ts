@@ -1,20 +1,21 @@
-import { hslToRgb } from '@krakerxyz/netled-core';
+import { hexToRgb, hslToRgb } from '@krakerxyz/netled-core';
 import { LedArray } from './LedArray';
 import { Timer } from './Timer';
 
-(self as any).netled2 = {
+(self as any).netled = {
     utils: {
         color: {
-            hslToRgb
+            hslToRgb,
+            hexToRgb
         }
     },
-    defineAnimation(animation: netled2.IAnimation<netled2.services.IAvailableServices>): netled2.IAnimation<netled2.services.IAvailableServices> { return animation; }
+    defineAnimation(animation: netled.IAnimation<netled.services.IAvailableServices>): netled.IAnimation<netled.services.IAvailableServices> { return animation; }
 };
 
 let ledArray: LedArray | null = null;
-let timer: netled2.services.ITimer | null = null;
-let settings: netled2.IAnimationSettings | null = null;
-let controller: netled2.IAnimationController | null = null;
+let timer: netled.services.ITimer | null = null;
+let settings: netled.IAnimationSettings | null = null;
+let controller: netled.IAnimationController | null = null;
 
 onmessage = async (e: any) => {
     const data = e.data;
@@ -37,7 +38,7 @@ onmessage = async (e: any) => {
                 return;
             }
 
-            const animation = module.default as netled2.IAnimation;
+            const animation = module.default as netled.IAnimation;
 
             if (!animation.construct) {
                 postMessage({ name: 'moduleError', errors: [{ severity: 'error', line: 0, col: 0, message: 'Script has no construct function' }] });
@@ -60,7 +61,7 @@ onmessage = async (e: any) => {
 
             ledArray = new LedArray(sab, numLeds, arrayOffset, async () => postMessage({ name: 'render' }));
 
-            const services: Partial<netled2.services.IServices> = {};
+            const services: Partial<netled.services.IServices> = {};
             for (const service of animation.services ?? []) {
                 if (service === 'timer') {
                     timer = new Timer();
@@ -68,7 +69,7 @@ onmessage = async (e: any) => {
                 }
             }
 
-            controller = animation.construct(ledArray, services as netled2.services.IServices);
+            controller = animation.construct(ledArray, services as netled.services.IServices);
 
             controller.run(settings);
 
