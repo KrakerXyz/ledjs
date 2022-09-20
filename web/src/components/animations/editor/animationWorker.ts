@@ -19,11 +19,14 @@ let timer: netled.services.ITimer | null = null;
 let settings: netled.common.ISettings | null = null;
 let controller: netled.animation.IAnimationController | null = null;
 
+let renderedResolver: (() => void) | null = null; 
+    
 onmessage = async (e: any) => {
     const data = e.data;
     if(!data) {
         throw new Error('Message did not have data');
     }
+
     switch(data.name) {
         case 'init': {
             const sab: SharedArrayBuffer = data.sab;
@@ -60,7 +63,11 @@ onmessage = async (e: any) => {
                 }
             }
 
-            ledArray = new LedArray(sab, numLeds, arrayOffset, async () => postMessage({ name: 'render' }));
+            ledArray = new LedArray(sab, numLeds, arrayOffset, async () => {
+                const rendered = new Promise<void>(r => renderedResolver = r);
+                postMessage({ name: 'render' });
+                await rendered;
+            });
 
             const services: Partial<netled.services.IServices> = {};
             for (const service of animation.services ?? []) {
@@ -88,6 +95,16 @@ onmessage = async (e: any) => {
                 controller.run(settings);
             }
 
+            break;
+        }
+        case 'rendered': {
+            if (!renderedResolver) {
+                console.warn('Got rendered message without resolver');
+                break;
+            }
+
+            renderedResolver();
+            renderedResolver = null;
             break;
         }
         default: throw new Error(`Unknown message: ${data.name}`);

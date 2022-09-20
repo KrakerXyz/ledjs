@@ -1,5 +1,4 @@
 
-
 export type TimerInterval = {
     start(): void,
     stop(): void
@@ -14,6 +13,7 @@ export class Timer {
 
     public createInterval(interval: number, cb: () => void | Promise<void>, options: TimerOptions): TimerInterval {
         let next = 0;
+        let runningCb = false;
         const run = () => {
             const thisRunSymbol = this.#running;
             const now = Date.now();
@@ -24,13 +24,19 @@ export class Timer {
             setTimeout(() => {
                 if (this.#running !== thisRunSymbol) { return; }
                 run();
-                //const now = performance.now();
-                Promise.resolve(cb()).then(() => {
-                    // const elapsed = performance.now() - now;
-                    // console.log(elapsed);
-                    // if(elapsed> interval) {
-                    //     console.log('Callback took longer than interval');
-                    // }
+                if (runningCb) {
+                    console.warn('Last timer callback still running. Skipping current tick.');
+                    return;
+                }
+                runningCb = true;
+                const now = performance.now();
+                const cbResult = cb();
+                Promise.resolve(cbResult).then(() => {
+                    const elapsed = performance.now() - now;
+                    if(elapsed> interval) {
+                        console.warn(`Callback took longer than interval - ${elapsed}ms`);
+                    }
+                    runningCb = false;
                 });
             }, nextInterval);
         };

@@ -96,7 +96,7 @@ export class LedArray implements netled.common.ILedArray {
 
     /** Reverses the order of all leds in the array */
     public reverse(): void {
-
+        this.#arr.reverse();
     }
 
     public send(): Promise<void> {

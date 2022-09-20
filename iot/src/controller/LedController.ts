@@ -1,4 +1,4 @@
-import { Animator, ARGB, DeviceWsClient, Frame } from '@krakerxyz/netled-core';
+import { Animator, IArgb, DeviceWsClient, Frame } from '@krakerxyz/netled-core';
 import { AnimatorProvider } from './AnimatorProvider';
 import { Clock } from './Clock';
 import rpio from 'rpio';
@@ -19,7 +19,7 @@ export class LedController {
         this.initSpi(25);
 
         //Draw an arbitrarily huge number of dark leds to clear string on startup
-        const darkLeds: ARGB = [255, 0, 0, 0];
+        const darkLeds: IArgb = [255, 0, 0, 0];
         const darkFrame: Frame = [];
         for (let i = 0; i < 1000; i++) {
             darkFrame.push(darkLeds);
@@ -72,7 +72,7 @@ export class LedController {
 
     private drawDarkFrame() {
         this._log.info('Drawing dark frame to clear leds');
-        const darkLeds: ARGB = [255, 0, 0, 0];
+        const darkLeds: IArgb = [255, 0, 0, 0];
         const darkFrame: Frame = [];
         for (let i = 0; i < this._lastNumLeds; i++) {
             darkFrame.push(darkLeds);

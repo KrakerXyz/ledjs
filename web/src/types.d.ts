@@ -1,4 +1,4 @@
-import { ARGB } from '@krakerxyz/netled-core';
+import { IArgb } from '@krakerxyz/netled-core';
 
 export {};
 
@@ -54,7 +54,7 @@ declare global {
                 reverse(): void 
 
                 /** Output the current array to the leds */
-                send(): void;
+                send(): Promise<void>;
             }
 
             type IFieldSelectOption = { text: string, value: string };
@@ -141,10 +141,10 @@ declare global {
 
             namespace color {
 
-                /** Converts HSL color values to ARGB */
-                function hslToRgb(h: number, s: number, l: number): ARGB;
-                /** Converts a hex value such as #ff7734eb to an ARGB array like [255, 119, 52, 235]. If given hex does not contain an Alpha (#7734eb), 255 is defaulted. If hex is malformed, [0, 0, 0, 0] is returned. */
-                function hexToRgb(hex: string): ARGB;
+                /** Converts HSL color values to IArgb */
+                function hslToRgb(h: number, s: number, l: number): IArgb;
+                /** Converts a hex value such as #ff7734eb to an IArgb array like [255, 119, 52, 235]. If given hex does not contain an Alpha (#7734eb), 255 is defaulted. If hex is malformed, [0, 0, 0, 0] is returned. */
+                function hexToRgb(hex: string): IArgb;
 
             }
 

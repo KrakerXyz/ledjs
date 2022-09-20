@@ -64,8 +64,8 @@
 <script lang="ts">
 
 import { defineComponent, ref, watch, computed } from 'vue';
-import { LedArray } from '../../LedArray';
-import LedCanvas from '../../LedCanvas.vue';
+import { LedArray } from '@/components/LedArray';
+import LedCanvas from '@/components/LedCanvas.vue';
 import types from '../../../types.d.ts?raw';
 import AnimationWorker from './animationWorker?worker';
 import config from './Config.vue';
@@ -135,6 +135,7 @@ export default defineComponent({
                         }
                         case 'render': {
                             ledCanvas.value?.render(fullArray);
+                            worker?.postMessage({ name: 'rendered' });
                             break;
                         }
                         case 'config': {

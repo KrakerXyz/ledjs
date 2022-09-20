@@ -1,7 +1,7 @@
-import { ARGB } from '..';
+import { IArgb } from '..';
 
 //https://css-tricks.com/converting-color-spaces-in-javascript/#hsl-to-rgb
-export function hslToRgb(h: number, s: number, l: number): ARGB {
+export function hslToRgb(h: number, s: number, l: number): IArgb {
     // Must be fractions of 1
     s /= 100;
     l /= 100;

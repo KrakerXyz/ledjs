@@ -7,19 +7,15 @@
 
 <script lang="ts">
 
-import { Frame, rgbToHex } from '@krakerxyz/netled-core';
-import { defineComponent, watch, ref, computed, onMounted, onUnmounted } from 'vue';
+import { IArgb, rgbToHex } from '@krakerxyz/netled-core';
+import { defineComponent, watch, ref, onMounted, onUnmounted } from 'vue';
+import { LedArray } from './LedArray';
 
 export default defineComponent({
-    props: {
-        frame: { type: Array as () => Frame }
-    },
     emits: {
         drawError: (e: any) => !!e
     },
     setup(props, { emit }) {
-
-        const frame = computed(() => props.frame ?? []);
 
         const wrapper = ref<HTMLDivElement>();
 
@@ -42,9 +38,6 @@ export default defineComponent({
             if (!ctx.value) { return; }
             can.value.width = width;
             can.value.height = height;
-
-            if (!frame.value || !ctx.value) { return; }
-            draw(ctx.value, frame.value, canvasDimensions);
         };
 
         const obs = new ResizeObserver(setCanvasDimension);
@@ -54,14 +47,14 @@ export default defineComponent({
             obs.observe(wrapper.value);
         });
 
-        watch(frame, f => {
+        const render = (sab: LedArray) => {
             if (!ctx.value) { return; }
             try {
-                draw(ctx.value, f, canvasDimensions);
+                draw(ctx.value, sab, canvasDimensions);
             } catch (e) {
                 emit('drawError', e);
             }
-        });
+        };
 
         const canWatchStop = watch(can, () => {
             if (!can.value) { return; }
@@ -73,23 +66,22 @@ export default defineComponent({
             obs.disconnect();
         });
 
-        return { can, wrapper };
+        // eslint-disable-next-line vue/no-unused-properties
+        return { can, wrapper, render };
     }
 });
 
-function draw(ctx: CanvasRenderingContext2D, frame: Frame, canvasDimensions: [number, number]) {
+function draw(ctx: CanvasRenderingContext2D, arr: LedArray, canvasDimensions: [number, number]) {
 
 
     ctx.clearRect(0, 0, canvasDimensions[0], canvasDimensions[1]);
 
-    if (!frame.length) { return; }
-
-    const ledWidth = canvasDimensions[0] / frame.length;
+    const ledWidth = canvasDimensions[0] / arr.length;
     const ledWidthCeil = Math.ceil(ledWidth);
 
     let offset = 0;
-    for (let i = 0; i < frame.length; i++) {
-        const led = frame[i];
+    for (let i = 0; i < arr.length; i++) {
+        const led: IArgb = arr.getLed(i);
         ctx.fillStyle = rgbToHex(led);
         ctx.fillRect(offset, 0, ledWidthCeil, canvasDimensions[1]);
         offset += ledWidth;
