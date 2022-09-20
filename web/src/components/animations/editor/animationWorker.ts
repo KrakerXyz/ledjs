@@ -1,5 +1,5 @@
 import { hexToRgb, hslToRgb } from '@krakerxyz/netled-core';
-import { LedArray } from './LedArray';
+import { LedArray } from '../../LedArray';
 import { Timer } from './Timer';
 
 (self as any).netled = {
@@ -9,17 +9,18 @@ import { Timer } from './Timer';
             hexToRgb
         }
     },
-    defineAnimation(animation: netled.IAnimation<netled.services.IAvailableServices>): netled.IAnimation<netled.services.IAvailableServices> { return animation; }
+    animation: {
+        defineAnimation(animation: netled.animation.IAnimation<netled.services.IAvailableServices>): netled.animation.IAnimation<netled.services.IAvailableServices> { return animation; }
+    }
 };
 
 let ledArray: LedArray | null = null;
 let timer: netled.services.ITimer | null = null;
-let settings: netled.IAnimationSettings | null = null;
-let controller: netled.IAnimationController | null = null;
+let settings: netled.common.ISettings | null = null;
+let controller: netled.animation.IAnimationController | null = null;
 
 onmessage = async (e: any) => {
     const data = e.data;
-    console.log('Incoming message', data);
     if(!data) {
         throw new Error('Message did not have data');
     }
@@ -38,7 +39,7 @@ onmessage = async (e: any) => {
                 return;
             }
 
-            const animation = module.default as netled.IAnimation;
+            const animation = module.default as netled.animation.IAnimation;
 
             if (!animation.construct) {
                 postMessage({ name: 'moduleError', errors: [{ severity: 'error', line: 0, col: 0, message: 'Script has no construct function' }] });

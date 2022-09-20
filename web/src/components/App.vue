@@ -20,6 +20,14 @@
                         <li class="nav-item">
                             <router-link
                                 class="nav-link"
+                                :to="useRouteLocation(RouteName.PostProcessorEditor, { postProcessorId: 'c641e6e6-38d6-428d-969c-ba06310ee5c9' })"
+                            >
+                                Post-Processors
+                            </router-link>
+                        </li>
+                        <li class="nav-item">
+                            <router-link
+                                class="nav-link"
                                 :to="useRouteLocation(RouteName.StrandEditor, { strandId: 'a4499840-13b9-4dc9-b27a-2bc92a86a1c7' })"
                             >
                                 Strands

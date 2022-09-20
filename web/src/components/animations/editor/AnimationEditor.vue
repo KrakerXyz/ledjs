@@ -41,7 +41,12 @@
 
                 <div class="row">
                     <div class="col">
-                        <button type="button" class="btn btn-primary w-100" @click="saveScript()">
+                        <button
+                            @click="saveScript()"
+                            :disabled="!!issues.length"
+                            type="button"
+                            class="btn btn-primary w-100"
+                        >
                             Save
                         </button>
                     </div>
@@ -59,14 +64,13 @@
 <script lang="ts">
 
 import { defineComponent, ref, watch, computed } from 'vue';
-import { LedArray } from './LedArray';
-import LedCanvas from './LedCanvas.vue';
-import { useMonacoEditor } from './monacoEditor';
-import types from './types.d.ts?raw';
+import { LedArray } from '../../LedArray';
+import LedCanvas from '../../LedCanvas.vue';
+import types from '../../../types.d.ts?raw';
 import AnimationWorker from './animationWorker?worker';
 import config from './Config.vue';
 import { deepClone, CodeIssue, Id, AnimationPost, newId } from '@krakerxyz/netled-core';
-import { useAnimationRestClient } from '@/services';
+import { useAnimationRestClient, useMonacoEditor } from '@/services';
 import { useRouter } from 'vue-router';
 import { RouteName, useRouteLocation, useRouteLocation as useRouteMain } from '@/main.router';
 
@@ -106,7 +110,7 @@ export default defineComponent({
 
         let worker: Worker | null = null;
 
-        const config = ref<netled.IAnimationConfig>();
+        const config = ref<netled.common.IConfig>();
 
         watch([javascript, buffers], async x => {
             const [js, buffers] = x;
@@ -148,7 +152,7 @@ export default defineComponent({
             }
         }, { immediate: true });
 
-        const settings = ref<netled.IAnimationSettings>();
+        const settings = ref<netled.common.ISettings>();
         watch(settings, settings => {
             try {
                 console.log('Received settings');

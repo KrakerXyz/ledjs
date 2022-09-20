@@ -6,7 +6,7 @@ import FullReload from 'vite-plugin-full-reload';
 export default defineConfig({
     plugins: [
         vue(),
-        FullReload('src/components/animations/editor/*'),
+        FullReload('src/components/**/editor/*'),
         {
             name: 'configure-server',
             configureServer: server => {

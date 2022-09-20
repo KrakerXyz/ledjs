@@ -1,9 +1,9 @@
 
 <template>
     <div>
-        <div v-for="(s, index) of segments" :key="index" class="row">
+        <div v-for="(s, index) of segmentVms" :key="index" class="row">
             <div class="col">
-                Segment
+                {{s.inputName}}
             </div>
         </div>
     </div>
@@ -13,45 +13,72 @@
 
 import { defineComponent, reactive } from 'vue';
 import { Id, AnimationVersion } from '@krakerxyz/netled-core';
+import { useAnimationRestClient } from '@/services';
 
 export default defineComponent({
     props: {
         strandId: { type: String as () => Id, required: true }
     },
-    setup() {
+    async setup() {
 
-        const segments: ISegment[] = reactive([]);
+        const animationApi = useAnimationRestClient();
+        const animations = await animationApi.list(true);
 
-        segments.push({
-            input: {
-                type: SegmentInputType.Animation,
-                animation: {
-                    id: '3bfe1c99-c4fa-4eb2-a1c5-305d3729a35e',
-                    version: 'draft'
-                }
-            },
-            leds: {
-                percent: 50
+        const segments = getMockSegments();
+
+        const segmentVms = segments.map(s => {
+            let inputName = 'UNK';
+            const input = s.input;
+            if (input.type === SegmentInputType.Animation) {
+                inputName = animations.find(x => x.id === input.animation.id)?.name ?? 'UNK';
             }
+            const vm: SegmentVm = {
+                segment: s,
+                inputName
+            };
+            return vm;
         });
 
-        segments.push({
-            input: {
-                type: SegmentInputType.PostProcess,
-                input: segments[0],
-                postProcess: {
-                    id: 'reverse' as Id,
-                    version: 'draft'
-                }
-            },
-            leds: {
-                percent: 50
-            }
-        });
-
-        return { segments };
+        return { segmentVms };
     }
 });
+
+interface SegmentVm {
+    segment: ISegment,
+    inputName: string
+}
+
+function getMockSegments() {
+    const segments: ISegment[] = reactive([]);
+
+    segments.push({
+        input: {
+            type: SegmentInputType.Animation,
+            animation: {
+                id: '3bfe1c99-c4fa-4eb2-a1c5-305d3729a35e',
+                version: 'draft'
+            }
+        },
+        leds: {
+            percent: 50
+        }
+    });
+
+    segments.push({
+        input: {
+            type: SegmentInputType.PostProcess,
+            input: segments[0],
+            postProcess: {
+                id: 'reverse' as Id,
+                version: 'draft'
+            }
+        },
+        leds: {
+            percent: 50
+        }
+    });
+    return segments;
+}
 
 enum SegmentInputType {
     Animation = 'animation',

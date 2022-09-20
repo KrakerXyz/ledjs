@@ -1,6 +1,5 @@
-import { ARGB } from '@krakerxyz/netled-core';
 
-export class LedArray implements netled.ILedArray {
+export class LedArray implements netled.common.ILedArray {
 
     readonly #arr: Uint8ClampedArray;
     readonly #numLeds: number;
@@ -17,9 +16,9 @@ export class LedArray implements netled.ILedArray {
         return this.#numLeds;
     }
 
-    public getLed(index: number): ARGB;
+    public getLed(index: number): netled.common.IArgb;
     public getLed(index: number, component: 0 | 1 | 2 | 3): number;
-    public getLed(index: number, component?: 0 | 1 | 2 | 3): ARGB | number {
+    public getLed(index: number, component?: 0 | 1 | 2 | 3): netled.common.IArgb | number {
 
         if (Math.abs(index) >= this.#numLeds) {
             throw new Error(`Index ${index} is out of bounds`);
@@ -28,7 +27,7 @@ export class LedArray implements netled.ILedArray {
         const pos = index * 4;
 
         if (component === undefined) {
-            const led: ARGB = [this.#arr[pos], this.#arr[pos + 1], this.#arr[pos + 2], this.#arr[pos + 3]];
+            const led: netled.common.IArgb = [this.#arr[pos], this.#arr[pos + 1], this.#arr[pos + 2], this.#arr[pos + 3]];
             return led;
         }
 
@@ -36,7 +35,7 @@ export class LedArray implements netled.ILedArray {
 
     }
 
-    public setLed(index: number, color: ARGB): void;
+    public setLed(index: number, color: netled.common.IArgb): void;
     public setLed(index: number, a: number, r: number, g: number, b: number): void;
     public setLed(index: number, component: 0 | 1 | 2 | 3, value: number): void;
     public setLed(index: number, ...args: any[]) {
@@ -94,6 +93,11 @@ export class LedArray implements netled.ILedArray {
             }
         }
     } 
+
+    /** Reverses the order of all leds in the array */
+    public reverse(): void {
+
+    }
 
     public send(): Promise<void> {
         return this.#sendCb();

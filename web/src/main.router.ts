@@ -29,6 +29,7 @@ export enum RouteName {
     AnimationList = 'animations',
     AnimationNew = 'animations/new',
     AnimationEditor = 'animations/:animationId/edit',
+    PostProcessorEditor = 'post-processors/:postProcessorId/edit',
     StrandEditor = 'stands/:strandId/edit',
     DeviceList = 'devices',
     DeviceAdd = 'devices/add',
@@ -39,6 +40,7 @@ export function useRouteLocation(name: RouteName.Home): RouteLocationRaw
 export function useRouteLocation(name: RouteName.AnimationList): RouteLocationRaw
 export function useRouteLocation(name: RouteName.AnimationNew): RouteLocationRaw
 export function useRouteLocation(name: RouteName.AnimationEditor, params: { animationId: Id }): RouteLocationRaw
+export function useRouteLocation(name: RouteName.PostProcessorEditor, params: { postProcessorId: Id }): RouteLocationRaw
 export function useRouteLocation(name: RouteName.StrandEditor, params: {strandId: Id}): RouteLocationRaw
 export function useRouteLocation(name: RouteName.DeviceList): RouteLocationRaw
 export function useRouteLocation(name: RouteName.DeviceAdd): RouteLocationRaw
@@ -78,6 +80,13 @@ const routes: RouteRecordRaw[] = [
                 path: RouteName.AnimationEditor,
                 beforeEnter: requireLogin,
                 component: () => import('./components/animations/editor/AnimationEditor.vue'),
+                props: true
+            },
+            {
+                name: RouteName.PostProcessorEditor,
+                path: RouteName.PostProcessorEditor,
+                beforeEnter: requireLogin,
+                component: () => import('./components/post-processors/editor/ProcessorEditor.vue'),
                 props: true
             },
             {

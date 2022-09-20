@@ -2,10 +2,9 @@
 
 import { CodeIssue } from '@krakerxyz/netled-core';
 import * as monaco from 'monaco-editor';
-import { ComponentInternalInstance, computed, ComputedRef, getCurrentInstance, onMounted, onUnmounted, ref, Ref, watch } from 'vue';
-import ValidationWorker from './validationWorker?worker';
+import { computed, ComputedRef, getCurrentScope, onMounted, onScopeDispose, ref, Ref, watch } from 'vue';
 
-export function useMonacoEditor(containerId: string, config?: Partial<EditorConfig>, componentTarget?: ComponentInternalInstance): Editor {
+export function useMonacoEditor(containerId: string, config?: Partial<EditorConfig>): Editor {
 
     const content = ref('');
     const javascript = ref('');
@@ -14,9 +13,9 @@ export function useMonacoEditor(containerId: string, config?: Partial<EditorConf
 
     let editor: monaco.editor.IStandaloneCodeEditor | undefined;
 
-    componentTarget ??= getCurrentInstance() ?? undefined;
-    if (!componentTarget) {
-        throw new Error('Component instance not defined');
+    const effectScope = getCurrentScope();
+    if (!effectScope) {
+        throw new Error('Effect scope not available. Make sure to run in context of setup function.');
     }
 
     let typescriptWorker: monaco.languages.typescript.TypeScriptWorker | null = null;
@@ -92,18 +91,18 @@ export function useMonacoEditor(containerId: string, config?: Partial<EditorConf
                 });
             });
 
-            const validationWorker = new ValidationWorker();
-            validationWorker.addEventListener('message', e => {
-                if (e.data.name === 'issues') {
-                    validationIssues.value = e.data.issues;
-                }
-            });
+            // const validationWorker = new ValidationWorker();
+            // validationWorker.addEventListener('message', e => {
+            //     if (e.data.name === 'issues') {
+            //         validationIssues.value = e.data.issues;
+            //     }
+            // });
 
-            editor.onDidChangeModelContent(() => {
-                if (!editor) { return; }
-                const ts = editor.getValue();
-                validationWorker.postMessage({ name: 'validate', ts });
-            });
+            // editor.onDidChangeModelContent(() => {
+            //     if (!editor) { return; }
+            //     const ts = editor.getValue();
+            //     validationWorker.postMessage({ name: 'validate', ts });
+            // });
 
             editor.onDidChangeModelDecorations(() => {
                 if (!editor) {
@@ -147,13 +146,14 @@ export function useMonacoEditor(containerId: string, config?: Partial<EditorConf
 
             obs.observe(ideContainer);
 
-            onUnmounted(() => {
-                obs.disconnect();
-            }, componentTarget);
-
+            effectScope.run(() => {
+                onScopeDispose(() => {
+                    obs.disconnect();
+                });
+            });
         });
 
-    }, componentTarget);
+    });
 
     return { content, issues: computed(() => [...issues.value, ...validationIssues.value]), javascript: computed(() => javascript.value), flushContent };
 }
