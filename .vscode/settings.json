@@ -16,6 +16,7 @@
         "middlewares",
         "multiline",
         "netled",
+        "offscreencanvas",
         "parameterless",
         "pino",
         "prestart",
