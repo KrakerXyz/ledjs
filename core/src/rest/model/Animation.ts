@@ -1,6 +1,5 @@
-import { Id } from '..';
+import { Id, ScriptVersion } from '..';
 
-export type AnimationVersion = number | 'draft';
 
 /** A animation script */
 export interface Animation {
@@ -12,7 +11,7 @@ export interface Animation {
     /** Typescript-based animation script */
     ts: string;
     readonly published: boolean;
-    readonly version: AnimationVersion
+    readonly version: ScriptVersion
     readonly created: number;
     readonly author: Id;
 }

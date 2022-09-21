@@ -1,5 +1,5 @@
 
-import { AnimationRestClient, DeviceRestClient, RestClient, RestConfig } from '@krakerxyz/netled-core';
+import { AnimationRestClient, DeviceRestClient, PostProcessorRestClient, RestClient, RestConfig } from '@krakerxyz/netled-core';
 
 let restClient: RestClient | undefined;
 export function useRestClient(): RestClient {
@@ -9,6 +9,11 @@ export function useRestClient(): RestClient {
 let animationClient: AnimationRestClient | undefined;
 export function useAnimationRestClient(): AnimationRestClient {
     return animationClient ?? (animationClient = new AnimationRestClient(useRestClient()));
+}
+
+let postProcessorClient: PostProcessorRestClient | undefined;
+export function usePostProcessorRestClient(): PostProcessorRestClient {
+    return postProcessorClient ?? (postProcessorClient = new PostProcessorRestClient(useRestClient()));
 }
 
 let devicesClient: DeviceRestClient | undefined;

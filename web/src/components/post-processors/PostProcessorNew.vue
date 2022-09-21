@@ -5,12 +5,12 @@
             <div class="col-md-6 col-lg-3">
                 <div class="form-floating">
                     <input
-                        id="animation-name"
+                        id="postProcessor-name"
                         class="form-control"
                         placeholder="*"
-                        v-model="animationPost.name"
+                        v-model="postProcessorPost.name"
                     >
-                    <label for="animation-name">Animation Name</label>
+                    <label for="postProcessor-name">PostProcessor Name</label>
                 </div>
             </div>
         </div>
@@ -27,8 +27,8 @@
 <script lang="ts">
 
 import { RouteName, useRouteLocation } from '@/main.router';
-import { useAnimationRestClient } from '@/services';
-import { AnimationPost, newId } from '@krakerxyz/netled-core';
+import { usePostProcessorRestClient } from '@/services';
+import { PostProcessorPost, newId } from '@krakerxyz/netled-core';
 import { defineComponent, reactive } from 'vue';
 import { useRouter } from 'vue-router';
 import example from './editor/Script.ts?raw';
@@ -38,9 +38,9 @@ export default defineComponent({
     },
     setup() {
         const router = useRouter();
-        const animationsApi = useAnimationRestClient();
+        const postProcessorsApi = usePostProcessorRestClient();
 
-        const animationPost = reactive<AnimationPost>({
+        const postProcessorPost = reactive<PostProcessorPost>({
             id: newId(),
             name: '',
             ts: example,
@@ -48,12 +48,12 @@ export default defineComponent({
         });
 
         const submit = async () => {
-            if (!animationPost.name) { return; }
-            await animationsApi.saveDraft(animationPost);
-            router.replace(useRouteLocation(RouteName.AnimationEditor, { animationId: animationPost.id }));
+            if (!postProcessorPost.name) { return; }
+            await postProcessorsApi.saveDraft(postProcessorPost);
+            router.replace(useRouteLocation(RouteName.PostProcessorEditor, { postProcessorId: postProcessorPost.id }));
         };
 
-        return { animationPost, submit };
+        return { postProcessorPost, submit };
     }
 });
 

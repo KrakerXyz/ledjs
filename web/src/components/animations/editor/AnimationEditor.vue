@@ -82,6 +82,7 @@ export default defineComponent({
     async setup(props) {
 
         const router = useRouter();
+        const animationApi = useAnimationRestClient();
 
         const ledCanvas = ref<any>();
 
@@ -165,7 +166,6 @@ export default defineComponent({
             }
         }, { deep: true });
 
-        const animationApi = useAnimationRestClient();
         const animation = await animationApi.latest(props.animationId, true);
 
         content.value = animation.ts;

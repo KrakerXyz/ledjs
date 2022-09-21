@@ -63,14 +63,14 @@
 <script lang="ts">
 
 import { useAnimationRestClient } from '@/services';
-import { AnimationConfigPost, AnimationVersion, deepClone, Id, newId } from '@krakerxyz/netled-core';
+import { AnimationConfigPost, ScriptVersion, deepClone, Id, newId } from '@krakerxyz/netled-core';
 import { defineComponent, ref, watch } from 'vue';
 
 type SelectOption = { text: string, value: Id | 'new' };
 
 export default defineComponent({
     props: {
-        animation: { type: Object as () => { id: Id, version: AnimationVersion }, required: true },
+        animation: { type: Object as () => { id: Id, version: ScriptVersion }, required: true },
         config: { type: Object as () => netled.common.IConfig, required: true }
     },
     emits: {

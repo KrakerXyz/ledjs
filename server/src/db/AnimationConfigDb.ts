@@ -1,10 +1,10 @@
 import { Filter, TypedEntity, UpdateResult } from '@krakerxyz/typed-base';
-import { AnimationConfig, AnimationVersion, Id, Writeable } from '@krakerxyz/netled-core';
+import { AnimationConfig, ScriptVersion, Id, Writeable } from '@krakerxyz/netled-core';
 
 export class AnimationConfigDb {
     private readonly entity = new TypedEntity<AnimationConfig>();
 
-    public byAnimationId(animationId: Id, userId?: Id, version?: AnimationVersion): AsyncGenerator<AnimationConfig> {
+    public byAnimationId(animationId: Id, userId?: Id, version?: ScriptVersion): AsyncGenerator<AnimationConfig> {
         const filter: Filter<Writeable<AnimationConfig>> = {
             'animation.id': animationId
         };

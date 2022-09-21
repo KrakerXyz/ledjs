@@ -1,7 +1,7 @@
 
 
 import { CodeIssue } from '@krakerxyz/netled-core';
-import * as monaco from 'monaco-editor';
+import type * as monaco from 'monaco-editor';
 import { computed, ComputedRef, getCurrentScope, onMounted, onScopeDispose, ref, Ref, watch } from 'vue';
 
 export function useMonacoEditor(containerId: string, config?: Partial<EditorConfig>): Editor {
@@ -122,7 +122,7 @@ export function useMonacoEditor(containerId: string, config?: Partial<EditorConf
                 issues.value = newIssues;
             });
 
-            editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyS, () => {
+            editor.addCommand(thisMonaco.KeyMod.CtrlCmd | thisMonaco.KeyCode.KeyS, () => {
                 flushContent();
             });
             

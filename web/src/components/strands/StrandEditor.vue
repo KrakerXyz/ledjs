@@ -12,7 +12,7 @@
 <script lang="ts">
 
 import { defineComponent, reactive } from 'vue';
-import { Id, AnimationVersion } from '@krakerxyz/netled-core';
+import { Id, ScriptVersion } from '@krakerxyz/netled-core';
 import { useAnimationRestClient } from '@/services';
 
 export default defineComponent({
@@ -89,7 +89,7 @@ type ISegmentInput = {
     type: SegmentInputType.Animation,
     animation: {
         id: Id,
-        version: AnimationVersion
+        version: ScriptVersion
     }
     configId?: Id, 
 }
@@ -98,7 +98,7 @@ type ISegmentInput = {
     input: ISegmentInput | ISegment,
     postProcess: {
         id: Id,
-        version: AnimationVersion
+        version: ScriptVersion
     }
 }
 

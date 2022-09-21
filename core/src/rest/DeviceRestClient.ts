@@ -1,4 +1,4 @@
-import { DeviceAnimationConfigPost, DeviceLogsFilter, Id, RestClient, AnimationVersion } from '.';
+import { DeviceAnimationConfigPost, DeviceLogsFilter, Id, RestClient, ScriptVersion } from '.';
 import { FromDeviceMessage } from '..';
 
 export class DeviceRestClient {
@@ -74,7 +74,7 @@ export interface Device {
     readonly status: DeviceStatus;
     readonly animation: {
         id: Id,
-        version: AnimationVersion
+        version: ScriptVersion
     } | null;
     /** Id of animation config assigned to this device */
     readonly animationConfigId: Id | null,
@@ -114,7 +114,7 @@ export interface DeviceAnimationPost {
     /** Id of the animation to run */
         id: Id,
         /** Version of the animation to run */
-        version: AnimationVersion,
+        version: ScriptVersion,
     },
     /** Optional id of the saved config to use for the animation */
     configId: Id | null;

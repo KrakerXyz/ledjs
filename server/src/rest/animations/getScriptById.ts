@@ -1,8 +1,8 @@
 import { RouteOptions } from 'fastify';
 import { jsonSchema } from '@krakerxyz/json-schema-transformer';
-import { AnimationVersion, Id } from '@krakerxyz/netled-core';
+import { ScriptVersion, Id } from '@krakerxyz/netled-core';
 
-type Params = { animationId: Id, version: AnimationVersion };
+type Params = { animationId: Id, version: ScriptVersion };
 
 export const getScriptById: RouteOptions = {
     method: 'GET',

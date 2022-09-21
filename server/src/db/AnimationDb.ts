@@ -1,5 +1,5 @@
 import { Filter, TypedEntity,  UpdateResult } from '@krakerxyz/typed-base';
-import { Animation, AnimationSummary, AnimationVersion, Id, Writeable } from '@krakerxyz/netled-core';
+import { Animation, AnimationSummary, ScriptVersion, Id, Writeable } from '@krakerxyz/netled-core';
 
 export class AnimationDb {
 
@@ -20,7 +20,7 @@ export class AnimationDb {
         return null;
     }
 
-    public byId(id: Id, version: AnimationVersion): Promise<Animation | null> {
+    public byId(id: Id, version: ScriptVersion): Promise<Animation | null> {
         const filter: Filter<Writeable<Animation>> = { id, version };
 
         const cur = this.entity.findOneAsync(filter);
@@ -40,7 +40,7 @@ export class AnimationDb {
         return this.entity.replaceOneAsync(animation, { upsert: true });
     }
 
-    public deleteById(animationId: Id, version: AnimationVersion): Promise<void> {
+    public deleteById(animationId: Id, version: ScriptVersion): Promise<void> {
         return this.entity.deleteAsync({ id: animationId, version });
     }
 

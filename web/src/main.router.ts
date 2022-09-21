@@ -29,6 +29,8 @@ export enum RouteName {
     AnimationList = 'animations',
     AnimationNew = 'animations/new',
     AnimationEditor = 'animations/:animationId/edit',
+    PostProcessorList = 'post-processors',
+    PostProcessorNew = 'post-processors/new',
     PostProcessorEditor = 'post-processors/:postProcessorId/edit',
     StrandEditor = 'stands/:strandId/edit',
     DeviceList = 'devices',
@@ -40,6 +42,8 @@ export function useRouteLocation(name: RouteName.Home): RouteLocationRaw
 export function useRouteLocation(name: RouteName.AnimationList): RouteLocationRaw
 export function useRouteLocation(name: RouteName.AnimationNew): RouteLocationRaw
 export function useRouteLocation(name: RouteName.AnimationEditor, params: { animationId: Id }): RouteLocationRaw
+export function useRouteLocation(name: RouteName.PostProcessorList): RouteLocationRaw
+export function useRouteLocation(name: RouteName.PostProcessorNew): RouteLocationRaw
 export function useRouteLocation(name: RouteName.PostProcessorEditor, params: { postProcessorId: Id }): RouteLocationRaw
 export function useRouteLocation(name: RouteName.StrandEditor, params: {strandId: Id}): RouteLocationRaw
 export function useRouteLocation(name: RouteName.DeviceList): RouteLocationRaw
@@ -81,6 +85,18 @@ const routes: RouteRecordRaw[] = [
                 beforeEnter: requireLogin,
                 component: () => import('./components/animations/editor/AnimationEditor.vue'),
                 props: true
+            },
+            {
+                name: RouteName.PostProcessorList,
+                path: RouteName.PostProcessorList,
+                beforeEnter: requireLogin,
+                component: () => import('./components/post-processors/PostProcessorList.vue')
+            },
+            {
+                name: RouteName.PostProcessorNew,
+                path: RouteName.PostProcessorNew,
+                beforeEnter: requireLogin,
+                component: () => import('./components/post-processors/PostProcessorNew.vue')
             },
             {
                 name: RouteName.PostProcessorEditor,

@@ -1,5 +1,5 @@
 
-import { AnimationSummary, AnimationConfig, AnimationPost, Animation, Id, AnimationConfigSummary, AnimationConfigPost, AnimationVersion } from '.';
+import { AnimationSummary, AnimationConfig, AnimationPost, Animation, Id, AnimationConfigSummary, AnimationConfigPost, ScriptVersion } from '.';
 import { RestClient } from './RestClient';
 
 export class AnimationRestClient {
@@ -17,12 +17,12 @@ export class AnimationRestClient {
     }
 
     /** Return specific animation version */
-    public byId(animationId: Id, version: AnimationVersion): Promise<Animation> {
+    public byId(animationId: Id, version: ScriptVersion): Promise<Animation> {
         return this.restClient.get(`/api/animations/${animationId}/${version}`);
     }
 
     /** Returns the script text of the given animation */
-    public async script(animationId: Id, version: AnimationVersion): Promise<string> {
+    public async script(animationId: Id, version: ScriptVersion): Promise<string> {
         return this.restClient.get(`/api/animations/${animationId}/${version}/script`);
     }
 
@@ -41,8 +41,8 @@ export class AnimationRestClient {
     /** Get all configs for all versions of a an animation */
     private configList(animationId: Id): Promise<AnimationConfig[]>
     /** Get all configs for a specific animation.version */
-    private configList(animationId: Id, version: AnimationVersion): Promise<AnimationConfig[]>
-    private configList(animationId?: Id, version?: AnimationVersion): Promise<AnimationConfig[]> | Promise<AnimationConfigSummary[]> {
+    private configList(animationId: Id, version: ScriptVersion): Promise<AnimationConfig[]>
+    private configList(animationId?: Id, version?: ScriptVersion): Promise<AnimationConfig[]> | Promise<AnimationConfigSummary[]> {
         if (animationId) {
             return this.restClient.get<AnimationConfig[]>(`/api/animations/${animationId}/configs`, { version });
         } else {

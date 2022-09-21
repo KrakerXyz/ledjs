@@ -1,5 +1,5 @@
 import { RouteOptions } from 'fastify';
-import { Animation, AnimationConfig, AnimationConfigSummary, AnimationVersion, Id } from '@krakerxyz/netled-core';
+import { Animation, AnimationConfig, AnimationConfigSummary, ScriptVersion, Id } from '@krakerxyz/netled-core';
 import { jwtAuthentication } from '../../services';
 
 export const getConfigs: RouteOptions = {
@@ -11,12 +11,12 @@ export const getConfigs: RouteOptions = {
         const animationsDb = req.services.animationDb;
         const allAsync = db.byUserId(req.user.sub);
 
-        const animationMap = new Map<`${Id}|${AnimationVersion}`, Promise<Animation | null>>();
+        const animationMap = new Map<`${Id}|${ScriptVersion}`, Promise<Animation | null>>();
 
         const all: AnimationConfig[] = [];
         for await (const c of allAsync) {
             all.push(c);
-            const key: `${Id}|${AnimationVersion}` = `${c.animation.id}|${c.animation.version}`;
+            const key: `${Id}|${ScriptVersion}` = `${c.animation.id}|${c.animation.version}`;
             if (animationMap.has(key)) { continue; }
             animationMap.set(key, animationsDb.byId(c.animation.id, c.animation.version));
         }

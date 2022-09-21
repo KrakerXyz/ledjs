@@ -1,4 +1,4 @@
-import { Id, AnimationVersion } from '..';
+import { Id, ScriptVersion } from '..';
 
 export interface AnimationConfig {
     /** Id of this specific animation config */
@@ -9,7 +9,7 @@ export interface AnimationConfig {
         /** Id of the animation the config is for */
         id: Id,
         /** Version of animation this config is for */
-        version: AnimationVersion
+        version: ScriptVersion
     }
     /** Name for this configuration */
     name: string;

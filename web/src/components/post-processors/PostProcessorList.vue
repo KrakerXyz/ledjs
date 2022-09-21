@@ -2,11 +2,11 @@
     <div class="container-fluid p-3">
         <div class="row">
             <div class="col">
-                <div class="list-group" v-if="animations">
+                <div class="list-group" v-if="postProcessors">
                     <router-link
-                        :to="useRouteLocation(RouteName.AnimationEditor, { animationId: a.id })"
+                        :to="useRouteLocation(RouteName.PostProcessorEditor, { postProcessorId: a.id })"
                         class="list-group-item list-group-item-action"
-                        v-for="a of animations"
+                        v-for="a of postProcessors"
                         :key="a.id"
                     >
                         <div class="row">
@@ -27,9 +27,9 @@
             <teleport to="#portal-header">
                 <router-link
                     class="btn btn-primary"
-                    :to="useRouteLocation(RouteName.AnimationNew)"
+                    :to="useRouteLocation(RouteName.PostProcessorNew)"
                 >
-                    New Animation
+                    New PostProcessor
                 </router-link>
             </teleport>
         </div>
@@ -37,19 +37,19 @@
 </template>
 
 <script lang="ts">
-import { AnimationSummary } from '@krakerxyz/netled-core';
+import { PostProcessorSummary } from '@krakerxyz/netled-core';
 import { defineComponent, ref } from 'vue';
-import { useAnimationRestClient } from '../../services';
+import { usePostProcessorRestClient } from '../../services';
 import { RouteName, useRouteLocation } from '@/main.router';
 
 export default defineComponent({
     props: {},
     async setup() {
-        const animationClient = useAnimationRestClient();
+        const postProcessorClient = usePostProcessorRestClient();
 
-        const animations = ref<AnimationSummary[]>(await animationClient.list());
+        const postProcessors = ref<PostProcessorSummary[]>(await postProcessorClient.list());
 
-        return { animations, useRouteLocation, RouteName };
+        return { postProcessors, useRouteLocation, RouteName };
     },
 });
 </script>

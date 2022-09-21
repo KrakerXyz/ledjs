@@ -4,6 +4,7 @@
         "module": "ES2020",
         "moduleResolution": "node",
         "esModuleInterop": true, //I don't think we need this but it gets rid of a warning with jest
+        "isolatedModules": true,
         "declaration": true,
         "sourceMap": true,
         "declarationMap": true,

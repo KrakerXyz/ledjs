@@ -20,7 +20,7 @@
                         <li class="nav-item">
                             <router-link
                                 class="nav-link"
-                                :to="useRouteLocation(RouteName.PostProcessorEditor, { postProcessorId: 'c641e6e6-38d6-428d-969c-ba06310ee5c9' })"
+                                :to="useRouteLocation(RouteName.PostProcessorList)"
                             >
                                 Post-Processors
                             </router-link>

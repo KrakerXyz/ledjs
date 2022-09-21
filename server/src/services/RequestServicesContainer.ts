@@ -1,4 +1,5 @@
 import { DeviceDb, AnimationConfigDb, AnimationDb, UserDb, DeviceLogDb } from '../db';
+import { PostProcessorDb } from '../db/PostProcessorDb';
 import { WebSocketManager } from './ws/WebSocketManager';
 
 export class RequestServicesContainer {
@@ -13,6 +14,11 @@ export class RequestServicesContainer {
     private _animationConfigDb: AnimationConfigDb | null = null;
     public get animationConfigDb() {
         return this._animationConfigDb ?? (this._animationConfigDb = new AnimationConfigDb());
+    }
+
+    private _postProcessorDb: PostProcessorDb | null = null;
+    public get postProcessorDb() {
+        return this._postProcessorDb ?? (this._postProcessorDb = new PostProcessorDb());
     }
 
     private _deviceDb: DeviceDb | null = null;

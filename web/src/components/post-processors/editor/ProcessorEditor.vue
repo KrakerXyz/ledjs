@@ -20,23 +20,26 @@
                     </div>
                 </div>
             </div>
-            <div class="col-lg-3 p-2 d-flex flex-column">
-                <h3>Setup</h3>
-                <div class="form-floating">
-                    <input
-                        id="d-leds"
-                        class="form-control"
-                        placeholder="*"
-                        v-model.lazy.number="numLeds"
-                    >
-                    <label for="d-leds"># LEDs</label>
-                </div>
 
-                <div v-if="config" class="flex-grow-1">
-                    <h3 class="mt-3">
-                        Config
-                    </h3>
+            <div class="col-lg-3 p-2 d-flex flex-column">
+                <div class="flex-grow-1">
+                    <h3>Setup</h3>
+                    <div class="form-floating">
+                        <input
+                            id="d-leds"
+                            class="form-control"
+                            placeholder="*"
+                            v-model.lazy.number="numLeds"
+                        >
+                        <label for="d-leds"># LEDs</label>
+                    </div>
+
+                    <div v-if="config" class="flex-grow-1">
+                        <h3 class="mt-3">
+                            Config
+                        </h3>
                     <!-- <config :animation="{ id: animationId, version: 'draft' }" :config="config" @update:settings="s => settings = s"></config> -->
+                    </div>
                 </div>
 
                 <div class="row">
@@ -63,12 +66,13 @@
 
 <script lang="ts">
 
-import { useMonacoEditor } from '@/services';
-import { AnimationVersion, Id } from '@krakerxyz/netled-core';
+import { useMonacoEditor, usePostProcessorRestClient } from '@/services';
+import { ScriptVersion, Id, newId, PostProcessorPost } from '@krakerxyz/netled-core';
 import { defineComponent, ref, watch } from 'vue';
 import types from '../../../types.d.ts?raw';
-import script from './Script.ts?raw';
 import LedCanvas from '@/components/LedCanvas.vue';
+import { RouteName, useRouteLocation } from '@/main.router';
+import { useRouter } from 'vue-router';
 
 export default defineComponent({
     components: {
@@ -77,7 +81,10 @@ export default defineComponent({
     props: {
         postProcessorId: { type: String as () => Id, required: true }
     },
-    setup(props) {
+    async setup(props) {
+
+        const postProcessorApi = usePostProcessorRestClient();
+        const router = useRouter();
 
         const ledCanvas = ref<any>();
 
@@ -97,21 +104,38 @@ export default defineComponent({
             }
         );
 
-        content.value = script;
-
         const config = ref<netled.common.IConfig>();
 
         watch(javascript, js => {
             console.log(js);
         });
 
+        const postProcessor = await postProcessorApi.latest(props.postProcessorId, true);
+        content.value = postProcessor.ts;
+
         const saveScript = async () => {
             flushContent();
-            await Promise.resolve();
+            const postProcessorPost: PostProcessorPost = {
+                id: postProcessor.version === 'draft' ? postProcessor.id : newId(),
+                description: postProcessor.description,
+                name: postProcessor.name,
+                ts: content.value
+            };
+
+            await postProcessorApi.saveDraft(postProcessorPost);
+
+            if (postProcessorPost.id !== postProcessor.id) {
+                router.replace(useRouteLocation(RouteName.PostProcessorEditor, { postProcessorId: postProcessorPost.id }));
+            }
         };
 
         const deleteScript = async () => {
-            await Promise.resolve();
+            if (postProcessor.version !== 'draft') {
+                console.warn('Attempted to delete a non-draft postProcessor');
+                return;
+            }
+            await postProcessorApi.deleteDraft(props.postProcessorId);
+            router.replace(useRouteLocation(RouteName.PostProcessorList));
         };
         
         return { numLeds, ledCanvas, config, processor, saveScript, deleteScript, issues };
@@ -120,7 +144,7 @@ export default defineComponent({
 
 interface IPostProcessor {
     id: Id,
-    version: AnimationVersion
+    version: ScriptVersion
 }
 
 </script>
