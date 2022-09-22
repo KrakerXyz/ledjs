@@ -64,7 +64,6 @@
 <script lang="ts">
 
 import { defineComponent, ref, watch, computed } from 'vue';
-import { LedArray } from '@/components/LedArray';
 import LedCanvas from '@/components/LedCanvas.vue';
 import types from '../../../types.d.ts?raw';
 import AnimationWorker from './animationWorker?worker';
@@ -73,6 +72,7 @@ import { deepClone, CodeIssue, Id, AnimationPost, newId } from '@krakerxyz/netle
 import { useAnimationRestClient, useMonacoEditor } from '@/services';
 import { useRouter } from 'vue-router';
 import { RouteName, useRouteLocation, useRouteLocation as useRouteMain } from '@/main.router';
+import { LedArray } from '@/services/animation/LedArray';
 
 export default defineComponent({
     components: { LedCanvas, config },

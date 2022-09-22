@@ -20,6 +20,9 @@
         "rootDirs": [
             "src"
         ],
+        "types": [
+            "offscreencanvas"
+        ],
         "lib": [
             "esnext",
             "DOM"

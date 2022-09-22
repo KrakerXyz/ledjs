@@ -17,8 +17,3 @@ vueApp.component('v-created', CreatedVue);
 vueApp.use(router); //Needs come be inside the authorized section or the guards will cause a redirect 
 
 vueApp.mount('#app');
-
-
-//Polyfills
-//canvas.transferControlToOffscreen removed from lib.dom: https://github.com/microsoft/TypeScript/issues/45745
-import '@types/offscreencanvas';

@@ -1,7 +1,7 @@
 
 
 import { CodeIssue } from '@krakerxyz/netled-core';
-import type * as monaco from 'monaco-editor';
+import type * as monacoType from 'monaco-editor';
 import { computed, ComputedRef, getCurrentScope, onMounted, onScopeDispose, ref, Ref, watch } from 'vue';
 
 export function useMonacoEditor(containerId: string, config?: Partial<EditorConfig>): Editor {
@@ -11,14 +11,14 @@ export function useMonacoEditor(containerId: string, config?: Partial<EditorConf
     const issues = ref<CodeIssue[]>([]);
     const validationIssues= ref<CodeIssue[]>([]);
 
-    let editor: monaco.editor.IStandaloneCodeEditor | undefined;
+    let editor: monacoType.editor.IStandaloneCodeEditor | undefined;
 
     const effectScope = getCurrentScope();
     if (!effectScope) {
         throw new Error('Effect scope not available. Make sure to run in context of setup function.');
     }
 
-    let typescriptWorker: monaco.languages.typescript.TypeScriptWorker | null = null;
+    let typescriptWorker: monacoType.languages.typescript.TypeScriptWorker | null = null;
     let isOutgoingValue = false;
     const flushContent = () => {
         if (!editor) { return; }
@@ -43,7 +43,7 @@ export function useMonacoEditor(containerId: string, config?: Partial<EditorConf
             const ideContainer = document.getElementById(containerId);
             if (!ideContainer) { console.error(`#${containerId} not found`); return; }
 
-            const thisMonaco: typeof monaco = (window as any).monaco;
+            const thisMonaco: typeof monacoType = (window as any).monaco;
 
             const defaults = thisMonaco.languages.typescript.typescriptDefaults.getCompilerOptions();
             defaults.target = thisMonaco.languages.typescript.ScriptTarget.ESNext;
@@ -76,7 +76,7 @@ export function useMonacoEditor(containerId: string, config?: Partial<EditorConf
                 wordWrap: 'on',
                 wrappingIndent: 'indent',
                 lineNumbers: 'on',
-            }) as monaco.editor.IStandaloneCodeEditor;
+            }) as monacoType.editor.IStandaloneCodeEditor;
 
             const model = editor.getModel();
             if (!model) {
