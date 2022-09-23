@@ -9,7 +9,7 @@
 
 import { IArgb, rgbToHex } from '@krakerxyz/netled-core';
 import { defineComponent, watch, ref, onMounted, onUnmounted } from 'vue';
-import { LedArray } from '../services';
+import { LedArray } from '../services/animation/LedArray';
 
 export default defineComponent({
     emits: {

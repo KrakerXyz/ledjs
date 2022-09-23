@@ -1,7 +1,7 @@
 
 <template>
     <div class="d-flex flex-column h-100">
-        <LedCanvas class="led-canvas" ref="ledCanvas"></LedCanvas>
+        <div ref="canvasContainer" class="canvas-container overflow-hidden"></div>
         <div class="flex-grow-1 row g-0">
             <div class="col">
                 <div class="h-100 d-flex flex-column">
@@ -32,11 +32,13 @@
                     <label for="d-leds"># LEDs</label>
                 </div>
 
-                <div v-if="config" class="flex-grow-1">
-                    <h3 class="mt-3">
-                        Config
-                    </h3>
-                    <config :animation="{ id: animationId, version: 'draft' }" :config="config" @update:settings="s => settings = s"></config>
+                <div class="flex-grow-1">
+                    <div v-if="animationConfig">
+                        <h3 class="mt-3">
+                            Config
+                        </h3>
+                        <config :animation="{ id: animationId, version: 'draft' }" :config="animationConfig" @update:settings="s => animationSettings = s"></config>
+                    </div>
                 </div>
 
                 <div class="row">
@@ -63,19 +65,16 @@
 
 <script lang="ts">
 
-import { defineComponent, ref, watch, computed } from 'vue';
-import LedCanvas from '@/components/LedCanvas.vue';
+import { defineComponent, ref, computed, onUnmounted, getCurrentInstance } from 'vue';
 import types from '../../../types.d.ts?raw';
-import AnimationWorker from './animationWorker?worker';
 import config from './Config.vue';
-import { deepClone, CodeIssue, Id, AnimationPost, newId } from '@krakerxyz/netled-core';
-import { useAnimationRestClient, useMonacoEditor } from '@/services';
+import { Id, AnimationPost, newId } from '@krakerxyz/netled-core';
+import { assertTrue, useAnimationRestClient, useAnimationWorkerAsync, useMonacoEditor } from '@/services';
 import { useRouter } from 'vue-router';
 import { RouteName, useRouteLocation, useRouteLocation as useRouteMain } from '@/main.router';
-import { LedArray } from '@/services/animation/LedArray';
 
 export default defineComponent({
-    components: { LedCanvas, config },
+    components: { config },
     props: {
         animationId: { type: String as () => Id, required: true }
     },
@@ -84,19 +83,9 @@ export default defineComponent({
         const router = useRouter();
         const animationApi = useAnimationRestClient();
 
-        const ledCanvas = ref<any>();
-
-        const arrayOffset = 0;
+        const canvasContainer = ref<HTMLDivElement>();
 
         const numLeds = ref(100);
-
-        const buffers = computed(() => {
-            const sab = new SharedArrayBuffer(numLeds.value * 4);
-            const fullArray = new LedArray(sab, numLeds.value, arrayOffset, () => Promise.resolve());
-            return {
-                sab, fullArray
-            };
-        });
 
         const { content, issues, javascript, flushContent } = useMonacoEditor(
             'editor-ide-container',
@@ -107,67 +96,14 @@ export default defineComponent({
             }
         );
 
-        const moduleIssues = ref<CodeIssue[]>([]);
+        const componentInstance = getCurrentInstance();
+        assertTrue(componentInstance);
 
-        let worker: Worker | null = null;
+        const { animationSettings, animationConfig, moduleIssues, dispose } = await useAnimationWorkerAsync(canvasContainer, javascript, numLeds);
 
-        const config = ref<netled.common.IConfig>();
-
-        watch([javascript, buffers], async x => {
-            const [js, buffers] = x;
-            const { fullArray, sab } = buffers;
-            if (!js) { return; }
-            if (issues.value.length) {
-                return;
-            }
-            try {
-
-                worker?.terminate();
-                worker = null;
-
-                worker = new AnimationWorker();
-
-                worker.addEventListener('message', (e: MessageEvent<any>) => {
-                    const data = e.data;
-                    switch(data.name) {
-                        case 'moduleError': {
-                            moduleIssues.value = data.errors;
-                            break;
-                        }
-                        case 'render': {
-                            ledCanvas.value?.render(fullArray);
-                            worker?.postMessage({ name: 'rendered' });
-                            break;
-                        }
-                        case 'config': {
-                            config.value = data.config;
-                            break;
-                        }
-                    }
-                });
-
-                worker.postMessage({ name: 'init', sab, js, numLeds: numLeds.value, arrayOffset });
-
-            } catch (e: any) {
-                moduleIssues.value = [{ severity: 'error', line: 0, col: 0, message: `Error creating instance of script: ${e.message ?? e.toString()}` }];
-                console.error(e);
-            }
-        }, { immediate: true });
-
-        const settings = ref<netled.common.ISettings>();
-        watch(settings, settings => {
-            try {
-                console.log('Received settings');
-                if (!worker) { return; }
-                settings = deepClone(settings);
-                worker.postMessage({ name: 'update-settings', settings });
-            } catch (e: any) {
-                console.error(`Error sending settings to worker: ${e.message ?? e.toString()}`, e);
-            }
-        }, { deep: true });
+        onUnmounted(() => dispose(), componentInstance);
 
         const animation = await animationApi.latest(props.animationId, true);
-
         content.value = animation.ts;
 
         const deleteScript = async () => {
@@ -197,7 +133,7 @@ export default defineComponent({
             }
         };
 
-        return { issues: computed(() => [...issues.value, ...moduleIssues.value]), ledCanvas, config, settings, numLeds, deleteScript, animation, saveScript };
+        return { issues: computed(() => [...issues.value, ...moduleIssues.value]), canvasContainer, animationConfig, animationSettings, numLeds, deleteScript, animation, saveScript };
     },
 });
 
@@ -208,8 +144,7 @@ export default defineComponent({
         min-height: 100px;
         max-height: 50%;
     }
-
-    .led-canvas {
+    .canvas-container >>> canvas {
         height: 20px;
     }
 </style>

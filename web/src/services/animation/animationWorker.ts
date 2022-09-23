@@ -1,11 +1,11 @@
-import { deepEquals } from '@krakerxyz/netled-core';
+import { CodeIssue, deepClone, deepEquals } from '@krakerxyz/netled-core';
 import { computed, ref } from 'vue';
 import { ComputedRef, Ref, watch } from 'vue';
 import type { WorkerMessage } from './animationWorkerWorker';
 import AnimationWorker from './animationWorkerWorker?worker';
 import { createAnimation } from './createAnimation';
 
-export async function useAnimationWorkerAsync(canvas: Ref<HTMLCanvasElement | undefined>, animationJs: Ref<string | null | undefined>, numLeds: Ref<number>): Promise<WorkerContext> {
+export async function useAnimationWorkerAsync(canvasContainer: Ref<HTMLDivElement | undefined>, animationJs: Ref<string | null | undefined>, numLeds: Ref<number>): Promise<WorkerContext> {
     
     let firstPassResolver: (() => void) | null = null;
     const firstPassProm = new Promise<void>(r => firstPassResolver = r);
@@ -16,20 +16,36 @@ export async function useAnimationWorkerAsync(canvas: Ref<HTMLCanvasElement | un
     let worker: Worker | null = null;
     let disposed = false;
 
-    watch([animationJs, canvas, numLeds], async x => {
-        const [js, canvas, numLeds] = x;
-        try {
+    let canvas: HTMLCanvasElement | null = null;
 
+    const workerIssues = ref<CodeIssue[]>([]);
+
+    watch([animationJs, numLeds, canvasContainer], async x => {
+        const [js, numLeds, canvasContainer] = x;
+        try {
+            workerIssues.value = [];
             worker?.terminate();
             worker = null;
+            canvas?.remove();
 
             if (!js) { return; }
+            if (!canvasContainer) { return; }
 
-            if (!canvas) { return; }
+            canvas = document.createElement('canvas');
+            canvas.style.display = 'block';
+            canvas.style.width = '100%';
+            canvasContainer.appendChild(canvas);
+            
             if (!canvas.transferControlToOffscreen) { throw new Error('canvas.transferControlToOffscreen not supported'); }
-            const offscreen = canvas.transferControlToOffscreen();
+            const offscreenCanvas = canvas.transferControlToOffscreen();
 
-            const animation = await createAnimation(js);
+            let animation: netled.animation.IAnimation | null = null;
+            try {
+                animation = await createAnimation(js);
+            } catch (e: any) {
+                workerIssues.value.push({ col: 0, line: 0, severity: 'error', message: `Could not create module from script: ${e.message ?? e}` });
+                return;
+            }
             let newSettings = animationSettings.value;
             if (!deepEquals(animation.config, animationConfig.value)) {
                 newSettings = {};
@@ -61,13 +77,13 @@ export async function useAnimationWorkerAsync(canvas: Ref<HTMLCanvasElement | un
 
             const initMessage: ClientMessage = {
                 type: 'init',
-                canvas: offscreen,
                 js,
-                settings: animationSettings.value,
+                settings: deepClone(animationSettings.value),
                 numLeds,
-                arrayOffset: 0
+                arrayOffset: 0,
+                canvas: offscreenCanvas
             };
-            worker.postMessage(initMessage, [offscreen]);
+            worker.postMessage(initMessage, [offscreenCanvas]);
 
             
         } finally {
@@ -81,7 +97,7 @@ export async function useAnimationWorkerAsync(canvas: Ref<HTMLCanvasElement | un
     watch(animationSettings, settings => {
         const message: ClientMessage = {
             type: 'animationSettings',
-            settings
+            settings: deepClone(settings)
         };
         worker?.postMessage(message);
     });
@@ -91,6 +107,7 @@ export async function useAnimationWorkerAsync(canvas: Ref<HTMLCanvasElement | un
     return {
         animationConfig: computed(() => animationConfig.value),
         animationSettings,
+        moduleIssues: computed(() => [...workerIssues.value]),
         dispose: () => { 
             disposed = true;
             worker?.terminate();
@@ -103,6 +120,7 @@ export async function useAnimationWorkerAsync(canvas: Ref<HTMLCanvasElement | un
 export interface WorkerContext {
     animationConfig: ComputedRef<netled.common.IConfig | undefined>,
     animationSettings: Ref<netled.common.ISettings>,
+    moduleIssues: ComputedRef<CodeIssue[]>,
     /**Kills the current worker and prevents new one from starting up.*/
     dispose: () => void
 }
@@ -110,10 +128,10 @@ export interface WorkerContext {
 export type ClientMessage = {
     type: 'init',
     js: string,
-    canvas: OffscreenCanvas,
     settings: netled.common.ISettings,
     numLeds: number,
-    arrayOffset: number
+    arrayOffset: number,
+    canvas: OffscreenCanvas
 }
 | { 
     type: 'animationSettings',
