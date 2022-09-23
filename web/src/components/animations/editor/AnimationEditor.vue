@@ -144,7 +144,7 @@ export default defineComponent({
         min-height: 100px;
         max-height: 50%;
     }
-    .canvas-container >>> canvas {
+    .canvas-container :deep(canvas) {
         height: 20px;
     }
 </style>
