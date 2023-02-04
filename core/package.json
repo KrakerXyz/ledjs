@@ -11,14 +11,15 @@
         "email": "joshkrak@gmail.com"
     },
     "license": "MIT",
-    "type": "module",
-    "main": "./dist/index.js",
+    "type": "commonjs",
+    "main": "./dist/cjs/index.js",
+    "module": "./dist/esm/index.js",
     "files": [
         "dist/"
     ],
     "scripts": {
         "clean": "rimraf ./dist/",
-        "build": "npm run clean && tsc",
+        "build": "npm run clean && tsc && tsc -p tsconfig-cjs.json",
         "prepublishOnly": "npm run build",
         "test": "jest"
     },

@@ -6,7 +6,7 @@
         "name": "Josh Kraker",
         "email": "joshkrak@gmail.com"
     },
-    "type": "module",
+    "type": "commonjs",
     "main": "./dist/index.js",
     "files": [
         "dist/"
@@ -39,7 +39,7 @@
     "devDependencies": {
         "@krakerxyz/eslint-config": "^1.0.0",
         "@types/jest": "^29",
-        "@types/node": "^18",
+        "@types/node": "^16",
         "@types/uuid": "^9",
         "eslint": "^8",
         "jest": "^29",
