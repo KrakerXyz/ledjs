@@ -129,7 +129,7 @@ server.ready(() => {
 
 const start = async () => {
     try {
-        await server.listen({ port: 3001, host: '0.0.0.0' });
+        await server.listen({ port: 3001, host: '::' });
     } catch (err) {
         server.log.error(err);
         process.exit(1);
