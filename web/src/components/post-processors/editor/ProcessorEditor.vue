@@ -1,20 +1,20 @@
 
 <template>
     <div class="d-flex flex-column h-100">
-        <LedCanvas class="led-canvas" ref="ledCanvas"></LedCanvas>
+        <div ref="canvasContainer" class="canvas-container overflow-hidden"></div>
         <div class="flex-grow-1 row g-0">
             <div class="col">
                 <div class="h-100 d-flex flex-column">
                     <div class="flex-grow-1 position-relative">
                         <div id="editor-ide-container" class="h-100 w-100 position-absolute" />
                     </div>
-        
+
                     <div v-if="issues.length" class="ide-errors bg-dark">
                         <ul class="list-group font-monospace text-white">
                             <li v-for="(i, $index) of issues" :key="$index" class="p-1">
                                 <span v-if="i.severity === 'warning'" class="text-warning"><i class="fa-solid fa-lg fa-fw fa-exclamation-triangle"></i></span>
                                 <span v-else class="text-danger"><i class="fa-solid fa-lg fa-fw fa-bomb"></i></span>
-                                {{i.message}} [{{ i.line }}, {{ i.col }}]
+                                {{ i.message }} [{{ i.line }}, {{ i.col }}]
                             </li>
                         </ul>
                     </div>
@@ -34,11 +34,30 @@
                         <label for="d-leds"># LEDs</label>
                     </div>
 
-                    <div v-if="config" class="flex-grow-1">
+                    <div class="form-floating">
+                        <select
+                            id="source-animation-id"
+                            class="form-select"
+                            placeholder="*"
+                            v-model="selectedAnimationId"
+                        >
+                            <option v-for="a of animations" :key="a.id" :value="a.id">
+                                {{ a.name }}
+                            </option>
+                        </select>
+                        <label for="source-animation-id">Source Animation</label>
+                    </div>
+
+                    <div v-if="animationConfig && selectedAnimation" class="flex-grow-1">
                         <h3 class="mt-3">
                             Config
                         </h3>
-                    <!-- <config :animation="{ id: animationId, version: 'draft' }" :config="config" @update:settings="s => settings = s"></config> -->
+                        <config
+                            :animation="{ id: selectedAnimation.id, version: selectedAnimation.version }"
+                            :config="animationConfig"
+                            @update:settings="s => animationSettings = s"
+                            :readonly="true"
+                        ></config>
                     </div>
                 </div>
 
@@ -66,27 +85,27 @@
 
 <script lang="ts">
 
-import { useMonacoEditor, usePostProcessorRestClient } from '@/services';
+import { assertTrue, useAnimationRestClient, useAnimationWorkerAsync, useMonacoEditor, usePostProcessorRestClient } from '@/services';
 import { ScriptVersion, Id, newId, PostProcessorPost } from '@krakerxyz/netled-core';
-import { defineComponent, ref, watch } from 'vue';
+import { computed, defineComponent, getCurrentInstance, onUnmounted, ref, watch } from 'vue';
 import types from '../../../types.d.ts?raw';
-import LedCanvas from '@/components/LedCanvas.vue';
 import { RouteName, useRouteLocation } from '@/main.router';
 import { useRouter } from 'vue-router';
+import config from '../../animations/editor/Config.vue';
 
 export default defineComponent({
-    components: {
-        LedCanvas
-    },
+    components: { config },
     props: {
         postProcessorId: { type: String as () => Id, required: true }
     },
     async setup(props) {
 
         const postProcessorApi = usePostProcessorRestClient();
+        const animationApi = useAnimationRestClient();
         const router = useRouter();
-
-        const ledCanvas = ref<any>();
+        
+        const componentInstance = getCurrentInstance();
+        assertTrue(componentInstance);
 
         const numLeds = ref(100);
 
@@ -104,13 +123,28 @@ export default defineComponent({
             }
         );
 
-        const config = ref<netled.common.IConfig>();
-
         watch(javascript, js => {
             console.log(js);
         });
+        
 
-        const postProcessor = await postProcessorApi.latest(props.postProcessorId, true);
+        const selectedAnimationId = ref<Id>();
+
+        const animationJavascript = ref<string>();
+
+        watch(selectedAnimationId, id => {
+            animationJavascript.value = undefined;
+            if (!id) { return; }
+            animationApi.latest(id, true).then(a => {
+                if (selectedAnimationId.value !== id) { return; }
+                animationJavascript.value = a.js;
+            });
+        });
+
+        const [postProcessor, animations] = await Promise.all([
+            postProcessorApi.latest(props.postProcessorId, true),
+            animationApi.list()
+        ]);
         content.value = postProcessor.ts;
 
         const saveScript = async () => {
@@ -137,8 +171,18 @@ export default defineComponent({
             await postProcessorApi.deleteDraft(props.postProcessorId);
             router.replace(useRouteLocation(RouteName.PostProcessorList));
         };
-        
-        return { numLeds, ledCanvas, config, processor, saveScript, deleteScript, issues };
+
+        const selectedAnimation = computed(() => {
+            if (!selectedAnimationId.value) { return undefined; }
+            const a = animations.find(x => x.id === selectedAnimationId.value);
+            return a;
+        });
+
+        const canvasContainer = ref<HTMLDivElement>();
+        const { animationSettings, animationConfig, dispose } = await useAnimationWorkerAsync(canvasContainer, animationJavascript, numLeds);
+        onUnmounted(() => dispose(), componentInstance);
+
+        return { numLeds, canvasContainer, animationConfig, processor, saveScript, deleteScript, issues, animations, selectedAnimationId, selectedAnimation, animationSettings };
     }
 });
 
@@ -155,7 +199,7 @@ interface IPostProcessor {
         max-height: 50%;
     }
 
-    .led-canvas {
+    .canvas-container :deep(canvas) {
         height: 20px;
     }
 </style>

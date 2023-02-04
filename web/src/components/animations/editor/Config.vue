@@ -20,7 +20,7 @@
         </div>
 
         <h6 class="mt-3">
-            Save/load config
+            {{ readonly ? 'Load config' : 'Save/load config' }}
         </h6>
         <div>
             <div class="form-floating">
@@ -30,7 +30,7 @@
                     placeholder="*"
                     v-model="selectedConfigId"
                 >
-                    <option value="new">
+                    <option v-if="!readonly" value="new">
                         - Save as new -
                     </option>
 
@@ -51,7 +51,7 @@
                 <label for="new-config-name">New Config Name</label>
             </div>
 
-            <div class="mt-1">
+            <div v-if="!readonly" class="mt-1">
                 <button type="button" class="btn btn-primary w-100" @click="saveConfig()">
                     Save Config
                 </button>
@@ -71,7 +71,8 @@ type SelectOption = { text: string, value: Id | 'new' };
 export default defineComponent({
     props: {
         animation: { type: Object as () => { id: Id, version: ScriptVersion }, required: true },
-        config: { type: Object as () => netled.common.IConfig, required: true }
+        config: { type: Object as () => netled.common.IConfig, required: true },
+        readonly: { type: Boolean, required: false }
     },
     emits: {
         'update:settings': (s: netled.common.ISettings) => !!s

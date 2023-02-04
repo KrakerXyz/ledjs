@@ -6,9 +6,9 @@ export class AnimationRestClient {
 
     constructor(private readonly restClient: RestClient) { }
 
-    /** Returns a list of all published animations. Optionally include unpublished versions of your own scripts. */
-    public list<T extends boolean = false>(withScript?: T): Promise<T extends true ? Animation[] : AnimationSummary[]> {
-        return this.restClient.get('/api/animations', { withScript });
+    /** Returns a list of all animations */
+    public list(): Promise<AnimationSummary[]> {
+        return this.restClient.get('/api/animations');
     }
 
     /** Returns the latest published version of the given animation id. Optionally includes draft version of your own script */
