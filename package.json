@@ -1,5 +1,11 @@
 {
     "name": "netled",
+    "workspaces": [
+        "core",
+        "server",
+        "web",
+        "iot"
+    ],
     "scripts": {
         "start-web": "cd web && npm run start",
         "start-server": "cd server && npm run start",
