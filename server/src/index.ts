@@ -9,16 +9,9 @@ import fastifyJWT from '@fastify/jwt';
 import fastifyStatic from '@fastify/static';
 
 import { WebSocketManager, EnvKey, getRequiredConfig, deviceAuthentication, jwtAuthentication, RequestServicesContainer } from './services';
-import { configureDb } from '@krakerxyz/typed-base';
 import Ajv from 'ajv';
 import path from 'path';
 import { apiRoutes } from './rest';
-
-console.log('Configuring db');
-configureDb({
-    dbName: 'netled-dev',
-    uri: getRequiredConfig(EnvKey.DbConnectionString)
-});
 
 console.log('Initializing Fastify');
 

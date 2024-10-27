@@ -1,37 +1,30 @@
 {
     "compilerOptions": {
-        "target": "ES2020",
-        "module": "CommonJS",
-        "moduleResolution": "node",
+        "target": "ESNext",
+        "module": "NodeNext",
         "strict": true,
         "sourceMap": true,
-        "resolveJsonModule": true,
-        "esModuleInterop": true,
+        "declaration": true,
         "noImplicitReturns": true,
         "noEmitOnError": true,
         "skipLibCheck": true,
-        "allowSyntheticDefaultImports": true,
         "forceConsistentCasingInFileNames": true,
         "importHelpers": true,
         "removeComments": true,
         "outDir": "dist",
-        "plugins": [
-            {
-                "transform": "@krakerxyz/typed-base/dist/cjs/transformer/transformer",
-                "collectionNamingStrategy": "kebab"
-            },
-            {
-                "transform": "@krakerxyz/json-schema-transformer/dist/cjs/transformer/transformer"
-            }
-        ],
         "types": [
-            "jest"
-        ]
+            "jest",
+        ],
+        "lib": [
+            "ESNext"
+        ],
     },
     "include": [
-        "src/**/*"
+        "src/**/*",
+        "../core/src/**/*",
     ],
     "exclude": [
-        "src/**/*.spec.ts"
-    ]
+        "src/**/*.spec.ts",
+        "../core/src/**/*.spec.ts",
+    ],
 }

@@ -14,10 +14,9 @@
     "license": "MIT",
     "scripts": {
         "clean": "rimraf ./dist/",
-        "prestart": "npm run build",
-        "start": "node --unhandled-rejections=strict --trace-warnings .",
-        "start-mon": "nodemon --config nodemon.json --unhandled-rejections=strict --trace-warnings src/index.ts",
-        "build": "npm run clean && ttsc",
+        "start": "tsx watch --clear-screen=false src/index.ts",
+        "start-tsc": "tsc && node --unhandled-rejections=strict --trace-warnings .",
+        "build": "npm run clean && tsc",
         "test": "jest"
     },
     "dependencies": {
@@ -27,28 +26,22 @@
         "@fastify/jwt": "^6",
         "@fastify/static": "^6",
         "@fastify/websocket": "^7",
-        "@krakerxyz/json-schema-transformer": "^0.3.0",
-        "@krakerxyz/netled-core": "file:../core",
-        "@krakerxyz/typed-base": "^0.3.0",
         "ajv": "^8",
         "dotenv": "^16.0.0",
         "fastify": "^4",
         "google-auth-library": "^8",
-        "uuid": "^9"
+        "uuid": "^10"
     },
     "devDependencies": {
         "@krakerxyz/eslint-config": "^1.0.0",
         "@types/jest": "^29",
         "@types/node": "^16",
-        "@types/uuid": "^9",
+        "@types/uuid": "^10",
         "eslint": "^8",
         "jest": "^29",
-        "nodemon": "^2.0.12",
-        "pino-pretty": "^9",
+        "pino-pretty": "^11",
         "rimraf": "^4",
-        "ts-jest": "^29.0.0-next.1",
-        "ts-node": "^10.1.0",
-        "ttypescript": "^1.5.12",
-        "typescript": "^4.2.4"
+        "tsx": "^4.19.2",
+        "typescript": "^5"
     }
 }
