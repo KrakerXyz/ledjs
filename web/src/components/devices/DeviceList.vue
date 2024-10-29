@@ -26,11 +26,11 @@
 
 <script lang="ts">
 
-import { RouteName, useRouteLocation } from '@/main.router';
-import { deepClone } from '@krakerxyz/netled-core';
 import { defineComponent } from 'vue';
 import { useAnimationRestClient, useDevicesRestClient } from '../../services';
 import DeviceListItem from './DeviceListItem.vue';
+import { deepClone } from '$core/services';
+import { useRouteLocation, RouteName } from '$src/main.router';
 
 export default defineComponent({
     components: {

@@ -85,13 +85,14 @@
 
 <script lang="ts">
 
-import { assertTrue, useAnimationRestClient, useAnimationWorkerAsync, useMonacoEditor, usePostProcessorRestClient } from '@/services';
-import { ScriptVersion, Id, newId, PostProcessorPost } from '@krakerxyz/netled-core';
 import { computed, defineComponent, getCurrentInstance, onUnmounted, ref, watch } from 'vue';
 import types from '../../../types.d.ts?raw';
-import { RouteName, useRouteLocation } from '@/main.router';
 import { useRouter } from 'vue-router';
 import config from '../../animations/editor/Config.vue';
+import type { Id, PostProcessorPost, ScriptVersion } from '$core/index';
+import { newId } from '$core/services';
+import { useRouteLocation, RouteName } from '$src/main.router';
+import { usePostProcessorRestClient, useAnimationRestClient, assertTrue, useMonacoEditor, useAnimationWorkerAsync } from '$src/services';
 
 export default defineComponent({
     components: { config },
@@ -188,7 +189,7 @@ export default defineComponent({
 
 interface IPostProcessor {
     id: Id,
-    version: ScriptVersion
+    version: ScriptVersion,
 }
 
 </script>

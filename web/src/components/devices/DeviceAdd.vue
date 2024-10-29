@@ -49,11 +49,11 @@
 </template>
 
 <script lang="ts">
-import { reactive } from '@vue/reactivity';
-import { DeviceRestClient, DevicePost, newId } from '@krakerxyz/netled-core';
+import { reactive } from 'vue';
 import { defineComponent } from 'vue';
 import { useRouter } from 'vue-router';
 import { useRestClient } from '../../services';
+import { type DevicePost, DeviceRestClient, newId } from '$core/index';
 
 export default defineComponent({
     setup() {

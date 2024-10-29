@@ -1,11 +1,13 @@
-import { Filter } from 'mongodb';
-import { User, Id, Writeable } from '../../../core/src/index.js';
-import { Db, UpdateResult } from './Db.js';
+import type { Filter } from 'mongodb';
+import { Db, type UpdateResult } from './Db.js';
 import { jsonSchemas } from './schema/schemaUtility.js';
+import type { Id } from '../../../core/src/index.js';
+import type { User } from '../../../core/src/rest/AuthRestClient.js';
+import type { Writeable } from '../../../core/src/services/Writeable.js';
 
 
 export class UserDb {
-   private static _entity: Db<User>;
+    private static _entity: Db<User>;
 
     public constructor() {
         UserDb._entity ??= new Db<User>('users', jsonSchemas.user);

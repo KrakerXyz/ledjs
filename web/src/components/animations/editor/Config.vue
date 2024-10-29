@@ -62,11 +62,12 @@
 
 <script lang="ts">
 
-import { useAnimationRestClient } from '@/services';
-import { AnimationConfigPost, ScriptVersion, deepClone, Id, newId } from '@krakerxyz/netled-core';
+import type { Id, ScriptVersion, AnimationConfigPost } from '$core/index';
+import { deepClone, newId } from '$core/services';
+import { useAnimationRestClient } from '$src/services';
 import { defineComponent, ref, watch } from 'vue';
 
-type SelectOption = { text: string, value: Id | 'new' };
+interface SelectOption { text: string, value: Id | 'new' }
 
 export default defineComponent({
     props: {

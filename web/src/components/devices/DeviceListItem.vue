@@ -78,8 +78,10 @@
 </template>
 
 <script lang="ts">
-import { useDevicesRestClient, useWsClient } from '@/services';
-import { AnimationConfigSummary, deepClone, Device, DeviceHealthData, Disposable, Id } from '@krakerxyz/netled-core';
+import type { Device, AnimationConfigSummary, Id, IDisposable } from '$core/index';
+import { deepClone } from '$core/services';
+import type { DeviceHealthData } from '$core/ws';
+import { useDevicesRestClient, useWsClient } from '$src/services';
 import { computed, defineComponent, onUnmounted, reactive, ref } from 'vue';
 
 export default defineComponent({
@@ -114,7 +116,7 @@ export default defineComponent({
 
         const telemetry = ref<TelemetryItem[]>([]);
 
-        const disposables: Disposable[] = [];
+        const disposables: IDisposable[] = [];
         disposables.push(
             ws.on('deviceMessage', (msg) => {
                 if (msg.deviceId !== props.device.id) { return; }
@@ -151,8 +153,8 @@ export default defineComponent({
 });
 
 interface TelemetryItem {
-    name: keyof DeviceHealthData;
-    value: string;
+    name: keyof DeviceHealthData,
+    value: string,
 }
 </script>
 

@@ -1,6 +1,6 @@
 
-import { AnimationSummary, AnimationConfig, AnimationPost, Animation, Id, AnimationConfigSummary, AnimationConfigPost, ScriptVersion } from '.';
-import { RestClient } from './RestClient';
+import type { AnimationSummary, AnimationConfig, AnimationPost, Animation, Id, AnimationConfigSummary, AnimationConfigPost, ScriptVersion } from '.';
+import type { RestClient } from './RestClient';
 
 export class AnimationRestClient {
 

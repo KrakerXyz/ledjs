@@ -1,8 +1,6 @@
-
-import { LedArray } from '@/services/animation/LedArray';
-import { Timer } from '@/services/animation/Timer';
-import { hexToRgb, hslToRgb } from '@krakerxyz/netled-core';
-
+import { hslToRgb, hexToRgb } from '$core/color-utilities';
+import { LedArray } from '$src/services/animation/LedArray';
+import { Timer } from '$src/services/animation/Timer';
 
 (self as any).netled = {
     utils: {

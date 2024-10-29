@@ -1,15 +1,15 @@
 
-import type { ClientMessage } from '@/services';
-import { createAnimation } from '@/services/animation/createAnimation';
-import type { CodeIssue } from '@krakerxyz/netled-core';
+import type { CodeIssue } from '$core/services';
+import type { ClientMessage } from './animationWorker';
+import { createAnimation } from './createAnimation';
 import { LedArray } from './LedArray';
 import { renderCanvas } from './renderCanvas';
 import { Timer } from './Timer';
 
-export type WorkerMessage = {
+export interface WorkerMessage {
     type: 'moduleError',
-    errors: CodeIssue[]
-};
+    errors: CodeIssue[],
+}
 
 let ledArray: LedArray | null = null;
 let timer: netled.services.ITimer | null = null;

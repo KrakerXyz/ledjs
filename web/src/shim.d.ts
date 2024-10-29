@@ -1,11 +1,12 @@
+/* eslint-disable @typescript-eslint/consistent-type-imports */
 
 // eslint-disable-next-line @typescript-eslint/naming-convention
 interface ImportMeta {
     env?: {
-        MODE: 'development' | 'production';
-        VITE_GOOGLE_CLIENT_ID?: string;
-    };
-    glob(g: string): Record<string, Promise<any>>;
+        MODE: 'development' | 'production',
+        VITE_GOOGLE_CLIENT_ID?: string,
+    },
+    glob(g: string): Record<string, Promise<any>>,
 }
 
 declare module '*?raw' {
@@ -14,12 +15,12 @@ declare module '*?raw' {
 }
 
 declare module '*?worker' {
-    const content: { new(): Worker };
+    const content: new() => Worker;
     export default content;
 }
 
 declare module '*.vue' {
-    import { defineComponent } from 'vue';
+    import type { defineComponent } from 'vue';
     const component: ReturnType<typeof defineComponent>;
     export default component;
 }

@@ -68,10 +68,11 @@
 import { defineComponent, ref, computed, onUnmounted, getCurrentInstance } from 'vue';
 import types from '../../../types.d.ts?raw';
 import config from './Config.vue';
-import { Id, AnimationPost, newId } from '@krakerxyz/netled-core';
-import { assertTrue, useAnimationRestClient, useAnimationWorkerAsync, useMonacoEditor } from '@/services';
 import { useRouter } from 'vue-router';
-import { RouteName, useRouteLocation, useRouteLocation as useRouteMain } from '@/main.router';
+import type { Id, AnimationPost } from '$core/index';
+import { newId } from '$core/services';
+import { RouteName, useRouteLocation } from '$src/main.router';
+import { useAnimationRestClient, useMonacoEditor, assertTrue, useAnimationWorkerAsync } from '$src/services';
 
 export default defineComponent({
     components: { config },
@@ -112,7 +113,7 @@ export default defineComponent({
                 return;
             }
             await animationApi.deleteDraft(props.animationId);
-            router.replace(useRouteMain(RouteName.AnimationList));
+            router.replace(useRouteLocation(RouteName.AnimationList));
         };
 
         const saveScript = async () => {

@@ -1,10 +1,10 @@
 
-export type TimerInterval = {
+export interface TimerInterval {
     start(): void,
-    stop(): void
+    stop(): void,
 }
 
-export type TimerOptions = { started?: boolean }
+export interface TimerOptions { started?: boolean }
 
 export class Timer {
 

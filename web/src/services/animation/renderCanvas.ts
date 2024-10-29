@@ -1,6 +1,7 @@
+import { rgbToHex } from '$core/color-utilities';
+import type { IArgb } from '$core/IArgb';
+import type { LedArray } from './LedArray';
 
-import { type IArgb, rgbToHex } from '@krakerxyz/netled-core';
-import type { LedArray } from '@/services/animation/LedArray';
 
 export function renderCanvas(context2d: OffscreenCanvasRenderingContext2D, canvasDimensions:[number, number], ledArray: LedArray) {
     context2d.clearRect(0, 0, canvasDimensions[0], canvasDimensions[1]);

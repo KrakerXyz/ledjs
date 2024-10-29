@@ -1,8 +1,8 @@
 
 
-import { CodeIssue } from '@krakerxyz/netled-core';
+import type { CodeIssue } from '$core/services';
 import type * as monacoType from 'monaco-editor';
-import { computed, ComputedRef, getCurrentScope, onMounted, onScopeDispose, ref, Ref, watch } from 'vue';
+import { computed, type ComputedRef, getCurrentScope, onMounted, onScopeDispose, ref, type Ref, watch } from 'vue';
 
 export function useMonacoEditor(containerId: string, config?: Partial<EditorConfig>): Editor {
 
@@ -159,15 +159,13 @@ export function useMonacoEditor(containerId: string, config?: Partial<EditorConf
 }
 
 export interface EditorConfig {
-    typescriptLib: {
-        [name: string]: string
-    }
+    typescriptLib: Record<string, string>,
 }
 
 export interface Editor {
-    content: Ref<string>;
-    issues: ComputedRef<CodeIssue[]>;
-    javascript: ComputedRef<string>;
+    content: Ref<string>,
+    issues: ComputedRef<CodeIssue[]>,
+    javascript: ComputedRef<string>,
     /** Pushes current editor script to content and updates javascript */
-    flushContent: () => void;
+    flushContent: () => void,
 }

@@ -37,10 +37,10 @@
 </template>
 
 <script lang="ts">
-import { AnimationSummary } from '@krakerxyz/netled-core';
 import { defineComponent, ref } from 'vue';
 import { useAnimationRestClient } from '../../services';
-import { RouteName, useRouteLocation } from '@/main.router';
+import type { AnimationSummary } from '$core/index';
+import { useRouteLocation, RouteName } from '$src/main.router';
 
 export default defineComponent({
     props: {},

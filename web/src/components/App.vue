@@ -70,8 +70,8 @@ import { computed, defineComponent } from 'vue';
 //import { useRouter } from 'vue-router';
 //import { useLoginService } from '../services';
 import User from './User.vue';
-import { useRouteLocation, RouteName } from '@/main.router';
-import { useAuthService } from '@/services/authService';
+import { useAuthService } from '$src/services/authService';
+import { RouteName, useRouteLocation } from '$src/main.router';
 
 export default defineComponent({
     components: {

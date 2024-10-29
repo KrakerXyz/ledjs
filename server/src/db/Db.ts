@@ -1,7 +1,7 @@
 
 
-import Ajv, { ValidateFunction } from 'ajv';
-import { Filter, FindOptions, FindCursor, ReplaceOptions, UpdateFilter, UpdateOptions, MongoClient, Collection, MongoClientOptions, Document } from 'mongodb';
+import Ajv, { type ValidateFunction } from 'ajv';
+import { type Filter, type FindOptions, type FindCursor, type ReplaceOptions, type UpdateFilter, type UpdateOptions, MongoClient, type Collection, type MongoClientOptions, type Document } from 'mongodb';
 
 export interface Options<T> {
     postCleanCallback?: (doc: T) => void,

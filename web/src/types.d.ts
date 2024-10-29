@@ -1,4 +1,4 @@
-import { IArgb } from '@krakerxyz/netled-core';
+import type { IArgb } from '$core/IArgb';
 
 export {};
 
@@ -15,11 +15,11 @@ declare global {
                 /** Creates controller for the post processor */
                 construct(): IPostProcessorController,
                 /** Optional configuration metadata for the post processor */
-                config?: TConfig
+                config?: TConfig,
             }
 
             interface IPostProcessorController<TConfig extends common.IConfig = common.IConfig> {
-                process(ledArray: common.ILedArray, settings: common.ISettings<TConfig>): void;
+                process(ledArray: common.ILedArray, settings: common.ISettings<TConfig>): void,
             }
 
         }
@@ -31,39 +31,39 @@ declare global {
             /** Method for assigning color values to LEDs in an array */
             interface ILedArray {
                 /** The number of LEDs in the array */
-                readonly length: number;
+                readonly length: number,
 
                 /** Set LED at specified index using a four-element array representing [Alpha, Red, Green, Blue] bytes */
-                setLed(index: number, argb: IArgb): void;
+                setLed(index: number, argb: IArgb): void,
                 /** Set LED at specified index to Alpha, Red, Green, Blue byte values */
-                setLed(index: number, a: number, r: number, g: number, b: number): void;
+                setLed(index: number, a: number, r: number, g: number, b: number): void,
                 /** Set color component (0: Alpha, 1: Red, 2: Green, 3: Blue) of specified LED to given byte */
-                setLed(index: number, component: 0 | 1 | 2 | 3, value: number): void;
+                setLed(index: number, component: 0 | 1 | 2 | 3, value: number): void,
 
                 /** Gets current color values of LED at specified index returns as a four-element array of bytes representing [Alpha, Red, Green, Blue]  */
-                getLed(index: number): IArgb;
+                getLed(index: number): IArgb,
                 /** Gets byte of specified color component (0: Alpha, 1: Red, 2: Green, 3: Blue) of LED at given index */
-                getLed(index: number, component: 0 | 1 | 2 | 3): number;
+                getLed(index: number, component: 0 | 1 | 2 | 3): number,
 
                 /** Shift LEDs to the right */
-                shift(dir?: 1 | true): void;
+                shift(dir?: 1 | true): void,
                 /** shift LEDs to the left */
-                shift(dir: 0 | false): void;
+                shift(dir: 0 | false): void,
 
                 /** Reverses the order of all leds in the array */
-                reverse(): void 
+                reverse(): void, 
 
                 /** Output the current array to the leds */
-                send(): Promise<void>;
+                send(): Promise<void>,
             }
 
-            type IFieldSelectOption = { text: string, value: string };
+            interface IFieldSelectOption { text: string, value: string }
 
-            type IFieldSelect = {
+            interface IFieldSelect {
                 type: 'select',
                 options: [IFieldSelectOption, ...IFieldSelectOption[]],
-                default: string
-            };
+                default: string,
+            }
 
             type IConfigField = {
                 name: string,
@@ -74,11 +74,11 @@ declare global {
                     type: 'int' | 'decimal',
                     minValue?: number,
                     maxValue?: number,
-                    default: number
+                    default: number,
                 }
                 | {
                     type: 'color',
-                    default: `#${string}`
+                    default: `#${string}`,
                 }
                 | IFieldSelect
             );
@@ -99,15 +99,15 @@ declare global {
 
             /** Returns from a IAnimation.construct method to provide animation control to the framework */
             interface IAnimationController<TConfig extends common.IConfig = common.IConfig> {
-                run(settings: common.ISettings<TConfig>): void;
-                pause(): void;
+                run(settings: common.ISettings<TConfig>): void,
+                pause(): void,
             }
 
             /** Represents a Animation script */
             interface IAnimation<TServices extends services.IAvailableServices = services.IAvailableServices, TConfig extends common.IConfig = common.IConfig> {
-                services?: TServices;
+                services?: TServices,
                 construct(ledArray: common.ILedArray, services: services.IServices<TServices>): IAnimationController<TConfig>,
-                config?: TConfig;
+                config?: TConfig,
             }
 
         }
@@ -116,19 +116,19 @@ declare global {
 
             type IAvailableServices = ('timer')[];
 
-            type ITimerInterval = {
-                start(): void;
-                stop(): void;
+            interface ITimerInterval {
+                start(): void,
+                stop(): void,
             }
 
-            type ITimerOptions = {
-                started?: boolean;
+            interface ITimerOptions {
+                started?: boolean,
             }
 
             /** Creates stable timeouts and intervals */
             interface ITimer {
                 /** Create a stable interval that invokes a callback on a regular period */
-                createInterval(interval: number, cb: () => void, options: ITimerOptions): ITimerInterval;
+                createInterval(interval: number, cb: () => void, options: ITimerOptions): ITimerInterval,
             }
 
             type IServices<T extends IAvailableServices = IAvailableServices> = {

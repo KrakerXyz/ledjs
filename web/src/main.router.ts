@@ -1,7 +1,7 @@
 
-import { Id } from '@krakerxyz/netled-core';
-import { createRouter, createWebHistory, NavigationGuard, RouteLocationRaw, RouteRecordRaw } from 'vue-router';
+import { createRouter, createWebHistory, type NavigationGuard, type RouteLocationRaw, type RouteRecordRaw } from 'vue-router';
 import { useAuthService } from './services/authService';
+import type { Id } from '$core/rest';
 
 const authService = useAuthService();
 

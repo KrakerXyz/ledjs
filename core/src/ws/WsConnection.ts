@@ -1,13 +1,13 @@
 
 import WsWebSocket from 'ws';
 import { EventEmitter } from 'eventemitter3';
-import { Disposable } from '../Disposable';
+import type { IDisposable } from '../Disposable';
 
-type Message = { type: string, data: any }
+interface Message { type: string, data: any }
 export type WsEvents<TMessage extends Message> = TMessage['type'] | 'connectionChange';
 type CallbackType<TMessage extends Message> = { [T in TMessage['type']]: (data: any) => void };
 export type WsCallbacks<TMessage extends Message, TMessageCallbacks extends CallbackType<TMessage>> = TMessageCallbacks & {
-    'connectionChange': (data: 'connecting' | 'connected' | 'disconnected') => void
+    'connectionChange': (data: 'connecting' | 'connected' | 'disconnected') => void,
 }
 
 export class WsConnection<
@@ -28,7 +28,7 @@ export class WsConnection<
         this.startWebsocket();
     }
 
-    public on<Type extends WsEvents<TMessage>>(type: Type, callback: WsCallbacks<TMessage, TMessageCallback>[Type]): Disposable {
+    public on<Type extends WsEvents<TMessage>>(type: Type, callback: WsCallbacks<TMessage, TMessageCallback>[Type]): IDisposable {
         this._eventEmitter.addListener(type, callback);
         return {
             dispose: () => {
@@ -112,6 +112,6 @@ export class WsConnection<
 }
 
 export interface WsOptions {
-    auth: string;
-    baseUrl: `ws://${string}` | `wss://${string}`;
+    auth: string,
+    baseUrl: `ws://${string}` | `wss://${string}`,
 }

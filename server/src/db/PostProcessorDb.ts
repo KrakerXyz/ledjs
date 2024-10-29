@@ -1,10 +1,13 @@
-import { Filter } from 'mongodb';
-import { PostProcessor, PostProcessorSummary, Id, Writeable, ScriptVersion } from '../../../core/src/index.js';
+import type { Filter } from 'mongodb';
 import { jsonSchemas } from './schema/schemaUtility.js';
-import { Db, UpdateResult } from './Db.js';
+import { Db, type UpdateResult } from './Db.js';
+import type { Id } from '../../../core/src/index.js';
+import type { PostProcessor, PostProcessorSummary } from '../../../core/src/rest/model/PostProcessor.js';
+import type { ScriptVersion } from '../../../core/src/rest/model/ScriptVersion.js';
+import type { Writeable } from '../../../core/src/services/Writeable.js';
 
 export class PostProcessorDb {
-        private static _entity: Db<PostProcessor>;
+    private static _entity: Db<PostProcessor>;
 
     public constructor() {
         PostProcessorDb._entity ??= new Db<PostProcessor>('postProcessors', jsonSchemas.postProcessor);

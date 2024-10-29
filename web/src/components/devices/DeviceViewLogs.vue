@@ -19,8 +19,9 @@
 </template>
 
 <script lang="ts">
-import { useRestClient, useWsClient } from '@/services';
-import { deepClone, DeviceRestClient, Disposable, FromDeviceMessageLog, Id, newId } from '@krakerxyz/netled-core';
+import { type Id, DeviceRestClient, type FromDeviceMessageLog, type IDisposable } from '$core/index';
+import { deepClone, newId } from '$core/services';
+import { useRestClient, useWsClient } from '$src/services';
 import { defineComponent, onUnmounted, reactive } from 'vue';
 
 export default defineComponent({
@@ -33,7 +34,7 @@ export default defineComponent({
 
         const ws = useWsClient();
 
-        const disposables: Disposable[] = [];
+        const disposables: IDisposable[] = [];
         onUnmounted(() => disposables.forEach((d) => d.dispose()));
 
         const logs = reactive(deepClone(await deviceClient.logs({ deviceIds: [props.deviceId] })));

@@ -1,11 +1,11 @@
 import { createApp } from 'vue';
 import { router } from './main.router';
-import App from '@/components/App.vue';
-import SpinnerVue from '@/components/global/Spinner.vue';
-import ModalVue from '@/components/global/Modal.vue';
-import ConfirmationModalVue from '@/components/global/ConfirmationModal.vue';
 import CreatedVue from './components/global/Created.vue';
 import './services/authService';
+import ConfirmationModalVue from './components/global/ConfirmationModal.vue';
+import ModalVue from './components/global/Modal.vue';
+import SpinnerVue from './components/global/Spinner.vue';
+import App from './components/App.vue';
 
 const vueApp = createApp(App);
 

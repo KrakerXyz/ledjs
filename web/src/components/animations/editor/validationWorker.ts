@@ -1,9 +1,9 @@
 //import { validateScript, parseAst } from '@krakerxyz/netled-core';
 
 
-export type ValidationWorkerMessage = {
+export interface ValidationWorkerMessage {
     name: 'validate',
-    ts: string
+    ts: string,
 }
 
 onmessage = async (e: MessageEvent<ValidationWorkerMessage>) => {

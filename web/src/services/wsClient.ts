@@ -1,6 +1,7 @@
-import { Disposable, HostWsClient } from '@krakerxyz/netled-core';
+
+import type { IDisposable } from '$core/index';
+import { HostWsClient, type HostWsOptions } from '$core/ws';
 import { getCurrentInstance, onUnmounted } from 'vue';
-import { HostWsOptions } from '@krakerxyz/netled-core';
 
 type WsClient = Pick<HostWsClient, 'on'>;
 
@@ -19,7 +20,7 @@ export function useWsClient(): WsClient {
         ws = new HostWsClient({ baseUrl });
     }
 
-    const subscriptions: Disposable[] = [];
+    const subscriptions: IDisposable[] = [];
 
     const wsClient: WsClient = {
         on(t, cb) {

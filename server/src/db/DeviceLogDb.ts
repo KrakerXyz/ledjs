@@ -1,8 +1,8 @@
-import { Filter } from 'mongodb';
-import { DeviceLogsFilter } from '../../../core/src/index.js';
-import { DeviceLog, DeviceLogBase } from './domainModel/DeviceLog.js';
+import type { Filter } from 'mongodb';
+import type { DeviceLog, DeviceLogBase } from './domainModel/DeviceLog.js';
 import { jsonSchemas } from './schema/schemaUtility.js';
 import { Db } from './Db.js';
+import type { DeviceLogsFilter } from '../../../core/src/rest/model/DeviceLog.js';
 
 
 export class DeviceLogDb {    

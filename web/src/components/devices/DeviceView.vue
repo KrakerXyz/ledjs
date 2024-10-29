@@ -41,12 +41,12 @@
 </template>
 
 <script lang="ts">
-import { ref } from '@vue/reactivity';
-import { DeviceRestClient, Device, Id } from '@krakerxyz/netled-core';
+import { ref } from 'vue';
 import { computed, defineComponent } from 'vue';
 import { useRouter } from 'vue-router';
-import { useRestClient } from '@/services';
 import DeviceViewLogs from './DeviceViewLogs.vue';
+import { type Id, type Device, DeviceRestClient } from '$core/index';
+import { useRestClient } from '$src/services';
 
 export default defineComponent({
     components: {

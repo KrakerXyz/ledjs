@@ -1,9 +1,10 @@
-import { CodeIssue, deepClone, deepEquals } from '@krakerxyz/netled-core';
+
 import { computed, ref } from 'vue';
-import { ComputedRef, Ref, watch } from 'vue';
+import { type ComputedRef, type Ref, watch } from 'vue';
 import type { WorkerMessage } from './animationWorkerWorker';
 import AnimationWorker from './animationWorkerWorker?worker';
 import { createAnimation } from './createAnimation';
+import { type CodeIssue, deepEquals, deepClone } from '$core/services';
 
 export async function useAnimationWorkerAsync(canvasContainer: Ref<HTMLDivElement | undefined>, animationJs: Ref<string | null | undefined>, numLeds: Ref<number>): Promise<WorkerContext> {
     
@@ -122,7 +123,7 @@ export interface WorkerContext {
     animationSettings: Ref<netled.common.ISettings>,
     moduleIssues: ComputedRef<CodeIssue[]>,
     /**Kills the current worker and prevents new one from starting up.*/
-    dispose: () => void
+    dispose: () => void,
 }
 
 export type ClientMessage = {
@@ -131,9 +132,9 @@ export type ClientMessage = {
     settings: netled.common.ISettings,
     numLeds: number,
     arrayOffset: number,
-    canvas: OffscreenCanvas
+    canvas: OffscreenCanvas,
 }
 | { 
     type: 'animationSettings',
-    settings: netled.common.ISettings
+    settings: netled.common.ISettings,
 }

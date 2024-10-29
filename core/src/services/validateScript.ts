@@ -1,4 +1,4 @@
-import {  type ParseResult } from '@babel/parser';
+import type {  ParseResult } from '@babel/parser';
 import type * as AstTypes from '@babel/types';
 
 export function validateScript(ast: ParseResult<AstTypes.File>): CodeIssue[] {
@@ -69,8 +69,8 @@ function createIssue(message: string, severity: 'error' | 'warning', loc: AstTyp
 }
 
 export interface CodeIssue {
-    severity: 'error' | 'warning';
-    line: number;
-    col: number;
-    message: string;
+    severity: 'error' | 'warning',
+    line: number,
+    col: number,
+    message: string,
 }

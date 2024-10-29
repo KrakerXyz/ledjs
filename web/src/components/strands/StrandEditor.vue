@@ -11,9 +11,9 @@
 
 <script lang="ts">
 
+import type { Id, ScriptVersion } from '$core/index';
+import { useAnimationRestClient } from '$src/services';
 import { defineComponent, reactive } from 'vue';
-import { Id, ScriptVersion } from '@krakerxyz/netled-core';
-import { useAnimationRestClient } from '@/services';
 
 export default defineComponent({
     props: {
@@ -22,7 +22,7 @@ export default defineComponent({
     async setup() {
 
         const animationApi = useAnimationRestClient();
-        const animations = await animationApi.list(true);
+        const animations = await animationApi.list();
 
         const segments = getMockSegments();
 
@@ -45,7 +45,7 @@ export default defineComponent({
 
 interface SegmentVm {
     segment: ISegment,
-    inputName: string
+    inputName: string,
 }
 
 function getMockSegments() {
@@ -89,8 +89,8 @@ type ISegmentInput = {
     type: SegmentInputType.Animation,
     animation: {
         id: Id,
-        version: ScriptVersion
-    }
+        version: ScriptVersion,
+    },
     configId?: Id, 
 }
 | {
@@ -98,8 +98,8 @@ type ISegmentInput = {
     input: ISegmentInput | ISegment,
     postProcess: {
         id: Id,
-        version: ScriptVersion
-    }
+        version: ScriptVersion,
+    },
 }
 
 interface ISegment {
@@ -107,7 +107,7 @@ interface ISegment {
     leds: {
         percent: number,
         maxLeds?: number,
-    }
+    },
 }
 
 </script>

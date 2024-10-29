@@ -40,7 +40,7 @@
 
 import { defineComponent, onMounted } from 'vue';
 import { assertTrue } from '../services';
-import { initGoogleLoginButton, useAuthService } from '@/services/authService';
+import { initGoogleLoginButton, useAuthService } from '$src/services/authService';
 
 export default defineComponent({
     setup() {

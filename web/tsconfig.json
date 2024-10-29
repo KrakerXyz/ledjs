@@ -10,18 +10,14 @@
         "noImplicitReturns": true,
         "noEmitOnError": true,
         "skipLibCheck": true,
-        "isolatedModules": true, //https://vitejs.dev/guide/features.html
         "allowSyntheticDefaultImports": true,
-        "forceConsistentCasingInFileNames": true,
+        "forceConsistentCasingInFileNames": true, //ensures that import casing matches physical file name 
         "importHelpers": true,
         "removeComments": true,
+        "jsx": "preserve", //needed for volar
         "outDir": "./dist",
-        "jsx": "preserve",
         "rootDirs": [
             "src"
-        ],
-        "types": [
-            "offscreencanvas"
         ],
         "lib": [
             "esnext",
@@ -29,9 +25,20 @@
         ],
         "baseUrl": ".",
         "paths": {
-            "@/*": [
-                "src/*"
-            ]
-        }
-    }
+            "$src/*": [
+                "./src/*"
+            ],
+            "$core/*": [
+                "../core/src/*"
+            ],
+        },
+    },
+    "include": [
+        "src/**/*",
+        "../core/src/**/*",
+    ],
+    "exclude": [
+        "src/**/*.spec.ts",
+        "../core/src/**/*.spec.ts",
+    ],
 }

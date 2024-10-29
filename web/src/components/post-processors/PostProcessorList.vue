@@ -37,10 +37,10 @@
 </template>
 
 <script lang="ts">
-import { PostProcessorSummary } from '@krakerxyz/netled-core';
 import { defineComponent, ref } from 'vue';
 import { usePostProcessorRestClient } from '../../services';
-import { RouteName, useRouteLocation } from '@/main.router';
+import type { PostProcessorSummary } from '$core/index';
+import { useRouteLocation, RouteName } from '$src/main.router';
 
 export default defineComponent({
     props: {},
