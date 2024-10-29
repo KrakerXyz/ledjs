@@ -1,15 +1,11 @@
 import { RouteOptions } from 'fastify';
-import { AnimationConfig, AnimationConfigPost } from '@krakerxyz/netled-core';
-import { jsonSchema } from '@krakerxyz/json-schema-transformer';
-import { jwtAuthentication } from '../../services';
+import { jwtAuthentication } from '../../services/jwtAuthentication.js';
+import { AnimationConfigPost, AnimationConfig } from '../../../../core/src/index.js';
 
 export const postConfig: RouteOptions = {
     method: 'POST',
     url: '/api/animations/configs',
     preValidation: [jwtAuthentication],
-    schema: {
-        body: jsonSchema<AnimationConfigPost>()
-    },
     handler: async (req, res) => {
         const post = req.body as AnimationConfigPost;
         const db = req.services.animationConfigDb;

@@ -1,15 +1,12 @@
 import { RouteOptions } from 'fastify';
-import { AnimationConfig, DeviceAnimationResetPost } from '@krakerxyz/netled-core';
-import { jsonSchema } from '@krakerxyz/json-schema-transformer';
-import { jwtAuthentication } from '../../services';
+import { jwtAuthentication } from '../../services/jwtAuthentication.js';
+import { DeviceAnimationResetPost } from '../../../../core/src/rest/DeviceRestClient.js';
+import { AnimationConfig } from '../../../../core/src/rest/model/AnimationConfig.js';
 
 export const postAnimationReset: RouteOptions = {
     method: 'POST',
     url: '/api/devices/animation/reset',
     preValidation: [jwtAuthentication],
-    schema: {
-        body: jsonSchema<DeviceAnimationResetPost>()
-    },
     handler: async (req, res) => {
 
         const post = req.body as DeviceAnimationResetPost;

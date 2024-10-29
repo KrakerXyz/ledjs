@@ -1,15 +1,13 @@
 import { RouteOptions } from 'fastify';
-import { PostProcessorPost, PostProcessor, parseAst } from '@krakerxyz/netled-core';
-import { jsonSchema } from '@krakerxyz/json-schema-transformer';
-import { buildScript, jwtAuthentication } from '../../services';
+import { PostProcessorPost, parseAst, PostProcessor } from '../../../../core/src/index.js';
+import { buildScript } from '../../services/buildScript.js';
+import { jwtAuthentication } from '../../services/jwtAuthentication.js';
 
 export const postPostProcessor: RouteOptions = {
     method: 'POST',
     url: '/api/post-processors',
     preValidation: [jwtAuthentication],
-    schema: {
-        body: jsonSchema<PostProcessorPost>()
-    },
+    
     handler: async (req, res) => {
         const postProcessorPost = req.body as PostProcessorPost;
 

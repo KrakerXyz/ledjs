@@ -1,15 +1,12 @@
 import { RouteOptions } from 'fastify';
-import { AnimationPost, Animation, parseAst } from '@krakerxyz/netled-core';
-import { jsonSchema } from '@krakerxyz/json-schema-transformer';
-import { buildScript, jwtAuthentication } from '../../services';
+import { AnimationPost, parseAst, Animation } from '../../../../core/src/index.js';
+import { buildScript } from '../../services/buildScript.js';
+import { jwtAuthentication } from '../../services/jwtAuthentication.js';
 
 export const postAnimation: RouteOptions = {
     method: 'POST',
     url: '/api/animations',
     preValidation: [jwtAuthentication],
-    schema: {
-        body: jsonSchema<AnimationPost>()
-    },
     handler: async (req, res) => {
         const animationPost = req.body as AnimationPost;
 

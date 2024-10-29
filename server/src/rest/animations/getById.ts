@@ -1,5 +1,5 @@
 import { RouteOptions } from 'fastify';
-import { Id } from '@krakerxyz/netled-core';
+import { Id } from '../../../../core/src/index.js';
 
 export const getById: RouteOptions = {
     method: 'GET',

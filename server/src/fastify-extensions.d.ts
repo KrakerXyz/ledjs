@@ -1,7 +1,7 @@
 
 import 'fastify';
-import { Id } from '@krakerxyz/netled-core';
-import { RequestServicesContainer } from './services';
+import { Id } from '../../core/src/index.ts';
+import { RequestServicesContainer } from './services/RequestServicesContainer.js';
 
 declare module 'fastify' {
     interface FastifyRequest {

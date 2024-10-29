@@ -1,15 +1,12 @@
 import { RouteOptions } from 'fastify';
-import { jsonSchema } from '@krakerxyz/json-schema-transformer';
-import { ScriptVersion, Id } from '@krakerxyz/netled-core';
+import { ScriptVersion } from '../../../../core/src/rest/model/ScriptVersion.js';
+import { Id } from '../../../../core/src/rest/index.js';
 
 type Params = { animationId: Id, version: ScriptVersion };
 
 export const getScriptById: RouteOptions = {
     method: 'GET',
     url: '/api/animations/:animationId/:version/script',
-    schema: {
-        params: jsonSchema<Params>()
-    },
     handler: async (req, res) => {
         const params = req.params as Params;
 

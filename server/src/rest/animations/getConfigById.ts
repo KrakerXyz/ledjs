@@ -1,6 +1,6 @@
 import { RouteOptions } from 'fastify';
-import { Id } from '@krakerxyz/netled-core';
-import { jwtAuthentication } from '../../services';
+import { Id } from '../../../../core/src/index.js';
+import { jwtAuthentication } from '../../services/jwtAuthentication.js';
 
 export const getConfigById: RouteOptions = {
     method: 'GET',

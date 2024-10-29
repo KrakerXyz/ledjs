@@ -1,6 +1,11 @@
-import { DeviceDb, AnimationConfigDb, AnimationDb, UserDb, DeviceLogDb } from '../db';
-import { PostProcessorDb } from '../db/PostProcessorDb';
-import { WebSocketManager } from './ws/WebSocketManager';
+
+import { AnimationConfigDb } from '../db/AnimationConfigDb.js';
+import { AnimationDb } from '../db/AnimationDb.js';
+import { DeviceDb } from '../db/DeviceDb.js';
+import { DeviceLogDb } from '../db/DeviceLogDb.js';
+import { PostProcessorDb } from '../db/PostProcessorDb.js';
+import { UserDb } from '../db/UserDb.js';
+import { WebSocketManager } from './ws/WebSocketManager.js';
 
 export class RequestServicesContainer {
 

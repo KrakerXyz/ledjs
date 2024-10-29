@@ -1,15 +1,11 @@
 import { RouteOptions } from 'fastify';
-import { jsonSchema } from '@krakerxyz/json-schema-transformer';
-import { ScriptVersion, Id } from '@krakerxyz/netled-core';
+import { Id, ScriptVersion } from '../../../../core/src/index.js';
 
 type Params = { postProcessorId: Id, version: ScriptVersion };
 
 export const getScriptById: RouteOptions = {
     method: 'GET',
     url: '/api/post-processors/:postProcessorId/:version/script',
-    schema: {
-        params: jsonSchema<Params>()
-    },
     handler: async (req, res) => {
         const params = req.params as Params;
 

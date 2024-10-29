@@ -45,9 +45,10 @@ export function validateScript(ast: ParseResult<AstTypes.File>): CodeIssue[] {
             codeIssues.push(...missing.map(x => createIssue(`Missing method '${x}'`, 'error', classBody.loc)));
         }
 
-        if (codeIssues.length) {
-            postMessage({ name: 'issues', codeIssues });
-        }
+        // not sure what postMessage was used for. After the upgrade, it was causing build errors
+        // if (codeIssues.length) {
+        //     postMessage({ name: 'issues', codeIssues });
+        // }
 
     } catch (e: any) {
         // Probably a script error. Just ignore it

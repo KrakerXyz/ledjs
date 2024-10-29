@@ -1,7 +1,8 @@
 
 import { RouteOptions } from 'fastify';
-import { Id } from '@krakerxyz/netled-core';
-import { jwtAuthentication } from '../../services';
+import { Id } from '../../../../core/src/index.js';
+import { jwtAuthentication } from '../../services/jwtAuthentication.js';
+import { format } from 'path';
 
 export const deleteConfigById: RouteOptions = {
     method: 'DELETE',
@@ -11,7 +12,7 @@ export const deleteConfigById: RouteOptions = {
         params: {
             type: 'object',
             properties: {
-                configId: { type: 'string' }
+                configId: { type: 'string', format: 'uuid' }
             },
             required: ['configId']
         }

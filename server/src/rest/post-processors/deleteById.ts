@@ -1,8 +1,7 @@
 
 import { RouteOptions } from 'fastify';
-import { Id } from '@krakerxyz/netled-core';
-import { jwtAuthentication } from '../../services';
-import { jsonSchema } from '@krakerxyz/json-schema-transformer';
+import { Id } from '../../../../core/src/index.js';
+import { jwtAuthentication } from '../../services/jwtAuthentication.js';
 
 type Params = { postProcessorId: Id };
 
@@ -11,7 +10,13 @@ export const deleteById: RouteOptions = {
     url: '/api/post-processors/:postProcessorId',
     preValidation: [jwtAuthentication],
     schema: {
-        params: jsonSchema<Params>()
+        params: {
+            type: 'object',
+            required: ['postProcessorId'],
+            properties: {
+                postProcessorId: { type: 'string', format: 'uuid' }
+            }
+        }
     },
     handler: async (req, res) => {
         const params = req.params as Params;

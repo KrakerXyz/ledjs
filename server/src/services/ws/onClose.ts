@@ -1,6 +1,7 @@
-import { DeviceConnectionEvent, newId } from '@krakerxyz/netled-core';
+
 import { FastifyRequest } from 'fastify';
-import { WsConnection } from './WebSocketManager';
+import { WsConnection } from './WebSocketManager.js';
+import { DeviceConnectionEvent, newId } from '../../../../core/src/index.js';
 
 export function onClose(
     wsConnection: WsConnection,

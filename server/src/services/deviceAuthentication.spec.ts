@@ -1,5 +1,5 @@
 import { FastifyReply, FastifyRequest } from 'fastify';
-import { deviceAuthentication } from '.';
+import { deviceAuthentication } from './deviceAuthentication.js';
 
 describe('services', () => {
 

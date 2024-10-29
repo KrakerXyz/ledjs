@@ -1,8 +1,15 @@
-import { Filter, TypedEntity, UpdateResult } from '@krakerxyz/typed-base';
-import { AnimationConfig, ScriptVersion, Id, Writeable } from '@krakerxyz/netled-core';
+
+import { jsonSchemas } from './schema/schemaUtility.js';
+import { AnimationConfig, Id, ScriptVersion, Writeable } from '../../../core/src/index.js';
+import { Db, UpdateResult } from './Db.js';
+import { Filter } from 'mongodb';
 
 export class AnimationConfigDb {
-    private readonly entity = new TypedEntity<AnimationConfig>();
+    private static _entity: Db<AnimationConfig>;
+
+    public constructor() {
+        AnimationConfigDb._entity ??= new Db<AnimationConfig>('animationConfigs', jsonSchemas.animationConfig);
+    }
 
     public byAnimationId(animationId: Id, userId?: Id, version?: ScriptVersion): AsyncGenerator<AnimationConfig> {
         const filter: Filter<Writeable<AnimationConfig>> = {
@@ -10,30 +17,30 @@ export class AnimationConfigDb {
         };
         if (userId) { filter['userId'] = userId; }
         if (version !== undefined) { filter['animation.version'] = version; }
-        return this.entity.find(filter);
+        return AnimationConfigDb._entity.find(filter);
     }
 
     public byUserId(userId: Id): AsyncGenerator<AnimationConfig> {
-        return this.entity.find({ userId });
+        return AnimationConfigDb._entity.find({ userId });
     }
 
     public byId(id: Id): Promise<AnimationConfig | null> {
-        return this.entity.findOneAsync({ id });
+        return AnimationConfigDb._entity.findOneAsync({ id });
     }
 
     public add(config: AnimationConfig): Promise<void> {
-        return this.entity.insertAsync(config);
+        return AnimationConfigDb._entity.insertAsync(config);
     }
 
     public replace(config: AnimationConfig): Promise<UpdateResult> {
-        return this.entity.replaceOneAsync(config);
+        return AnimationConfigDb._entity.replaceOneAsync(config);
     }
 
     public upsert(config: AnimationConfig): Promise<UpdateResult> {
-        return this.entity.replaceOneAsync(config, { upsert: true });
+        return AnimationConfigDb._entity.replaceOneAsync(config, { upsert: true });
     }
 
     public deleteById(id: Id): Promise<void> {
-        return this.entity.deleteOneAsync(id);
+        return AnimationConfigDb._entity.deleteOneAsync(id);
     }
 }

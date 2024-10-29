@@ -1,5 +1,5 @@
-import { jsonSchema } from '@krakerxyz/json-schema-transformer';
-import { Id } from '@krakerxyz/netled-core';
+
+import { Id } from '../../../../core/src/index.js';
 import { RouteOptions } from 'fastify';
 
 type Params = { animationId: Id };
@@ -8,10 +8,6 @@ type Query = { includeDraft?: boolean };
 export const getLatestById: RouteOptions = {
     method: 'GET',
     url: '/api/animations/:animationId',
-    schema: {
-        params: jsonSchema<Params>(),
-        querystring: jsonSchema<Query>()
-    },
     handler: async (req, res) => {
         const params = req.params as Params;
         const query = req.query as Query;

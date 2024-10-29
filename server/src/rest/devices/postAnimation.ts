@@ -1,15 +1,11 @@
 import { RouteOptions } from '@fastify/websocket';
-import { Device, DeviceAnimationPost } from '@krakerxyz/netled-core';
-import { jsonSchema } from '@krakerxyz/json-schema-transformer';
-import { jwtAuthentication } from '../../services';
+import { jwtAuthentication } from '../../services/jwtAuthentication.js';
+import { DeviceAnimationPost, Device } from '../../../../core/src/index.js';
 
 export const postAnimation: RouteOptions = {
     method: 'POST',
     url: '/api/devices/animation',
     preValidation: [jwtAuthentication],
-    schema: {
-        body: jsonSchema<DeviceAnimationPost>()
-    },
     handler: async (req, res) => {
 
         const db = req.services.deviceDb;

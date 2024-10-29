@@ -1,18 +1,26 @@
-import { Filter, TypedEntity,  UpdateResult } from '@krakerxyz/typed-base';
-import { Animation, AnimationSummary, ScriptVersion, Id, Writeable } from '@krakerxyz/netled-core';
+
+import { Db, UpdateResult } from './Db.js';
+import { Filter } from 'mongodb';
+import { jsonSchemas } from './schema/schemaUtility.js';
+import { Animation, AnimationSummary, Id, ScriptVersion, Writeable } from '../../../core/src/index.js';
+
 
 export class AnimationDb {
+    private static _entity: Db<Animation>;
 
-    private readonly entity = new TypedEntity<Animation>();
+    public constructor() {
+        AnimationDb._entity ??= new Db<Animation>('animations', jsonSchemas.animation);
+    }
+
 
     public all(): AsyncGenerator<AnimationSummary> {
-        return this.entity.find({}, c => c.project({ js: false, ts: false } as any));
+        return AnimationDb._entity.find({}, c => c.project({ js: false, ts: false } as any));
     }
 
     public async latestById(id: Id): Promise<Animation | null> {
         const filter: Filter<Writeable<Animation>> = { id, published: true };
 
-        const cur = this.entity.find(
+        const cur = AnimationDb._entity.find(
             filter,
             c => c.sort({ version: -1 }).limit(1)
         );
@@ -23,25 +31,25 @@ export class AnimationDb {
     public byId(id: Id, version: ScriptVersion): Promise<Animation | null> {
         const filter: Filter<Writeable<Animation>> = { id, version };
 
-        const cur = this.entity.findOneAsync(filter);
+        const cur = AnimationDb._entity.findOneAsync(filter);
 
         return cur;
     }
 
     public add(animation: Animation): Promise<void> {
-        return this.entity.insertAsync(animation);
+        return AnimationDb._entity.insertAsync(animation);
     }
 
     public replace(animation: Animation): Promise<UpdateResult> {
-        return this.entity.replaceOneAsync(animation);
+        return AnimationDb._entity.replaceOneAsync(animation);
     }
 
     public upsert(animation: Animation): Promise<UpdateResult> {
-        return this.entity.replaceOneAsync(animation, { upsert: true });
+        return AnimationDb._entity.replaceOneAsync(animation, { upsert: true });
     }
 
     public deleteById(animationId: Id, version: ScriptVersion): Promise<void> {
-        return this.entity.deleteAsync({ id: animationId, version });
+        return AnimationDb._entity.deleteAsync({ id: animationId, version });
     }
 
 }

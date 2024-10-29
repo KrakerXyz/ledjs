@@ -39,7 +39,7 @@ export class WsConnection<
 
     private _reconnectRetryCount = 0;
     private _postMessage: ((msg: string) => void) | null = null;
-    private _ws: WebSocket | null = null;
+    private _ws: WsWebSocket | null = null;
     private _isConnected: boolean = false;
 
     public get isConnected() { return this._isConnected; }
@@ -49,7 +49,7 @@ export class WsConnection<
 
         this._eventEmitter.emit('connectionChange', 'connecting');
 
-        const ws = globalThis.WebSocket ? new WebSocket(this._url) : new WsWebSocket(this._url, this._auth) as any as WebSocket;
+        const ws = (globalThis as any).WebSocket ? new WsWebSocket(this._url) : new WsWebSocket(this._url, this._auth);
         this._ws = ws;
 
         this._postMessage = ws.send.bind(ws);
@@ -64,7 +64,7 @@ export class WsConnection<
             //Just eat it. This will emit if there's an error connecting but a subsequent close will also be emitted which we'll handle. If we don't have this, it'll end up throwing an exception which will crash the app
         });
 
-        ws.addEventListener('close', e => {
+        ws.addEventListener('close', (e: any) => {
             this._isConnected = false;
             //Will happen if the server closes or after an error has occurred while connecting
             if (e.code === 4001) {
@@ -82,7 +82,7 @@ export class WsConnection<
             }, retryWaitSecs * 1000);
         });
 
-        ws.addEventListener('message', e => {
+        ws.addEventListener('message', (e: any) => {
             try {
                 const message = JSON.parse(e.data) as Message;
                 this._eventEmitter.emit(message.type, message.data);

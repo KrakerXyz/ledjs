@@ -1,6 +1,7 @@
-import { Id } from '@krakerxyz/netled-core';
+import { Id } from '../../../../core/src/index.js';
 import { RouteOptions } from 'fastify';
-import { awaitAll, jwtAuthentication } from '../../services';
+import { awaitAll } from '../../services/awaitAll.js';
+import { jwtAuthentication } from '../../services/jwtAuthentication.js';
 
 export const getConfigsByAnimationId: RouteOptions = {
     method: 'GET',

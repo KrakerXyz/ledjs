@@ -1,5 +1,6 @@
 import { RouteOptions } from 'fastify';
-import { jwtAuthentication, awaitAll } from '../../services';
+import { awaitAll } from '../../services/awaitAll.js';
+import { jwtAuthentication } from '../../services/jwtAuthentication.js';
 
 export const getDevices: RouteOptions = {
     method: 'GET',

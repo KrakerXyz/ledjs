@@ -1,20 +1,13 @@
-import { jsonSchema } from '@krakerxyz/json-schema-transformer';
-import { DeviceLogsFilter, FromDeviceMessageLog, Id } from '@krakerxyz/netled-core';
+
 import { RouteOptions } from 'fastify';
-import { awaitAll, jwtAuthentication } from '../../services';
+import { DeviceLogsFilter, FromDeviceMessageLog, Id } from '../../../../core/src/index.js';
+import { awaitAll } from '../../services/awaitAll.js';
+import { jwtAuthentication } from '../../services/jwtAuthentication.js';
 
 export const postDeviceLogsList: RouteOptions = {
     method: 'POST',
     url: '/api/devices/logs/list',
     preValidation: [jwtAuthentication],
-    schema: {
-        body: jsonSchema<DeviceLogsFilter>(),
-        // Having this on causes an error and I can't figure out why. 
-        // https://github.com/fastify/help/issues/424
-        response: {
-            200: jsonSchema<FromDeviceMessageLog[]>()
-        }
-    },
     handler: async (req, res) => {
 
         const db = req.services.deviceDb;

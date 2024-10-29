@@ -1,20 +1,13 @@
 import { RouteOptions } from 'fastify';
 import { OAuth2Client } from 'google-auth-library';
 import { v4 } from 'uuid';
-import { GoogleJwt, Id, User } from '@krakerxyz/netled-core';
-import { UserDb } from '../../db';
-import { EnvKey, getRequiredConfig } from '../../services';
-import { jsonSchema } from '@krakerxyz/json-schema-transformer';
+import { GoogleJwt, Id } from '../../../../core/src/index.js';
+import { UserDb } from '../../db/UserDb.js';
+import { getRequiredConfig, EnvKey } from '../../services/config.js';
 
 export const postGoogleJwt: RouteOptions = {
     method: 'POST',
     url: '/api/auth/google-jwt',
-    schema: {
-        body: jsonSchema<GoogleJwt>(),
-        response: {
-            '2xx': jsonSchema<User>(),
-        },
-    },
     handler: async (req, res) => {
         const googleJwt = req.body as GoogleJwt;
 

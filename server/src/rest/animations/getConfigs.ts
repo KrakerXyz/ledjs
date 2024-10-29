@@ -1,6 +1,6 @@
 import { RouteOptions } from 'fastify';
-import { Animation, AnimationConfig, AnimationConfigSummary, ScriptVersion, Id } from '@krakerxyz/netled-core';
-import { jwtAuthentication } from '../../services';
+import { jwtAuthentication } from '../../services/jwtAuthentication.js';
+import { Id, ScriptVersion, Animation, AnimationConfig, AnimationConfigSummary } from '../../../../core/src/index.js';
 
 export const getConfigs: RouteOptions = {
     method: 'GET',

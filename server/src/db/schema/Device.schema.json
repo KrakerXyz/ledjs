@@ -1,0 +1,112 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string"
+    },
+    "userId": {
+      "type": "string"
+    },
+    "name": {
+      "type": "string"
+    },
+    "secret": {
+      "type": "string"
+    },
+    "created": {
+      "type": "number"
+    },
+    "setup": {
+      "type": "object",
+      "properties": {
+        "numLeds": {
+          "type": "number"
+        },
+        "spiSpeed": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "numLeds",
+        "spiSpeed"
+      ]
+    },
+    "status": {
+      "type": "object",
+      "properties": {
+        "lastContact": {
+          "type": "number"
+        },
+        "cameOnline": {
+          "type": "number"
+        },
+        "wentOffline": {
+          "type": "number"
+        },
+        "localIp": {
+          "type": "string"
+        },
+        "wanIp": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "cameOnline",
+        "wentOffline"
+      ]
+    },
+    "animation": {
+      "anyOf": [
+        {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "version": {
+              "anyOf": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "string",
+                  "const": "draft"
+                }
+              ]
+            }
+          },
+          "required": [
+            "id",
+            "version"
+          ]
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "animationConfigId": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "isStopped": {
+      "type": "boolean"
+    }
+  },
+  "required": [
+    "id",
+    "userId",
+    "name",
+    "secret",
+    "created",
+    "setup",
+    "status",
+    "animation",
+    "animationConfigId",
+    "isStopped"
+  ],
+  "definitions": {}
+}

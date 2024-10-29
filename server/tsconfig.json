@@ -8,13 +8,11 @@
         "noImplicitReturns": true,
         "noEmitOnError": true,
         "skipLibCheck": true,
+        "resolveJsonModule": true, // Allows importing JSON files (used by schemas)
         "forceConsistentCasingInFileNames": true,
         "importHelpers": true,
         "removeComments": true,
         "outDir": "dist",
-        "types": [
-            "jest",
-        ],
         "lib": [
             "ESNext"
         ],

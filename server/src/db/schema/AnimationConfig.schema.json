@@ -1,0 +1,61 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string"
+    },
+    "userId": {
+      "type": "string"
+    },
+    "animation": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "version": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "string",
+              "const": "draft"
+            }
+          ]
+        }
+      },
+      "required": [
+        "id",
+        "version"
+      ]
+    },
+    "name": {
+      "type": "string"
+    },
+    "description": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "config": {
+      "type": "object",
+      "additionalProperties": {
+        "type": [
+          "number",
+          "string"
+        ]
+      }
+    }
+  },
+  "required": [
+    "id",
+    "userId",
+    "animation",
+    "name",
+    "config"
+  ],
+  "definitions": {}
+}

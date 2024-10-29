@@ -1,15 +1,11 @@
 import { RouteOptions } from 'fastify';
-import { DeviceStopPost } from '@krakerxyz/netled-core';
-import { jwtAuthentication } from '../../services';
-import { jsonSchema } from '@krakerxyz/json-schema-transformer';
+import { jwtAuthentication } from '../../services/jwtAuthentication.js';
+import { DeviceStopPost } from '../../../../core/src/rest/DeviceRestClient.js';
 
 export const postStop: RouteOptions = {
     method: 'POST',
     url: '/api/devices/animation/stop',
     preValidation: [jwtAuthentication],
-    schema: {
-        body: jsonSchema<DeviceStopPost>()
-    },
     handler: async (req, res) => {
 
         const db = req.services.deviceDb;

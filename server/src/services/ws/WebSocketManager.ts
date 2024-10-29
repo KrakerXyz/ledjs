@@ -1,11 +1,14 @@
 import { FastifyBaseLogger, FastifyRequest } from 'fastify';
-import { Device, DeviceConnectionEvent, FromDeviceMessage, Id, ToDeviceMessage, ToHostMessage } from '@krakerxyz/netled-core';
 import { v4 } from 'uuid';
-import { DeviceLogDb } from '../../db';
-import { RequestServicesContainer } from '../RequestServicesContainer';
-import { onClose } from './onClose';
-import { SocketStream } from '@fastify/websocket';
-import { assertTruthy } from '../assert';
+import { DeviceLogDb } from '../../db/DeviceLogDb.js';
+import { assertTruthy } from '../assert.js';
+import { RequestServicesContainer } from '../RequestServicesContainer.js';
+import { onClose } from './onClose.js';
+import { Id } from '../../../../core/src/index.js';
+import { Device } from '../../../../core/src/rest/DeviceRestClient.js';
+import { FromDeviceMessage } from '../../../../core/src/ws/FromDeviceMessage.js';
+import { DeviceConnectionEvent, ToHostMessage } from '../../../../core/src/ws/HostMessages.js';
+import { ToDeviceMessage } from '../../../../core/src/ws/ToDeviceMessages.js';
 
 export class WebSocketManager {
 
@@ -15,14 +18,14 @@ export class WebSocketManager {
 
     public readonly connections: Map<string, WsConnection[]> = new Map();
 
-    public handler = async (conn: SocketStream, req: FastifyRequest, ..._params: any[]) => {
+    public handler = async (conn: WebSocket, req: FastifyRequest, ..._params: any[]) => {
 
         const log = req.log.child({ name: 'services.ws.WebSocketManager.handler' });
 
         const wsConnection: WsConnection = {
             type: req.url.endsWith('/device') ? 'device' : 'user',
             id: req.user.sub,
-            socket: conn.socket
+            socket: conn
         };
 
         log.info('Incoming WS connection for %s:%s', wsConnection.type, wsConnection.id);
@@ -44,7 +47,7 @@ export class WebSocketManager {
                     deviceId: device.id,
                     created: Date.now(),
                     from: 'device',
-                    data: msg
+                    data: msg as any
                 });
 
                 if (msg.type !== 'info') {
@@ -68,7 +71,7 @@ export class WebSocketManager {
         let connections = this.connections.get(wsConnection.id);
 
         if (wsConnection.type === 'device' && connections?.length) {
-            wsConnection.socket.destroy(new Error('Device already connected'));
+            wsConnection.socket.close(4000, 'Only one device connection allowed');
         }
 
         if (!connections) { this.connections.set(wsConnection.id, (connections = [])); }
@@ -146,7 +149,7 @@ export class WebSocketManager {
     public async disconnectDevice(deviceId: Id) {
         const con = this.connections.get(deviceId);
         if (!con?.length) { return; }
-        con.forEach(c => c.socket.end());
+        con.forEach(c => c.socket.close());
     }
 
     public sendHostMessage(userId: Id, msg: ToHostMessage) {
@@ -196,5 +199,5 @@ export class WebSocketManager {
 export interface WsConnection {
     type: 'device' | 'user';
     id: Id;
-    socket: SocketStream['socket'];
+    socket: WebSocket;
 }

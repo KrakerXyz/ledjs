@@ -1,17 +1,23 @@
-import { DeviceLogsFilter } from '@krakerxyz/netled-core';
-import { TypedEntity, Filter } from '@krakerxyz/typed-base';
-import { DeviceLog, DeviceLogBase, DeviceLogMessage } from './domainModel/DeviceLog';
+import { Filter } from 'mongodb';
+import { DeviceLogsFilter } from '../../../core/src/index.js';
+import { DeviceLog, DeviceLogBase } from './domainModel/DeviceLog.js';
+import { jsonSchemas } from './schema/schemaUtility.js';
+import { Db } from './Db.js';
 
-export class DeviceLogDb {
 
-    private readonly entity = new TypedEntity<DeviceLogBase>();
+export class DeviceLogDb {    
+    private static _entity: Db<DeviceLog>;
+
+    public constructor() {
+        DeviceLogDb._entity ??= new Db<DeviceLog>('deviceLogs', jsonSchemas.deviceLog);
+    }
 
     public add(deviceLog: DeviceLog): Promise<void> {
-        return this.entity.insertAsync(deviceLog);
+        return DeviceLogDb._entity.insertAsync(deviceLog);
     }
 
     public get(filter: DeviceLogsFilter, limit?: number): AsyncGenerator<DeviceLogBase> {
-        const mdbFilter: Filter<DeviceLogMessage> = { from: 'device' };
+        const mdbFilter: Filter<DeviceLog> = { from: 'device' };
 
         if (filter.deviceIds?.length) {
             mdbFilter.deviceId = { $in: filter.deviceIds };
@@ -29,8 +35,8 @@ export class DeviceLogDb {
             mdbFilter.created = { $lt: filter.created.before };
         }
 
-        return this.entity.find(
-            mdbFilter as Filter<DeviceLogBase>,
+        return DeviceLogDb._entity.find(
+            mdbFilter,
             undefined,
             { limit, sort: { created: -1 } }
         );

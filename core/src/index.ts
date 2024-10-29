@@ -1,7 +1,7 @@
 
-export * from './rest';
-export * from './services';
-export * from './color-utilities';
-export * from './ws';
-export * from './Disposable';
-export * from './IArgb';
+export * from './rest/index.js';
+export * from './services/index.js';
+export * from './color-utilities/index.js';
+export * from './ws/index.js';
+export * from './Disposable.js';
+export * from './IArgb.js';

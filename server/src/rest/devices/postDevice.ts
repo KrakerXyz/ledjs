@@ -1,16 +1,12 @@
 import { RouteOptions } from 'fastify';
-import { Device, DevicePost } from '@krakerxyz/netled-core';
-import { v4 } from 'uuid';
-import { jsonSchema } from '@krakerxyz/json-schema-transformer';
-import { jwtAuthentication } from '../../services';
+import { jwtAuthentication } from '../../services/jwtAuthentication.js';
+import { Device, DevicePost } from '../../../../core/src/rest/DeviceRestClient.js';
+import { newId } from '../../../../core/src/index.js';
 
 export const postDevice: RouteOptions = {
     method: 'POST',
     url: '/api/devices',
     preValidation: [jwtAuthentication],
-    schema: {
-        body: jsonSchema<DevicePost>()
-    },
     handler: async (req, res) => {
 
         const device = req.body as DevicePost;
@@ -26,7 +22,7 @@ export const postDevice: RouteOptions = {
 
         const newDevice: Device = {
             created: Date.now(),
-            secret: v4(),
+            secret: newId(),
             userId: req.user.sub,
             status: {
                 cameOnline: 0,

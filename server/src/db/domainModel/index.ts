@@ -1,1 +1,1 @@
-export * from './DeviceLog';
+export * from './DeviceLog.js';

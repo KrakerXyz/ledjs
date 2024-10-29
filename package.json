@@ -1,21 +1,11 @@
 {
     "name": "netled",
-    "workspaces": [
-        "core",
-        "server",
-        "web",
-        "iot"
-    ],
     "scripts": {
-        "start-web": "cd web && npm run start",
-        "start-server": "cd server && npm run start",
-        "start": "concurrently -k -n web,server -c bgBlue.black,bgGreen.black \"npm run start-web\" \"npm run start-server\"",
         "lint": "eslint **/src/**/*.{ts,vue}",
         "lint-fix": "eslint **/src/**/*.{ts,vue} --fix"
     },
     "devDependencies": {
         "@krakerxyz/eslint-config": "^1.0.0",
-        "concurrently": "^7.0.0",
         "eslint": "^8",
         "ncp": "^2.0.0"
     }
