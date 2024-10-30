@@ -1,32 +1,31 @@
-import { AnimationConfig } from '../rest';
-
+import type { AnimationConfig } from '../rest/model/AnimationConfig.js';
 
 
 export type ToDeviceMessage = AnimationSetupMessage | DeviceSetupMessage | AnimationStopMessage;
 
-export type AnimationSetupMessage = {
+export interface AnimationSetupMessage {
     type: 'animationSetup',
     /** The animation and configuration to load on device or null to clear current animation */
-    data: AnimationConfig | null
+    data: AnimationConfig | null,
 }
 
-export type DeviceSetupMessage = {
+export interface DeviceSetupMessage {
     type: 'deviceSetup',
-    data: DeviceSetupData
+    data: DeviceSetupData,
 }
 
-export type DeviceSetupData = {
+export interface DeviceSetupData {
     /** Number of LEDs connected to the SPI interface */
-    numLeds: number;
+    numLeds: number,
     /** Speed in MHz to run the SPI interface at */
-    spiSpeed: number;
+    spiSpeed: number,
 }
 
-export type AnimationStopMessage = {
-    type: 'animationStop'
-    data: AnimationStopData
+export interface AnimationStopMessage {
+    type: 'animationStop',
+    data: AnimationStopData,
 }
 
-export type AnimationStopData = {
-    stop: boolean;
+export interface AnimationStopData {
+    stop: boolean,
 }

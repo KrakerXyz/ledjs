@@ -2,10 +2,10 @@
 import { jsonSchemas } from './schema/schemaUtility.js';
 import { Db, type UpdateResult } from './Db.js';
 import type { Filter } from 'mongodb';
-import type { Id } from '../../../core/src/index.js';
 import type { AnimationConfig } from '../../../core/src/rest/model/AnimationConfig.js';
 import type { ScriptVersion } from '../../../core/src/rest/model/ScriptVersion.js';
 import type { Writeable } from '../../../core/src/services/Writeable.js';
+import type { Id } from '../../../core/src/rest/model/Id.js';
 
 export class AnimationConfigDb {
     private static _entity: Db<AnimationConfig>;

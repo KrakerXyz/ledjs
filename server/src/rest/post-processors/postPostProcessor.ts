@@ -1,7 +1,8 @@
-import { RouteOptions } from 'fastify';
-import { PostProcessorPost, parseAst, PostProcessor } from '../../../../core/src/index.js';
+import type { RouteOptions } from 'fastify';
 import { buildScript } from '../../services/buildScript.js';
 import { jwtAuthentication } from '../../services/jwtAuthentication.js';
+import type { PostProcessorPost, PostProcessor } from '../../../../core/src/rest/model/PostProcessor.js';
+import { parseAst } from '../../../../core/src/services/parseAst.js';
 
 export const postPostProcessor: RouteOptions = {
     method: 'POST',

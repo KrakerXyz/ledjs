@@ -1,21 +1,22 @@
-import { Id } from '../rest';
-import { FromDeviceMessage } from './FromDeviceMessage';
+import type { Id } from '../rest/model/Id.js';
+import type { FromDeviceMessage } from './FromDeviceMessage.js';
+
 
 export type ToHostMessage = DeviceConnectionEvent | DeviceMessageEvent;
 
-export type DeviceConnectionEvent = {
+export interface DeviceConnectionEvent {
     type: 'deviceConnection',
-    data: DeviceConnectionData
+    data: DeviceConnectionData,
 }
 
-export type DeviceConnectionData = {
-    deviceId: string;
-    state: 'connected' | 'disconnected'
+export interface DeviceConnectionData {
+    deviceId: string,
+    state: 'connected' | 'disconnected',
 }
 
-export type DeviceMessageEvent = {
+export interface DeviceMessageEvent {
     type: 'deviceMessage',
-    data: DeviceMessageEventData
+    data: DeviceMessageEventData,
 }
 
 export type DeviceMessageEventData = FromDeviceMessage & { deviceId: Id };

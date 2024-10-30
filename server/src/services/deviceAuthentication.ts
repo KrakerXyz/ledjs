@@ -1,5 +1,5 @@
-import { preValidationHookHandler } from 'fastify';
-import { Id } from '../../../core/src/rest/index.js';
+import type { preValidationHookHandler } from 'fastify';
+import type { Id } from '../../../core/src/rest/model/Id.js';
 
 export const deviceAuthentication: preValidationHookHandler = async (req, res) => {
     const authParts = req.headers?.authorization?.split(' ');

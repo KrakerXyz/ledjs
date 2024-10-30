@@ -1,8 +1,8 @@
+import type { AnimationConfig } from '../rest/model/AnimationConfig.js';
+import type { FromDeviceMessage } from './FromDeviceMessage.js';
+import type { ToDeviceMessage, DeviceSetupData, AnimationStopData } from './ToDeviceMessages.js';
+import { type WsCallbacks, WsConnection, type WsEvents, type WsOptions } from './WsConnection.js';
 
-import { FromDeviceMessage, ToDeviceMessage } from '..';
-import { AnimationConfig } from '../rest';
-import { AnimationStopData, DeviceSetupData } from './ToDeviceMessages';
-import { WsConnection, WsOptions, WsCallbacks, WsEvents } from './WsConnection';
 
 type DeviceCallbacks = {
     [T in ToDeviceMessage['type']]: T extends 'animationSetup' ? (data: AnimationConfig | null) => void

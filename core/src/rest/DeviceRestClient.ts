@@ -1,5 +1,10 @@
-import { DeviceAnimationConfigPost, DeviceLogsFilter, Id, RestClient, ScriptVersion } from '.';
-import { FromDeviceMessage } from '..';
+import type { FromDeviceMessage } from '../ws/FromDeviceMessage.js';
+import type { DeviceAnimationConfigPost } from './model/DeviceAnimationConfig.js';
+import type { DeviceLogsFilter } from './model/DeviceLog.js';
+import type { Id } from './model/Id.js';
+import type { ScriptVersion } from './model/ScriptVersion.js';
+import type { RestClient } from './RestClient.js';
+
 
 export class DeviceRestClient {
 
@@ -53,33 +58,33 @@ export class DeviceRestClient {
 }
 
 export type FromDeviceMessageLog = FromDeviceMessage & {
-    id: Id;
-    created: number;
+    id: Id,
+    created: number,
 }
 
 export interface Device {
     /** GUID id of the device */
-    readonly id: Id;
+    readonly id: Id,
     /** GUID id of the user the device belongs to */
-    readonly userId: Id;
+    readonly userId: Id,
     /** A name for the device, given by the user */
-    name: string;
+    name: string,
     /** API secret used for device to server authentication */
-    readonly secret: string;
+    readonly secret: string,
     /** Timestamp of when the device was created */
-    readonly created: number;
+    readonly created: number,
     /** LED setup details */
-    setup: DeviceSetup;
+    setup: DeviceSetup,
     /** Various status details for the device. */
-    readonly status: DeviceStatus;
+    readonly status: DeviceStatus,
     readonly animation: {
         id: Id,
-        version: ScriptVersion
-    } | null;
+        version: ScriptVersion,
+    } | null,
     /** Id of animation config assigned to this device */
     readonly animationConfigId: Id | null,
     /** Last stop/start state of the animation on the device */
-    readonly isStopped: boolean;
+    readonly isStopped: boolean,
 }
 
 /** Device object without the current animation, or status */
@@ -89,22 +94,22 @@ export type DevicePost = Pick<Device, 'id' | 'name' | 'setup'>;
 
 export interface DeviceStatus {
     /** Last time the device made a call to the server */
-    readonly lastContact?: number;
+    readonly lastContact?: number,
     /** Timestamp of when the device last connected */
-    readonly cameOnline: number;
+    readonly cameOnline: number,
     /** Timestamp of when the device last went offline */
-    readonly wentOffline: number;
+    readonly wentOffline: number,
     /** The LAN IP of the device */
-    readonly localIp?: string;
+    readonly localIp?: string,
     /** The WAN IP address the device connected from */
-    readonly wanIp?: string;
+    readonly wanIp?: string,
 }
 
 export interface DeviceSetup {
     /** Number of LEDs connected to the SPI interface */
-    numLeds: number;
+    numLeds: number,
     /** Speed in MHz to run the SPI interface at */
-    spiSpeed: number;
+    spiSpeed: number,
 }
 
 export interface DeviceAnimationPost {
@@ -117,19 +122,19 @@ export interface DeviceAnimationPost {
         version: ScriptVersion,
     },
     /** Optional id of the saved config to use for the animation */
-    configId: Id | null;
+    configId: Id | null,
 }
 
 export interface DeviceStopPost {
     /** One or more device ids to send the stop request to. */
     deviceIds: [Id, ...Id[]],
     /** When or not to stop the animation. Send false to restart a previously stopped animation. */
-    stop: boolean;
+    stop: boolean,
     /** Whether or not to store this stop state on the device. Defaults to true */
-    persist?: boolean;
+    persist?: boolean,
 }
 
 /** Resets the device back to it's stored animation config */
 export interface DeviceAnimationResetPost {
-    deviceIds: [Id, ...Id[]];
+    deviceIds: [Id, ...Id[]],
 }

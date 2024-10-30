@@ -1,8 +1,9 @@
 
-import { RouteOptions } from 'fastify';
-import { DeviceLogsFilter, FromDeviceMessageLog, Id } from '../../../../core/src/index.js';
+import type { RouteOptions } from 'fastify';
 import { awaitAll } from '../../services/awaitAll.js';
 import { jwtAuthentication } from '../../services/jwtAuthentication.js';
+import type { DeviceLogsFilter } from '../../../../core/src/rest/model/DeviceLog.js';
+import type { Id } from '../../../../core/src/rest/model/Id.js';
 
 export const postDeviceLogsList: RouteOptions = {
     method: 'POST',

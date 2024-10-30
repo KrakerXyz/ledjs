@@ -1,6 +1,9 @@
+import type { AnimationSummary, Animation, AnimationPost } from './model/Animation.js';
+import type { AnimationConfigSummary, AnimationConfig, AnimationConfigPost } from './model/AnimationConfig.js';
+import type { Id } from './model/Id.js';
+import type { ScriptVersion } from './model/ScriptVersion.js';
+import type { RestClient } from './RestClient.js';
 
-import type { AnimationSummary, AnimationConfig, AnimationPost, Animation, Id, AnimationConfigSummary, AnimationConfigPost, ScriptVersion } from '.';
-import type { RestClient } from './RestClient';
 
 export class AnimationRestClient {
 

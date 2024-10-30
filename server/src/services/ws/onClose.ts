@@ -1,7 +1,8 @@
 
-import { FastifyRequest } from 'fastify';
-import { WsConnection } from './WebSocketManager.js';
-import { DeviceConnectionEvent, newId } from '../../../../core/src/index.js';
+import type { FastifyRequest } from 'fastify';
+import type { WsConnection } from './WebSocketManager.js';
+import { newId } from '../../../../core/src/services/newId.js';
+import type { DeviceConnectionEvent } from '../../../../core/src/ws/HostMessages.js';
 
 export function onClose(
     wsConnection: WsConnection,

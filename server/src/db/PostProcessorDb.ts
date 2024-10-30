@@ -1,10 +1,10 @@
 import type { Filter } from 'mongodb';
 import { jsonSchemas } from './schema/schemaUtility.js';
 import { Db, type UpdateResult } from './Db.js';
-import type { Id } from '../../../core/src/index.js';
 import type { PostProcessor, PostProcessorSummary } from '../../../core/src/rest/model/PostProcessor.js';
 import type { ScriptVersion } from '../../../core/src/rest/model/ScriptVersion.js';
 import type { Writeable } from '../../../core/src/services/Writeable.js';
+import type { Id } from '../../../core/src/rest/model/Id.js';
 
 export class PostProcessorDb {
     private static _entity: Db<PostProcessor>;

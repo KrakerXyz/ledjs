@@ -1,9 +1,9 @@
 
-import { Id } from '../../../../core/src/index.js';
-import { RouteOptions } from 'fastify';
+import type { RouteOptions } from 'fastify';
+import type { Id } from '../../../../core/src/rest/model/Id.js';
 
-type Params = { animationId: Id };
-type Query = { includeDraft?: boolean };
+interface Params { animationId: Id }
+interface Query { includeDraft?: boolean }
 
 export const getLatestById: RouteOptions = {
     method: 'GET',

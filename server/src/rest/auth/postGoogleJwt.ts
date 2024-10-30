@@ -1,9 +1,10 @@
-import { RouteOptions } from 'fastify';
+import type { RouteOptions } from 'fastify';
 import { OAuth2Client } from 'google-auth-library';
 import { v4 } from 'uuid';
-import { GoogleJwt, Id } from '../../../../core/src/index.js';
 import { UserDb } from '../../db/UserDb.js';
 import { getRequiredConfig, EnvKey } from '../../services/config.js';
+import type { GoogleJwt } from '../../../../core/src/rest/AuthRestClient.js';
+import type { Id } from '../../../../core/src/rest/model/Id.js';
 
 export const postGoogleJwt: RouteOptions = {
     method: 'POST',

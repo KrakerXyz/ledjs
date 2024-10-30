@@ -1,9 +1,9 @@
 
-import { RouteOptions } from 'fastify';
-import { Id } from '../../../../core/src/index.js';
+import type { RouteOptions } from 'fastify';
 import { jwtAuthentication } from '../../services/jwtAuthentication.js';
+import type { Id } from '../../../../core/src/rest/model/Id.js';
 
-type Params = { animationId: Id };
+interface Params { animationId: Id }
 
 export const deleteById: RouteOptions = {
     method: 'DELETE',

@@ -1,5 +1,5 @@
-import { Id } from '.';
-import { RestClient } from './RestClient';
+import type { Id } from './model/Id.js';
+import type { RestClient } from './RestClient.js';
 
 export class AuthRestClient {
 
@@ -20,20 +20,20 @@ export class AuthRestClient {
 export interface GoogleToken {
 
     /** The id token returned from a google sign-in request */
-    idToken: string;
+    idToken: string,
 
 }
 
 export interface GoogleJwt {
     /** JWT returned by a GIS login */
-    jwt: string;
+    jwt: string,
 }
 
 export interface User {
-    readonly id: Id;
-    readonly email: string;
-    readonly created: number;
+    readonly id: Id,
+    readonly email: string,
+    readonly created: number,
     /** Time stamp of the last time a authenticated service was used. Could be off by 15 minutes. */
-    readonly lastSeen: number;
-    avatarUrl: string | null;
+    readonly lastSeen: number,
+    avatarUrl: string | null,
 }

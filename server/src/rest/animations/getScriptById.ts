@@ -1,8 +1,8 @@
-import { RouteOptions } from 'fastify';
-import { ScriptVersion } from '../../../../core/src/rest/model/ScriptVersion.js';
-import { Id } from '../../../../core/src/rest/index.js';
+import type { RouteOptions } from 'fastify';
+import type { ScriptVersion } from '../../../../core/src/rest/model/ScriptVersion.js';
+import type { Id } from '../../../../core/src/rest/model/Id.js';
 
-type Params = { animationId: Id, version: ScriptVersion };
+interface Params { animationId: Id, version: ScriptVersion }
 
 export const getScriptById: RouteOptions = {
     method: 'GET',

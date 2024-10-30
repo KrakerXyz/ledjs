@@ -1,6 +1,5 @@
-
-import { DeviceConnectionData, DeviceMessageEventData, ToHostMessage } from './HostMessages';
-import { WsCallbacks, WsConnection, WsEvents, WsOptions } from './WsConnection';
+import type { ToHostMessage, DeviceConnectionData, DeviceMessageEventData } from './HostMessages.js';
+import { type WsCallbacks, WsConnection, type WsEvents, type WsOptions } from './WsConnection.js';
 
 type HostCallbacks = {
     [T in ToHostMessage['type']]: T extends 'deviceConnection' ? (data: DeviceConnectionData) => void

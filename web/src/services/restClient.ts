@@ -1,4 +1,8 @@
-import { RestClient, type RestConfig, AnimationRestClient, PostProcessorRestClient, DeviceRestClient } from '$core/rest';
+import { AnimationRestClient } from '$core/rest/AnimationRestClient';
+import { DeviceRestClient } from '$core/rest/DeviceRestClient';
+import { PostProcessorRestClient } from '$core/rest/PostProcessorRestClient';
+import { RestClient, type RestConfig } from '$core/rest/RestClient';
+
 
 
 let restClient: RestClient | undefined;

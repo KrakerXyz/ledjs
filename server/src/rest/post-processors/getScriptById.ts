@@ -1,7 +1,8 @@
-import { RouteOptions } from 'fastify';
-import { Id, ScriptVersion } from '../../../../core/src/index.js';
+import type { RouteOptions } from 'fastify';
+import type { ScriptVersion } from '../../../../core/src/rest/model/ScriptVersion.js';
+import type { Id } from '../../../../core/src/rest/model/Id.js';
 
-type Params = { postProcessorId: Id, version: ScriptVersion };
+interface Params { postProcessorId: Id, version: ScriptVersion }
 
 export const getScriptById: RouteOptions = {
     method: 'GET',

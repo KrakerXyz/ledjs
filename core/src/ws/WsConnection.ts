@@ -1,7 +1,7 @@
 
 import WsWebSocket from 'ws';
 import { EventEmitter } from 'eventemitter3';
-import type { IDisposable } from '../Disposable';
+import type { IDisposable } from '../Disposable.js';
 
 interface Message { type: string, data: any }
 export type WsEvents<TMessage extends Message> = TMessage['type'] | 'connectionChange';

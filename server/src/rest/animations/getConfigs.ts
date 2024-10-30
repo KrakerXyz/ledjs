@@ -1,6 +1,9 @@
-import { RouteOptions } from 'fastify';
+import type { RouteOptions } from 'fastify';
 import { jwtAuthentication } from '../../services/jwtAuthentication.js';
-import { Id, ScriptVersion, Animation, AnimationConfig, AnimationConfigSummary } from '../../../../core/src/index.js';
+import type { Animation } from '../../../../core/src/rest/model/Animation.js';
+import type { AnimationConfig, AnimationConfigSummary } from '../../../../core/src/rest/model/AnimationConfig.js';
+import type { Id } from '../../../../core/src/rest/model/Id.js';
+import type { ScriptVersion } from '../../../../core/src/rest/model/ScriptVersion.js';
 
 export const getConfigs: RouteOptions = {
     method: 'GET',

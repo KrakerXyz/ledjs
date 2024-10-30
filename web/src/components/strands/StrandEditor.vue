@@ -11,7 +11,8 @@
 
 <script lang="ts">
 
-import type { Id, ScriptVersion } from '$core/index';
+import type { Id } from '$core/rest/model/Id';
+import type { ScriptVersion } from '$core/rest/model/ScriptVersion';
 import { useAnimationRestClient } from '$src/services';
 import { defineComponent, reactive } from 'vue';
 

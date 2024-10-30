@@ -1,6 +1,8 @@
+import type { Id } from './model/Id.js';
+import type { PostProcessor, PostProcessorSummary, PostProcessorPost } from './model/PostProcessor.js';
+import type { ScriptVersion } from './model/ScriptVersion.js';
+import type { RestClient } from './RestClient.js';
 
-import { PostProcessorSummary, PostProcessorPost, PostProcessor, Id, ScriptVersion } from '.';
-import { RestClient } from './RestClient';
 
 export class PostProcessorRestClient {
 

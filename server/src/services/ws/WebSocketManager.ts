@@ -1,14 +1,14 @@
-import { FastifyBaseLogger, FastifyRequest } from 'fastify';
+import type { FastifyBaseLogger, FastifyRequest } from 'fastify';
 import { v4 } from 'uuid';
 import { DeviceLogDb } from '../../db/DeviceLogDb.js';
 import { assertTruthy } from '../assert.js';
-import { RequestServicesContainer } from '../RequestServicesContainer.js';
+import type { RequestServicesContainer } from '../RequestServicesContainer.js';
 import { onClose } from './onClose.js';
-import { Id } from '../../../../core/src/index.js';
-import { Device } from '../../../../core/src/rest/DeviceRestClient.js';
-import { FromDeviceMessage } from '../../../../core/src/ws/FromDeviceMessage.js';
-import { DeviceConnectionEvent, ToHostMessage } from '../../../../core/src/ws/HostMessages.js';
-import { ToDeviceMessage } from '../../../../core/src/ws/ToDeviceMessages.js';
+import type { Device } from '../../../../core/src/rest/DeviceRestClient.js';
+import type { FromDeviceMessage } from '../../../../core/src/ws/FromDeviceMessage.js';
+import type { DeviceConnectionEvent, ToHostMessage } from '../../../../core/src/ws/HostMessages.js';
+import type { ToDeviceMessage } from '../../../../core/src/ws/ToDeviceMessages.js';
+import type { Id } from '../../../../core/src/rest/model/Id.js';
 
 export class WebSocketManager {
 
@@ -197,7 +197,7 @@ export class WebSocketManager {
 }
 
 export interface WsConnection {
-    type: 'device' | 'user';
-    id: Id;
-    socket: WebSocket;
+    type: 'device' | 'user',
+    id: Id,
+    socket: WebSocket,
 }

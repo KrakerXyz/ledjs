@@ -1,6 +1,6 @@
-import { RouteOptions } from '@fastify/websocket';
+import type { RouteOptions } from '@fastify/websocket';
 import { jwtAuthentication } from '../../services/jwtAuthentication.js';
-import { DeviceAnimationPost, Device } from '../../../../core/src/index.js';
+import type { DeviceAnimationPost, Device } from '../../../../core/src/rest/DeviceRestClient.js';
 
 export const postAnimation: RouteOptions = {
     method: 'POST',

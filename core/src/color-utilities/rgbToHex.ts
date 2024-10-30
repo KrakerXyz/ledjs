@@ -1,4 +1,5 @@
-import { IArgb } from '..';
+import type { IArgb } from '../IArgb.js';
+
 
 //https://css-tricks.com/converting-color-spaces-in-javascript/#hsl-to-rgb
 export function rgbToHex(argb: IArgb): string {

@@ -1,7 +1,8 @@
-import { RouteOptions } from 'fastify';
-import { AnimationPost, parseAst, Animation } from '../../../../core/src/index.js';
+import type { RouteOptions } from 'fastify';
 import { buildScript } from '../../services/buildScript.js';
 import { jwtAuthentication } from '../../services/jwtAuthentication.js';
+import type { AnimationPost, Animation } from '../../../../core/src/rest/model/Animation.js';
+import { parseAst } from '../../../../core/src/services/parseAst.js';
 
 export const postAnimation: RouteOptions = {
     method: 'POST',
