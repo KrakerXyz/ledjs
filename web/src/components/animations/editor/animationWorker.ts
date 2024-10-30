@@ -1,4 +1,6 @@
-import { hslToRgb, hexToRgb } from '$core/color-utilities';
+
+import { hexToRgb } from '$core/color-utilities/hexToRgb';
+import { hslToRgb } from '$core/color-utilities/hslToRgb';
 import { LedArray } from '$src/services/animation/LedArray';
 import { Timer } from '$src/services/animation/Timer';
 

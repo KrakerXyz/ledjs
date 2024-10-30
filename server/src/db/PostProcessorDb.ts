@@ -10,7 +10,7 @@ export class PostProcessorDb {
     private static _entity: Db<PostProcessor>;
 
     public constructor() {
-        PostProcessorDb._entity ??= new Db<PostProcessor>('postProcessors', jsonSchemas.postProcessor);
+        PostProcessorDb._entity ??= new Db<PostProcessor>('post-processors', jsonSchemas.postProcessor);
     }
 
     public all(): AsyncGenerator<PostProcessorSummary> {

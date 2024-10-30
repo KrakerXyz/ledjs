@@ -4,7 +4,9 @@ import { type ComputedRef, type Ref, watch } from 'vue';
 import type { WorkerMessage } from './animationWorkerWorker';
 import AnimationWorker from './animationWorkerWorker?worker';
 import { createAnimation } from './createAnimation';
-import { type CodeIssue, deepEquals, deepClone } from '$core/services';
+import { deepClone } from '$core/services/deepClone';
+import { deepEquals } from '$core/services/deepEquals';
+import type { CodeIssue } from '$core/services/validateScript';
 
 export async function useAnimationWorkerAsync(canvasContainer: Ref<HTMLDivElement | undefined>, animationJs: Ref<string | null | undefined>, numLeds: Ref<number>): Promise<WorkerContext> {
     

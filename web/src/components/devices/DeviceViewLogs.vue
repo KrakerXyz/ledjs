@@ -19,9 +19,12 @@
 </template>
 
 <script lang="ts">
-import { type Id, DeviceRestClient, type FromDeviceMessageLog, type IDisposable } from '$core/index';
-import { deepClone, newId } from '$core/services';
+import { DeviceRestClient, type FromDeviceMessageLog } from '$core/rest/DeviceRestClient';
+import type { Id } from '$core/rest/model/Id';
+import { deepClone } from '$core/services/deepClone';
+import { newId } from '$core/services/newId';
 import { useRestClient, useWsClient } from '$src/services';
+import type { IDisposable } from 'monaco-editor';
 import { defineComponent, onUnmounted, reactive } from 'vue';
 
 export default defineComponent({

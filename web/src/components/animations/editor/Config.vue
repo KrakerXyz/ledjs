@@ -62,8 +62,11 @@
 
 <script lang="ts">
 
-import type { Id, ScriptVersion, AnimationConfigPost } from '$core/index';
-import { deepClone, newId } from '$core/services';
+import type { AnimationConfigPost } from '$core/rest/model/AnimationConfig';
+import type { Id } from '$core/rest/model/Id';
+import type { ScriptVersion } from '$core/rest/model/ScriptVersion';
+import { deepClone } from '$core/services/deepClone';
+import { newId } from '$core/services/newId';
 import { useAnimationRestClient } from '$src/services';
 import { defineComponent, ref, watch } from 'vue';
 

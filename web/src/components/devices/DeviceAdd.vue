@@ -53,7 +53,8 @@ import { reactive } from 'vue';
 import { defineComponent } from 'vue';
 import { useRouter } from 'vue-router';
 import { useRestClient } from '../../services';
-import { type DevicePost, DeviceRestClient, newId } from '$core/index';
+import { type DevicePost, DeviceRestClient } from '$core/rest/DeviceRestClient';
+import { newId } from '$core/services/newId';
 
 export default defineComponent({
     setup() {

@@ -29,8 +29,8 @@
 import { defineComponent } from 'vue';
 import { useAnimationRestClient, useDevicesRestClient } from '../../services';
 import DeviceListItem from './DeviceListItem.vue';
-import { deepClone } from '$core/services';
 import { useRouteLocation, RouteName } from '$src/main.router';
+import { deepClone } from '$core/services/deepClone';
 
 export default defineComponent({
     components: {

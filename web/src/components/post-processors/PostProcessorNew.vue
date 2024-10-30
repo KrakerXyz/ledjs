@@ -29,10 +29,10 @@
 import { defineComponent, reactive } from 'vue';
 import { useRouter } from 'vue-router';
 import example from './editor/Script.ts?raw';
-import type { PostProcessorPost } from '$core/index';
-import { newId } from '$core/services';
 import { useRouteLocation, RouteName } from '$src/main.router';
 import { usePostProcessorRestClient } from '$src/services';
+import type { PostProcessorPost } from '$core/rest/model/PostProcessor';
+import { newId } from '$core/services/newId';
 
 export default defineComponent({
     props: {

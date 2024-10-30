@@ -1,6 +1,6 @@
 
-import type { IDisposable } from '$core/index';
-import { HostWsClient, type HostWsOptions } from '$core/ws';
+import type { IDisposable } from '$core/Disposable';
+import { HostWsClient, type HostWsOptions } from '$core/ws/HostWsClient';
 import { getCurrentInstance, onUnmounted } from 'vue';
 
 type WsClient = Pick<HostWsClient, 'on'>;

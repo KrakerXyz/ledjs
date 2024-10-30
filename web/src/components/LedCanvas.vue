@@ -9,8 +9,8 @@
 
 import { defineComponent, watch, ref, onMounted, onUnmounted } from 'vue';
 import type { LedArray } from '../services/animation/LedArray';
-import { rgbToHex } from '$core/color-utilities';
 import type { IArgb } from '$core/IArgb';
+import { rgbToHex } from '$core/color-utilities/rgbToHex';
 
 export default defineComponent({
     emits: {

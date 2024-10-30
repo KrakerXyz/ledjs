@@ -39,8 +39,8 @@
 <script lang="ts">
 import { defineComponent, ref } from 'vue';
 import { useAnimationRestClient } from '../../services';
-import type { AnimationSummary } from '$core/index';
 import { useRouteLocation, RouteName } from '$src/main.router';
+import type { AnimationSummary } from '$core/rest/model/Animation';
 
 export default defineComponent({
     props: {},

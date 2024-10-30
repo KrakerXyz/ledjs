@@ -9,7 +9,7 @@ export class DeviceLogDb {
     private static _entity: Db<DeviceLog>;
 
     public constructor() {
-        DeviceLogDb._entity ??= new Db<DeviceLog>('deviceLogs', jsonSchemas.deviceLog);
+        DeviceLogDb._entity ??= new Db<DeviceLog>('device-logs', jsonSchemas.deviceLog);
     }
 
     public add(deviceLog: DeviceLog): Promise<void> {

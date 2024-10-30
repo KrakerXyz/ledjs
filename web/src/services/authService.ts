@@ -2,8 +2,8 @@ import { ref } from 'vue';
 import { useRestClient } from '.';
 import Cookies from 'js-cookie';
 import { computed } from 'vue';
-import { type User, type GoogleJwt, AuthRestClient } from '$core/index';
 import { loginRedirect, logoutRedirect } from '$src/main.router';
+import { type User, type GoogleJwt, AuthRestClient } from '$core/rest/AuthRestClient';
 
 let initResolver: (() => void) | null = null;
 const initPromise = new Promise<void>(r => initResolver = r);

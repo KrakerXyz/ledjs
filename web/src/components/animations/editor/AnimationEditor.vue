@@ -69,10 +69,11 @@ import { defineComponent, ref, computed, onUnmounted, getCurrentInstance } from 
 import types from '../../../types.d.ts?raw';
 import config from './Config.vue';
 import { useRouter } from 'vue-router';
-import type { Id, AnimationPost } from '$core/index';
-import { newId } from '$core/services';
 import { RouteName, useRouteLocation } from '$src/main.router';
 import { useAnimationRestClient, useMonacoEditor, assertTrue, useAnimationWorkerAsync } from '$src/services';
+import type { AnimationPost } from '$core/rest/model/Animation';
+import type { Id } from '$core/rest/model/Id';
+import { newId } from '$core/services/newId';
 
 export default defineComponent({
     components: { config },

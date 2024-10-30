@@ -1,4 +1,5 @@
-import { rgbToHex } from '$core/color-utilities';
+
+import { rgbToHex } from '$core/color-utilities/rgbToHex';
 import type { IArgb } from '$core/IArgb';
 import type { LedArray } from './LedArray';
 

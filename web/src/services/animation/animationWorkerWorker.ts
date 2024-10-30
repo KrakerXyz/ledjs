@@ -1,5 +1,5 @@
 
-import type { CodeIssue } from '$core/services';
+import type { CodeIssue } from '$core/services/validateScript';
 import type { ClientMessage } from './animationWorker';
 import { createAnimation } from './createAnimation';
 import { LedArray } from './LedArray';

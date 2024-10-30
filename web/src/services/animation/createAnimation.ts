@@ -1,4 +1,6 @@
-import { hslToRgb, hexToRgb } from '$core/color-utilities';
+import { hexToRgb } from '$core/color-utilities/hexToRgb';
+import { hslToRgb } from '$core/color-utilities/hslToRgb';
+
 
 export async function createAnimation(js: string): Promise<netled.animation.IAnimation> {
     if (!(globalThis as any).netled) {

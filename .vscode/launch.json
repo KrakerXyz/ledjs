@@ -30,8 +30,9 @@
                 "<node_internals>/**"
             ],
             "cwd": "${workspaceFolder}\\server",
-            "program": "${workspaceFolder}\\server\\dist\\index.js",
+            "program": "${workspaceFolder}\\server\\dist\\server\\src\\index.js",
             "runtimeArgs": [
+                "--env-file=.env",
                 "--unhandled-rejections=strict"
             ],
             "preLaunchTask": "build-server",

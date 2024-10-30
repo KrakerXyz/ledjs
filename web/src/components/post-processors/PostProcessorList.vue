@@ -39,8 +39,8 @@
 <script lang="ts">
 import { defineComponent, ref } from 'vue';
 import { usePostProcessorRestClient } from '../../services';
-import type { PostProcessorSummary } from '$core/index';
 import { useRouteLocation, RouteName } from '$src/main.router';
+import type { PostProcessorSummary } from '$core/rest/model/PostProcessor';
 
 export default defineComponent({
     props: {},

@@ -78,10 +78,13 @@
 </template>
 
 <script lang="ts">
-import type { Device, AnimationConfigSummary, Id, IDisposable } from '$core/index';
-import { deepClone } from '$core/services';
-import type { DeviceHealthData } from '$core/ws';
+import type { Device } from '$core/rest/DeviceRestClient';
+import type { AnimationConfigSummary } from '$core/rest/model/AnimationConfig';
+import type { Id } from '$core/rest/model/Id';
+import { deepClone } from '$core/services/deepClone';
+import type { DeviceHealthData } from '$core/ws/FromDeviceMessage';
 import { useDevicesRestClient, useWsClient } from '$src/services';
+import type { IDisposable } from 'monaco-editor';
 import { computed, defineComponent, onUnmounted, reactive, ref } from 'vue';
 
 export default defineComponent({

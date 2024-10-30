@@ -11,7 +11,7 @@ export class AnimationConfigDb {
     private static _entity: Db<AnimationConfig>;
 
     public constructor() {
-        AnimationConfigDb._entity ??= new Db<AnimationConfig>('animationConfigs', jsonSchemas.animationConfig);
+        AnimationConfigDb._entity ??= new Db<AnimationConfig>('animation-configs', jsonSchemas.animationConfig);
     }
 
     public byAnimationId(animationId: Id, userId?: Id, version?: ScriptVersion): AsyncGenerator<AnimationConfig> {
