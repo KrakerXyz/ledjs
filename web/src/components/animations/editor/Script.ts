@@ -1,5 +1,5 @@
 
-export default netled.defineAnimation({
+export default netled.animation.defineAnimation({
     services: ['timer'],
     construct(arr, { timer }) {
         let interval: netled.services.ITimerInterval | null = null;
@@ -32,7 +32,7 @@ export default netled.defineAnimation({
 
                 interval?.stop();
                 running = true;
-                interval = timer.createInterval(settings.speed, nextFrame.bind(this, settings), { started: true });
+                interval = timer.createInterval(settings.speed, nextFrame.bind(this), { started: true });
                 nextFrame();
             },
             pause() {
