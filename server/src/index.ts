@@ -14,9 +14,15 @@ import { deviceAuthentication } from './services/deviceAuthentication.js';
 import { jwtAuthentication } from './services/jwtAuthentication.js';
 
 import { fileURLToPath } from 'url';
-import Ajv from 'ajv';
+import { configureDbLocal } from './db/Db.js';
 const __filename = fileURLToPath(import.meta.url); // get the resolved path to the file
 const __dirname = path.dirname(__filename); // get the name of the directory
+
+console.log('Configuring db');
+configureDbLocal({
+    dbName: 'netled-dev',
+    uri: getRequiredConfig(EnvKey.DbConnectionString)
+});
 
 console.log('Initializing Fastify');
 
