@@ -1,11 +1,13 @@
 
+export type LedArrayCallback = (ledArray: LedArray) => Promise<void>;
+
 export class LedArray implements netled.common.ILedArray {
 
     readonly #arr: Uint8ClampedArray;
     readonly #numLeds: number;
-    readonly #sendCb: (ledArray: LedArray) => Promise<void>;
+    readonly #sendCb: LedArrayCallback;
 
-    public constructor(sab: SharedArrayBuffer, numLeds: number, ledOffset: number, sendCb: (ledArray: LedArray) => Promise<void>) {
+    public constructor(sab: SharedArrayBuffer, numLeds: number, ledOffset: number, sendCb: LedArrayCallback) {
         this.#arr = new Uint8ClampedArray(sab, ledOffset * 4, numLeds * 4);
         this.#numLeds = numLeds;
         this.#sendCb = sendCb;

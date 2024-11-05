@@ -70,10 +70,12 @@ import types from '../../../types.d.ts?raw';
 import config from './Config.vue';
 import { useRouter } from 'vue-router';
 import { RouteName, useRouteLocation } from '$src/main.router';
-import { useAnimationRestClient, useMonacoEditor, assertTrue, useAnimationWorkerAsync } from '$src/services';
+import { useAnimationRestClient, useMonacoEditor, assertTrue } from '$src/services';
 import type { AnimationPost } from '$core/rest/model/Animation';
 import type { Id } from '$core/rest/model/Id';
 import { newId } from '$core/services/newId';
+import { useCanvasRenderer } from '$src/services/animation/renderCanvas';
+import { useAnimationWorkerAsync } from '$src/services/animation/animationWorker';
 
 export default defineComponent({
     components: { config },
@@ -101,7 +103,8 @@ export default defineComponent({
         const componentInstance = getCurrentInstance();
         assertTrue(componentInstance);
 
-        const { animationSettings, animationConfig, moduleIssues, dispose } = await useAnimationWorkerAsync(canvasContainer, javascript, numLeds);
+        const canvasRenderer = useCanvasRenderer(canvasContainer);
+        const { animationSettings, animationConfig, moduleIssues, dispose } = await useAnimationWorkerAsync(javascript, numLeds, canvasRenderer);
 
         onUnmounted(() => dispose(), componentInstance);
 

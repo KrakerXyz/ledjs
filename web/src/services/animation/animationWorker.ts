@@ -7,8 +7,9 @@ import { createAnimation } from './createAnimation';
 import { deepClone } from '$core/services/deepClone';
 import { deepEquals } from '$core/services/deepEquals';
 import type { CodeIssue } from '$core/services/validateScript';
+import { LedArray, type LedArrayCallback } from './LedArray';
 
-export async function useAnimationWorkerAsync(canvasContainer: Ref<HTMLDivElement | undefined>, animationJs: Ref<string | null | undefined>, numLeds: Ref<number>): Promise<WorkerContext> {
+export async function useAnimationWorkerAsync(animationJs: Ref<string | null | undefined>, numLeds: Ref<number>, ledArrayCb: LedArrayCallback): Promise<WorkerContext> {
     
     let firstPassResolver: (() => void) | null = null;
     const firstPassProm = new Promise<void>(r => firstPassResolver = r);
@@ -19,29 +20,17 @@ export async function useAnimationWorkerAsync(canvasContainer: Ref<HTMLDivElemen
     let worker: Worker | null = null;
     let disposed = false;
 
-    let canvas: HTMLCanvasElement | null = null;
-
     const workerIssues = ref<CodeIssue[]>([]);
 
-    watch([animationJs, numLeds, canvasContainer], async x => {
-        const [js, numLeds, canvasContainer] = x;
+    watch([animationJs, numLeds], async x => {
+        const [js, numLeds] = x;
         try {
             workerIssues.value = [];
             worker?.terminate();
             worker = null;
-            canvas?.remove();
 
             if (!js) { return; }
-            if (!canvasContainer) { return; }
-
-            canvas = document.createElement('canvas');
-            canvas.style.display = 'block';
-            canvas.style.width = '100%';
-            canvasContainer.appendChild(canvas);
             
-            if (!canvas.transferControlToOffscreen) { throw new Error('canvas.transferControlToOffscreen not supported'); }
-            const offscreenCanvas = canvas.transferControlToOffscreen();
-
             let animation: netled.animation.IAnimation | null = null;
             try {
                 animation = await createAnimation(js);
@@ -65,14 +54,21 @@ export async function useAnimationWorkerAsync(canvasContainer: Ref<HTMLDivElemen
 
             worker = new AnimationWorker();
 
+            const sab = new SharedArrayBuffer(numLeds * 4);
+            const ledArray = new LedArray(sab, numLeds, 0, ledArrayCb);
+
             worker.addEventListener('message', (e: MessageEvent<WorkerMessage>) => {
                 if (!e.data) { throw new Error('e.data empty'); }
                 switch (e.data.type) {
                     case 'moduleError': {
                         break;
                     }
+                    case 'ledArraySend': {
+                        ledArray.send();
+                        break;
+                    }
                     default: {
-                        const _: never = e.data.type;
+                        const _: never = e.data;
                         break;
                     }
                 }
@@ -84,9 +80,9 @@ export async function useAnimationWorkerAsync(canvasContainer: Ref<HTMLDivElemen
                 settings: deepClone(animationSettings.value),
                 numLeds,
                 arrayOffset: 0,
-                canvas: offscreenCanvas
+                sab
             };
-            worker.postMessage(initMessage, [offscreenCanvas]);
+            worker.postMessage(initMessage);
 
             
         } finally {
@@ -134,7 +130,7 @@ export type ClientMessage = {
     settings: netled.common.ISettings,
     numLeds: number,
     arrayOffset: number,
-    canvas: OffscreenCanvas,
+    sab: SharedArrayBuffer,
 }
 | { 
     type: 'animationSettings',

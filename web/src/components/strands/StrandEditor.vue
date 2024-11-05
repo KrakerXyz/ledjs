@@ -31,7 +31,7 @@ export default defineComponent({
             let inputName = 'UNK';
             const input = s.input;
             if (input.type === SegmentInputType.Animation) {
-                inputName = animations.find(x => x.id === input.animation.id)?.name ?? 'UNK';
+                inputName = animations.find(x => x.id === input.animation.id)?.name ?? 'ANIM NOT FOUND';
             }
             const vm: SegmentVm = {
                 segment: s,
@@ -39,6 +39,8 @@ export default defineComponent({
             };
             return vm;
         });
+
+        console.log('segmentVms', segmentVms);
 
         return { segmentVms };
     }

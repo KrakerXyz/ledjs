@@ -1,7 +1,7 @@
 
 import { createRouter, createWebHistory, type NavigationGuard, type RouteLocationRaw, type RouteRecordRaw } from 'vue-router';
 import { useAuthService } from './services/authService';
-import type { Id } from '$core/rest';
+import type { Id } from '$core/rest/model/Id';
 
 const authService = useAuthService();
 

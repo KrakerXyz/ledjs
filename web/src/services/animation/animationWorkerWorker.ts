@@ -3,12 +3,13 @@ import type { CodeIssue } from '$core/services/validateScript';
 import type { ClientMessage } from './animationWorker';
 import { createAnimation } from './createAnimation';
 import { LedArray } from './LedArray';
-import { renderCanvas } from './renderCanvas';
 import { Timer } from './Timer';
 
-export interface WorkerMessage {
+export type WorkerMessage = {
     type: 'moduleError',
     errors: CodeIssue[],
+} | {
+    type: 'ledArraySend',
 }
 
 let ledArray: LedArray | null = null;
@@ -24,21 +25,14 @@ onmessage = async (e: MessageEvent<ClientMessage>) => {
     switch (e.data.type) {
         case 'init': {
 
-            const canvas = e.data.canvas;
-
             const animation = await createAnimation(e.data.js);
             if (!animation.construct) {
                 postMessage({ type: 'moduleError', errors: [{ severity: 'error', line: 0, col: 0, message: 'Script has no construct function' }] });
                 return;
             }
 
-            const canvasDimensions: [number, number] = [canvas.width, canvas.height];
-            const canvasContext = canvas.getContext('2d');
-            if (!canvasContext) { throw new Error('Missing 2d canvas context'); }
-
-            const sab = new SharedArrayBuffer(e.data.numLeds * 4);
-            ledArray = new LedArray(sab, e.data.numLeds, e.data.arrayOffset, async (ledArray) => {
-                renderCanvas(canvasContext, canvasDimensions, ledArray);
+            ledArray = new LedArray(e.data.sab, e.data.numLeds, e.data.arrayOffset, async () => {
+                postMessage({ type: 'ledArraySend' });
             });
 
             const services: Partial<netled.services.IServices> = {};

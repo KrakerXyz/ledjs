@@ -90,11 +90,13 @@ import types from '../../../types.d.ts?raw';
 import { useRouter } from 'vue-router';
 import config from '../../animations/editor/Config.vue';
 import { useRouteLocation, RouteName } from '$src/main.router';
-import { usePostProcessorRestClient, useAnimationRestClient, assertTrue, useMonacoEditor, useAnimationWorkerAsync } from '$src/services';
+import { usePostProcessorRestClient, useAnimationRestClient, assertTrue, useMonacoEditor } from '$src/services';
 import type { Id } from '$core/rest/model/Id';
 import type { PostProcessorPost } from '$core/rest/model/PostProcessor';
 import type { ScriptVersion } from '$core/rest/model/ScriptVersion';
 import { newId } from '$core/services/newId';
+import { useCanvasRenderer } from '$src/services/animation/renderCanvas';
+import { useAnimationWorkerAsync } from '$src/services/animation/animationWorker';
 
 export default defineComponent({
     components: { config },
@@ -182,7 +184,8 @@ export default defineComponent({
         });
 
         const canvasContainer = ref<HTMLDivElement>();
-        const { animationSettings, animationConfig, dispose } = await useAnimationWorkerAsync(canvasContainer, animationJavascript, numLeds);
+        const canvasRenderer = useCanvasRenderer(canvasContainer);
+        const { animationSettings, animationConfig, dispose } = await useAnimationWorkerAsync(animationJavascript, numLeds, canvasRenderer);
         onUnmounted(() => dispose(), componentInstance);
 
         return { numLeds, canvasContainer, animationConfig, processor, saveScript, deleteScript, issues, animations, selectedAnimationId, selectedAnimation, animationSettings };
