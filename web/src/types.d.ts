@@ -13,13 +13,13 @@ declare global {
 
             interface IPostProcessor<TConfig extends common.IConfig = common.IConfig> {
                 /** Creates controller for the post processor */
-                construct(): IPostProcessorController,
+                construct(ledArray: common.ILedArray, settings: common.ISettings<TConfig>): IPostProcessorController,
                 /** Optional configuration metadata for the post processor */
                 config?: TConfig,
             }
 
-            interface IPostProcessorController<TConfig extends common.IConfig = common.IConfig> {
-                process(ledArray: common.ILedArray, settings: common.ISettings<TConfig>): void,
+            interface IPostProcessorController<> {
+                exec(): Promise<void>,
             }
 
         }
@@ -53,7 +53,7 @@ declare global {
                 /** Reverses the order of all leds in the array */
                 reverse(): void, 
 
-                /** Output the current array to the leds */
+                /** Output the current array to the leds or the next stage in the pipeline */
                 send(): Promise<void>,
             }
 

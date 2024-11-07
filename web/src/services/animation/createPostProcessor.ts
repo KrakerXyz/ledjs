@@ -1,7 +1,7 @@
 import { ensureNetledNamespace } from './ensureNetledNamespace';
 
+export async function createPostProcessor(js: string): Promise<netled.postProcessor.IPostProcessor> {
 
-export async function createAnimation(js: string): Promise<netled.animation.IAnimation> {
     ensureNetledNamespace();
 
     const b64moduleData = 'data:text/javascript;base64,' + btoa(js);
@@ -11,7 +11,7 @@ export async function createAnimation(js: string): Promise<netled.animation.IAni
         throw new Error('Script does not have default export');
     }
 
-    const animation = module.default as netled.animation.IAnimation;
-    return animation;
+    const postProcessor = module.default as netled.postProcessor.IPostProcessor;
+    return postProcessor;
 
 }

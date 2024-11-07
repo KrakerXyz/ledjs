@@ -7,7 +7,7 @@ export class LedArray implements netled.common.ILedArray {
     readonly #numLeds: number;
     readonly #sendCb: LedArrayCallback;
 
-    public constructor(sab: SharedArrayBuffer, numLeds: number, ledOffset: number, sendCb: LedArrayCallback) {
+    public constructor(public readonly sab: SharedArrayBuffer, numLeds: number, public readonly ledOffset: number, sendCb: LedArrayCallback) {
         this.#arr = new Uint8ClampedArray(sab, ledOffset * 4, numLeds * 4);
         this.#numLeds = numLeds;
         this.#sendCb = sendCb;
@@ -49,16 +49,9 @@ export class LedArray implements netled.common.ILedArray {
         const pos = index * 4;
         if (args.length === 1) {
             const color = args[0];
-            this.#arr[pos] = color[0];
-            this.#arr[pos + 1] = color[1];
-            this.#arr[pos + 2] = color[2];
-            this.#arr[pos + 3] = color[3];
+            this.#arr.set(color, pos);
         } else if (args.length === 4) {
-            const [a, r, g, b] = args;
-            this.#arr[pos] = a;
-            this.#arr[pos + 1] = r;
-            this.#arr[pos + 2] = g;
-            this.#arr[pos + 3] = b;
+            this.#arr.set(args, pos);
         } else if (args.length === 2) {
             const [component, value] = args;
             if (component < 0 || component > 3) {
@@ -98,11 +91,22 @@ export class LedArray implements netled.common.ILedArray {
 
     /** Reverses the order of all leds in the array */
     public reverse(): void {
-        this.#arr.reverse();
+        for (let i = 0; i < this.#numLeds/ 2; i++) {
+            const endPos = this.#numLeds - i - 1;
+
+            const startLed = this.getLed(i);
+            const endLed = this.getLed(endPos);
+
+            this.setLed(i, endLed);
+            this.setLed(endPos, startLed);
+        }
     }
 
+    #isSending = false;
     public send(): Promise<void> {
-        return this.#sendCb(this);
+        if (this.#isSending) { throw new Error('Previous send still in progress'); }
+        this.#isSending = true;
+        return this.#sendCb(this).finally(() => this.#isSending = false);
     }
 
 }

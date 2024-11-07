@@ -97,6 +97,8 @@ import type { ScriptVersion } from '$core/rest/model/ScriptVersion';
 import { newId } from '$core/services/newId';
 import { useCanvasRenderer } from '$src/services/animation/renderCanvas';
 import { useAnimationWorkerAsync } from '$src/services/animation/animationWorker';
+import { usePostProcessorWorkerAsync } from '$src/services/animation/postProcessorWorker';
+import { LedArray } from '$src/services/animation/LedArray';
 
 export default defineComponent({
     components: { config },
@@ -127,12 +129,7 @@ export default defineComponent({
                 }
             }
         );
-
-        watch(javascript, js => {
-            console.log(js);
-        });
         
-
         const selectedAnimationId = ref<Id>();
 
         const animationJavascript = ref<string>();
@@ -150,6 +147,8 @@ export default defineComponent({
             postProcessorApi.latest(props.postProcessorId, true),
             animationApi.list()
         ]);
+
+        selectedAnimationId.value = animations[0]?.id;
         content.value = postProcessor.ts;
 
         const saveScript = async () => {
@@ -183,12 +182,32 @@ export default defineComponent({
             return a;
         });
 
+        const sab = computed(() => new SharedArrayBuffer(numLeds.value * 4));
+
         const canvasContainer = ref<HTMLDivElement>();
         const canvasRenderer = useCanvasRenderer(canvasContainer);
-        const { animationSettings, animationConfig, dispose } = await useAnimationWorkerAsync(animationJavascript, numLeds, canvasRenderer);
-        onUnmounted(() => dispose(), componentInstance);
 
-        return { numLeds, canvasContainer, animationConfig, processor, saveScript, deleteScript, issues, animations, selectedAnimationId, selectedAnimation, animationSettings };
+        const ledArrRend = computed(() => {
+            return new LedArray(sab.value, numLeds.value, 0, canvasRenderer);
+        });
+
+        const ledArrayPost = computed(() => {
+            return new LedArray(sab.value, numLeds.value, 0, () => ledArrRend.value.send());
+        });
+
+        const postContext = await usePostProcessorWorkerAsync(javascript, ledArrayPost);
+
+        const ledArrayAnim = computed(() => {
+            return new LedArray(sab.value, numLeds.value, 0, postContext.ledArrayInput);
+        });
+        const animationContext = await useAnimationWorkerAsync(animationJavascript, ledArrayAnim);
+
+        onUnmounted(() => {
+            animationContext.dispose();
+            postContext.dispose();
+        }, componentInstance);
+
+        return { numLeds, canvasContainer, animationConfig: animationContext.animationConfig, processor, saveScript, deleteScript, issues, animations, selectedAnimationId, selectedAnimation, animationSettings: animationContext.animationSettings };
     }
 });
 

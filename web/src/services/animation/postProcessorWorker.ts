@@ -1,28 +1,28 @@
 
 import { computed, ref } from 'vue';
 import { type ComputedRef, type Ref, watch } from 'vue';
-import type { WorkerMessage } from './animationWorkerWorker';
-import AnimationWorker from './animationWorkerWorker?worker';
-import { createAnimation } from './createAnimation';
+import type { WorkerMessage } from './postProcessorWorkerWorker';
+import PostProcessorWorker from './postProcessorWorkerWorker?worker';
+import { createPostProcessor } from './createPostProcessor';
 import { deepClone } from '$core/services/deepClone';
 import { deepEquals } from '$core/services/deepEquals';
 import type { CodeIssue } from '$core/services/validateScript';
-import type { LedArray } from './LedArray';
+import type { LedArray, LedArrayCallback } from './LedArray';
 
-export async function useAnimationWorkerAsync(animationJs: Ref<string | null | undefined>, ledArray: Readonly<Ref<LedArray>>): Promise<WorkerContext> {
+export async function usePostProcessorWorkerAsync(postProcessorJs: Ref<string | null | undefined>, ledArray: Readonly<Ref<LedArray>>): Promise<WorkerContext> {
     
     let firstPassResolver: (() => void) | null = null;
     const firstPassProm = new Promise<void>(r => firstPassResolver = r);
 
-    const animationConfig = ref<netled.common.IConfig>();
-    const animationSettings = ref<netled.common.ISettings>({});
+    const postProcessorConfig = ref<netled.common.IConfig>();
+    const postProcessorSettings = ref<netled.common.ISettings>({});
 
     let worker: Worker | null = null;
     let disposed = false;
 
     const workerIssues = ref<CodeIssue[]>([]);
 
-    watch([animationJs, ledArray], async x => {
+    watch([postProcessorJs, ledArray], async x => {
         const [js, ledArray] = x;
         try {
             workerIssues.value = [];
@@ -31,28 +31,28 @@ export async function useAnimationWorkerAsync(animationJs: Ref<string | null | u
 
             if (!js) { return; }
             
-            let animation: netled.animation.IAnimation | null = null;
+            let postProcessor: netled.postProcessor.IPostProcessor | null = null;
             try {
-                animation = await createAnimation(js);
+                postProcessor = await createPostProcessor(js);
             } catch (e: any) {
                 workerIssues.value.push({ col: 0, line: 0, severity: 'error', message: `Could not create module from script: ${e.message ?? e}` });
                 return;
             }
-            let newSettings = animationSettings.value;
-            if (!deepEquals(animation.config, animationConfig.value)) {
+            let newSettings = postProcessorSettings.value;
+            if (!deepEquals(postProcessor.config, postProcessorConfig.value)) {
                 newSettings = {};
-                if (animation.config) {
-                    for (const key of Object.keys(animation.config)) {
-                        newSettings[key] = animation.config![key].default;
+                if (postProcessor.config) {
+                    for (const key of Object.keys(postProcessor.config)) {
+                        newSettings[key] = postProcessor.config![key].default;
                     }
                 }
-                animationSettings.value = newSettings;
-                animationConfig.value = animation.config;
+                postProcessorSettings.value = newSettings;
+                postProcessorConfig.value = postProcessor.config;
             }
 
             if (disposed) { return; }
 
-            worker = new AnimationWorker();
+            worker = new PostProcessorWorker();
 
             worker.addEventListener('message', (e: MessageEvent<WorkerMessage>) => {
                 if (!e.data) { throw new Error('e.data empty'); }
@@ -74,7 +74,7 @@ export async function useAnimationWorkerAsync(animationJs: Ref<string | null | u
             const initMessage: ClientMessage = {
                 type: 'init',
                 js,
-                settings: deepClone(animationSettings.value),
+                settings: deepClone(postProcessorSettings.value),
                 numLeds: ledArray.length,
                 arrayOffset: ledArray.ledOffset,
                 sab: ledArray.sab
@@ -90,20 +90,30 @@ export async function useAnimationWorkerAsync(animationJs: Ref<string | null | u
         }
     }, { immediate: true });
 
-    watch(animationSettings, settings => {
+    watch(postProcessorSettings, settings => {
         const message: ClientMessage = {
-            type: 'animationSettings',
+            type: 'postProcessorSettings',
             settings: deepClone(settings)
         };
         worker?.postMessage(message);
     });
 
+    const ledArrayInput: LedArrayCallback = () => {
+        if (disposed) { return Promise.resolve(); }
+        const message: ClientMessage = {
+            type: 'process'
+        };
+        worker?.postMessage(message);
+        return Promise.resolve();
+    };
+
     await firstPassProm;
 
     return {
-        animationConfig: computed(() => animationConfig.value),
-        animationSettings,
+        postProcessorConfig: computed(() => postProcessorConfig.value),
+        postProcessorSettings,
         moduleIssues: computed(() => [...workerIssues.value]),
+        ledArrayInput,
         dispose: () => { 
             disposed = true;
             worker?.terminate();
@@ -114,9 +124,10 @@ export async function useAnimationWorkerAsync(animationJs: Ref<string | null | u
 }
 
 export interface WorkerContext {
-    animationConfig: ComputedRef<netled.common.IConfig | undefined>,
-    animationSettings: Ref<netled.common.ISettings>,
+    postProcessorConfig: ComputedRef<netled.common.IConfig | undefined>,
+    postProcessorSettings: Ref<netled.common.ISettings>,
     moduleIssues: ComputedRef<CodeIssue[]>,
+    ledArrayInput: LedArrayCallback,
     /**Kills the current worker and prevents new one from starting up.*/
     dispose: () => void,
 }
@@ -128,8 +139,9 @@ export type ClientMessage = {
     numLeds: number,
     arrayOffset: number,
     sab: SharedArrayBuffer,
-}
-| { 
-    type: 'animationSettings',
+} | { 
+    type: 'postProcessorSettings',
     settings: netled.common.ISettings,
+} | {
+    type: 'process',
 }
