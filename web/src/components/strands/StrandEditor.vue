@@ -1,9 +1,36 @@
 
 <template>
-    <div>
-        <div v-for="(s, index) of segmentVms" :key="index" class="row">
+    <div class="d-flex flex-column h-100">
+        <div class="flex-grow-1 row g-0">
             <div class="col">
-                {{s.name}}
+                <div class="h-100 d-flex flex-column">
+                    <div style="margin-left: 0%; width: 50%">
+                        <Segment name="Anim: Rainbow" :sab="sab" :num-leds="numLeds"></Segment>
+                    </div>
+                    <div style="margin-left: 00%; width: 100%">
+                        <Segment name="Post: Copy" :sab="sab" :num-leds="numLeds"></Segment>
+                    </div>
+                    <div style="margin-left: 50%; width: 50%">
+                        <Segment name="Post: Reverse" :sab="sab" :num-leds="numLeds"></Segment>
+                    </div>
+                    <div style="width: 100%">
+                        <Segment name="FINAL" :sab="sab" :num-leds="numLeds"></Segment>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 p-2 d-flex flex-column">
+                <div class="flex-grow-1">
+                    <h3>Setup</h3>
+                    <div class="form-floating">
+                        <input
+                            id="d-leds"
+                            class="form-control"
+                            placeholder="*"
+                            v-model.lazy.number="numLeds"
+                        >
+                        <label for="d-leds"># LEDs</label>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -13,54 +40,31 @@
 
 import type { Id } from '$core/rest/model/Id';
 import type { ScriptVersion } from '$core/rest/model/ScriptVersion';
-import { useAnimationRestClient, usePostProcessorRestClient } from '$src/services';
-import { defineComponent, reactive } from 'vue';
+import { assertTrue } from '$src/services';
+import { computed, defineComponent, getCurrentInstance, reactive, ref } from 'vue';
+import Segment from './Segment.vue';
 
 export default defineComponent({
+    components: { Segment },
     props: {
         strandId: { type: String as () => Id, required: true }
     },
     async setup() {
+        
+        const componentInstance = getCurrentInstance();
+        assertTrue(componentInstance);
 
-        const animationApi = useAnimationRestClient();
-        const animations = await animationApi.list();
+        const numLeds = ref(100);
 
-        const postProcessorApi = usePostProcessorRestClient();
-        const postProcesses = await postProcessorApi.list();
+        const sab = computed(() => new SharedArrayBuffer(numLeds.value * 4));
 
-        const segments = getMockSegments();
-
-        const numLeds = 100;
-
-        const segmentVms = segments.map(s => {
-            const vm: SegmentVm = {
-                segment: s,
-                name: '',
-                offset: `${s.leds.offset}%`,
-                width: `${s.leds.percent}%`,
-                startLed: Math.floor(numLeds * s.leds.offset / 100),
-                endLed: Math.floor(numLeds * (s.leds.offset + s.leds.percent) / 100),
-            };
-
-            if (s.type === SegmentInputType.Animation) {
-                const anim = animations.find(x => x.id === s.animation.id);
-                if (!anim) { throw new Error(`Animation with id ${s.animation.id} not found`); }
-                vm.name = anim.name;
-            } else if (s.type === SegmentInputType.PostProcess) {
-                const post = postProcesses.find(x => x.id === s.postProcess.id);
-                if (!post) { throw new Error(`PostProcess with id ${s.postProcess.id} not found`); }
-                vm.name = post.name;
-            }
-            return vm;
-        });
-
-        console.log('segmentVms', segmentVms);
-
-        return { segmentVms };
+        return { numLeds, sab };
     }
 });
 
-interface SegmentVm {
+// these should not be exported. Just get TS to ignore warnings for now
+
+export interface SegmentVm {
     segment: ISegment,
     name: string,
     offset: string,
@@ -69,7 +73,7 @@ interface SegmentVm {
     endLed: number,
 }
 
-function getMockSegments() {
+export function getMockSegments() {
     const segments: ISegment[] = reactive([]);
 
     segments.push({

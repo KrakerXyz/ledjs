@@ -1,13 +1,13 @@
 
 import vue from '@vitejs/plugin-vue';
 import { defineConfig } from 'vite';
-import FullReload from 'vite-plugin-full-reload';
+//import FullReload from 'vite-plugin-full-reload';
 import path from 'path';
 
 export default defineConfig({
     plugins: [
         vue(),
-        FullReload('src/components/**/editor/*'),
+        //FullReload('src/components/**/editor/*'),
         {
             name: 'configure-server',
             configureServer: server => {

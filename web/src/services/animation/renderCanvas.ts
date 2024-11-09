@@ -5,7 +5,7 @@ import { computed, type Ref } from 'vue';
 import type { LedArray, LedArrayCallback } from './LedArray';
 
 
-export function useCanvasRenderer(canvasContainer: Ref<HTMLDivElement | undefined>): LedArrayCallback {
+export function useCanvasRenderer(canvasContainer: Readonly<Ref<HTMLDivElement | undefined | null>>): LedArrayCallback {
     let canvas: HTMLCanvasElement | undefined = undefined;
 
     const canvas2d = computed(() => {
