@@ -37,7 +37,7 @@ export class RestClient {
 }
 
 export interface RestConfig {
-    baseUrl: `${'http' | 'https'}://${string}`;
+    baseUrl: `${'http' | 'https'}://${string}`,
 }
 
 export function deepFreeze<T>(o: T): T {

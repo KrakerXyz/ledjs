@@ -1,4 +1,4 @@
-import { RestClient, RestConfig } from '@krakerxyz/netled-core';
+import { RestClient, type RestConfig } from '@krakerxyz/netled-core';
 
 let client: RestClient | undefined;
 export function useRestClient(baseUrl?: RestConfig['baseUrl']): RestClient {

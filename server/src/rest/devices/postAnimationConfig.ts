@@ -1,6 +1,6 @@
-import { RouteOptions } from 'fastify';
+import type { RouteOptions } from 'fastify';
 import { jwtAuthentication } from '../../services/jwtAuthentication.js';
-import { DeviceAnimationConfigPost } from '../../../../core/src/rest/model/DeviceAnimationConfig.js';
+import type { DeviceAnimationConfigPost } from '../../../../core/src/rest/model/DeviceAnimationConfig.js';
 
 export const postAnimationConfig: RouteOptions = {
     method: 'POST',

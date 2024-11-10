@@ -1,6 +1,4 @@
 // Disabling complexity since the function, while it does have a lof of ifs, is pretty linear
-/* eslint-disable max-depth */
-/* eslint-disable complexity */
 
 /** Compares two objects or values, property by property to determine equality */
 export function deepEquals<T extends Record<string, any>, K extends keyof T>(a: T | null | undefined, b: T | null | undefined, ignore: K[] = []): boolean {
@@ -9,9 +7,7 @@ export function deepEquals<T extends Record<string, any>, K extends keyof T>(a: 
     if ((a === null || a === undefined) && b !== null && b !== undefined) { return false; }
     if ((b === null || b === undefined) && a !== null && a !== undefined) { return false; }
 
-    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     const aKeys = Object.getOwnPropertyNames(a).filter(k => a![k] !== undefined && !ignore.includes(k as any));
-    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     const bKeys = Object.getOwnPropertyNames(b).filter(k => b![k] !== undefined && !ignore.includes(k as any));
 
     if (aKeys.length !== bKeys.length) { return false; }
@@ -20,9 +16,7 @@ export function deepEquals<T extends Record<string, any>, K extends keyof T>(a: 
         if (!bKeys.includes(aKey)) { return false; }
 
         //Allow non null assertion
-        // eslint-disable-next-line
         const aValue = a![aKey];
-        // eslint-disable-next-line
         const bValue = b![aKey];
 
         if (aValue === bValue) { continue; }

@@ -1,10 +1,10 @@
 
-import Ajv, { ValidateFunction } from 'ajv';
+import Ajv, { type ValidateFunction } from 'ajv';
 
 
-        const formats = {
-            uuid: /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/
-        }
+const formats = {
+    uuid: /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/
+};
 
 const ajvCompilers: Record<'body' | 'params' | 'querystring' | 'entity', Ajv.default> = {
     body: new Ajv.default({

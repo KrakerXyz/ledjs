@@ -1,6 +1,6 @@
-import { RouteOptions } from 'fastify';
+import type { RouteOptions } from 'fastify';
 import { jwtAuthentication } from '../../services/jwtAuthentication.js';
-import { DeviceStopPost } from '../../../../core/src/rest/DeviceRestClient.js';
+import type { DeviceStopPost } from '../../../../core/src/rest/DeviceRestClient.js';
 
 export const postStop: RouteOptions = {
     method: 'POST',

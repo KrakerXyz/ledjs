@@ -1,7 +1,7 @@
 
 import { transformFromAstAsync } from '@babel/core';
-import { ParseResult } from '@babel/parser';
-import { File } from '@babel/types';
+import type { ParseResult } from '@babel/parser';
+import type { File } from '@babel/types';
 
 /** Transpiles TypeScript animation script into node compatible JavaScript */
 export async function buildScript(ast: ParseResult<File>) {

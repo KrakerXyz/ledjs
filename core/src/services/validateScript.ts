@@ -50,7 +50,7 @@ export function validateScript(ast: ParseResult<AstTypes.File>): CodeIssue[] {
         //     postMessage({ name: 'issues', codeIssues });
         // }
 
-    } catch (e: any) {
+    } catch {
         // Probably a script error. Just ignore it
         //console.error(`Error validating script: ${e.message ?? e.toString()}`, e);
     }

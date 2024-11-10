@@ -14,7 +14,7 @@
                             <li v-for="(i, $index) of issues" :key="$index" class="p-1">
                                 <span v-if="i.severity === 'warning'" class="text-warning"><i class="fa-solid fa-lg fa-fw fa-exclamation-triangle"></i></span>
                                 <span v-else class="text-danger"><i class="fa-solid fa-lg fa-fw fa-bomb"></i></span>
-                                {{i.message}} [{{ i.line }}, {{ i.col }}]
+                                {{ i.message }} [{{ i.line }}, {{ i.col }}]
                             </li>
                         </ul>
                     </div>

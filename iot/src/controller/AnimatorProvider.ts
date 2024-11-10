@@ -1,4 +1,4 @@
-import { Animator, AnimationConfig, DeviceWsClient } from '@krakerxyz/netled-core';
+import type { Animator, AnimationConfig, DeviceWsClient } from '@krakerxyz/netled-core';
 import { deepEquals, getLogger, useAnimation } from '../services';
 
 export type Callback = (animation: Animator | null) => void;

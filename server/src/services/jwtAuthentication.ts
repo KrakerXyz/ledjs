@@ -1,4 +1,4 @@
-import { preValidationHookHandler } from 'fastify';
+import type { preValidationHookHandler } from 'fastify';
 
 export const jwtAuthentication: preValidationHookHandler = async (req, res) => {
     try {

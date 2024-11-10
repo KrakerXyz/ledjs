@@ -1,4 +1,4 @@
-import { DeviceHealthData, DeviceLogType, DeviceWsClient } from '@krakerxyz/netled-core';
+import { type DeviceHealthData, DeviceLogType, type DeviceWsClient } from '@krakerxyz/netled-core';
 
 export class HealthReporter {
 

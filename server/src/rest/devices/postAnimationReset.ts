@@ -1,7 +1,7 @@
-import { RouteOptions } from 'fastify';
+import type { RouteOptions } from 'fastify';
 import { jwtAuthentication } from '../../services/jwtAuthentication.js';
-import { DeviceAnimationResetPost } from '../../../../core/src/rest/DeviceRestClient.js';
-import { AnimationConfig } from '../../../../core/src/rest/model/AnimationConfig.js';
+import type { DeviceAnimationResetPost } from '../../../../core/src/rest/DeviceRestClient.js';
+import type { AnimationConfig } from '../../../../core/src/rest/model/AnimationConfig.js';
 
 export const postAnimationReset: RouteOptions = {
     method: 'POST',

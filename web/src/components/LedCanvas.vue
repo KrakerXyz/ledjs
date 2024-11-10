@@ -67,7 +67,6 @@ export default defineComponent({
             obs.disconnect();
         });
 
-        // eslint-disable-next-line vue/no-unused-properties
         return { can, wrapper, render };
     }
 });

@@ -1,11 +1,10 @@
 
-// eslint-disable-next-line @typescript-eslint/no-var-requires
 require('dotenv').config();
 
 import * as os from 'os';
 
 import { EnvKey, getConfig, getRequiredConfig, HealthReporter, getLogger, useRestClient, setLoggerDeviceWsClient } from './services';
-import { DeviceLogType, DeviceWsClient, DeviceWsOptions, RestConfig } from '@krakerxyz/netled-core';
+import { DeviceLogType, DeviceWsClient, type DeviceWsOptions, type RestConfig } from '@krakerxyz/netled-core';
 import { LedController } from './controller/LedController';
 import * as commandLineArgs from 'command-line-args';
 import { readFileSync } from 'fs';

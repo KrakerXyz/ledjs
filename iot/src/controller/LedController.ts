@@ -1,8 +1,8 @@
-import { Animator, IArgb, DeviceWsClient, Frame } from '@krakerxyz/netled-core';
+import type { Animator, IArgb, DeviceWsClient, Frame } from '@krakerxyz/netled-core';
 import { AnimatorProvider } from './AnimatorProvider';
 import { Clock } from './Clock';
 import rpio from 'rpio';
-import { getLogger, HealthReporter } from '../services';
+import { getLogger, type HealthReporter } from '../services';
 
 export class LedController {
 

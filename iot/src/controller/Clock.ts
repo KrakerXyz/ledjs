@@ -1,4 +1,4 @@
-import { DeviceWsClient } from '@krakerxyz/netled-core';
+import type { DeviceWsClient } from '@krakerxyz/netled-core';
 import { performance } from 'perf_hooks';
 import { getLogger } from '../services';
 

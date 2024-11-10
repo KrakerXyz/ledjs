@@ -1,3 +1,4 @@
+/* eslint-disable vue/component-definition-name-casing */
 import { createApp } from 'vue';
 import { router } from './main.router';
 import CreatedVue from './components/global/Created.vue';

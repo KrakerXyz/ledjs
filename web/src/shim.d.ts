@@ -1,6 +1,4 @@
-/* eslint-disable @typescript-eslint/consistent-type-imports */
 
-// eslint-disable-next-line @typescript-eslint/naming-convention
 interface ImportMeta {
     env?: {
         MODE: 'development' | 'production',

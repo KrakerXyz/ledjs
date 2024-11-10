@@ -1,6 +1,5 @@
 // Disabling complexity since the function, while it does have a lof of ifs, is pretty linear
-/* eslint-disable max-depth */
-/* eslint-disable complexity */
+
 
 /** Compares two objects or values, property by property to determine equality */
 export function deepEquals<T extends Record<string, any>, K extends keyof T>(a: T | null | undefined, b: T | null | undefined, ignore: K[] = []): boolean {

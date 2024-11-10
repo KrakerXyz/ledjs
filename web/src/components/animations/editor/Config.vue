@@ -11,9 +11,9 @@
                         :value="settings[e[0]]"
                         @change="event => setValue(e[0], e[1], event.target)"
                     >
-                    <label :for="e[0]">{{e[1].name}}</label>
+                    <label :for="e[0]">{{ e[1].name }}</label>
                     <div v-if="e[1].description" class="form-text">
-                        {{e[1].description}}
+                        {{ e[1].description }}
                     </div>
                 </div>
             </div>
@@ -35,7 +35,7 @@
                     </option>
 
                     <option v-for="c of savedConfigs" :key="c.value" :value="c.value">
-                        {{c.text}}
+                        {{ c.text }}
                     </option>
                 </select>
                 <label for="saved-config">Configs</label>

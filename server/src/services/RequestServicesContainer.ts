@@ -5,7 +5,7 @@ import { DeviceDb } from '../db/DeviceDb.js';
 import { DeviceLogDb } from '../db/DeviceLogDb.js';
 import { PostProcessorDb } from '../db/PostProcessorDb.js';
 import { UserDb } from '../db/UserDb.js';
-import { WebSocketManager } from './ws/WebSocketManager.js';
+import type { WebSocketManager } from './ws/WebSocketManager.js';
 
 export class RequestServicesContainer {
 

@@ -5,7 +5,7 @@ import type { IDisposable } from '../Disposable.js';
 
 interface Message { type: string, data: any }
 export type WsEvents<TMessage extends Message> = TMessage['type'] | 'connectionChange';
-type CallbackType<TMessage extends Message> = { [T in TMessage['type']]: (data: any) => void };
+type CallbackType<TMessage extends Message> = Record<TMessage['type'], (data: any) => void>;
 export type WsCallbacks<TMessage extends Message, TMessageCallbacks extends CallbackType<TMessage>> = TMessageCallbacks & {
     'connectionChange': (data: 'connecting' | 'connected' | 'disconnected') => void,
 }

@@ -8,28 +8,28 @@ export enum DeviceLogType {
 }
 
 /** Device health metrics message */
-export type DeviceHealthMessage = {
+export interface DeviceHealthMessage {
     type: DeviceLogType.Health,
     /** Device health metrics */
-    data: DeviceHealthData
+    data: DeviceHealthData,
 }
 
 /** Device health metrics */
 export type DeviceHealthData = Partial<{
     /** Average LED frames-per-second */
-    fps: number;
+    fps: number,
     /** CPU utilization */
-    cpu: [number, number, number];
+    cpu: [number, number, number],
     /** netled uptime */
-    uptime: number;
+    uptime: number,
     /** Number of seconds the device has been powered on */
-    uptimeSystem: number;
+    uptimeSystem: number,
 }>;
 
 /** Device log messages */
-export type DeviceLogMessage = {
+export interface DeviceLogMessage {
     type: DeviceLogType.Log,
-    data: DeviceLogData
+    data: DeviceLogData,
 }
 
 export enum DeviceLogLevel {
@@ -40,20 +40,20 @@ export enum DeviceLogLevel {
     Fatal = 60
 }
 
-export type DeviceLogData = {
+export interface DeviceLogData {
     /** The severity level of the log */
-    level: DeviceLogLevel | number;
+    level: DeviceLogLevel | number,
     /** The time (ticks) on the device at time of log */
-    time: number;
+    time: number,
     /** The name of the logger that produced the message */
-    name: string;
+    name: string,
     /** The message */
-    msg: string;
-    [key: string]: any
+    msg: string,
+    [key: string]: any,
 }
 
 /** Information about the device's hardware and software */
-export type DeviceInfoMessage = {
+export interface DeviceInfoMessage {
     type: DeviceLogType.Info,
     /** Information about the device's hardware and software */
     data: DeviceInfoData,
@@ -62,12 +62,12 @@ export type DeviceInfoMessage = {
 /** Information about the device's hardware and software */
 export type DeviceInfoData = Partial<{
     /** The os that the device is running */
-    os: string;
+    os: string,
     /** Number of processor cores */
-    cores: number;
+    cores: number,
     /** Information from the package.json file */
     package: {
-        name?: string;
-        version?: string;
-    }
+        name?: string,
+        version?: string,
+    },
 }>

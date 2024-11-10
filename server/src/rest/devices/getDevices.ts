@@ -1,4 +1,4 @@
-import { RouteOptions } from 'fastify';
+import type { RouteOptions } from 'fastify';
 import { awaitAll } from '../../services/awaitAll.js';
 import { jwtAuthentication } from '../../services/jwtAuthentication.js';
 

@@ -1,4 +1,4 @@
-import { DeviceLogType, DeviceWsClient } from '@krakerxyz/netled-core';
+import { DeviceLogType, type DeviceWsClient } from '@krakerxyz/netled-core';
 
 type LogMethods = 'fatal' | 'error' | 'warn' | 'info' | 'debug';
 export type Logger = Record<LogMethods, (msg: string, data?: Record<string, any>) => void> & { readonly name: string };
