@@ -1,5 +1,6 @@
 import type { RouteOptions } from 'fastify';
 import type { Id } from '../../../../core/src/rest/model/Id.js';
+import { ScriptVersion } from '../../../../core/src/rest/model/ScriptVersion.js';
 
 export const getById: RouteOptions = {
     method: 'GET',
@@ -9,14 +10,14 @@ export const getById: RouteOptions = {
             type: 'object',
             properties: {
                 animationId: { type: 'string' },
-                version: { type: 'number' }
+                version: { type: ['integer', 'string'] }
             },
             required: ['animationId', 'version']
         }
     },
     handler: async (req, res) => {
         const animationId = (req.params as any)['animationId'] as Id;
-        const version = (req.params as any)['version'] as number;
+        const version = (req.params as any)['version'] as ScriptVersion;
 
         const db = req.services.animationDb;
         const animation = await db.byId(animationId, version);

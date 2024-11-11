@@ -9,7 +9,7 @@ export const getById: RouteOptions = {
             type: 'object',
             properties: {
                 postProcessorId: { type: 'string' },
-                version: { type: 'number' }
+                version: { type: ['integer', 'string'] }
             },
             required: ['postProcessorId', 'version']
         }

@@ -18,35 +18,37 @@ import type { IArgb } from '$core/IArgb';
 import { LedArray } from '$src/services/animation/LedArray';
 import { useCanvasRenderer } from '$src/services/animation/renderCanvas';
 import { computed, defineComponent, onMounted, toRefs, useTemplateRef } from 'vue';
+import { SegmentVm } from './StrandEditor.vue';
 
 export default defineComponent({
     props: {
-        name: { type: String, required: true },
-        sab: { type: SharedArrayBuffer, required: true },
-        numLeds: { type: Number, required: true }
+        segment: { type: Object as () => SegmentVm, required: true },
     },
     setup(props) {
 
-        const { sab, numLeds } = toRefs(props);
+        const { segment } = toRefs(props);
+
+        const name = computed(() => segment.value.name);
 
         const canvasContainer = useTemplateRef<HTMLDivElement>('canvasContainer');
         const canvasRenderer = useCanvasRenderer(canvasContainer);
 
         const ledArrRend = computed(() => {
-            return new LedArray(sab.value, numLeds.value, 0, canvasRenderer);
+            const seg = segment.value;
+            return new LedArray(seg.sab, seg.numLeds, seg.startLed, canvasRenderer);
         });
 
         onMounted(() => {
            
             const defaultLedColor: IArgb = [255, 255, 0, 0];
-            for(let i = 0; i < numLeds.value; i++) {
+            for(let i = 0; i < segment.value.numLeds; i++) {
                 ledArrRend.value.setLed(i, defaultLedColor);
             }
             ledArrRend.value.send();
         });
 
         return {
-            
+            name
         };
     }
 });

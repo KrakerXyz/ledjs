@@ -4,17 +4,8 @@
         <div class="flex-grow-1 row g-0">
             <div class="col">
                 <div class="h-100 d-flex flex-column">
-                    <div style="margin-left: 0%; width: 50%">
-                        <Segment name="Anim: Rainbow" :sab="sab" :num-leds="numLeds"></Segment>
-                    </div>
-                    <div style="margin-left: 00%; width: 100%">
-                        <Segment name="Post: Copy" :sab="sab" :num-leds="numLeds"></Segment>
-                    </div>
-                    <div style="margin-left: 50%; width: 50%">
-                        <Segment name="Post: Reverse" :sab="sab" :num-leds="numLeds"></Segment>
-                    </div>
-                    <div style="width: 100%">
-                        <Segment name="FINAL" :sab="sab" :num-leds="numLeds"></Segment>
+                    <div v-for="seg of segments" :key="seg.id" :style="seg.style">
+                        <Segment :segment="seg"></Segment>
                     </div>
                 </div>
             </div>
@@ -26,7 +17,7 @@
                             id="d-leds"
                             class="form-control"
                             placeholder="*"
-                            v-model.lazy.number="numLeds"
+                            v-model.lazy.number="strandLeds"
                         >
                         <label for="d-leds"># LEDs</label>
                     </div>
@@ -40,7 +31,7 @@
 
 import type { Id } from '$core/rest/model/Id';
 import type { ScriptVersion } from '$core/rest/model/ScriptVersion';
-import { assertTrue } from '$src/services';
+import { assertTrue, useAnimationRestClient, usePostProcessorRestClient } from '$src/services';
 import { computed, defineComponent, getCurrentInstance, reactive, ref } from 'vue';
 import Segment from './Segment.vue';
 
@@ -54,23 +45,69 @@ export default defineComponent({
         const componentInstance = getCurrentInstance();
         assertTrue(componentInstance);
 
-        const numLeds = ref(100);
+        const mockSegments = getMockSegments();
 
-        const sab = computed(() => new SharedArrayBuffer(numLeds.value * 4));
+        const animApi = useAnimationRestClient();
+        const animations = await Promise.all(
+            mockSegments
+                .filter(x => x.type === SegmentInputType.Animation)
+                .map(x => animApi.byId(x.animation.id, x.animation.version))
+        );
 
-        return { numLeds, sab };
+        const postApi = usePostProcessorRestClient();
+        const postProcessors = await Promise.all(
+            mockSegments
+                .filter(x => x.type === SegmentInputType.PostProcess)
+                .map(x => postApi.byId(x.postProcess.id, x.postProcess.version))
+        );
+
+        const strandLeds = ref(100);
+
+        const sab = computed(() => new SharedArrayBuffer(strandLeds.value * 4));
+
+        const segments = computed(() => {
+            const leds = strandLeds.value;
+            const vms = mockSegments.map<SegmentVm>((x, i) => {
+
+                const animOrPost = x.type === SegmentInputType.Animation
+                    ? animations.find(y => y.id === x.animation.id && y.version === x.animation.version)
+                    : postProcessors.find(y => y.id === x.postProcess.id && y.version === x.postProcess.version);
+
+                if (!animOrPost) { throw new Error(`${x.type} not found`); }
+
+                const numLeds = Math.floor(leds * x.leds.percent / 100);
+                const startLed = Math.floor(strandLeds.value * x.leds.offset / 100);
+                const style = { width: `${x.leds.percent}%`, marginLeft: `${x.leds.offset}%` };
+                const vm: SegmentVm = { 
+                    id: i,
+                    name: animOrPost.name,
+                    type: x.type,
+                    js: animOrPost.js,
+                    style,
+                    sab: sab.value,
+                    startLed,
+                    numLeds,
+                };
+                return vm;
+            });
+            return vms;
+        });
+
+        return { segments, strandLeds };
     }
 });
 
 // these should not be exported. Just get TS to ignore warnings for now
 
 export interface SegmentVm {
-    segment: ISegment,
+    id: number
     name: string,
-    offset: string,
-    width: string,
+    type: SegmentInputType,
+    js: string,
+    style: Record<string, string>,
+    sab: SharedArrayBuffer,
     startLed: number,
-    endLed: number,
+    numLeds: number,
 }
 
 export function getMockSegments() {
@@ -84,19 +121,19 @@ export function getMockSegments() {
         },
         leds: {
             offset: 0,
-            percent: 100
+            percent: 50
         }
     });
 
     segments.push({
         type: SegmentInputType.PostProcess,
         postProcess: {
-            id: 'd947c0a8-adec-4f5e-8b89-10281a7659bf',
+            id: 'b0197fb4-8645-4738-b2bc-e51a57170f99',
             version: 'draft'
         },
         leds: {
-            offset: 50,
-            percent: 50
+            offset: 0,
+            percent: 100
         }
     });
     return segments;
