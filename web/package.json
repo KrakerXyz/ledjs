@@ -21,7 +21,7 @@
         "vue-router": "^4.0.8"
     },
     "devDependencies": {
-        "@types/google.accounts": "^0.0.2",
+        "@types/google.accounts": "^0.0.15",
         "@types/js-cookie": "^3.0.2",
         "@types/node": "^22.8.7",
         "@types/offscreencanvas": "^2019.7.0",
