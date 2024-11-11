@@ -5,12 +5,10 @@ export class LedSegment implements netled.common.ILedSegment {
 
     readonly #arr: Uint8ClampedArray;
     readonly #numLeds: number;
-    readonly #sendCb: LedSegmentCallback;
 
-    public constructor(public readonly sab: SharedArrayBuffer, numLeds: number, public readonly ledOffset: number, sendCb: LedSegmentCallback) {
+    public constructor(public readonly sab: SharedArrayBuffer, numLeds: number, public readonly ledOffset: number) {
         this.#arr = new Uint8ClampedArray(sab, ledOffset * 4, numLeds * 4);
         this.#numLeds = numLeds;
-        this.#sendCb = sendCb;
     }
 
     /** The number of leds in the array */
@@ -102,11 +100,26 @@ export class LedSegment implements netled.common.ILedSegment {
         }
     }
 
+    
+    readonly #sendCb: LedSegmentCallback[] = [];
+    public addSendCallback(cb: LedSegmentCallback): void {
+        if (this.#sendCb.includes(cb)) { throw new Error('Callback already added'); }
+        this.#sendCb.push(cb);
+    }
+
+    public removeSendCallback(cb: LedSegmentCallback): void {
+        const index = this.#sendCb.indexOf(cb);
+        if (index === -1) { throw new Error('Callback not found'); }
+        this.#sendCb.splice(index, 1);
+    }
+
     #isSending = false;
-    public send(): Promise<void> {
+    public send = (): Promise<void> => {
+        if (this.#sendCb.length === 0) { return Promise.resolve(); }
         if (this.#isSending) { throw new Error('Previous send still in progress'); }
         this.#isSending = true;
-        return this.#sendCb(this).finally(() => this.#isSending = false);
+        const proms = this.#sendCb.map(cb => cb(this));
+        return Promise.all(proms).finally(() => this.#isSending = false) as Promise<unknown> as Promise<void>;
     }
 
 }

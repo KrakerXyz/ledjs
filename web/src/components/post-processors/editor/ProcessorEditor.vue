@@ -188,17 +188,23 @@ export default defineComponent({
         const canvasRenderer = useCanvasRenderer(canvasContainer);
 
         const ledArrRend = computed(() => {
-            return new LedSegment(sab.value, numLeds.value, 0, canvasRenderer);
+            const ls = new LedSegment(sab.value, numLeds.value, 0);
+            ls.addSendCallback(canvasRenderer);
+            return ls;
         });
 
         const ledSegmentPost = computed(() => {
-            return new LedSegment(sab.value, numLeds.value, 0, () => ledArrRend.value.send());
+            const ls = new LedSegment(sab.value, numLeds.value, 0);
+            ls.addSendCallback(ledArrRend.value.send);
+            return ls;
         });
 
         const postContext = await usePostProcessorWorkerAsync(javascript, ledSegmentPost);
 
         const ledSegmentAnim = computed(() => {
-            return new LedSegment(sab.value, numLeds.value, 0, postContext.ledSegmentInput);
+            const ls = new LedSegment(sab.value, numLeds.value, 0);
+            ls.addSendCallback(postContext.ledSegmentInput);
+            return ls;
         });
         const animationContext = await useAnimationWorkerAsync(animationJavascript, ledSegmentAnim);
 

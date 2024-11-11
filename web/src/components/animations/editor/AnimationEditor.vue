@@ -108,7 +108,9 @@ export default defineComponent({
 
         const ledSegment = computed(() => {
             const sab = new SharedArrayBuffer(numLeds.value * 4);
-            return new LedSegment(sab, numLeds.value, 0, canvasRenderer);
+            const ls = new LedSegment(sab, numLeds.value, 0);
+            ls.addSendCallback(canvasRenderer);
+            return ls;
         });
 
         const { animationSettings, animationConfig, moduleIssues, dispose } = await useAnimationWorkerAsync(javascript, ledSegment);

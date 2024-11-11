@@ -34,6 +34,7 @@ import type { ScriptVersion } from '$core/rest/model/ScriptVersion';
 import { assertTrue, useAnimationRestClient, usePostProcessorRestClient } from '$src/services';
 import { computed, defineComponent, getCurrentInstance, reactive, ref } from 'vue';
 import Segment from './Segment.vue';
+import { LedSegment } from '$src/services/animation/LedSegment';
 
 export default defineComponent({
     components: { Segment },
@@ -77,6 +78,7 @@ export default defineComponent({
 
                 const numLeds = Math.floor(leds * x.leds.percent / 100);
                 const startLed = Math.floor(strandLeds.value * x.leds.offset / 100);
+                const ledSegment = new LedSegment(sab.value, numLeds, startLed);
                 const style = { width: `${x.leds.percent}%`, marginLeft: `${x.leds.offset}%` };
                 const vm: SegmentVm = { 
                     id: i,
@@ -84,12 +86,17 @@ export default defineComponent({
                     type: x.type,
                     js: animOrPost.js,
                     style,
-                    sab: sab.value,
-                    startLed,
-                    numLeds,
+                    ledSegment,
+                    prevLedSegment: null
                 };
                 return vm;
             });
+
+            for (let i = 0; i < vms.length; i++) {
+                if (!i) { continue; }
+                vms[i].prevLedSegment = vms[i - 1].ledSegment;
+            }
+
             return vms;
         });
 
@@ -105,9 +112,8 @@ export interface SegmentVm {
     type: SegmentInputType,
     js: string,
     style: Record<string, string>,
-    sab: SharedArrayBuffer,
-    startLed: number,
-    numLeds: number,
+    ledSegment: LedSegment,
+    prevLedSegment: LedSegment | null,
 }
 
 export function getMockSegments() {
@@ -139,7 +145,7 @@ export function getMockSegments() {
     return segments;
 }
 
-enum SegmentInputType {
+export enum SegmentInputType {
     Animation = 'animation',
     PostProcess = 'postProcess'
 }

@@ -1,7 +1,7 @@
 
 <template>
     <div>
-        <h1>{{ name }}</h1>
+        <h1>{{ segment.name }}</h1>
         <div ref="canvasContainer" class="canvas-container overflow-hidden"></div>
     </div>
 </template>
@@ -14,38 +14,40 @@
 
 <script lang="ts">
 
-import type { IArgb } from '$core/IArgb';
-import { LedSegment } from '$src/services/animation/LedSegment';
 import { useCanvasRenderer } from '$src/services/animation/renderCanvas';
-import { computed, defineComponent, onMounted, toRefs, useTemplateRef } from 'vue';
-import { SegmentVm } from './StrandEditor.vue';
+import { computed, defineComponent, getCurrentInstance, onUnmounted, ref, useTemplateRef } from 'vue';
+import { SegmentInputType, SegmentVm } from './StrandEditor.vue';
+import { useAnimationWorkerAsync } from '$src/services/animation/animationWorker';
+import { assertTrue } from '$src/services';
+import { usePostProcessorWorkerAsync } from '$src/services/animation/postProcessorWorker';
 
 export default defineComponent({
     props: {
         segment: { type: Object as () => SegmentVm, required: true },
     },
-    setup(props) {
+    async setup(props) {
+        const componentInstance = getCurrentInstance();
+        assertTrue(componentInstance);
 
-        const { segment } = toRefs(props);
+        const seg = props.segment;
 
-        const name = computed(() => segment.value.name);
 
         const canvasContainer = useTemplateRef<HTMLDivElement>('canvasContainer');
         const canvasRenderer = useCanvasRenderer(canvasContainer);
 
-        const ledArrRend = computed(() => {
-            const seg = segment.value;
-            return new LedSegment(seg.sab, seg.numLeds, seg.startLed, canvasRenderer);
-        });
+        seg.ledSegment.addSendCallback(canvasRenderer);
 
-        onMounted(() => {
-           
-            const defaultLedColor: IArgb = [255, 255, 0, 0];
-            for(let i = 0; i < segment.value.numLeds; i++) {
-                ledArrRend.value.setLed(i, defaultLedColor);
-            }
-            ledArrRend.value.send();
-        });
+
+        if (seg.type === SegmentInputType.Animation) {
+            const anim = await useAnimationWorkerAsync(ref(seg.js), computed(() => seg.ledSegment));
+            onUnmounted(() => {
+                anim.dispose();
+            }, componentInstance);
+        } else {
+            const pp = await usePostProcessorWorkerAsync(ref(seg.js), computed(() => seg.ledSegment));
+            seg.prevLedSegment?.addSendCallback(pp.ledSegmentInput);
+        }
+        
 
         return {
             name
