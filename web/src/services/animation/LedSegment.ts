@@ -1,13 +1,13 @@
 
-export type LedArrayCallback = (ledArray: LedArray) => Promise<void>;
+export type LedSegmentCallback = (ledSegment: LedSegment) => Promise<void>;
 
-export class LedArray implements netled.common.ILedArray {
+export class LedSegment implements netled.common.ILedSegment {
 
     readonly #arr: Uint8ClampedArray;
     readonly #numLeds: number;
-    readonly #sendCb: LedArrayCallback;
+    readonly #sendCb: LedSegmentCallback;
 
-    public constructor(public readonly sab: SharedArrayBuffer, numLeds: number, public readonly ledOffset: number, sendCb: LedArrayCallback) {
+    public constructor(public readonly sab: SharedArrayBuffer, numLeds: number, public readonly ledOffset: number, sendCb: LedSegmentCallback) {
         this.#arr = new Uint8ClampedArray(sab, ledOffset * 4, numLeds * 4);
         this.#numLeds = numLeds;
         this.#sendCb = sendCb;

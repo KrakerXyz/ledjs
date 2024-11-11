@@ -15,7 +15,7 @@
 <script lang="ts">
 
 import type { IArgb } from '$core/IArgb';
-import { LedArray } from '$src/services/animation/LedArray';
+import { LedSegment } from '$src/services/animation/LedSegment';
 import { useCanvasRenderer } from '$src/services/animation/renderCanvas';
 import { computed, defineComponent, onMounted, toRefs, useTemplateRef } from 'vue';
 import { SegmentVm } from './StrandEditor.vue';
@@ -35,7 +35,7 @@ export default defineComponent({
 
         const ledArrRend = computed(() => {
             const seg = segment.value;
-            return new LedArray(seg.sab, seg.numLeds, seg.startLed, canvasRenderer);
+            return new LedSegment(seg.sab, seg.numLeds, seg.startLed, canvasRenderer);
         });
 
         onMounted(() => {

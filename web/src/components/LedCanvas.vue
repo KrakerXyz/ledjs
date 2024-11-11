@@ -8,7 +8,7 @@
 <script lang="ts">
 
 import { defineComponent, watch, ref, onMounted, onUnmounted } from 'vue';
-import type { LedArray } from '../services/animation/LedArray';
+import type { LedSegment } from '../services/animation/LedSegment';
 import type { IArgb } from '$core/IArgb';
 import { rgbToHex } from '$core/color-utilities/rgbToHex';
 
@@ -48,7 +48,7 @@ export default defineComponent({
             obs.observe(wrapper.value);
         });
 
-        const render = (sab: LedArray) => {
+        const render = (sab: LedSegment) => {
             if (!ctx.value) { return; }
             try {
                 draw(ctx.value, sab, canvasDimensions);
@@ -71,7 +71,7 @@ export default defineComponent({
     }
 });
 
-function draw(ctx: CanvasRenderingContext2D, arr: LedArray, canvasDimensions: [number, number]) {
+function draw(ctx: CanvasRenderingContext2D, arr: LedSegment, canvasDimensions: [number, number]) {
 
 
     ctx.clearRect(0, 0, canvasDimensions[0], canvasDimensions[1]);

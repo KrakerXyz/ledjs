@@ -98,7 +98,7 @@ import { newId } from '$core/services/newId';
 import { useCanvasRenderer } from '$src/services/animation/renderCanvas';
 import { useAnimationWorkerAsync } from '$src/services/animation/animationWorker';
 import { usePostProcessorWorkerAsync } from '$src/services/animation/postProcessorWorker';
-import { LedArray } from '$src/services/animation/LedArray';
+import { LedSegment } from '$src/services/animation/LedSegment';
 
 export default defineComponent({
     components: { config },
@@ -188,19 +188,19 @@ export default defineComponent({
         const canvasRenderer = useCanvasRenderer(canvasContainer);
 
         const ledArrRend = computed(() => {
-            return new LedArray(sab.value, numLeds.value, 0, canvasRenderer);
+            return new LedSegment(sab.value, numLeds.value, 0, canvasRenderer);
         });
 
-        const ledArrayPost = computed(() => {
-            return new LedArray(sab.value, numLeds.value, 0, () => ledArrRend.value.send());
+        const ledSegmentPost = computed(() => {
+            return new LedSegment(sab.value, numLeds.value, 0, () => ledArrRend.value.send());
         });
 
-        const postContext = await usePostProcessorWorkerAsync(javascript, ledArrayPost);
+        const postContext = await usePostProcessorWorkerAsync(javascript, ledSegmentPost);
 
-        const ledArrayAnim = computed(() => {
-            return new LedArray(sab.value, numLeds.value, 0, postContext.ledArrayInput);
+        const ledSegmentAnim = computed(() => {
+            return new LedSegment(sab.value, numLeds.value, 0, postContext.ledSegmentInput);
         });
-        const animationContext = await useAnimationWorkerAsync(animationJavascript, ledArrayAnim);
+        const animationContext = await useAnimationWorkerAsync(animationJavascript, ledSegmentAnim);
 
         onUnmounted(() => {
             animationContext.dispose();

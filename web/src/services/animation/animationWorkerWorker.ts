@@ -2,17 +2,17 @@
 import type { CodeIssue } from '$core/services/validateScript';
 import type { ClientMessage } from './animationWorker';
 import { createAnimation } from './createAnimation';
-import { LedArray } from './LedArray';
+import { LedSegment } from './LedSegment';
 import { Timer } from './Timer';
 
 export type WorkerMessage = {
     type: 'moduleError',
     errors: CodeIssue[],
 } | {
-    type: 'ledArraySend',
+    type: 'ledSegmentSend',
 }
 
-let ledArray: LedArray | null = null;
+let ledSegment: LedSegment | null = null;
 let timer: netled.services.ITimer | null = null;
 let controller: netled.animation.IAnimationController | null = null;
 
@@ -31,8 +31,8 @@ onmessage = async (e: MessageEvent<ClientMessage>) => {
                 return;
             }
 
-            ledArray = new LedArray(e.data.sab, e.data.numLeds, e.data.arrayOffset, async () => {
-                postMessage({ type: 'ledArraySend' });
+            ledSegment = new LedSegment(e.data.sab, e.data.numLeds, e.data.arrayOffset, async () => {
+                postMessage({ type: 'ledSegmentSend' });
             });
 
             const services: Partial<netled.services.IServices> = {};
@@ -43,7 +43,7 @@ onmessage = async (e: MessageEvent<ClientMessage>) => {
                 }
             }
 
-            controller = animation.construct(ledArray, services as netled.services.IServices);
+            controller = animation.construct(ledSegment, services as netled.services.IServices);
             controller.run(e.data.settings);
 
             break;

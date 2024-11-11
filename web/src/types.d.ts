@@ -13,7 +13,7 @@ declare global {
 
             interface IPostProcessor<TConfig extends common.IConfig = common.IConfig> {
                 /** Creates controller for the post processor */
-                construct(ledArray: common.ILedArray, settings: common.ISettings<TConfig>): IPostProcessorController,
+                construct(ledSegment: common.ILedSegment, settings: common.ISettings<TConfig>): IPostProcessorController,
                 /** Optional configuration metadata for the post processor */
                 config?: TConfig,
             }
@@ -29,7 +29,7 @@ declare global {
             type IArgb = [number, number, number, number];
 
             /** Method for assigning color values to LEDs in an array */
-            interface ILedArray {
+            interface ILedSegment {
                 /** The number of LEDs in the array */
                 readonly length: number,
 
@@ -106,7 +106,7 @@ declare global {
             /** Represents a Animation script */
             interface IAnimation<TServices extends services.IAvailableServices = services.IAvailableServices, TConfig extends common.IConfig = common.IConfig> {
                 services?: TServices,
-                construct(ledArray: common.ILedArray, services: services.IServices<TServices>): IAnimationController<TConfig>,
+                construct(ledSegment: common.ILedSegment, services: services.IServices<TServices>): IAnimationController<TConfig>,
                 config?: TConfig,
             }
 

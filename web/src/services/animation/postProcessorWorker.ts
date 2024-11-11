@@ -7,9 +7,9 @@ import { createPostProcessor } from './createPostProcessor';
 import { deepClone } from '$core/services/deepClone';
 import { deepEquals } from '$core/services/deepEquals';
 import type { CodeIssue } from '$core/services/validateScript';
-import type { LedArray, LedArrayCallback } from './LedArray';
+import type { LedSegment, LedSegmentCallback } from './LedSegment';
 
-export async function usePostProcessorWorkerAsync(postProcessorJs: Ref<string | null | undefined>, ledArray: Readonly<Ref<LedArray>>): Promise<WorkerContext> {
+export async function usePostProcessorWorkerAsync(postProcessorJs: Ref<string | null | undefined>, ledSegment: Readonly<Ref<LedSegment>>): Promise<WorkerContext> {
     
     let firstPassResolver: (() => void) | null = null;
     const firstPassProm = new Promise<void>(r => firstPassResolver = r);
@@ -22,8 +22,8 @@ export async function usePostProcessorWorkerAsync(postProcessorJs: Ref<string | 
 
     const workerIssues = ref<CodeIssue[]>([]);
 
-    watch([postProcessorJs, ledArray], async x => {
-        const [js, ledArray] = x;
+    watch([postProcessorJs, ledSegment], async x => {
+        const [js, ledSegment] = x;
         try {
             workerIssues.value = [];
             worker?.terminate();
@@ -60,8 +60,8 @@ export async function usePostProcessorWorkerAsync(postProcessorJs: Ref<string | 
                     case 'moduleError': {
                         break;
                     }
-                    case 'ledArraySend': {
-                        ledArray.send();
+                    case 'ledSegmentSend': {
+                        ledSegment.send();
                         break;
                     }
                     default: {
@@ -75,9 +75,9 @@ export async function usePostProcessorWorkerAsync(postProcessorJs: Ref<string | 
                 type: 'init',
                 js,
                 settings: deepClone(postProcessorSettings.value),
-                numLeds: ledArray.length,
-                arrayOffset: ledArray.ledOffset,
-                sab: ledArray.sab
+                numLeds: ledSegment.length,
+                arrayOffset: ledSegment.ledOffset,
+                sab: ledSegment.sab
             };
             worker.postMessage(initMessage);
 
@@ -98,7 +98,7 @@ export async function usePostProcessorWorkerAsync(postProcessorJs: Ref<string | 
         worker?.postMessage(message);
     });
 
-    const ledArrayInput: LedArrayCallback = () => {
+    const ledSegmentInput: LedSegmentCallback = () => {
         if (disposed) { return Promise.resolve(); }
         const message: ClientMessage = {
             type: 'process'
@@ -113,7 +113,7 @@ export async function usePostProcessorWorkerAsync(postProcessorJs: Ref<string | 
         postProcessorConfig: computed(() => postProcessorConfig.value),
         postProcessorSettings,
         moduleIssues: computed(() => [...workerIssues.value]),
-        ledArrayInput,
+        ledSegmentInput,
         dispose: () => { 
             disposed = true;
             worker?.terminate();
@@ -127,7 +127,7 @@ export interface WorkerContext {
     postProcessorConfig: ComputedRef<netled.common.IConfig | undefined>,
     postProcessorSettings: Ref<netled.common.ISettings>,
     moduleIssues: ComputedRef<CodeIssue[]>,
-    ledArrayInput: LedArrayCallback,
+    ledSegmentInput: LedSegmentCallback,
     /**Kills the current worker and prevents new one from starting up.*/
     dispose: () => void,
 }

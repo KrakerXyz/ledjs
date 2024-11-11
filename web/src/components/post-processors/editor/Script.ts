@@ -1,10 +1,10 @@
 
 export default netled.postProcessor.definePostProcessor({
-    construct(ledArray) {
+    construct(ledSegment) {
         return {
             exec() {
-                ledArray.reverse();
-                return ledArray.send();
+                ledSegment.reverse();
+                return ledSegment.send();
             }
         };
     }

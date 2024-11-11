@@ -35,7 +35,7 @@ export function validateScript(ast: ParseResult<AstTypes.File>): CodeIssue[] {
             codeIssues.push(createIssue('Class constructor not found', 'error', classBody.loc));
         } else {
             if (!constructor.params.length) {
-                codeIssues.push(createIssue('ILedArray missing from constructor parameters', 'error', constructor.key.loc));
+                codeIssues.push(createIssue('ILedSegment missing from constructor parameters', 'error', constructor.key.loc));
             }
         }
 

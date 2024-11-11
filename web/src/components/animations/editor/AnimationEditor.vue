@@ -76,7 +76,7 @@ import type { Id } from '$core/rest/model/Id';
 import { newId } from '$core/services/newId';
 import { useCanvasRenderer } from '$src/services/animation/renderCanvas';
 import { useAnimationWorkerAsync } from '$src/services/animation/animationWorker';
-import { LedArray } from '$src/services/animation/LedArray';
+import { LedSegment } from '$src/services/animation/LedSegment';
 
 export default defineComponent({
     components: { config },
@@ -106,12 +106,12 @@ export default defineComponent({
 
         const canvasRenderer = useCanvasRenderer(canvasContainer);
 
-        const ledArray = computed(() => {
+        const ledSegment = computed(() => {
             const sab = new SharedArrayBuffer(numLeds.value * 4);
-            return new LedArray(sab, numLeds.value, 0, canvasRenderer);
+            return new LedSegment(sab, numLeds.value, 0, canvasRenderer);
         });
 
-        const { animationSettings, animationConfig, moduleIssues, dispose } = await useAnimationWorkerAsync(javascript, ledArray);
+        const { animationSettings, animationConfig, moduleIssues, dispose } = await useAnimationWorkerAsync(javascript, ledSegment);
 
         onUnmounted(() => dispose(), componentInstance);
 

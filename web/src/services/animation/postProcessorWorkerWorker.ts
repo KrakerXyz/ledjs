@@ -1,17 +1,17 @@
 
 import type { CodeIssue } from '$core/services/validateScript';
 import type { ClientMessage } from './postProcessorWorker';
-import { LedArray } from './LedArray';
+import { LedSegment } from './LedSegment';
 import { createPostProcessor } from './createPostProcessor';
 
 export type WorkerMessage = {
     type: 'moduleError',
     errors: CodeIssue[],
 } | {
-    type: 'ledArraySend',
+    type: 'ledSegmentSend',
 }
 
-let ledArray: LedArray | null = null;
+let ledSegment: LedSegment | null = null;
 let controller: netled.postProcessor.IPostProcessorController | null = null;
 let settings: netled.common.ISettings | null = null;
 
@@ -30,13 +30,13 @@ onmessage = async (e: MessageEvent<ClientMessage>) => {
                 return;
             }
 
-            ledArray = new LedArray(e.data.sab, e.data.numLeds, e.data.arrayOffset, async () => {
-                postMessage({ type: 'ledArraySend' });
+            ledSegment = new LedSegment(e.data.sab, e.data.numLeds, e.data.arrayOffset, async () => {
+                postMessage({ type: 'ledSegmentSend' });
             });
 
             settings = e.data.settings;
 
-            controller = postProcessor.construct(ledArray, settings);
+            controller = postProcessor.construct(ledSegment, settings);
 
             break;
         }

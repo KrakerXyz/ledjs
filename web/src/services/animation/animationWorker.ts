@@ -7,9 +7,9 @@ import { createAnimation } from './createAnimation';
 import { deepClone } from '$core/services/deepClone';
 import { deepEquals } from '$core/services/deepEquals';
 import type { CodeIssue } from '$core/services/validateScript';
-import type { LedArray } from './LedArray';
+import type { LedSegment } from './LedSegment';
 
-export async function useAnimationWorkerAsync(animationJs: Ref<string | null | undefined>, ledArray: Readonly<Ref<LedArray>>): Promise<WorkerContext> {
+export async function useAnimationWorkerAsync(animationJs: Ref<string | null | undefined>, ledSegment: Readonly<Ref<LedSegment>>): Promise<WorkerContext> {
     
     let firstPassResolver: (() => void) | null = null;
     const firstPassProm = new Promise<void>(r => firstPassResolver = r);
@@ -22,8 +22,8 @@ export async function useAnimationWorkerAsync(animationJs: Ref<string | null | u
 
     const workerIssues = ref<CodeIssue[]>([]);
 
-    watch([animationJs, ledArray], async x => {
-        const [js, ledArray] = x;
+    watch([animationJs, ledSegment], async x => {
+        const [js, ledSegment] = x;
         try {
             workerIssues.value = [];
             worker?.terminate();
@@ -60,8 +60,8 @@ export async function useAnimationWorkerAsync(animationJs: Ref<string | null | u
                     case 'moduleError': {
                         break;
                     }
-                    case 'ledArraySend': {
-                        ledArray.send();
+                    case 'ledSegmentSend': {
+                        ledSegment.send();
                         break;
                     }
                     default: {
@@ -75,9 +75,9 @@ export async function useAnimationWorkerAsync(animationJs: Ref<string | null | u
                 type: 'init',
                 js,
                 settings: deepClone(animationSettings.value),
-                numLeds: ledArray.length,
-                arrayOffset: ledArray.ledOffset,
-                sab: ledArray.sab
+                numLeds: ledSegment.length,
+                arrayOffset: ledSegment.ledOffset,
+                sab: ledSegment.sab
             };
             worker.postMessage(initMessage);
 
