@@ -45,14 +45,15 @@ export function useRouteLocation(name: RouteName.AnimationEditor, params: { anim
 export function useRouteLocation(name: RouteName.PostProcessorList): RouteLocationRaw
 export function useRouteLocation(name: RouteName.PostProcessorNew): RouteLocationRaw
 export function useRouteLocation(name: RouteName.PostProcessorEditor, params: { postProcessorId: Id }): RouteLocationRaw
-export function useRouteLocation(name: RouteName.StrandEditor, params: {strandId: Id}): RouteLocationRaw
+export function useRouteLocation(name: RouteName.StrandEditor, params: {strandId: Id}, query?: { selectedId: Id | undefined }): RouteLocationRaw
 export function useRouteLocation(name: RouteName.DeviceList): RouteLocationRaw
 export function useRouteLocation(name: RouteName.DeviceAdd): RouteLocationRaw
 export function useRouteLocation(name: RouteName.DeviceView, params: { deviceId: Id }): RouteLocationRaw
-export function useRouteLocation(name: RouteName, params?: any): RouteLocationRaw {
+export function useRouteLocation(name: RouteName, params?: any, query?: any): RouteLocationRaw {
     return {
         name,
-        params
+        params,
+        query,
     };
 }
 

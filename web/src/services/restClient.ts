@@ -2,6 +2,7 @@ import { AnimationRestClient } from '$core/rest/AnimationRestClient';
 import { DeviceRestClient } from '$core/rest/DeviceRestClient';
 import { PostProcessorRestClient } from '$core/rest/PostProcessorRestClient';
 import { RestClient, type RestConfig } from '$core/rest/RestClient';
+import { StrandRestClient } from '$core/rest/StrandRestClient';
 
 
 
@@ -23,4 +24,9 @@ export function usePostProcessorRestClient(): PostProcessorRestClient {
 let devicesClient: DeviceRestClient | undefined;
 export function useDevicesRestClient(): DeviceRestClient {
     return devicesClient ?? (devicesClient = new DeviceRestClient(useRestClient()));
+}
+
+let strandsClient: StrandRestClient | undefined;
+export function useStrandRestClient(): StrandRestClient {
+    return strandsClient ?? (strandsClient = new StrandRestClient(useRestClient()));
 }

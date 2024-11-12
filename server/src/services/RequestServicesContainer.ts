@@ -4,6 +4,7 @@ import { AnimationDb } from '../db/AnimationDb.js';
 import { DeviceDb } from '../db/DeviceDb.js';
 import { DeviceLogDb } from '../db/DeviceLogDb.js';
 import { PostProcessorDb } from '../db/PostProcessorDb.js';
+import { StrandDb } from '../db/StrandDb.js';
 import { UserDb } from '../db/UserDb.js';
 import type { WebSocketManager } from './ws/WebSocketManager.js';
 
@@ -39,6 +40,11 @@ export class RequestServicesContainer {
     private _userDb: UserDb | null = null;
     public get userDb() {
         return this._userDb ?? (this._userDb = new UserDb());
+    }
+
+    private _strandDb: StrandDb | null = null;
+    public get strandDb() {
+        return this._strandDb ?? (this._strandDb = new StrandDb());
     }
 
 }

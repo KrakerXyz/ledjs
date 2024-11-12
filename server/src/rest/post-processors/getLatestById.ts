@@ -8,6 +8,21 @@ interface Query { includeDraft?: boolean }
 export const getLatestById: RouteOptions = {
     method: 'GET',
     url: '/api/post-processors/:postProcessorId',
+    schema: {
+        params: {
+            type: 'object',
+            properties: {
+                postProcessorId: { type: 'string', format: 'uuid' },
+            },
+            required: ['postProcessorId']
+        },
+        querystring: {
+            type: 'object',
+            properties: {
+                includeDraft: { type: 'boolean' }
+            }
+        }
+    },
     handler: async (req, res) => {
         const params = req.params as Params;
         const query = req.query as Query;

@@ -28,7 +28,7 @@
         "@fastify/websocket": "^11",
         "ajv": "^8",
         "fastify": "^5",
-        "google-auth-library": "^8",
+        "google-auth-library": "^9.14.2",
         "mongodb": "^6.10.0",
         "uuid": "^11"
     },

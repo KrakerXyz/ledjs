@@ -20,6 +20,7 @@ const ajvCompilers: Record<'body' | 'params' | 'querystring' | 'entity', Ajv.def
         removeAdditional: false,
         coerceTypes: true,
         allErrors: true,
+        allowUnionTypes: true, // needed for when we have ScriptVersions as part of the path
         formats
     }),
     querystring: new Ajv.default({
@@ -45,7 +46,10 @@ export const jsonSchemas = {
     device: await import('./Device.schema.json', { assert: { type: 'json' } }).then(x => x.default),
     deviceLog: await import('./DeviceLog.schema.json', { assert: { type: 'json' } }).then(x => x.default),
     postProcessor: await import('./PostProcessor.schema.json', { assert: { type: 'json' } }).then(x => x.default),
+    postProcessorPost: await import('./PostProcessorPost.schema.json', { assert: { type: 'json' } }).then(x => x.default),
     user: await import('./User.schema.json', { assert: { type: 'json' } }).then(x => x.default),
+    strand: await import('./Strand.schema.json', { assert: { type: 'json' } }).then(x => x.default),
+    strandPost: await import('./StrandPost.schema.json', { assert: { type: 'json' } }).then(x => x.default),
 };
 
 const validators = new Map<string, ValidateFunction>();
@@ -57,8 +61,4 @@ export function getSchemaValidator(type: keyof typeof ajvCompilers, schema: any)
     validator = compiler.compile(schema);
     validators.set(key, validator);
     return validator;
-}
-
-export function getBodySchemaValidator(type: keyof typeof jsonSchemas): ValidateFunction {
-    return getSchemaValidator('body', jsonSchemas[type]);
 }

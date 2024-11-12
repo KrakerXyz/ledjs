@@ -3,18 +3,23 @@ import { buildScript } from '../../services/buildScript.js';
 import { jwtAuthentication } from '../../services/jwtAuthentication.js';
 import type { PostProcessorPost, PostProcessor } from '../../../../core/src/rest/model/PostProcessor.js';
 import { parseAst } from '../../../../core/src/services/parseAst.js';
+import { jsonSchemas } from '../../db/schema/schemaUtility.js';
 
 export const postPostProcessor: RouteOptions = {
     method: 'POST',
     url: '/api/post-processors',
     preValidation: [jwtAuthentication],
-    
+    schema: {
+        body: jsonSchemas.postProcessorPost,
+    },
     handler: async (req, res) => {
         const postProcessorPost = req.body as PostProcessorPost;
 
         const db = req.services.postProcessorDb;
 
         const ast = parseAst(postProcessorPost.ts);
+        
+        // I think this was copied over from the animation save but we'd need to adapt it to post processors
         //const codeIssues = validateScript(ast);
 
         // if (codeIssues.length) {

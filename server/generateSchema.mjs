@@ -1,16 +1,17 @@
 import tsj from 'ts-json-schema-generator';
 import { writeFileSync } from 'fs';
 
-const typeMaps = {
+const dbSchemas = {
     '../core/src/rest/model/Animation': ['Animation'],
     '../core/src/rest/model/AnimationConfig': ['AnimationConfig'],
     '../core/src/rest/model/Device': ['Device'],
     '../core/src/rest/model/DeviceLog': ['DeviceLog'],
-    '../core/src/rest/model/PostProcessor': ['PostProcessor'],
+    '../core/src/rest/model/PostProcessor': ['PostProcessor', 'PostProcessorPost'],
     '../core/src/rest/model/User': ['User'],
+    '../core/src/rest/model/Strand': ['Strand', 'StrandPost'],
 };
 
-for (const entry of Object.entries(typeMaps)) {
+for (const entry of Object.entries(dbSchemas)) {
 
     const [path, types] = entry;
     for (const typeName of types) {

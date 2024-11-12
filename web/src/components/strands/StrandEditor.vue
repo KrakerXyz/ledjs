@@ -4,8 +4,19 @@
         <div class="flex-grow-1 row g-0">
             <div class="col">
                 <div class="h-100 d-flex flex-column">
-                    <div v-for="seg of segments" :key="seg.id" :style="seg.style">
-                        <Segment :segment="seg"></Segment>
+                    <div class="list-group">
+                        <router-link
+                            v-for="seg of segments"
+                            :key="seg.instanceId"
+                            :to="seg.selectRoute"
+                            class="list-group-item list-group-item-action"
+                            :class="{ 'bg-info': seg.selected }"
+                            active-class=""
+                        >
+                            <div :style="seg.style">
+                                <Segment :segment="seg"></Segment>
+                            </div>
+                        </router-link>
                     </div>
                 </div>
             </div>
@@ -30,18 +41,23 @@
 <script lang="ts">
 
 import type { Id } from '$core/rest/model/Id';
-import type { ScriptVersion } from '$core/rest/model/ScriptVersion';
-import { assertTrue, useAnimationRestClient, usePostProcessorRestClient } from '$src/services';
+import { assertTrue, useAnimationRestClient, usePostProcessorRestClient, useStrandRestClient } from '$src/services';
 import { computed, defineComponent, getCurrentInstance, reactive, ref } from 'vue';
-import Segment from './Segment.vue';
+import SegmentVue from './Segment.vue';
 import { LedSegment } from '$src/services/animation/LedSegment';
+import { newId } from '$core/services/newId';
+import { RouteLocationRaw, useRoute } from 'vue-router';
+import { RouteName, useRouteLocation } from '$src/main.router';
+import { SegmentInputType, Segment } from '$core/rest/model/Strand';
 
 export default defineComponent({
-    components: { Segment },
+    components: { Segment: SegmentVue },
     props: {
         strandId: { type: String as () => Id, required: true }
     },
-    async setup() {
+    async setup(props) {
+
+        const route = useRoute();
         
         const componentInstance = getCurrentInstance();
         assertTrue(componentInstance);
@@ -51,16 +67,22 @@ export default defineComponent({
         const animApi = useAnimationRestClient();
         const animations = await Promise.all(
             mockSegments
-                .filter(x => x.type === SegmentInputType.Animation)
-                .map(x => animApi.byId(x.animation.id, x.animation.version))
+                .filter(x => x.script.type === SegmentInputType.Animation)
+                .map(x => animApi.byId(x.script.id, x.script.version))
         );
 
         const postApi = usePostProcessorRestClient();
         const postProcessors = await Promise.all(
             mockSegments
-                .filter(x => x.type === SegmentInputType.PostProcess)
-                .map(x => postApi.byId(x.postProcess.id, x.postProcess.version))
+                .filter(x => x.script.type === SegmentInputType.PostProcess)
+                .map(x => postApi.byId(x.script.id, x.script.version))
         );
+
+        const strandApi = useStrandRestClient();
+        const strand = await strandApi.list();
+        console.log(strand);
+
+        const selectedId = computed(() => route.query.selectedId as Id | undefined);
 
         const strandLeds = ref(100);
 
@@ -68,34 +90,36 @@ export default defineComponent({
 
         const segments = computed(() => {
             const leds = strandLeds.value;
-            const vms = mockSegments.map<SegmentVm>((x, i) => {
+            const vms: SegmentVm[] = [];
 
-                const animOrPost = x.type === SegmentInputType.Animation
-                    ? animations.find(y => y.id === x.animation.id && y.version === x.animation.version)
-                    : postProcessors.find(y => y.id === x.postProcess.id && y.version === x.postProcess.version);
+            for(const seg of mockSegments) {
 
-                if (!animOrPost) { throw new Error(`${x.type} not found`); }
+                const animOrPost = seg.script.type === SegmentInputType.Animation
+                    ? animations.find(y => y.id === seg.script.id && y.version === seg.script.version)
+                    : postProcessors.find(y => y.id === seg.script.id && y.version === seg.script.version);
 
-                const numLeds = Math.floor(leds * x.leds.percent / 100);
-                const startLed = Math.floor(strandLeds.value * x.leds.offset / 100);
+                if (!animOrPost) { throw new Error(`${seg.script.type} not found`); }
+
+                const numLeds = Math.floor(leds * seg.leds.percent / 100);
+                const startLed = Math.floor(strandLeds.value * seg.leds.offset / 100);
                 const ledSegment = new LedSegment(sab.value, numLeds, startLed);
-                const style = { width: `${x.leds.percent}%`, marginLeft: `${x.leds.offset}%` };
+                const style = { width: `${seg.leds.percent}%`, marginLeft: `${seg.leds.offset}%` };
+                const selected = selectedId.value === seg.id;
                 const vm: SegmentVm = { 
-                    id: i,
+                    id: seg.id,
+                    instanceId: newId(), // will intentionally force new components to be rendered until we make them reactive
                     name: animOrPost.name,
-                    type: x.type,
+                    type: seg.script.type,
                     js: animOrPost.js,
                     style,
                     ledSegment,
-                    prevLedSegment: null
+                    prevLedSegment: vms.length ? vms[vms.length - 1].ledSegment : null,
+                    selected,
+                    selectRoute: useRouteLocation(RouteName.StrandEditor, { strandId: props.strandId }, {  selectedId: selected ? undefined : seg.id }),
                 };
-                return vm;
-            });
 
-            for (let i = 0; i < vms.length; i++) {
-                if (!i) { continue; }
-                vms[i].prevLedSegment = vms[i - 1].ledSegment;
-            }
+                vms.push(vm);
+            };
 
             return vms;
         });
@@ -107,21 +131,25 @@ export default defineComponent({
 // these should not be exported. Just get TS to ignore warnings for now
 
 export interface SegmentVm {
-    id: number
+    id: Id,
+    instanceId: string,
     name: string,
     type: SegmentInputType,
     js: string,
     style: Record<string, string>,
     ledSegment: LedSegment,
     prevLedSegment: LedSegment | null,
+    selected: boolean,
+    selectRoute: RouteLocationRaw,
 }
 
 export function getMockSegments() {
-    const segments: ISegment[] = reactive([]);
+    const segments: Segment[] = reactive([]);
 
     segments.push({
-        type: SegmentInputType.Animation,
-        animation: {
+        id: '37bddd85-6104-48dc-965c-dd69d490728f',
+        script: {
+            type: SegmentInputType.Animation,
             id: '3bfe1c99-c4fa-4eb2-a1c5-305d3729a35e',
             version: 'draft'
         },
@@ -132,8 +160,9 @@ export function getMockSegments() {
     });
 
     segments.push({
-        type: SegmentInputType.PostProcess,
-        postProcess: {
+        id: '7aaa44c1-006b-4281-bdc3-66c60a7712fe',
+        script: {
+            type: SegmentInputType.PostProcess,
             id: 'b0197fb4-8645-4738-b2bc-e51a57170f99',
             version: 'draft'
         },
@@ -145,33 +174,6 @@ export function getMockSegments() {
     return segments;
 }
 
-export enum SegmentInputType {
-    Animation = 'animation',
-    PostProcess = 'postProcess'
-}
 
-type ISegment = {
-    type: SegmentInputType.Animation,
-    animation: {
-        id: Id,
-        version: ScriptVersion,
-    },
-    configId?: Id,
-    leds: {
-        offset: number,
-        percent: number,
-    }, 
-}
-| {
-    type: SegmentInputType.PostProcess,
-    postProcess: {
-        id: Id,
-        version: ScriptVersion,
-    },
-    leds: {
-        offset: number,
-        percent: number,
-    }, 
-}
 
 </script>

@@ -16,10 +16,11 @@
 
 import { useCanvasRenderer } from '$src/services/animation/renderCanvas';
 import { computed, defineComponent, getCurrentInstance, onUnmounted, ref, useTemplateRef } from 'vue';
-import { SegmentInputType, SegmentVm } from './StrandEditor.vue';
+import { SegmentVm } from './StrandEditor.vue';
 import { useAnimationWorkerAsync } from '$src/services/animation/animationWorker';
 import { assertTrue } from '$src/services';
 import { usePostProcessorWorkerAsync } from '$src/services/animation/postProcessorWorker';
+import { SegmentInputType } from '$core/rest/model/Strand';
 
 export default defineComponent({
     props: {

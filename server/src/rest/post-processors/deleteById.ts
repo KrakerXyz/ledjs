@@ -15,7 +15,7 @@ export const deleteById: RouteOptions = {
             required: ['postProcessorId'],
             properties: {
                 postProcessorId: { type: 'string', format: 'uuid' }
-            }
+            },
         }
     },
     handler: async (req, res) => {

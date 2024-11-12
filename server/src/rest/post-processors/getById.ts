@@ -8,7 +8,7 @@ export const getById: RouteOptions = {
         params: {
             type: 'object',
             properties: {
-                postProcessorId: { type: 'string' },
+                postProcessorId: { type: 'string', format: 'uuid' },
                 version: { type: ['integer', 'string'] }
             },
             required: ['postProcessorId', 'version']

@@ -7,6 +7,16 @@ interface Params { postProcessorId: Id, version: ScriptVersion }
 export const getScriptById: RouteOptions = {
     method: 'GET',
     url: '/api/post-processors/:postProcessorId/:version/script',
+    schema: {
+        params: {
+            type: 'object',
+            properties: {
+                postProcessorId: { type: 'string', format: 'uuid' },
+                version: { type: ['integer', 'string'] }
+            },
+            required: ['postProcessorId', 'version']
+        }
+    },
     handler: async (req, res) => {
         const params = req.params as Params;
 
