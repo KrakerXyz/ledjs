@@ -60,19 +60,6 @@
             <router-link class="small" v-if="selectedConfigId" :to="{ name: 'animation-config', params: { configId: selectedConfigId } }">
                 Edit Config
             </router-link>
-
-            <div v-if="telemetry.length" class="mt-3">
-                <div class="alert alert-primary mb-2" v-for="item of telemetry" :key="item.name">
-                    <div class="row">
-                        <div class="col">
-                            {{ item.name }}
-                        </div>
-                        <div class="col-auto">
-                            {{ item.value }}
-                        </div>
-                    </div>
-                </div>
-            </div>
         </div>
     </div>
 </template>
@@ -82,10 +69,9 @@ import type { Device } from '$core/rest/DeviceRestClient';
 import type { AnimationConfigSummary } from '$core/rest/model/AnimationConfig';
 import type { Id } from '$core/rest/model/Id';
 import { deepClone } from '$core/services/deepClone';
-import type { DeviceHealthData } from '$core/ws/FromDeviceMessage';
-import { useDevicesRestClient, useWsClient } from '$src/services';
+import { useDevicesRestClient } from '$src/services';
 import type { IDisposable } from 'monaco-editor';
-import { computed, defineComponent, onUnmounted, reactive, ref } from 'vue';
+import { computed, defineComponent, onUnmounted, reactive } from 'vue';
 
 export default defineComponent({
     props: {
@@ -94,7 +80,6 @@ export default defineComponent({
     },
     setup(props) {
         const devicesClient = useDevicesRestClient();
-        const ws = useWsClient();
 
         const deviceCopy = reactive(deepClone(props.device));
 
@@ -117,48 +102,14 @@ export default defineComponent({
             deviceCopy.isStopped = value;
         };
 
-        const telemetry = ref<TelemetryItem[]>([]);
-
         const disposables: IDisposable[] = [];
-        disposables.push(
-            ws.on('deviceMessage', (msg) => {
-                if (msg.deviceId !== props.device.id) { return; }
-
-                if (msg.type === 'health') {
-                    telemetry.value = Object.entries(msg.data).map((kvp) => {
-                        return {
-                            name: kvp[0] as keyof DeviceHealthData,
-                            value: kvp[1].toString(),
-                        };
-                    });
-                }
-            })
-        );
-
-        disposables.push(
-            ws.on('deviceConnection', (data) => {
-                if (data.deviceId !== deviceCopy.id) {
-                    return;
-                }
-                if (data.state === 'connected') {
-                    deviceCopy.status.cameOnline = Date.now();
-                } else {
-                    telemetry.value = [];
-                    deviceCopy.status.wentOffline = Date.now();
-                }
-            })
-        );
 
         onUnmounted(() => disposables.forEach((d) => d.dispose()));
 
-        return { stop, selectedConfigId, deviceCopy, telemetry };
+        return { stop, selectedConfigId, deviceCopy };
     },
 });
 
-interface TelemetryItem {
-    name: keyof DeviceHealthData,
-    value: string,
-}
 </script>
 
 <style lang="postcss" scoped>

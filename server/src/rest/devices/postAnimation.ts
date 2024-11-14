@@ -1,6 +1,7 @@
-import type { RouteOptions } from '@fastify/websocket';
+
 import { jwtAuthentication } from '../../services/jwtAuthentication.js';
 import type { DeviceAnimationPost, Device } from '../../../../core/src/rest/DeviceRestClient.js';
+import { RouteOptions } from 'fastify';
 
 export const postAnimation: RouteOptions = {
     method: 'POST',
@@ -24,8 +25,6 @@ export const postAnimation: RouteOptions = {
             return;
         }
 
-        const config = !deviceSetup.configId ? null : await req.services.animationConfigDb.byId(deviceSetup.configId);
-
         const updateProms: Promise<any>[] = [];
         for (const d of devices) {
             if (!d) { continue; }
@@ -35,11 +34,6 @@ export const postAnimation: RouteOptions = {
             };
             updateProms.push(db.replace(newDevice));
         }
-
-        req.services.webSocketManager.sendDeviceMessage({
-            type: 'animationSetup',
-            data: config
-        }, ...deviceSetup.deviceIds);
 
         await res.send();
 

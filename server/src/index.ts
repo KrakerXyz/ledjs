@@ -1,20 +1,16 @@
 
 import fastify from 'fastify';
-import fastifyWebsocket from '@fastify/websocket';
 import fastifyCookie from '@fastify/cookie';
 import fastifyJWT from '@fastify/jwt';
 import path from 'path';
 import { getSchemaValidator } from './db/schema/schemaUtility.js';
-import { WebSocketManager } from './services/ws/WebSocketManager.js';
-import { RequestServicesContainer } from './services/RequestServicesContainer.js';
 import fastifyStatic from '@fastify/static';
 import { apiRoutes } from './rest/index.js';
 import { getRequiredConfig, EnvKey } from './services/config.js';
-import { deviceAuthentication } from './services/deviceAuthentication.js';
-import { jwtAuthentication } from './services/jwtAuthentication.js';
 
 import { fileURLToPath } from 'url';
 import { configureDbLocal } from './db/Db.js';
+import { RequestServicesContainer } from './services/RequestServicesContainer.js';
 const __filename = fileURLToPath(import.meta.url); // get the resolved path to the file
 const __dirname = path.dirname(__filename); // get the name of the directory
 
@@ -52,9 +48,7 @@ server.setValidatorCompiler(req => {
     return validator;
 });
 
-const webSocketManager = new WebSocketManager(server.log.child({ name: 'ws.services.WebSocketManager' }));
-
-server.decorateRequest('services', { getter: () => new RequestServicesContainer(webSocketManager) });
+server.decorateRequest('services', { getter: () => new RequestServicesContainer() });
 
 server.register(fastifyJWT, {
     secret: getRequiredConfig(EnvKey.JwtSecret),
@@ -62,18 +56,6 @@ server.register(fastifyJWT, {
         cookieName: 'jwt',
         signed: false
     }
-});
-
-server.register(fastifyWebsocket, {
-    errorHandler: (_, conn) => {
-        conn.close(4001, 'Unauthorized');
-    }
-});
-
-server.register(async function (fastify) {
-    //Since updating to the new fastify, this must be inside this server.register or we'll get ws connection failed errors on client
-    fastify.get('/ws/device', { websocket: true, preValidation: [deviceAuthentication] }, webSocketManager.handler as any);
-    fastify.get('/ws/client', { websocket: true, preValidation: [jwtAuthentication] }, webSocketManager.handler as any);
 });
 
 server.register(fastifyCookie);

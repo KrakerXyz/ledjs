@@ -37,11 +37,6 @@ export const postStop: RouteOptions = {
             }
         }
 
-        req.services.webSocketManager.sendDeviceMessage({
-            type: 'animationStop',
-            data: { stop: deviceSetup.stop }
-        }, ...deviceSetup.deviceIds);
-
         await Promise.all(updateProms);
 
         await res.send();

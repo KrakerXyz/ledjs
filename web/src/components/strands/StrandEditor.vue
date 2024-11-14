@@ -67,49 +67,46 @@ export default defineComponent({
         const animApi = useAnimationRestClient();
         const animations = await Promise.all(
             mockSegments
-                .filter(x => x.script.type === SegmentInputType.Animation)
+                .filter(x => x.type === SegmentInputType.Animation)
                 .map(x => animApi.byId(x.script.id, x.script.version))
         );
 
         const postApi = usePostProcessorRestClient();
         const postProcessors = await Promise.all(
             mockSegments
-                .filter(x => x.script.type === SegmentInputType.PostProcess)
+                .filter(x => x.type === SegmentInputType.PostProcess)
                 .map(x => postApi.byId(x.script.id, x.script.version))
         );
 
         const strandApi = useStrandRestClient();
-        const strand = await strandApi.list();
-        console.log(strand);
+        const strand = await strandApi.byId(props.strandId);
 
         const selectedId = computed(() => route.query.selectedId as Id | undefined);
 
-        const strandLeds = ref(100);
+        const strandLeds = ref(strand.numLeds);
 
         const sab = computed(() => new SharedArrayBuffer(strandLeds.value * 4));
 
         const segments = computed(() => {
-            const leds = strandLeds.value;
             const vms: SegmentVm[] = [];
 
             for(const seg of mockSegments) {
 
-                const animOrPost = seg.script.type === SegmentInputType.Animation
+                const animOrPost = seg.type === SegmentInputType.Animation
                     ? animations.find(y => y.id === seg.script.id && y.version === seg.script.version)
                     : postProcessors.find(y => y.id === seg.script.id && y.version === seg.script.version);
 
-                if (!animOrPost) { throw new Error(`${seg.script.type} not found`); }
+                if (!animOrPost) { throw new Error(`${seg.type} not found`); }
 
-                const numLeds = Math.floor(leds * seg.leds.percent / 100);
-                const startLed = Math.floor(strandLeds.value * seg.leds.offset / 100);
-                const ledSegment = new LedSegment(sab.value, numLeds, startLed);
-                const style = { width: `${seg.leds.percent}%`, marginLeft: `${seg.leds.offset}%` };
+                const deadLeds = seg.type === SegmentInputType.Animation ? seg.leds.dead : undefined
+                const ledSegment = new LedSegment(sab.value, seg.leds.num, seg.leds.offset, deadLeds);
+                const style = { width: `${seg.leds.num / strandLeds.value}%`, 'margin-left': `${seg.leds.offset / strandLeds.value}%` };
                 const selected = selectedId.value === seg.id;
                 const vm: SegmentVm = { 
                     id: seg.id,
                     instanceId: newId(), // will intentionally force new components to be rendered until we make them reactive
                     name: animOrPost.name,
-                    type: seg.script.type,
+                    type: seg.type,
                     js: animOrPost.js,
                     style,
                     ledSegment,
@@ -148,27 +145,28 @@ export function getMockSegments() {
 
     segments.push({
         id: '37bddd85-6104-48dc-965c-dd69d490728f',
+        type: SegmentInputType.Animation,
         script: {
-            type: SegmentInputType.Animation,
             id: '3bfe1c99-c4fa-4eb2-a1c5-305d3729a35e',
             version: 'draft'
         },
         leds: {
             offset: 0,
-            percent: 50
+            num: 50,
+            dead: [5, '20-25']
         }
     });
 
     segments.push({
         id: '7aaa44c1-006b-4281-bdc3-66c60a7712fe',
+        type: SegmentInputType.PostProcess,
         script: {
-            type: SegmentInputType.PostProcess,
             id: 'b0197fb4-8645-4738-b2bc-e51a57170f99',
             version: 'draft'
         },
         leds: {
             offset: 0,
-            percent: 100
+            num: 100
         }
     });
     return segments;

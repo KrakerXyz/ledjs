@@ -44,7 +44,6 @@ export const jsonSchemas = {
     animation: await import('./Animation.schema.json', { assert: { type: 'json' } }).then(x => x.default),
     animationConfig: await import('./AnimationConfig.schema.json', { assert: { type: 'json' } }).then(x => x.default),
     device: await import('./Device.schema.json', { assert: { type: 'json' } }).then(x => x.default),
-    deviceLog: await import('./DeviceLog.schema.json', { assert: { type: 'json' } }).then(x => x.default),
     postProcessor: await import('./PostProcessor.schema.json', { assert: { type: 'json' } }).then(x => x.default),
     postProcessorPost: await import('./PostProcessorPost.schema.json', { assert: { type: 'json' } }).then(x => x.default),
     user: await import('./User.schema.json', { assert: { type: 'json' } }).then(x => x.default),

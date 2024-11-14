@@ -7,6 +7,8 @@ import path from 'path';
 export default defineConfig({
     plugins: [
         vue(),
+        // The intent for this FullReload was to force a full page reload if we changed something on a monaco editor page. This was because the monaco editor would not handle hot reloads right.
+        // However, when enabled, we lost any kind of reload on non-editor pages. Maybe there's a way to fix it to fallback?
         //FullReload('src/components/**/editor/*'),
         {
             name: 'configure-server',

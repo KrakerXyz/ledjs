@@ -31,7 +31,6 @@ export const deleteById: RouteOptions = {
         }
 
         await req.services.deviceDb.deleteById(device.id);
-        req.services.webSocketManager.disconnectDevice(device.id);
 
         await res.status(200).send();
     }

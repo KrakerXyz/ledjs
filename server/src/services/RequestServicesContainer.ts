@@ -2,15 +2,11 @@
 import { AnimationConfigDb } from '../db/AnimationConfigDb.js';
 import { AnimationDb } from '../db/AnimationDb.js';
 import { DeviceDb } from '../db/DeviceDb.js';
-import { DeviceLogDb } from '../db/DeviceLogDb.js';
 import { PostProcessorDb } from '../db/PostProcessorDb.js';
 import { StrandDb } from '../db/StrandDb.js';
 import { UserDb } from '../db/UserDb.js';
-import type { WebSocketManager } from './ws/WebSocketManager.js';
 
 export class RequestServicesContainer {
-
-    public constructor(public readonly webSocketManager: WebSocketManager) { }
 
     private _animationDb: AnimationDb | null = null;
     public get animationDb() {
@@ -30,11 +26,6 @@ export class RequestServicesContainer {
     private _deviceDb: DeviceDb | null = null;
     public get deviceDb() {
         return this._deviceDb ?? (this._deviceDb = new DeviceDb());
-    }
-
-    private _deviceLogDb: DeviceLogDb | null = null;
-    public get deviceLogDb() {
-        return this._deviceLogDb ?? (this._deviceLogDb = new DeviceLogDb());
     }
 
     private _userDb: UserDb | null = null;

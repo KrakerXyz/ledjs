@@ -41,11 +41,6 @@ export const postAnimationConfig: RouteOptions = {
             deviceSaves.push(req.services.deviceDb.replace(d));
         }
 
-        req.services.webSocketManager.sendDeviceMessage({
-            type: 'animationSetup',
-            data: config
-        }, ...post.deviceIds);
-
         await Promise.all(deviceSaves);
 
         await res.send();

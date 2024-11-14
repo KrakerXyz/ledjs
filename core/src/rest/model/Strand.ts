@@ -8,36 +8,38 @@ export enum SegmentInputType {
 
 export interface Strand {
     readonly id: Id,
+    name: string,
+    description: string,
+    numLeds: number,
+    segments: Segment[],
     readonly created: number,
     readonly author: Id,
-    segments: Segment[],
 }
 
 interface SegmentBase {
-    readonly id: Id,
-    script: {
         type: SegmentInputType,
-        id: Id,
-        version: ScriptVersion,
-    },
+    readonly id: Id,
     leds: {
         offset: number,
-        percent: number,
+        num: number,
     },
 }
 
 interface AnimationSegment extends SegmentBase {
+        type: SegmentInputType.Animation,
     script: {
-        type: SegmentInputType,
         id: Id,
         version: ScriptVersion,
         configId?: Id,
+    },
+    leds: SegmentBase['leds'] & {
+        dead: (number | `${number}-${number}`)[],
     }
 }
 
 interface PostProcessSegment extends SegmentBase {
+        type: SegmentInputType.PostProcess,
     script: {
-        type: SegmentInputType,
         id: Id,
         version: ScriptVersion,
     }

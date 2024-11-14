@@ -1,6 +1,5 @@
-import type { FromDeviceMessage } from '../ws/FromDeviceMessage.js';
+
 import type { DeviceAnimationConfigPost } from './model/DeviceAnimationConfig.js';
-import type { DeviceLogsFilter } from './model/DeviceLog.js';
 import type { Id } from './model/Id.js';
 import type { ScriptVersion } from './model/ScriptVersion.js';
 import type { RestClient } from './RestClient.js';
@@ -50,16 +49,6 @@ export class DeviceRestClient {
         return this.restClient.post('/api/devices/animation/stop', stop);
     }
 
-    /** Gets a list of logs emitted by devices. Sorted in reverse chronological order base on created. Returns max of 100 records. */
-    public logs(filter?: DeviceLogsFilter): Promise<FromDeviceMessageLog[]> {
-        return this.restClient.post('/api/devices/logs/list', filter ?? {});
-    }
-
-}
-
-export type FromDeviceMessageLog = FromDeviceMessage & {
-    id: Id,
-    created: number,
 }
 
 export interface Device {

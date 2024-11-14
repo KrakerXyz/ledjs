@@ -5,14 +5,32 @@ export class LedSegment implements netled.common.ILedSegment {
 
     readonly #arr: Uint8ClampedArray;
     readonly #numLeds: number;
+    readonly #deadLeds: number[] = [];
 
-    public constructor(public readonly sab: SharedArrayBuffer, numLeds: number, public readonly ledOffset: number) {
+    public constructor(public readonly sab: SharedArrayBuffer, numLeds: number, public readonly ledOffset: number, deadLeds: (number | `${number}-${number}`)[] = []) {
         this.#arr = new Uint8ClampedArray(sab, ledOffset * 4, numLeds * 4);
         this.#numLeds = numLeds;
+
+        for (const deadLed of deadLeds) {
+            if (typeof deadLed === 'number') {
+                this.#deadLeds.push(deadLed);
+            } else {
+                const [start, end] = deadLed.split('-').map(Number);
+                for (let i = start; i <= end; i++) {
+                    this.#deadLeds.push(i);
+                }
+            }
+        }
+        this.#deadLeds.sort((a, b) => a - b);
     }
 
-    /** The number of leds in the array */
+    /** The number of writeable leds in the array */
     public get length(): number {
+        return this.#numLeds - this.#deadLeds.length;
+    }
+
+    /** Total number of leds in the segment, including dead leds */
+    public get lengthActual(): number {
         return this.#numLeds;
     }
 
@@ -20,8 +38,12 @@ export class LedSegment implements netled.common.ILedSegment {
     public getLed(index: number, component: 0 | 1 | 2 | 3): number;
     public getLed(index: number, component?: 0 | 1 | 2 | 3): netled.common.IArgb | number {
 
-        if (Math.abs(index) >= this.#numLeds) {
+        if (Math.abs(index) >= this.length) {
             throw new Error(`Index ${index} is out of bounds`);
+        }
+
+        while (this.#deadLeds.includes(index)) {
+            index++;
         }
 
         const pos = index * 4;
@@ -40,8 +62,12 @@ export class LedSegment implements netled.common.ILedSegment {
     public setLed(index: number, component: 0 | 1 | 2 | 3, value: number): void;
     public setLed(index: number, ...args: any[]) {
 
-        if (Math.abs(index) >= this.#numLeds) {
+        if (Math.abs(index) >= this.length) {
             throw new Error(`Index ${index} is out of bounds`);
+        }
+
+        while (this.#deadLeds.includes(index)) {
+            index++;
         }
 
         const pos = index * 4;
@@ -66,6 +92,8 @@ export class LedSegment implements netled.common.ILedSegment {
     /** shift LEDs to the left */
     public shift(dir: 0 | false): void;
     public shift(dir?: 0 | 1 | boolean): void {
+        if (this.#deadLeds.length) { throw new Error('Shifting not implemented with dead leds'); }
+        
         if (dir === undefined || dir) {
             let iter = 4;
             while (iter--) {
@@ -89,6 +117,8 @@ export class LedSegment implements netled.common.ILedSegment {
 
     /** Reverses the order of all leds in the array */
     public reverse(): void {
+        if (this.#deadLeds.length) { throw new Error('Shifting not implemented with dead leds'); }
+        
         for (let i = 0; i < this.#numLeds/ 2; i++) {
             const endPos = this.#numLeds - i - 1;
 

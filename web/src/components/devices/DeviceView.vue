@@ -44,15 +44,11 @@
 import { ref } from 'vue';
 import { computed, defineComponent } from 'vue';
 import { useRouter } from 'vue-router';
-import DeviceViewLogs from './DeviceViewLogs.vue';
 import { useRestClient } from '$src/services';
 import { type Device, DeviceRestClient } from '$core/rest/DeviceRestClient';
 import type { Id } from '$core/rest/model/Id';
 
 export default defineComponent({
-    components: {
-        DeviceViewLogs,
-    },
     props: {
         deviceId: { type: String as () => Id, required: true },
     },

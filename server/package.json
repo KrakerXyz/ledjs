@@ -25,7 +25,6 @@
         "@fastify/cookie": "^11.0.1",
         "@fastify/jwt": "^9.0.1",
         "@fastify/static": "^8",
-        "@fastify/websocket": "^11",
         "ajv": "^8",
         "fastify": "^5",
         "google-auth-library": "^9.14.2",

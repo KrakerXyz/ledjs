@@ -47,13 +47,6 @@ export const deleteById: RouteOptions = {
             await req.services.animationConfigDb.deleteById(config.id);
         }
 
-        if (deviceIdsToReset.length) {
-            req.services.webSocketManager.sendDeviceMessage({
-                type: 'animationSetup',
-                data: null
-            }, deviceIdsToReset[0], ...deviceIdsToReset.slice(1));
-        }
-
         await db.deleteById(animation.id, animation.version);
 
         await res.status(200).send();

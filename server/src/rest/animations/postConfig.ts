@@ -23,16 +23,6 @@ export const postConfig: RouteOptions = {
 
         await db.upsert(newConfig);
 
-        if (existing) {
-            const devices = req.services.deviceDb.byAnimationConfigId(newConfig.id);
-            for await (const d of devices) {
-                req.services.webSocketManager.sendDeviceMessage({
-                    type: 'animationSetup',
-                    data: newConfig
-                }, d.id);
-            }
-        }
-
         await res.status(existing ? 200 : 201).send(newConfig);
     }
 };
