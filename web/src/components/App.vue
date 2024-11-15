@@ -94,4 +94,12 @@ export default defineComponent({
 .mt-n3 {
     margin-top: -1rem;
 }
+
+canvas {
+  /* fixes blurry canvas  https://stackoverflow.com/questions/42588501/how-do-i-fix-blurry-shape-edges-in-html5-canvas */
+  image-rendering: -moz-crisp-edges;
+  image-rendering: -webkit-crisp-edges;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+}
 </style>

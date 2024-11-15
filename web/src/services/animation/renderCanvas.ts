@@ -48,8 +48,6 @@ export function renderCanvas(ctx: OffscreenCanvasRenderingContext2D | CanvasRend
         const led: IArgb = ledSegment.getLed(i);
         ctx.fillStyle = rgbToHex(led);
         ctx.fillRect(offset, 0, ledWidthCeil, canvasDimensions[1]);
-        // ctx.strokeStyle = 'red';
-        // ctx.strokeRect(offset, 0, ledWidthCeil, canvasDimensions[1]);
         offset += ledWidth;
     }
 }

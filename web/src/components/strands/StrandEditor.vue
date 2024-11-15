@@ -2,7 +2,7 @@
 <template>
     <div class="d-flex flex-column h-100">
         <div class="flex-grow-1 row g-0">
-            <div class="col">
+            <div class="col p-2">
                 <div class="h-100 d-flex flex-column">
                     <div class="list-group">
                         <router-link
@@ -17,6 +17,22 @@
                                 <Segment :segment="seg"></Segment>
                             </div>
                         </router-link>
+                        <div class="list-group-item">
+                            <div class="form-floating">
+                                <select
+                                    id="select-new"
+                                    class="form-select"
+                                    placeholder="*"
+                                    @change="addSegment($event)"
+                                >
+                                    <option value=""></option>
+                                    <option v-for="opt of newSegmentOptions" :key="opt.id" :value="opt.id">
+                                        {{ opt.name }}
+                                    </option>
+                                </select>
+                                <label for="select-new">New Segment</label>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -45,10 +61,10 @@ import { assertTrue, useAnimationRestClient, usePostProcessorRestClient, useStra
 import { computed, defineComponent, getCurrentInstance, reactive, ref } from 'vue';
 import SegmentVue from './Segment.vue';
 import { LedSegment } from '$src/services/animation/LedSegment';
-import { newId } from '$core/services/newId';
 import { RouteLocationRaw, useRoute } from 'vue-router';
-import { RouteName, useRouteLocation } from '$src/main.router';
-import { SegmentInputType, Segment } from '$core/rest/model/Strand';
+import { SegmentInputType, Segment, strandToPost } from '$core/rest/model/Strand';
+import { newId } from '$core/services/newId';
+import { useRouteLocation, RouteName } from '$src/main.router';
 
 export default defineComponent({
     components: { Segment: SegmentVue },
@@ -62,35 +78,25 @@ export default defineComponent({
         const componentInstance = getCurrentInstance();
         assertTrue(componentInstance);
 
-        const mockSegments = getMockSegments();
-
         const animApi = useAnimationRestClient();
-        const animations = await Promise.all(
-            mockSegments
-                .filter(x => x.type === SegmentInputType.Animation)
-                .map(x => animApi.byId(x.script.id, x.script.version))
-        );
+        const animations = await animApi.list(true);
 
         const postApi = usePostProcessorRestClient();
-        const postProcessors = await Promise.all(
-            mockSegments
-                .filter(x => x.type === SegmentInputType.PostProcess)
-                .map(x => postApi.byId(x.script.id, x.script.version))
-        );
+        const postProcessors = await postApi.list(true);
 
         const strandApi = useStrandRestClient();
-        const strand = await strandApi.byId(props.strandId);
 
-        const selectedId = computed(() => route.query.selectedId as Id | undefined);
+        const strand = reactive(strandToPost(await strandApi.byId(props.strandId)));
 
         const strandLeds = ref(strand.numLeds);
 
+        const selectedId = computed(() => route.query.selectedId as Id | undefined);
         const sab = computed(() => new SharedArrayBuffer(strandLeds.value * 4));
 
         const segments = computed(() => {
             const vms: SegmentVm[] = [];
 
-            for(const seg of mockSegments) {
+            for(const seg of strand.segments) {
 
                 const animOrPost = seg.type === SegmentInputType.Animation
                     ? animations.find(y => y.id === seg.script.id && y.version === seg.script.version)
@@ -121,11 +127,45 @@ export default defineComponent({
             return vms;
         });
 
-        return { segments, strandLeds };
+        const newSegmentOptions = computed<NewSegmentOption[]>(() => {
+            const options = animations.map(x => ({ id: x.id, type: SegmentInputType.Animation, name: `${x.name} (Animation)` }));
+
+            if (segments.value.length) {
+                const ppOptions = postProcessors.map(x => ({ id: x.id, type: SegmentInputType.PostProcess, name: `${x.name} (Post Processor)` }));
+                options.push(...ppOptions);
+            }
+
+            options.sort((a, b) => a.name.localeCompare(b.name));
+            return options;
+        });
+
+        const addSegment = (event: Event) => {
+            const select = event.target as HTMLSelectElement;
+            if(!select.value) { return; }
+            const opt = newSegmentOptions.value.find(x => x.id === select.value);
+            if (!opt) { throw new Error('Invalid option'); }
+
+            const seg: Segment = {
+                id: newId(),
+                type: opt.type,
+                script: { id: opt.id, version: 'draft' },
+                leds: { offset: 0, num: strandLeds.value }
+            };
+
+            strand.segments.push(seg);
+            select.value = '';
+        };
+        
+
+        return { strandLeds, segments, newSegmentOptions, addSegment };
     }
 });
 
-// these should not be exported. Just get TS to ignore warnings for now
+interface NewSegmentOption {
+    id: Id,
+    type: SegmentInputType,
+    name: string,
+}
 
 export interface SegmentVm {
     id: Id,
@@ -139,6 +179,10 @@ export interface SegmentVm {
     selected: boolean,
     selectRoute: RouteLocationRaw,
 }
+
+/*
+       
+*/
 
 export function getMockSegments() {
     const segments: Segment[] = reactive([]);
@@ -171,7 +215,6 @@ export function getMockSegments() {
     });
     return segments;
 }
-
 
 
 </script>

@@ -17,7 +17,7 @@ export interface Strand {
 }
 
 interface SegmentBase {
-        type: SegmentInputType,
+    type: SegmentInputType,
     readonly id: Id,
     leds: {
         offset: number,
@@ -26,19 +26,19 @@ interface SegmentBase {
 }
 
 interface AnimationSegment extends SegmentBase {
-        type: SegmentInputType.Animation,
+    type: SegmentInputType.Animation,
     script: {
         id: Id,
         version: ScriptVersion,
         configId?: Id,
     },
     leds: SegmentBase['leds'] & {
-        dead: (number | `${number}-${number}`)[],
+        dead?: (number | `${number}-${number}`)[],
     }
 }
 
 interface PostProcessSegment extends SegmentBase {
-        type: SegmentInputType.PostProcess,
+    type: SegmentInputType.PostProcess,
     script: {
         id: Id,
         version: ScriptVersion,
@@ -48,3 +48,22 @@ interface PostProcessSegment extends SegmentBase {
 export type Segment = AnimationSegment | PostProcessSegment;
 
 export type StrandPost = Omit<Strand, 'author' | 'created'>;
+
+export function strandToPost(strand: Strand): StrandPost {
+    return {
+        id: strand.id,
+        name: strand.name,
+        description: strand.description,
+        numLeds: strand.numLeds,
+        segments: strand.segments.map(s => ({
+            type: s.type,
+            id: s.id,
+            leds: s.leds,
+            script: {
+                id: s.script.id,
+                version: s.script.version,
+                configId: (s as AnimationSegment).script.configId,
+            },
+        })),
+    };
+}
