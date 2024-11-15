@@ -75,8 +75,9 @@ export async function useAnimationWorkerAsync(animationJs: Ref<string | null | u
                 type: 'init',
                 js,
                 settings: deepClone(animationSettings.value),
-                numLeds: ledSegment.length,
+                numLeds: ledSegment.rawSegment.length,
                 arrayOffset: ledSegment.ledOffset,
+                deadLeds: ledSegment.deadLeds,
                 sab: ledSegment.sab
             };
             worker.postMessage(initMessage);
@@ -126,6 +127,7 @@ export type ClientMessage = {
     js: string,
     settings: netled.common.ISettings,
     numLeds: number,
+    deadLeds: number[],
     arrayOffset: number,
     sab: SharedArrayBuffer,
 }

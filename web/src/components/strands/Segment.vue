@@ -47,12 +47,10 @@ export default defineComponent({
         } else {
             const pp = await usePostProcessorWorkerAsync(ref(seg.js), computed(() => seg.ledSegment));
             seg.prevLedSegment?.addSendCallback(pp.ledSegmentInput);
+            onUnmounted(() => {
+                pp.dispose();
+            }, componentInstance);
         }
-        
-
-        return {
-            name
-        };
     }
 });
 

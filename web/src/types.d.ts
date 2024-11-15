@@ -30,15 +30,21 @@ declare global {
 
             /** Method for assigning color values to LEDs in an array */
             interface ILedSegment {
-                /** The number of LEDs in the array */
+                /** The number of writeable leds in the array */
                 readonly length: number,
+
+                /** Array of leds positions that are considered dead and will be skipped when assigning or getting leds */
+                readonly deadLeds: number[],
+
+                /** Gets a copy of the segment without any possible dead leds. If there are no dead leds, the current instance is returned */
+                readonly rawSegment: ILedSegment,
 
                 /** Set LED at specified index using a four-element array representing [Alpha, Red, Green, Blue] bytes */
                 setLed(index: number, argb: IArgb): void,
                 /** Set LED at specified index to Alpha, Red, Green, Blue byte values */
                 setLed(index: number, a: number, r: number, g: number, b: number): void,
                 /** Set color component (0: Alpha, 1: Red, 2: Green, 3: Blue) of specified LED to given byte */
-                setLed(index: number, component: 0 | 1 | 2 | 3, value: number): void,
+                setLed(index: number, component: 0 | 1 | 2 | 3, value: number | boolean): void,
 
                 /** Gets current color values of LED at specified index returns as a four-element array of bytes representing [Alpha, Red, Green, Blue]  */
                 getLed(index: number): IArgb,

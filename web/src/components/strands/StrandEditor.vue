@@ -100,7 +100,7 @@ export default defineComponent({
 
                 const deadLeds = seg.type === SegmentInputType.Animation ? seg.leds.dead : undefined
                 const ledSegment = new LedSegment(sab.value, seg.leds.num, seg.leds.offset, deadLeds);
-                const style = { width: `${seg.leds.num / strandLeds.value}%`, 'margin-left': `${seg.leds.offset / strandLeds.value}%` };
+                const style = { width: `${seg.leds.num / strandLeds.value * 100}%`, 'margin-left': `${seg.leds.offset / strandLeds.value * 100}%` };
                 const selected = selectedId.value === seg.id;
                 const vm: SegmentVm = { 
                     id: seg.id,
@@ -153,7 +153,7 @@ export function getMockSegments() {
         leds: {
             offset: 0,
             num: 50,
-            dead: [5, '20-25']
+            dead: [4, 5, 6, '15-20']
         }
     });
 
@@ -175,3 +175,9 @@ export function getMockSegments() {
 
 
 </script>
+
+<style lang="postcss" scoped>
+    .canvas-container :deep(canvas) {
+        height: 20px;
+    }
+</style>

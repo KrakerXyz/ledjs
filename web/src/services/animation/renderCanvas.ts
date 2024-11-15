@@ -35,8 +35,10 @@ export function useCanvasRenderer(canvasContainer: Readonly<Ref<HTMLDivElement |
 }
 
 
-export function renderCanvas(context2d: OffscreenCanvasRenderingContext2D | CanvasRenderingContext2D, canvasDimensions:[number, number], ledSegment: LedSegment) {
-    context2d.clearRect(0, 0, canvasDimensions[0], canvasDimensions[1]);
+export function renderCanvas(ctx: OffscreenCanvasRenderingContext2D | CanvasRenderingContext2D, canvasDimensions:[number, number], ledSegment: netled.common.ILedSegment) {
+    ctx.clearRect(0, 0, canvasDimensions[0], canvasDimensions[1]);
+
+    ledSegment = ledSegment.rawSegment;
 
     const ledWidth = canvasDimensions[0] / ledSegment.length;
     const ledWidthCeil = Math.ceil(ledWidth);
@@ -44,8 +46,10 @@ export function renderCanvas(context2d: OffscreenCanvasRenderingContext2D | Canv
     let offset = 0;
     for (let i = 0; i < ledSegment.length; i++) {
         const led: IArgb = ledSegment.getLed(i);
-        context2d.fillStyle = rgbToHex(led);
-        context2d.fillRect(offset, 0, ledWidthCeil, canvasDimensions[1]);
+        ctx.fillStyle = rgbToHex(led);
+        ctx.fillRect(offset, 0, ledWidthCeil, canvasDimensions[1]);
+        // ctx.strokeStyle = 'red';
+        // ctx.strokeRect(offset, 0, ledWidthCeil, canvasDimensions[1]);
         offset += ledWidth;
     }
 }

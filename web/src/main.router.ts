@@ -1,4 +1,3 @@
-
 import { createRouter, createWebHistory, type NavigationGuard, type RouteLocationRaw, type RouteRecordRaw } from 'vue-router';
 import { useAuthService } from './services/authService';
 import type { Id } from '$core/rest/model/Id';
@@ -32,6 +31,8 @@ export enum RouteName {
     PostProcessorList = 'post-processors',
     PostProcessorNew = 'post-processors/new',
     PostProcessorEditor = 'post-processors/:postProcessorId/edit',
+    StrandList = 'strands',
+    StrandNew = 'strands/new',
     StrandEditor = 'stands/:strandId/edit',
     DeviceList = 'devices',
     DeviceAdd = 'devices/add',
@@ -45,6 +46,8 @@ export function useRouteLocation(name: RouteName.AnimationEditor, params: { anim
 export function useRouteLocation(name: RouteName.PostProcessorList): RouteLocationRaw
 export function useRouteLocation(name: RouteName.PostProcessorNew): RouteLocationRaw
 export function useRouteLocation(name: RouteName.PostProcessorEditor, params: { postProcessorId: Id }): RouteLocationRaw
+export function useRouteLocation(name: RouteName.StrandList): RouteLocationRaw
+export function useRouteLocation(name: RouteName.StrandNew): RouteLocationRaw
 export function useRouteLocation(name: RouteName.StrandEditor, params: {strandId: Id}, query?: { selectedId: Id | undefined }): RouteLocationRaw
 export function useRouteLocation(name: RouteName.DeviceList): RouteLocationRaw
 export function useRouteLocation(name: RouteName.DeviceAdd): RouteLocationRaw
@@ -104,6 +107,25 @@ const routes: RouteRecordRaw[] = [
                 path: RouteName.PostProcessorEditor,
                 beforeEnter: requireLogin,
                 component: () => import('./components/post-processors/editor/ProcessorEditor.vue'),
+                props: true
+            },
+            {
+                name: RouteName.StrandList,
+                path: RouteName.StrandList,
+                beforeEnter: requireLogin,
+                component: () => import('./components/strands/StrandList.vue')
+            },
+            {
+                name: RouteName.StrandNew,
+                path: RouteName.StrandNew,
+                beforeEnter: requireLogin,
+                component: () => import('./components/strands/StrandNew.vue')
+            },
+            {
+                name: RouteName.StrandEditor,
+                path: RouteName.StrandEditor,
+                beforeEnter: requireLogin,
+                component: () => import('./components/strands/StrandEditor.vue'),
                 props: true
             },
             {
