@@ -16,8 +16,9 @@ export class AnimationDb {
     }
 
 
-    public all(): AsyncGenerator<AnimationSummary> {
-        return AnimationDb._entity.find({}, c => c.project({ js: false, ts: false } as any));
+    public all<T extends boolean>(withScript?: T): AsyncGenerator<T extends true ? Animation : AnimationSummary> {
+        const project = withScript ? {} : { js: false, ts: false };
+        return AnimationDb._entity.find({}, c => c.project(project));
     }
 
     public async latestById(id: Id): Promise<Animation | null> {

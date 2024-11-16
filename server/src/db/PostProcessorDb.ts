@@ -13,8 +13,9 @@ export class PostProcessorDb {
         PostProcessorDb._entity ??= new Db<PostProcessor>('post-processors', jsonSchemas.postProcessor);
     }
 
-    public all(): AsyncGenerator<PostProcessorSummary> {
-        return PostProcessorDb._entity.find({}, c => c.project({ js: false, ts: false } as any));
+    public all<T extends boolean>(withScript?: T): AsyncGenerator<T extends true ? PostProcessor : PostProcessorSummary> {
+        const project = withScript ? {} : { js: false, ts: false };
+        return PostProcessorDb._entity.find({}, c => c.project(project));
     }
 
     public async latestById(id: Id): Promise<PostProcessor | null> {

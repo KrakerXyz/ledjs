@@ -61,6 +61,7 @@ export async function usePostProcessorWorkerAsync(postProcessorJs: Ref<string | 
                         break;
                     }
                     case 'ledSegmentSend': {
+                        if(disposed) { throw new Error('PostProcessorWorkerWorker is still emitting for disposed Worker'); }
                         ledSegment.send();
                         break;
                     }
@@ -99,7 +100,7 @@ export async function usePostProcessorWorkerAsync(postProcessorJs: Ref<string | 
     });
 
     const ledSegmentInput: LedSegmentCallback = () => {
-        if (disposed) { return Promise.resolve(); }
+        if (disposed) { throw new Error('Worker is disposed'); }
         const message: ClientMessage = {
             type: 'process'
         };

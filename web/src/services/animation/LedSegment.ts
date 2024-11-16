@@ -80,7 +80,6 @@ export class LedSegment implements netled.common.ILedSegment {
         }
 
         index += this.deadOffset(index);
-        console.log(index);
 
         const pos = index * 4;
         if (args.length === 1) {

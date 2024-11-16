@@ -87,19 +87,28 @@ export default defineComponent({
 </script>
 
 <style lang="postcss">
-.clickable {
-    cursor: pointer;
-}
+    .clickable {
+        cursor: pointer;
+    }
 
-.mt-n3 {
-    margin-top: -1rem;
-}
+    .mt-n3 {
+        margin-top: -1rem;
+    }
 
-canvas {
-  /* fixes blurry canvas  https://stackoverflow.com/questions/42588501/how-do-i-fix-blurry-shape-edges-in-html5-canvas */
-  image-rendering: -moz-crisp-edges;
-  image-rendering: -webkit-crisp-edges;
-  image-rendering: pixelated;
-  image-rendering: crisp-edges;
-}
+    canvas {
+    /* fixes blurry canvas  https://stackoverflow.com/questions/42588501/how-do-i-fix-blurry-shape-edges-in-html5-canvas */
+    image-rendering: -moz-crisp-edges;
+    image-rendering: -webkit-crisp-edges;
+    image-rendering: pixelated;
+    image-rendering: crisp-edges;
+    }
+
+    /* google material icons */
+    .material-symbols-outlined {
+        font-variation-settings:
+            'FILL' 0,
+            'wght' 200,
+            'GRAD' 0,
+            'opsz' 24
+    }
 </style>

@@ -14,7 +14,7 @@
                             active-class=""
                         >
                             <div :style="seg.style">
-                                <Segment :segment="seg"></Segment>
+                                <Segment :segment="seg" @delete="removeSegment(seg)"></Segment>
                             </div>
                         </router-link>
                         <div class="list-group-item">
@@ -124,6 +124,7 @@ export default defineComponent({
                 vms.push(vm);
             };
 
+            console.log('Segments updated', vms);
             return vms;
         });
 
@@ -155,9 +156,15 @@ export default defineComponent({
             strand.segments.push(seg);
             select.value = '';
         };
+
+        const removeSegment = (seg: SegmentVm) => {
+            const index = strand.segments.findIndex(x => x.id === seg.id);
+            if (index === -1) { throw new Error('Segment not found'); }
+            strand.segments.splice(index, 1);
+        };
         
 
-        return { strandLeds, segments, newSegmentOptions, addSegment };
+        return { strandLeds, segments, newSegmentOptions, addSegment, removeSegment };
     }
 });
 

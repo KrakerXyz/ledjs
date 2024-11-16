@@ -10,7 +10,7 @@
             class="nav-link"
             v-if="authService.status.value === 'initializing'"
         >
-            <v-spinner class="loading text-white"></v-spinner>
+            <v-icon :icon="Icons.Spinner" class="text-white"></v-icon>
         </div>
 
         <div
@@ -32,7 +32,7 @@
                     Sign out
                 </button>
             </ul>
-        </div> -->
+        </div>
     </div>
 </template>
 
@@ -41,6 +41,7 @@
 import { defineComponent, onMounted } from 'vue';
 import { assertTrue } from '../services';
 import { initGoogleLoginButton, useAuthService } from '$src/services/authService';
+import { Icons } from './global/Icon.vue';
 
 export default defineComponent({
     setup() {
@@ -52,7 +53,7 @@ export default defineComponent({
             initGoogleLoginButton(div);
         });
 
-        return { authService };
+        return { authService, Icons };
     }
 });
 

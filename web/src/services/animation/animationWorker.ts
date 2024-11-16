@@ -61,6 +61,7 @@ export async function useAnimationWorkerAsync(animationJs: Ref<string | null | u
                         break;
                     }
                     case 'ledSegmentSend': {
+                        if(disposed) { throw new Error('AnimationWorkerWorker is still emitting for disposed Worker'); }
                         ledSegment.send();
                         break;
                     }
