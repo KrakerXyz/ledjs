@@ -1,4 +1,4 @@
-import axios from 'axios';
+import axios, { CreateAxiosDefaults } from 'axios';
 
 type OrArray<T> = T | T[];
 type Query = Record<string, OrArray<string> | OrArray<boolean> | OrArray<number> | undefined> | null | undefined
@@ -13,9 +13,17 @@ export class RestClient {
         if (!this.baseUrl.startsWith('http')) { throw new Error('Origin should start with http'); }
         if (this.baseUrl.endsWith('/')) { throw new Error('baseUrl should not have a trailing slash'); }
 
-        this.axiosInstance = axios.create({
+        const axiosConfig: CreateAxiosDefaults = {
             baseURL: this.baseUrl
-        });
+        };
+
+        if (config?.authorization) {
+            axiosConfig.headers = {
+                Authorization: config.authorization
+            };
+        }
+
+        this.axiosInstance = axios.create(axiosConfig);
     }
 
     public get<T>(path: string, query?: Query): Promise<T> {
@@ -38,6 +46,8 @@ export class RestClient {
 
 export interface RestConfig {
     baseUrl: `${'http' | 'https'}://${string}`,
+    /** Used for IoT device authentication */
+    authorization: `device ${string}`,
 }
 
 export function deepFreeze<T>(o: T): T {

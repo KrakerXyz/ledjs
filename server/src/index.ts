@@ -50,6 +50,7 @@ server.setValidatorCompiler(req => {
 
 server.decorateRequest('services', { getter: () => new RequestServicesContainer() });
 
+
 server.register(fastifyJWT, {
     secret: getRequiredConfig(EnvKey.JwtSecret),
     cookie: {
