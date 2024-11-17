@@ -7,18 +7,18 @@
         {
             "type": "node",
             "request": "launch",
-            "name": "Debug IoT",
+            "name": "Debug Pi",
             "skipFiles": [
                 "<node_internals>/**"
             ],
-            "cwd": "${workspaceFolder}\\iot",
-            "program": "${workspaceFolder}\\iot\\dist\\index.js",
+            "cwd": "${workspaceFolder}/pi",
+            "program": "${workspaceFolder}/pi/dist/pi/src/index.js",
             "runtimeArgs": [
                 "--unhandled-rejections=strict",
             ],
-            "preLaunchTask": "build-iot",
+            "preLaunchTask": "build-pi",
             "outFiles": [
-                "${workspaceFolder}/iot/dist/**/*.js"
+                "${workspaceFolder}/pi/dist/**/*.js"
             ],
             "internalConsoleOptions": "openOnSessionStart"
         },

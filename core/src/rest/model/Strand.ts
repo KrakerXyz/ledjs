@@ -1,4 +1,4 @@
-import { deepClone } from '$core/services/deepClone.js';
+import { deepClone } from '../../services/deepClone.js';
 import { Id } from './Id.js';
 import { ScriptVersion } from './ScriptVersion.js';
 

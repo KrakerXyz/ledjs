@@ -1,0 +1,25 @@
+{
+    "name": "netled-device-pi",
+    "description": "",
+    "version": "0.0.1",
+    "author": {
+        "name": "Josh Kraker",
+        "email": "joshkrak@gmail.com"
+    },
+    "type": "module",
+    "main": "./dist/pi/src/index.js",
+    "files": [
+        "dist/"
+    ],
+    "license": "MIT",
+    "scripts": {
+        "clean": "rimraf ./dist/",
+        "start": "tsx watch --env-file=.env --clear-screen=false src/index.ts",
+        "build": "npm run clean && tsc"
+    },
+    "devDependencies": {
+        "@types/node": "^22",
+        "rimraf": "^6",
+        "typescript": "^5"
+    }
+}
