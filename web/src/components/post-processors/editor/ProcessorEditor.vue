@@ -74,7 +74,7 @@
                     </div>
                     <div v-if="processor.version === 'draft'" class="col-auto">
                         <button type="button" class="btn btn-danger w-100" @click.once="deleteScript()">
-                            <i class="fal fa-fw fa-trash-alt"></i>
+                            <v-icon :icon="Icons.Trashcan"></v-icon>
                         </button>
                     </div>
                 </div>
@@ -99,6 +99,7 @@ import { useCanvasRenderer } from '$src/services/animation/renderCanvas';
 import { useAnimationWorkerAsync } from '$src/services/animation/animationWorker';
 import { usePostProcessorWorkerAsync } from '$src/services/animation/postProcessorWorker';
 import { LedSegment } from '$src/services/animation/LedSegment';
+import { Icons } from '$src/components/global/Icon.vue';
 
 export default defineComponent({
     components: { config },
@@ -213,7 +214,7 @@ export default defineComponent({
             postContext.dispose();
         }, componentInstance);
 
-        return { numLeds, canvasContainer, animationConfig: animationContext.animationConfig, processor, saveScript, deleteScript, issues, animations, selectedAnimationId, selectedAnimation, animationSettings: animationContext.animationSettings };
+        return { numLeds, canvasContainer, animationConfig: animationContext.animationConfig, processor, saveScript, deleteScript, issues, animations, selectedAnimationId, selectedAnimation, animationSettings: animationContext.animationSettings, Icons };
     }
 });
 

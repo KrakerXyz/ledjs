@@ -16,6 +16,7 @@
         "clean": "rimraf ./dist/",
         "start": "tsx watch --env-file=.env --clear-screen=false src/index.ts",
         "start-tsc": "tsc && node --unhandled-rejections=strict --trace-warnings .",
+        "gen-schema": "node generateSchema.mjs",
         "build": "npm run clean && tsc",
         "test": "jest"
     },

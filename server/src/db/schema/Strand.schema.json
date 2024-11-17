@@ -5,11 +5,14 @@
     "id": {
       "type": "string"
     },
-    "created": {
-      "type": "number"
-    },
-    "author": {
+    "name": {
       "type": "string"
+    },
+    "description": {
+      "type": "string"
+    },
+    "numLeds": {
+      "type": "number"
     },
     "segments": {
       "type": "array",
@@ -18,19 +21,40 @@
           {
             "type": "object",
             "properties": {
+              "type": {
+                "type": "string",
+                "const": "animation"
+              },
               "id": {
                 "type": "string"
+              },
+              "leds": {
+                "type": "object",
+                "properties": {
+                  "dead": {
+                    "type": "array",
+                    "items": {
+                      "type": [
+                        "number",
+                        "string"
+                      ]
+                    }
+                  },
+                  "offset": {
+                    "type": "number"
+                  },
+                  "num": {
+                    "type": "number"
+                  }
+                },
+                "required": [
+                  "num",
+                  "offset"
+                ]
               },
               "script": {
                 "type": "object",
                 "properties": {
-                  "type": {
-                    "type": "string",
-                    "enum": [
-                      "animation",
-                      "postProcess"
-                    ]
-                  },
                   "id": {
                     "type": "string"
                   },
@@ -50,10 +74,27 @@
                   }
                 },
                 "required": [
-                  "type",
                   "id",
                   "version"
                 ]
+              }
+            },
+            "required": [
+              "id",
+              "leds",
+              "script",
+              "type"
+            ]
+          },
+          {
+            "type": "object",
+            "properties": {
+              "type": {
+                "type": "string",
+                "const": "postProcess"
+              },
+              "id": {
+                "type": "string"
               },
               "leds": {
                 "type": "object",
@@ -61,38 +102,18 @@
                   "offset": {
                     "type": "number"
                   },
-                  "percent": {
+                  "num": {
                     "type": "number"
                   }
                 },
                 "required": [
                   "offset",
-                  "percent"
+                  "num"
                 ]
-              }
-            },
-            "required": [
-              "id",
-              "leds",
-              "script"
-            ]
-          },
-          {
-            "type": "object",
-            "properties": {
-              "id": {
-                "type": "string"
               },
               "script": {
                 "type": "object",
                 "properties": {
-                  "type": {
-                    "type": "string",
-                    "enum": [
-                      "animation",
-                      "postProcess"
-                    ]
-                  },
                   "id": {
                     "type": "string"
                   },
@@ -109,42 +130,36 @@
                   }
                 },
                 "required": [
-                  "type",
                   "id",
                   "version"
-                ]
-              },
-              "leds": {
-                "type": "object",
-                "properties": {
-                  "offset": {
-                    "type": "number"
-                  },
-                  "percent": {
-                    "type": "number"
-                  }
-                },
-                "required": [
-                  "offset",
-                  "percent"
                 ]
               }
             },
             "required": [
               "id",
               "leds",
-              "script"
+              "script",
+              "type"
             ]
           }
         ]
       }
+    },
+    "created": {
+      "type": "number"
+    },
+    "author": {
+      "type": "string"
     }
   },
   "required": [
     "id",
+    "name",
+    "description",
+    "numLeds",
+    "segments",
     "created",
-    "author",
-    "segments"
+    "author"
   ],
   "definitions": {}
 }

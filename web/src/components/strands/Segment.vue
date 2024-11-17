@@ -1,16 +1,7 @@
 
 <template>
     <div>
-        <div class="row g-0">
-            <div class="col">
-                <h1>{{ segment.name }}</h1>
-            </div>
-            <div class="col-auto">
-                <button class="btn btn-link text-danger">
-                    <v-icon :icon="Icons.Trashcan" @click="$emit('delete')"></v-icon>
-                </button>
-            </div>
-        </div>
+        <h1>{{ segment.name }}</h1>
         
         <div ref="canvasContainer" class="canvas-container overflow-hidden"></div>
     </div>
@@ -30,14 +21,10 @@ import { SegmentVm } from './StrandEditor.vue';
 import { useAnimationWorkerAsync } from '$src/services/animation/animationWorker';
 import { usePostProcessorWorkerAsync } from '$src/services/animation/postProcessorWorker';
 import { SegmentInputType } from '$core/rest/model/Strand';
-import { Icons } from '../global/Icon.vue';
 
 export default defineComponent({
     props: {
         segment: { type: Object as () => SegmentVm, required: true },
-    },
-    emits: {
-        delete: () => true,
     },
     setup(props) {
         const seg = props.segment;
@@ -74,7 +61,6 @@ export default defineComponent({
         }
 
         return {
-            Icons: Icons
         }
     }
 });

@@ -14,7 +14,7 @@
                             active-class=""
                         >
                             <div :style="seg.style">
-                                <Segment :segment="seg" @delete="removeSegment(seg)"></Segment>
+                                <Segment :segment="seg"></Segment>
                             </div>
                         </router-link>
                         <div class="list-group-item">
@@ -48,6 +48,59 @@
                         >
                         <label for="d-leds"># LEDs</label>
                     </div>
+
+                    <template v-if="selectedStrandSegment && selectedSegmentVm">
+                        <div class="row g-0">
+                            <div class="col">
+                                <h3>{{ selectedSegmentVm.name }}</h3>
+                            </div>
+                            <div class="col-auto">
+                                <button
+                                    class="btn btn-link text-danger"
+                                    @click="removeSegment(selectedSegmentVm)"
+                                >
+                                    <v-icon :icon="Icons.Trashcan"></v-icon>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="form-floating">
+                            <input
+                                id="d-num"
+                                class="form-control"
+                                placeholder="*"
+                                v-model.lazy.number="selectedStrandSegment.leds.num"
+                            >
+                            <label for="d-num"># LEDs</label>
+                        </div>
+
+                        <div class="form-floating">
+                            <input
+                                id="d-offset"
+                                class="form-control"
+                                placeholder="*"
+                                v-model.lazy.number="selectedStrandSegment.leds.offset"
+                            >
+                            <label for="d-offset">Offset</label>
+                        </div>
+                    </template>
+                </div>
+
+                <div class="row">
+                    <div class="col">
+                        <button
+                            @click="saveStrand()"
+                            type="button"
+                            class="btn btn-primary w-100"
+                        >
+                            Save
+                        </button>
+                    </div>
+                    <div class="col-auto">
+                        <button type="button" class="btn btn-danger w-100" @click.once="deleteStrand()">
+                            <v-icon :icon="Icons.Trashcan"></v-icon>
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -65,6 +118,7 @@ import { RouteLocationRaw, useRoute } from 'vue-router';
 import { SegmentInputType, Segment, strandToPost } from '$core/rest/model/Strand';
 import { newId } from '$core/services/newId';
 import { useRouteLocation, RouteName } from '$src/main.router';
+import { Icons } from '../global/Icon.vue';
 
 export default defineComponent({
     components: { Segment: SegmentVue },
@@ -163,8 +217,18 @@ export default defineComponent({
             strand.segments.splice(index, 1);
         };
         
+        const selectedStrandSegment = computed(() => strand.segments.find(x => x.id === selectedId.value));
+        const selectedSegmentVm = computed(() => segments.value.find(x => x.id === selectedId.value));
 
-        return { strandLeds, segments, newSegmentOptions, addSegment, removeSegment };
+        const saveStrand = async () => {
+            await strandApi.save(strand);
+        };
+
+        const deleteStrand = async () => {
+            await strandApi.delete(strand.id);
+        };
+
+        return { strandLeds, segments, newSegmentOptions, addSegment, removeSegment, selectedStrandSegment, selectedSegmentVm, Icons, saveStrand, deleteStrand };
     }
 });
 

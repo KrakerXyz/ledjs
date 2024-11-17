@@ -1,3 +1,4 @@
+import { deepClone } from '$core/services/deepClone.js';
 import { Id } from './Id.js';
 import { ScriptVersion } from './ScriptVersion.js';
 
@@ -50,20 +51,11 @@ export type Segment = AnimationSegment | PostProcessSegment;
 export type StrandPost = Omit<Strand, 'author' | 'created'>;
 
 export function strandToPost(strand: Strand): StrandPost {
-    return {
+    return deepClone({
         id: strand.id,
         name: strand.name,
         description: strand.description,
         numLeds: strand.numLeds,
-        segments: strand.segments.map(s => ({
-            type: s.type,
-            id: s.id,
-            leds: s.leds,
-            script: {
-                id: s.script.id,
-                version: s.script.version,
-                configId: (s as AnimationSegment).script.configId,
-            },
-        })),
-    };
+        segments: strand.segments
+    });
 }
