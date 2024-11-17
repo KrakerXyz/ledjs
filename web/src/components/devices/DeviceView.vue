@@ -7,7 +7,7 @@
                 </div>
                 <div class="col-auto d-flex align-items-center">
                     <button type="button" class="btn text-danger" @click="deleteConfirmation = true">
-                        <i class="fal fa-trash-alt fa-lg"></i>
+                        <v-icon :icon="Icons.Trashcan"></v-icon>
                     </button>
                 </div>
             </div>
@@ -17,21 +17,16 @@
                 <div class="col">
                     <div class="form-floating">
                         <textarea
-                            id="device-install"
+                            id="device-dotEnv"
                             class="form-control font-monospace"
                             placeholder="*"
                             readonly
-                            :value="install"
+                            :value="dotEnv"
                         ></textarea>
-                        <label for="device-config">Install/Start</label>
+                        <label for="device-config">.env</label>
                     </div>
                 </div>
             </div>
-
-            <h3 class="mt-3">
-                Logs
-            </h3>
-            <device-view-logs class="flex-grow-1 shadow-sm rounded border-top" :device-id="deviceId"></device-view-logs>
         </template>
 
         <v-confirmation-modal v-if="deleteConfirmation" @cancel="deleteConfirmation = false" @confirm="deleteDevice()">
@@ -47,6 +42,7 @@ import { useRouter } from 'vue-router';
 import { useRestClient } from '$src/services';
 import { type Device, DeviceRestClient } from '$core/rest/DeviceRestClient';
 import type { Id } from '$core/rest/model/Id';
+import { Icons } from '../global/Icon.vue';
 
 export default defineComponent({
     props: {
@@ -59,28 +55,47 @@ export default defineComponent({
 
         const restClient = useRestClient();
         const deviceClient = new DeviceRestClient(restClient);
-        device.value = await deviceClient.byId(props.deviceId, true);
+        device.value = await deviceClient.byId(props.deviceId);
 
-        const install = computed(() => {
-            if (!device.value) {
-                return '';
+        // const install = computed(() => {
+        //     if (!device.value) {
+        //         return '';
+        //     }
+
+        //     const textArr = ['sudo npm dotEnv -g @krakerxyz/netled-raspi', `\r\nsudo netled -i ${device.value.id} -s ${device.value.secret}`];
+
+        //     if (window.location.hostname !== 'netled.io') {
+        //         let port = window.location.port === '3000' ? '3001' : window.location.port;
+        //         if (port) {
+        //             port = ':' + port;
+        //         }
+        //         const ssl = window.location.protocol === 'https' ? 's' : '';
+        //         const a = `http${ssl}://${window.location.hostname}${port}`;
+        //         const w = `ws${ssl}://${window.location.hostname}${port}`;
+        //         textArr.push(` -a ${a} -w ${w}`);
+        //     }
+
+        //     return textArr.join();
+        // });
+
+        const dotEnv = computed(() => {
+
+            if(!device.value) {
+                return undefined;
             }
 
-            const textArr = ['sudo npm install -g @krakerxyz/netled-raspi', `\r\nsudo netled -i ${device.value.id} -s ${device.value.secret}`];
+            const port = window.location.port === '3000' ? '3001' : window.location.port;
+            const host = `${window.location.protocol}//${window.location.hostname}${port ? `:${port}` : ''}`;
 
-            if (window.location.hostname !== 'netled.io') {
-                let port = window.location.port === '3000' ? '3001' : window.location.port;
-                if (port) {
-                    port = ':' + port;
-                }
-                const ssl = window.location.protocol === 'https' ? 's' : '';
-                const a = `http${ssl}://${window.location.hostname}${port}`;
-                const w = `ws${ssl}://${window.location.hostname}${port}`;
-                textArr.push(` -a ${a} -w ${w}`);
-            }
+            const auth = btoa(`${device.value.id}:${device.value?.secret}`);
 
-            return textArr.join();
-        });
+            const lines = [
+                `LEDJS_HOST=${host}`,
+                `LEDJS_AUTH=${auth}`,
+            ];
+
+            return lines.join('\n');
+        })
 
         const deleteConfirmation = ref(false);
 
@@ -89,7 +104,7 @@ export default defineComponent({
             router.replace({ name: 'device-list' });
         };
 
-        return { device, deleteConfirmation, deleteDevice, install };
+        return { device, deleteConfirmation, deleteDevice, dotEnv, Icons };
     },
 });
 </script>

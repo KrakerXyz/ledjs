@@ -11,8 +11,6 @@
             </div>
         </div>
 
-        <!--:to="{ name: 'device-view', params: { deviceId: d.id } }"-->
-
         <teleport to="#portal-header">
             <router-link
                 class="btn btn-primary"
@@ -43,7 +41,7 @@ export default defineComponent({
         const devicesClient = useDevicesRestClient();
         const animationClient = useAnimationRestClient();
 
-        const devices = await devicesClient.list(true);
+        const devices = await devicesClient.list();
         const configs = deepClone(await animationClient.config.list()).sort((a, b) => a.name.localeCompare(b.name));
 
         return { devices, configs, useRouteLocation, RouteName };

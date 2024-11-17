@@ -24,16 +24,12 @@ export const postDevice: RouteOptions = {
             created: Date.now(),
             secret: newId(),
             userId: req.user.sub,
-            status: {
-                cameOnline: 0,
-                wentOffline: 0,
-            },
             id: device.id,
             name: device.name,
             isStopped: false,
-            setup: device.setup,
-            animation: existingDevice?.animation ?? null,
-            animationConfigId: existingDevice?.animationConfigId ?? null
+            spiSpeed: device.spiSpeed,
+            status: {},
+            strandId: null
         };
 
         await db.upsert(newDevice);

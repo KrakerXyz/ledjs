@@ -18,19 +18,7 @@
                         id="device-name"
                         class="form-control"
                         placeholder="*"
-                        v-model="devicePost.setup.numLeds"
-                    />
-                    <label for="device-name">Number of Leds</label>
-                    <small class="form-text">The number of LEDs attached to the device</small>
-                </div>
-            </div>
-            <div class="col-md-auto mb-3">
-                <div class="form-floating">
-                    <input
-                        id="device-name"
-                        class="form-control"
-                        placeholder="*"
-                        v-model="devicePost.setup.spiSpeed"
+                        v-model="devicePost.spiSpeed"
                     />
                     <label for="device-name">LED Speed</label>
                     <small class="form-text">The speed in MHz that the LEDs are capable of running at</small>
@@ -55,16 +43,14 @@ import { useRouter } from 'vue-router';
 import { useRestClient } from '../../services';
 import { type DevicePost, DeviceRestClient } from '$core/rest/DeviceRestClient';
 import { newId } from '$core/services/newId';
+import { RouteName, useRouteLocation } from '$src/main.router';
 
 export default defineComponent({
     setup() {
         const devicePost: DevicePost = reactive({
             id: newId(),
-            name: '',
-            setup: {
-                numLeds: 0,
-                spiSpeed: 0,
-            },
+            name: 'New Device',
+            spiSpeed: 25,
         });
 
         const restClient = useRestClient();
@@ -72,7 +58,7 @@ export default defineComponent({
         const save = async () => {
             const deviceClient = new DeviceRestClient(restClient);
             await deviceClient.save(devicePost);
-            router.replace({ name: 'device-view', params: { deviceId: devicePost.id } });
+            router.replace(useRouteLocation(RouteName.DeviceView, { deviceId: devicePost.id }));
         };
 
         return { devicePost, save };

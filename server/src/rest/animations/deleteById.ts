@@ -35,15 +35,7 @@ export const deleteById: RouteOptions = {
 
         const configs = req.services.animationConfigDb.byAnimationId(params.animationId, req.user.sub, animation.version);
 
-        const deviceIdsToReset: Id[] = [];
         for await (const config of configs) {
-            const devices = req.services.deviceDb.byAnimationConfigId(config.id);
-            for await (const device of devices) {
-                device.animationConfigId = null;
-                await req.services.deviceDb.replace(device);
-                deviceIdsToReset.push(device.id);
-            }
-
             await req.services.animationConfigDb.deleteById(config.id);
         }
 

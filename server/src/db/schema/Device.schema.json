@@ -17,31 +17,19 @@
     "created": {
       "type": "number"
     },
-    "setup": {
-      "type": "object",
-      "properties": {
-        "numLeds": {
-          "type": "number"
-        },
-        "spiSpeed": {
-          "type": "number"
-        }
-      },
-      "required": [
-        "numLeds",
-        "spiSpeed"
-      ]
+    "spiSpeed": {
+      "type": "number"
     },
     "status": {
       "type": "object",
       "properties": {
-        "lastContact": {
+        "lastSeen": {
           "type": "number"
         },
-        "cameOnline": {
+        "onlineSince": {
           "type": "number"
         },
-        "wentOffline": {
+        "offlineSince": {
           "type": "number"
         },
         "localIp": {
@@ -50,43 +38,9 @@
         "wanIp": {
           "type": "string"
         }
-      },
-      "required": [
-        "cameOnline",
-        "wentOffline"
-      ]
+      }
     },
-    "animation": {
-      "anyOf": [
-        {
-          "type": "object",
-          "properties": {
-            "id": {
-              "type": "string"
-            },
-            "version": {
-              "anyOf": [
-                {
-                  "type": "number"
-                },
-                {
-                  "type": "string",
-                  "const": "draft"
-                }
-              ]
-            }
-          },
-          "required": [
-            "id",
-            "version"
-          ]
-        },
-        {
-          "type": "null"
-        }
-      ]
-    },
-    "animationConfigId": {
+    "strandId": {
       "type": [
         "string",
         "null"
@@ -102,10 +56,9 @@
     "name",
     "secret",
     "created",
-    "setup",
+    "spiSpeed",
     "status",
-    "animation",
-    "animationConfigId",
+    "strandId",
     "isStopped"
   ],
   "definitions": {}

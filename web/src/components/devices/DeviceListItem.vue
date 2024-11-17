@@ -7,34 +7,15 @@
                         <span
                             class="online-status d-inline-block me-2"
                             :class="{
-                                'bg-success': deviceCopy.status.cameOnline > deviceCopy.status.wentOffline,
-                                'bg-danger': deviceCopy.status.wentOffline >= deviceCopy.status.cameOnline,
+                                'bg-success': (deviceCopy.status?.onlineSince ?? 0) > (deviceCopy.status?.offlineSince ?? 0),
+                                'bg-danger': (deviceCopy.status?.offlineSince ?? 0) >= (deviceCopy.status?.onlineSince ?? 0),
                             }"
                         ></span>
 
-                        <router-link :to="{ name: 'device-view', params: { deviceId: deviceCopy.id } }" class="text-body">
-                            {{ deviceCopy.name }}
+                        <router-link :to="useRouteLocation(RouteName.DeviceView, { deviceId: deviceCopy.id })" class="text-body">
+                            {{ deviceCopy.name || '[Name Missing]' }}
                         </router-link>
                     </div>
-                </div>
-                <div class="col-auto">
-                    <button
-                        type="button"
-                        class="btn p-0 ms-2 text-success"
-                        v-if="deviceCopy.isStopped"
-                        @click.prevent="stop(deviceCopy, false)"
-                    >
-                        <i class="fas fa-play fa-fw"></i>
-                    </button>
-
-                    <button
-                        type="button"
-                        class="btn p-0 ms-2 text-danger"
-                        v-if="!deviceCopy.isStopped"
-                        @click.prevent="stop(deviceCopy, true)"
-                    >
-                        <i class="fas fa-stop fa-fw"></i>
-                    </button>
                 </div>
             </div>
         </div>
@@ -42,24 +23,20 @@
         <div class="card-body">
             <div class="form-floating">
                 <select
-                    id="device-animation"
+                    id="device-strand"
                     class="form-select"
                     placeholder="*"
-                    v-model="selectedConfigId"
+                    v-model="selectedStrandId"
                 >
                     <option value>
                         None
                     </option>
-                    <option v-for="c of configs" :key="c.id" :value="c.id">
-                        {{ c.animationName }} - {{ c.name }}
+                    <option v-for="c of strands" :key="c.id" :value="c.id">
+                        {{ c.name }}
                     </option>
                 </select>
-                <label for="device-animation">Animation</label>
+                <label for="device-animation">Strand</label>
             </div>
-
-            <router-link class="small" v-if="selectedConfigId" :to="{ name: 'animation-config', params: { configId: selectedConfigId } }">
-                Edit Config
-            </router-link>
         </div>
     </div>
 </template>
@@ -67,46 +44,34 @@
 <script lang="ts">
 import type { Device } from '$core/rest/DeviceRestClient';
 import type { AnimationConfigSummary } from '$core/rest/model/AnimationConfig';
-import type { Id } from '$core/rest/model/Id';
 import { deepClone } from '$core/services/deepClone';
-import { useDevicesRestClient } from '$src/services';
-import type { IDisposable } from 'monaco-editor';
-import { computed, defineComponent, onUnmounted, reactive } from 'vue';
+import { assertTrue, useDevicesRestClient, useStrandRestClient } from '$src/services';
+import { watch, defineComponent, reactive, ref, getCurrentInstance } from 'vue';
+import { useRouteLocation, RouteName } from '$src/main.router';
 
 export default defineComponent({
     props: {
         device: { type: Object as () => Device, required: true },
         configs: { type: Array as () => AnimationConfigSummary[], required: true },
     },
-    setup(props) {
+    async setup(props) {
+        const componentInstance = getCurrentInstance();
+        assertTrue(componentInstance);
+
+        const strandClient = useStrandRestClient();
         const devicesClient = useDevicesRestClient();
 
         const deviceCopy = reactive(deepClone(props.device));
 
-        const selectedConfigId = computed({
-            get() {
-                return deviceCopy.animationConfigId ?? '';
-            },
-            set(configId: string) {
-                devicesClient.setAnimationConfig({
-                    deviceIds: [props.device.id],
-                    configId: (configId as Id) || null,
-                });
-                deviceCopy.animationConfigId = configId as Id;
-            },
+        const selectedStrandId = ref(deviceCopy.strandId);
+        watch(selectedStrandId, (newVal) => {
+            deviceCopy.strandId = newVal;
+            devicesClient.setStrand(deviceCopy.id, newVal);
         });
 
-        const stop = (device: Device, value: boolean) => {
-            devicesClient.stopAnimation({ deviceIds: [device.id], stop: value });
-            //Need to clone and make the in-memory devices writeable
-            deviceCopy.isStopped = value;
-        };
+        const strands = await strandClient.list();
 
-        const disposables: IDisposable[] = [];
-
-        onUnmounted(() => disposables.forEach((d) => d.dispose()));
-
-        return { stop, selectedConfigId, deviceCopy };
+        return { stop, selectedStrandId, deviceCopy, useRouteLocation, RouteName, strands };
     },
 });
 
