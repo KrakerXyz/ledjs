@@ -110,7 +110,7 @@
 <script lang="ts">
 
 import type { Id } from '$core/rest/model/Id';
-import { assertTrue, useAnimationRestClient, usePostProcessorRestClient, useStrandRestClient } from '$src/services';
+import { assertTrue, restApi } from '$src/services';
 import { computed, defineComponent, getCurrentInstance, reactive, ref } from 'vue';
 import SegmentVue from './Segment.vue';
 import { LedSegment } from '$src/services/animation/LedSegment';
@@ -132,15 +132,11 @@ export default defineComponent({
         const componentInstance = getCurrentInstance();
         assertTrue(componentInstance);
 
-        const animApi = useAnimationRestClient();
-        const animations = await animApi.list(true);
+        const animations = await restApi.animations.list(true);
 
-        const postApi = usePostProcessorRestClient();
-        const postProcessors = await postApi.list(true);
+        const postProcessors = await restApi.postProcessors.list(true);
 
-        const strandApi = useStrandRestClient();
-
-        const strand = reactive(strandToPost(await strandApi.byId(props.strandId)));
+        const strand = reactive(strandToPost(await restApi.strands.byId(props.strandId)));
 
         const strandLeds = ref(strand.numLeds);
 
@@ -221,11 +217,11 @@ export default defineComponent({
         const selectedSegmentVm = computed(() => segments.value.find(x => x.id === selectedId.value));
 
         const saveStrand = async () => {
-            await strandApi.save(strand);
+            await restApi.strands.save(strand);
         };
 
         const deleteStrand = async () => {
-            await strandApi.delete(strand.id);
+            await restApi.strands.delete(strand.id);
         };
 
         return { strandLeds, segments, newSegmentOptions, addSegment, removeSegment, selectedStrandSegment, selectedSegmentVm, Icons, saveStrand, deleteStrand };

@@ -45,7 +45,7 @@
 import type { Device } from '$core/rest/DeviceRestClient';
 import type { AnimationConfigSummary } from '$core/rest/model/AnimationConfig';
 import { deepClone } from '$core/services/deepClone';
-import { assertTrue, useDevicesRestClient, useStrandRestClient } from '$src/services';
+import { assertTrue, restApi } from '$src/services';
 import { watch, defineComponent, reactive, ref, getCurrentInstance } from 'vue';
 import { useRouteLocation, RouteName } from '$src/main.router';
 
@@ -58,18 +58,15 @@ export default defineComponent({
         const componentInstance = getCurrentInstance();
         assertTrue(componentInstance);
 
-        const strandClient = useStrandRestClient();
-        const devicesClient = useDevicesRestClient();
-
         const deviceCopy = reactive(deepClone(props.device));
 
         const selectedStrandId = ref(deviceCopy.strandId);
         watch(selectedStrandId, (newVal) => {
             deviceCopy.strandId = newVal;
-            devicesClient.setStrand(deviceCopy.id, newVal);
+            restApi.devices.setStrand(deviceCopy.id, newVal);
         });
 
-        const strands = await strandClient.list();
+        const strands = await restApi.strands.list();
 
         return { stop, selectedStrandId, deviceCopy, useRouteLocation, RouteName, strands };
     },

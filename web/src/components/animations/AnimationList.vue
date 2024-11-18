@@ -38,16 +38,15 @@
 
 <script lang="ts">
 import { defineComponent, ref } from 'vue';
-import { useAnimationRestClient } from '../../services';
 import { useRouteLocation, RouteName } from '$src/main.router';
 import type { AnimationSummary } from '$core/rest/model/Animation';
+import { restApi } from '$src/services';
 
 export default defineComponent({
     props: {},
     async setup() {
-        const animationClient = useAnimationRestClient();
 
-        const animations = ref<AnimationSummary[]>(await animationClient.list());
+        const animations = ref<AnimationSummary[]>(await restApi.animations.list());
 
         return { animations, useRouteLocation, RouteName };
     },

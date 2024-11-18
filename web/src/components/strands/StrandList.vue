@@ -38,15 +38,14 @@
 
 <script lang="ts">
 import { defineComponent, ref } from 'vue';
-import { useStrandRestClient } from '../../services';
 import { useRouteLocation, RouteName } from '$src/main.router';
 import type { Strand } from '$core/rest/model/Strand';
+import { restApi } from '$src/services';
 
 export default defineComponent({
     props: {},
     async setup() {
-        const strandClient = useStrandRestClient();
-        const strands = ref<Strand[]>(await strandClient.list());
+        const strands = ref<Strand[]>(await restApi.strands.list());
 
         return { strands, useRouteLocation, RouteName };
     },

@@ -30,17 +30,15 @@ import { defineComponent, reactive } from 'vue';
 import { useRouter } from 'vue-router';
 import example from './editor/Script.ts?raw';
 import { useRouteLocation, RouteName } from '$src/main.router';
-import { useAnimationRestClient } from '$src/services';
 import type { AnimationPost } from '$core/rest/model/Animation';
 import { newId } from '$core/services/newId';
+import { restApi } from '$src/services';
 
 export default defineComponent({
     props: {
     },
     setup() {
         const router = useRouter();
-        const animationsApi = useAnimationRestClient();
-
         const animationPost = reactive<AnimationPost>({
             id: newId(),
             name: '',
@@ -50,7 +48,7 @@ export default defineComponent({
 
         const submit = async () => {
             if (!animationPost.name) { return; }
-            await animationsApi.saveDraft(animationPost);
+            await restApi.animations.saveDraft(animationPost);
             router.replace(useRouteLocation(RouteName.AnimationEditor, { animationId: animationPost.id }));
         };
 

@@ -30,16 +30,15 @@ import { defineComponent, reactive } from 'vue';
 import { useRouter } from 'vue-router';
 import example from './editor/Script.ts?raw';
 import { useRouteLocation, RouteName } from '$src/main.router';
-import { usePostProcessorRestClient } from '$src/services';
 import type { PostProcessorPost } from '$core/rest/model/PostProcessor';
 import { newId } from '$core/services/newId';
+import { restApi } from '$src/services';
 
 export default defineComponent({
     props: {
     },
     setup() {
         const router = useRouter();
-        const postProcessorsApi = usePostProcessorRestClient();
 
         const postProcessorPost = reactive<PostProcessorPost>({
             id: newId(),
@@ -50,7 +49,7 @@ export default defineComponent({
 
         const submit = async () => {
             if (!postProcessorPost.name) { return; }
-            await postProcessorsApi.saveDraft(postProcessorPost);
+            await restApi.postProcessors.saveDraft(postProcessorPost);
             router.replace(useRouteLocation(RouteName.PostProcessorEditor, { postProcessorId: postProcessorPost.id }));
         };
 

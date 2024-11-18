@@ -67,7 +67,7 @@ import type { Id } from '$core/rest/model/Id';
 import type { ScriptVersion } from '$core/rest/model/ScriptVersion';
 import { deepClone } from '$core/services/deepClone';
 import { newId } from '$core/services/newId';
-import { useAnimationRestClient } from '$src/services';
+import { restApi } from '$src/services';
 import { defineComponent, ref, watch } from 'vue';
 
 interface SelectOption { text: string, value: Id | 'new' }
@@ -123,8 +123,7 @@ export default defineComponent({
             emit('update:settings', { ...settings.value });
         });
 
-        const animationClient = useAnimationRestClient();
-        const existingConfigs = deepClone(await animationClient.config.list(props.animation.id, props.animation.version));
+        const existingConfigs = deepClone(await restApi.animations.config.list(props.animation.id, props.animation.version));
         const savedConfigs = ref<SelectOption[]>(existingConfigs.map(x => ({ text: x.name, value: x.id })).sort((a, b) => a.text.localeCompare(b.text)));
 
         const newConfigName = ref<string>();

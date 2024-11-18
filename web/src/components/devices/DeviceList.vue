@@ -25,10 +25,10 @@
 <script lang="ts">
 
 import { defineComponent } from 'vue';
-import { useAnimationRestClient, useDevicesRestClient } from '../../services';
 import DeviceListItem from './DeviceListItem.vue';
 import { useRouteLocation, RouteName } from '$src/main.router';
 import { deepClone } from '$core/services/deepClone';
+import { restApi } from '$src/services';
 
 export default defineComponent({
     components: {
@@ -38,11 +38,8 @@ export default defineComponent({
     },
     async setup() {
 
-        const devicesClient = useDevicesRestClient();
-        const animationClient = useAnimationRestClient();
-
-        const devices = await devicesClient.list();
-        const configs = deepClone(await animationClient.config.list()).sort((a, b) => a.name.localeCompare(b.name));
+        const devices = await restApi.devices.list();
+        const configs = deepClone(await restApi.animations.config.list()).sort((a, b) => a.name.localeCompare(b.name));
 
         return { devices, configs, useRouteLocation, RouteName };
     }

@@ -70,7 +70,7 @@ import types from '../../../types.d.ts?raw';
 import config from './Config.vue';
 import { useRouter } from 'vue-router';
 import { RouteName, useRouteLocation } from '$src/main.router';
-import { useAnimationRestClient, useMonacoEditor, assertTrue } from '$src/services';
+import { useMonacoEditor, assertTrue } from '$src/services';
 import type { AnimationPost } from '$core/rest/model/Animation';
 import type { Id } from '$core/rest/model/Id';
 import { newId } from '$core/services/newId';
@@ -87,7 +87,6 @@ export default defineComponent({
     async setup(props) {
 
         const router = useRouter();
-        const animationApi = useAnimationRestClient();
 
         const canvasContainer = ref<HTMLDivElement>();
 

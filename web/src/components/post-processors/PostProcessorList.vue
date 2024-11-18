@@ -38,16 +38,15 @@
 
 <script lang="ts">
 import { defineComponent, ref } from 'vue';
-import { usePostProcessorRestClient } from '../../services';
 import { useRouteLocation, RouteName } from '$src/main.router';
 import type { PostProcessorSummary } from '$core/rest/model/PostProcessor';
+import { restApi } from '$src/services';
 
 export default defineComponent({
     props: {},
     async setup() {
-        const postProcessorClient = usePostProcessorRestClient();
 
-        const postProcessors = ref<PostProcessorSummary[]>(await postProcessorClient.list());
+        const postProcessors = ref<PostProcessorSummary[]>(await restApi.postProcessors.list());
 
         return { postProcessors, useRouteLocation, RouteName };
     },

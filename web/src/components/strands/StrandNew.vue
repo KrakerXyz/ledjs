@@ -40,14 +40,13 @@
 import { defineComponent, reactive } from 'vue';
 import { useRouter } from 'vue-router';
 import { useRouteLocation, RouteName } from '$src/main.router';
-import { useStrandRestClient } from '$src/services';
 import type { StrandPost } from '$core/rest/model/Strand';
 import { newId } from '$core/services/newId';
+import { restApi } from '$src/services';
 
 export default defineComponent({
     setup() {
         const router = useRouter();
-        const strandsApi = useStrandRestClient();
 
         const strandPost = reactive<StrandPost>({
             id: newId(),
@@ -59,7 +58,7 @@ export default defineComponent({
 
         const submit = async () => {
             if (!strandPost.name) { return; }
-            await strandsApi.save(strandPost);
+            await restApi.strands.save(strandPost);
             router.replace(useRouteLocation(RouteName.StrandEditor, { strandId: strandPost.id }));
         };
 

@@ -1,9 +1,9 @@
 import { ref } from 'vue';
-import { useRestClient } from '.';
 import Cookies from 'js-cookie';
 import { computed } from 'vue';
 import { loginRedirect, logoutRedirect } from '$src/main.router';
-import { type User, type GoogleJwt, AuthRestClient } from '$core/rest/AuthRestClient';
+import { type User, type GoogleJwt } from '$core/rest/AuthRestClient';
+import { restApi } from './restClient';
 
 let initResolver: (() => void) | null = null;
 const initPromise = new Promise<void>(r => initResolver = r);
@@ -95,10 +95,8 @@ async function verifyToken(jwt: string): Promise<User> {
     };
 
     try {
-        const restClient = useRestClient();
-        const authApi = new AuthRestClient(restClient);
 
-        const user = await authApi.validateGoogleJwt(googleJwt);
+        const user = await restApi.auth.validateGoogleJwt(googleJwt);
         return user;
     } catch {
         throw new Error('Error validating token');

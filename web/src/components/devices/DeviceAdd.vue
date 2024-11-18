@@ -40,10 +40,10 @@
 import { reactive } from 'vue';
 import { defineComponent } from 'vue';
 import { useRouter } from 'vue-router';
-import { useRestClient } from '../../services';
-import { type DevicePost, DeviceRestClient } from '$core/rest/DeviceRestClient';
+import { type DevicePost } from '$core/rest/DeviceRestClient';
 import { newId } from '$core/services/newId';
 import { RouteName, useRouteLocation } from '$src/main.router';
+import { restApi } from '$src/services';
 
 export default defineComponent({
     setup() {
@@ -53,11 +53,9 @@ export default defineComponent({
             spiSpeed: 25,
         });
 
-        const restClient = useRestClient();
         const router = useRouter();
         const save = async () => {
-            const deviceClient = new DeviceRestClient(restClient);
-            await deviceClient.save(devicePost);
+            await restApi.devices.save(devicePost);
             router.replace(useRouteLocation(RouteName.DeviceView, { deviceId: devicePost.id }));
         };
 

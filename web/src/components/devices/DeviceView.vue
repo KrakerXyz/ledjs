@@ -39,10 +39,10 @@
 import { ref } from 'vue';
 import { computed, defineComponent } from 'vue';
 import { useRouter } from 'vue-router';
-import { useRestClient } from '$src/services';
-import { type Device, DeviceRestClient } from '$core/rest/DeviceRestClient';
+import { type Device } from '$core/rest/DeviceRestClient';
 import type { Id } from '$core/rest/model/Id';
 import { Icons } from '../global/Icon.vue';
+import { restApi } from '$src/services';
 
 export default defineComponent({
     props: {
@@ -53,9 +53,7 @@ export default defineComponent({
 
         const device = ref<Device | null>(null);
 
-        const restClient = useRestClient();
-        const deviceClient = new DeviceRestClient(restClient);
-        device.value = await deviceClient.byId(props.deviceId);
+        device.value = await restApi.devices.byId(props.deviceId);
 
         // const install = computed(() => {
         //     if (!device.value) {
@@ -84,7 +82,7 @@ export default defineComponent({
                 return undefined;
             }
 
-            const port = window.location.port === '3000' ? '3001' : window.location.port;
+            const port = window.location.port === '5173' ? '3001' : window.location.port;
             const host = `${window.location.protocol}//${window.location.hostname}${port ? `:${port}` : ''}`;
 
             const auth = btoa(`${device.value.id}:${device.value?.secret}`);
@@ -100,7 +98,7 @@ export default defineComponent({
         const deleteConfirmation = ref(false);
 
         const deleteDevice = async () => {
-            await deviceClient.delete(props.deviceId);
+            await restApi.devices.delete(props.deviceId);
             router.replace({ name: 'device-list' });
         };
 

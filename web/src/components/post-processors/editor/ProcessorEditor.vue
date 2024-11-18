@@ -90,7 +90,7 @@ import types from '../../../types.d.ts?raw';
 import { useRouter } from 'vue-router';
 import config from '../../animations/editor/Config.vue';
 import { useRouteLocation, RouteName } from '$src/main.router';
-import { usePostProcessorRestClient, useAnimationRestClient, assertTrue, useMonacoEditor } from '$src/services';
+import { assertTrue, restApi, useMonacoEditor } from '$src/services';
 import type { Id } from '$core/rest/model/Id';
 import type { PostProcessorPost } from '$core/rest/model/PostProcessor';
 import type { ScriptVersion } from '$core/rest/model/ScriptVersion';
@@ -108,8 +108,6 @@ export default defineComponent({
     },
     async setup(props) {
 
-        const postProcessorApi = usePostProcessorRestClient();
-        const animationApi = useAnimationRestClient();
         const router = useRouter();
         
         const componentInstance = getCurrentInstance();
@@ -138,15 +136,15 @@ export default defineComponent({
         watch(selectedAnimationId, id => {
             animationJavascript.value = undefined;
             if (!id) { return; }
-            animationApi.latest(id, true).then(a => {
+            restApi.animations.latest(id, true).then(a => {
                 if (selectedAnimationId.value !== id) { return; }
                 animationJavascript.value = a.js;
             });
         });
 
         const [postProcessor, animations] = await Promise.all([
-            postProcessorApi.latest(props.postProcessorId, true),
-            animationApi.list()
+            restApi.postProcessors.latest(props.postProcessorId, true),
+            restApi.animations.list()
         ]);
 
         selectedAnimationId.value = animations[0]?.id;
@@ -161,7 +159,7 @@ export default defineComponent({
                 ts: content.value
             };
 
-            await postProcessorApi.saveDraft(postProcessorPost);
+            await restApi.postProcessors.saveDraft(postProcessorPost);
 
             if (postProcessorPost.id !== postProcessor.id) {
                 router.replace(useRouteLocation(RouteName.PostProcessorEditor, { postProcessorId: postProcessorPost.id }));
@@ -173,7 +171,7 @@ export default defineComponent({
                 console.warn('Attempted to delete a non-draft postProcessor');
                 return;
             }
-            await postProcessorApi.deleteDraft(props.postProcessorId);
+            await restApi.postProcessors.deleteDraft(props.postProcessorId);
             router.replace(useRouteLocation(RouteName.PostProcessorList));
         };
 
