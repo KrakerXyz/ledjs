@@ -29,7 +29,6 @@
         "prepublishOnly": "npm run build"
     },
     "dependencies": {
-        "@krakerxyz/netled-core": "file:../core",
         "command-line-args": "^5.2.0",
         "dotenv": "^16.0.0",
         "rpio": "^2.4.2",

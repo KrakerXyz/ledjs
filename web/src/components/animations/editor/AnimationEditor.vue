@@ -66,11 +66,11 @@
 <script lang="ts">
 
 import { defineComponent, ref, computed, onUnmounted, getCurrentInstance } from 'vue';
-import types from '../../../types.d.ts?raw';
+import types from '$core/netled.types.d.ts?raw';
 import config from './Config.vue';
 import { useRouter } from 'vue-router';
 import { RouteName, useRouteLocation } from '$src/main.router';
-import { useMonacoEditor, assertTrue } from '$src/services';
+import { useMonacoEditor, assertTrue, restApi } from '$src/services';
 import type { AnimationPost } from '$core/rest/model/Animation';
 import type { Id } from '$core/rest/model/Id';
 import { newId } from '$core/services/newId';
@@ -117,7 +117,7 @@ export default defineComponent({
 
         onUnmounted(() => dispose(), componentInstance);
 
-        const animation = await animationApi.latest(props.animationId, true);
+        const animation = await restApi.animations.latest(props.animationId, true);
         content.value = animation.ts;
 
         const deleteScript = async () => {
@@ -125,7 +125,7 @@ export default defineComponent({
                 console.warn('Attempted to delete a non-draft animation');
                 return;
             }
-            await animationApi.deleteDraft(props.animationId);
+            await restApi.animations.deleteDraft(props.animationId);
             router.replace(useRouteLocation(RouteName.AnimationList));
         };
 
@@ -140,7 +140,7 @@ export default defineComponent({
                 ts: content.value
             };
 
-            await animationApi.saveDraft(animationPost);
+            await restApi.animations.saveDraft(animationPost);
 
             if (animationPost.id !== animation.id) {
                 router.replace(useRouteLocation(RouteName.AnimationEditor, { animationId: animationPost.id }));

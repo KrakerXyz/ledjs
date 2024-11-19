@@ -15,6 +15,7 @@
             "program": "${workspaceFolder}/pi/dist/pi/src/index.js",
             "runtimeArgs": [
                 "--unhandled-rejections=strict",
+                "--env-file=.env"
             ],
             "preLaunchTask": "build-pi",
             "outFiles": [

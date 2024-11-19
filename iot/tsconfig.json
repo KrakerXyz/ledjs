@@ -17,6 +17,11 @@
         "outDir": "dist"
     },
     "include": [
-        "./src/**/*"
-    ]
+        "src/**/*",
+        "../core/src/**/*",
+    ],
+    "exclude": [
+        "src/**/*.spec.ts",
+        "../core/src/**/*.spec.ts",
+    ],
 }

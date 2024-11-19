@@ -1,6 +1,9 @@
-import { AnimationRestClient, type Animator, type AnimatorType, type Id, netLedGlobal } from '@krakerxyz/netled-core';
+
 import { useRestClient } from '.';
 import { NodeVM, VMScript } from 'vm2';
+import { AnimationRestClient } from '../../../core/src/rest/AnimationRestClient';
+import { Id } from '../../../core/src/rest/model/Id';
+import { netledGlobal } from '../../../core/src/netledGlobal';
 
 let theVm: NodeVM | undefined;
 
@@ -18,7 +21,7 @@ export async function useAnimation(id: Id, version: number, trusted: boolean): P
     }
 
     if (!(globalThis as any).netled) {
-        (globalThis as any).netled = netLedGlobal;
+        (globalThis as any).netled = netledGlobal;
     }
 
     //https://stackoverflow.com/questions/17581830/load-node-js-module-from-string-in-memory
