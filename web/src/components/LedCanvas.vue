@@ -8,7 +8,7 @@
 <script lang="ts">
 
 import { defineComponent, watch, ref, onMounted, onUnmounted } from 'vue';
-import type { LedSegment } from '../services/animation/LedSegment';
+import type { LedSegment } from '../../../core/src/LedSegment';
 import type { IArgb } from '$core/IArgb';
 import { rgbToHex } from '$core/color-utilities/rgbToHex';
 

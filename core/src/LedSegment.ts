@@ -1,4 +1,5 @@
-import { deepFreeze } from '$core/rest/RestClient';
+import { deepFreeze } from './rest/RestClient.js';
+
 
 export type LedSegmentCallback = (ledSegment: LedSegment) => Promise<void>;
 

@@ -7,7 +7,7 @@ import { createAnimation } from './createAnimation';
 import { deepClone } from '$core/services/deepClone';
 import { deepEquals } from '$core/services/deepEquals';
 import type { CodeIssue } from '$core/services/validateScript';
-import type { LedSegment } from './LedSegment';
+import type { LedSegment } from '../../../../core/src/LedSegment';
 
 export async function useAnimationWorkerAsync(animationJs: Ref<string | null | undefined>, ledSegment: Readonly<Ref<LedSegment>>): Promise<WorkerContext> {
     

@@ -7,7 +7,7 @@ import { createPostProcessor } from './createPostProcessor';
 import { deepClone } from '$core/services/deepClone';
 import { deepEquals } from '$core/services/deepEquals';
 import type { CodeIssue } from '$core/services/validateScript';
-import type { LedSegment, LedSegmentCallback } from './LedSegment';
+import type { LedSegment, LedSegmentCallback } from '../../../../core/src/LedSegment';
 
 export async function usePostProcessorWorkerAsync(postProcessorJs: Ref<string | null | undefined>, ledSegment: Readonly<Ref<LedSegment>>): Promise<WorkerContext> {
     

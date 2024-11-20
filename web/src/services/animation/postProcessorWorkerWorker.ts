@@ -1,7 +1,7 @@
 
 import type { CodeIssue } from '$core/services/validateScript';
 import type { ClientMessage } from './postProcessorWorker';
-import { LedSegment } from './LedSegment';
+import { LedSegment } from '../../../../core/src/LedSegment';
 import { createPostProcessor } from './createPostProcessor';
 
 export type WorkerMessage = {

@@ -98,7 +98,7 @@ import { newId } from '$core/services/newId';
 import { useCanvasRenderer } from '$src/services/animation/renderCanvas';
 import { useAnimationWorkerAsync } from '$src/services/animation/animationWorker';
 import { usePostProcessorWorkerAsync } from '$src/services/animation/postProcessorWorker';
-import { LedSegment } from '$src/services/animation/LedSegment';
+import { LedSegment } from '$core/LedSegment';
 import { Icons } from '$src/components/global/Icon.vue';
 
 export default defineComponent({

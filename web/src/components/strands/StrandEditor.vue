@@ -113,7 +113,7 @@ import type { Id } from '$core/rest/model/Id';
 import { assertTrue, restApi } from '$src/services';
 import { computed, defineComponent, getCurrentInstance, reactive, ref } from 'vue';
 import SegmentVue from './Segment.vue';
-import { LedSegment } from '$src/services/animation/LedSegment';
+import { LedSegment } from '$core/LedSegment';
 import { RouteLocationRaw, useRoute } from 'vue-router';
 import { SegmentInputType, Segment, strandToPost } from '$core/rest/model/Strand';
 import { newId } from '$core/services/newId';

@@ -2,7 +2,7 @@
 import type { CodeIssue } from '$core/services/validateScript';
 import type { ClientMessage } from './animationWorker';
 import { createAnimation } from './createAnimation';
-import { LedSegment } from './LedSegment';
+import { LedSegment } from '../../../../core/src/LedSegment';
 import { Timer } from './Timer';
 
 export type WorkerMessage = {

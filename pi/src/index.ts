@@ -1,10 +1,11 @@
+
+import { LedSegment } from '../../core/src/LedSegment.js';
 import { netledGlobal } from '../../core/src/netledGlobal.js';
 import { Id } from '../../core/src/rest/model/Id.js';
 import { SegmentInputType } from '../../core/src/rest/model/Strand.js';
 import { EnvKey, getRequiredConfig } from './services/getRequiredConfig.js';
 import { getLogger } from './services/logger.js';
 import { restApi } from './services/restApi.js';
-import Isolate, { Reference } from 'isolated-vm';
 
 const logger = getLogger('index');
 logger.info('Starting up');
@@ -19,6 +20,10 @@ if(!device) { throw new Error('Device not found'); }
 
 logger.info(`Got device '${device.name}'`);
 
+if (!(globalThis as any).netled) {
+    (globalThis as any).netled = netledGlobal;
+}
+
 const segments: SegmentVm[] = [];
 if (device.strandId) {
     logger.debug('Loading strand');
@@ -26,9 +31,12 @@ if (device.strandId) {
 
     logger.info(`Got strand '${strand.name}' consisting of ${strand.segments.length} segments`);
 
+    const sab = new SharedArrayBuffer(strand.numLeds * 4);
+
     for (const segment of strand.segments) {
         let js = '';
         let name = '';
+        let ledSegment: netled.common.ILedSegment;
         if (segment.type === SegmentInputType.Animation) {
             logger.debug(`Loading animation ${segment.script.id} for segment ${segment.id}`);
             const animation = await restApi.animations.byId(segment.script.id, segment.script.version);
@@ -40,6 +48,7 @@ if (device.strandId) {
             logger.info(`Loaded animation ${animation.id}: ${animation.name}`);
             name = animation.name;
             js = animation.js;
+            ledSegment = new LedSegment(sab, segment.leds.num, segment.leds.offset, segment.leds.dead);
         } else if (segment.type === SegmentInputType.PostProcess) {
             logger.debug(`Loading post-process ${segment.script.id} for segment ${segment.id}`);
             const postProcess = await restApi.postProcessors.byId(segment.script.id, segment.script.version);
@@ -50,7 +59,8 @@ if (device.strandId) {
             }
             logger.info(`Loaded post-process ${postProcess.id}: ${postProcess.name}`);
             name = postProcess.name
-            js = postProcess.js;   
+            js = postProcess.js;
+            ledSegment = new LedSegment(sab, segment.leds.num, segment.leds.offset);
         } else {
             const _: never = segment;
             logger.error(`Unknown segment type ${(_ as any).type}`);
@@ -58,15 +68,16 @@ if (device.strandId) {
             break;
         }
 
+        const script: netled.animation.IAnimation | netled.postProcessor.IPostProcessor = (await import('data:text/javascript;base64,' + btoa(js))).default;
 
-        const segmentVm: SegmentVm = {
+        const segmentVm = {
             id: segment.id,
             name,
             type: segment.type,
-            numLeds: segment.leds.num,
-            offset: segment.leds.offset,
-            js
-        };
+            script,
+            ledSegment,
+        } as SegmentVm;
+
         segments.push(segmentVm);
     }
 
@@ -74,32 +85,23 @@ if (device.strandId) {
         logger.info(`Finished loaded scripts for ${segments.length} segments`);
     }
 
-    const seg = segments[0];
-    logger.info(`Creating module for ${seg.name}`)
-    const cjsScriptParts = [
-        `const netled = { animation: { ${netledGlobal.animation.defineAnimation.toString()} }};`,
-        seg.js.replace('export default', 'const cls =') + ';\n'
-    ] 
-
-    const cjsScript = cjsScriptParts.join('\n');
-
-    logger.info('Loading isolate');
-    const isolate = new Isolate.Isolate({ memoryLimit: 128 });
-    const context = await isolate.createContext();
-
-    const script = await isolate.compileScript(cjsScript);
-    script.runSync(context);
-    
-    const services = context.evalSync('JSON.stringify(cls.services)');
-    console.log(services);
 }
 
 
-interface SegmentVm {
+interface SegmentVmBase {
     id: Id,
     name: string,
-    type: SegmentInputType,
-    numLeds: number,
-    offset: number,
-    js: string
+    ledSegment: netled.common.ILedSegment,
 }
+
+interface AnimationSegmentVm extends SegmentVmBase {
+        type: SegmentInputType.Animation,
+        script: netled.animation.IAnimation
+}
+
+interface PostProcessSegmentVm extends SegmentVmBase {
+    type: SegmentInputType.PostProcess,
+    script: netled.postProcessor.IPostProcessor
+}
+
+type SegmentVm = AnimationSegmentVm | PostProcessSegmentVm;

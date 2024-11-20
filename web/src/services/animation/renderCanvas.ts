@@ -2,7 +2,7 @@
 import { rgbToHex } from '$core/color-utilities/rgbToHex';
 import type { IArgb } from '$core/IArgb';
 import { computed, type Ref } from 'vue';
-import type { LedSegment, LedSegmentCallback } from './LedSegment';
+import type { LedSegment, LedSegmentCallback } from '../../../../core/src/LedSegment';
 
 
 export function useCanvasRenderer(canvasContainer: Readonly<Ref<HTMLDivElement | undefined | null>>): LedSegmentCallback {
