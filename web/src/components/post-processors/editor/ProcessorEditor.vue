@@ -86,11 +86,10 @@
 <script lang="ts">
 
 import { computed, defineComponent, getCurrentInstance, onUnmounted, ref, watch } from 'vue';
-import types from '../../../types.d.ts?raw';
+import types from '../../../../../core/src/netled.types.d.ts?raw';
 import { useRouter } from 'vue-router';
 import config from '../../animations/editor/Config.vue';
 import { useRouteLocation, RouteName } from '$src/main.router';
-import { assertTrue, restApi, useMonacoEditor } from '$src/services';
 import type { Id } from '$core/rest/model/Id';
 import type { PostProcessorPost } from '$core/rest/model/PostProcessor';
 import type { ScriptVersion } from '$core/rest/model/ScriptVersion';
@@ -100,6 +99,7 @@ import { useAnimationWorkerAsync } from '$src/services/animation/animationWorker
 import { usePostProcessorWorkerAsync } from '$src/services/animation/postProcessorWorker';
 import { LedSegment } from '$core/LedSegment';
 import { Icons } from '$src/components/global/Icon.vue';
+import { assertTrue, useMonacoEditor, restApi } from '$src/services';
 
 export default defineComponent({
     components: { config },

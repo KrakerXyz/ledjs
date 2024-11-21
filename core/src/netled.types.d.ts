@@ -1,7 +1,5 @@
 import type { IArgb } from './IArgb';
 
-export {};
-
 declare global {
 
     namespace netled {
@@ -9,7 +7,7 @@ declare global {
         namespace postProcessor {
 
             /** Wraps a IPostProcessor input and provides type constraints for error checking. */
-            declare function definePostProcessor<TConfig extends common.IConfig = common.IConfig>(postProcessor: IPostProcessor<TConfig>): IPostProcessor<TConfig>;
+            function definePostProcessor<TConfig extends common.IConfig = common.IConfig>(postProcessor: IPostProcessor<TConfig>): IPostProcessor<TConfig>;
 
             interface IPostProcessor<TConfig extends common.IConfig = common.IConfig> {
                 /** Creates controller for the post processor */
@@ -101,7 +99,7 @@ declare global {
         namespace animation {
 
             /** Wraps a IAnimation input and provides type constraints for error checking. */
-            declare function defineAnimation<TServices extends services.IAvailableServices = services.IAvailableServices, TConfig extends common.IConfig = common.IConfig>(animation: IAnimation<TServices, TConfig>): IAnimation<TServices, TConfig>;
+            function defineAnimation<TServices extends services.IAvailableServices = services.IAvailableServices, TConfig extends common.IConfig = common.IConfig>(animation: IAnimation<TServices, TConfig>): IAnimation<TServices, TConfig>;
 
             /** Returns from a IAnimation.construct method to provide animation control to the framework */
             interface IAnimationController<TConfig extends common.IConfig = common.IConfig> {

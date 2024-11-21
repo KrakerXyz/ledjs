@@ -1,6 +1,5 @@
 import { deepFreeze } from './rest/RestClient.js';
 
-
 export type LedSegmentCallback = (ledSegment: LedSegment) => Promise<void>;
 
 export class LedSegment implements netled.common.ILedSegment {

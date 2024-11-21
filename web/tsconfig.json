@@ -1,6 +1,7 @@
 {
+    // trying to import from base json breaks the netled global used by Config.vue
     "compilerOptions": {
-        "target": "ES2020",
+        "target": "ESNext",
         "module": "esnext",
         "moduleResolution": "node",
         "strict": true,
@@ -14,7 +15,6 @@
         "forceConsistentCasingInFileNames": true, //ensures that import casing matches physical file name 
         "importHelpers": true,
         "removeComments": true,
-        "jsx": "preserve", //needed for volar
         "outDir": "./dist",
         "rootDirs": [
             "src"

@@ -62,12 +62,12 @@
 
 <script lang="ts">
 
-import type { AnimationConfigPost } from '$core/rest/model/AnimationConfig';
+import type { AnimationConfigPost } from '$core/rest/model/AnimationConfig.js';
 import type { Id } from '$core/rest/model/Id';
 import type { ScriptVersion } from '$core/rest/model/ScriptVersion';
 import { deepClone } from '$core/services/deepClone';
 import { newId } from '$core/services/newId';
-import { restApi } from '$src/services';
+import { restApi } from '$src/services/restClient';
 import { defineComponent, ref, watch } from 'vue';
 
 interface SelectOption { text: string, value: Id | 'new' }
@@ -146,7 +146,7 @@ export default defineComponent({
                 config: settings.value,
             };
 
-            await animationClient.config.save(newConfig);
+            await restApi.animations.config.save(newConfig);
             if (!existingConfig) {
                 savedConfigs.value = [{ text: newConfig.name, value: newConfig.id }, ...savedConfigs.value].sort((a,b) => a.text.localeCompare(b.text));
             }

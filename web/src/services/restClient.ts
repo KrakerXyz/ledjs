@@ -1,9 +1,9 @@
-import { AnimationRestClient } from '$core/rest/AnimationRestClient';
-import { AuthRestClient } from '$core/rest/AuthRestClient';
-import { DeviceRestClient } from '$core/rest/DeviceRestClient';
-import { PostProcessorRestClient } from '$core/rest/PostProcessorRestClient';
-import { RestClient, type RestConfig } from '$core/rest/RestClient';
-import { StrandRestClient } from '$core/rest/StrandRestClient';
+import { AnimationRestClient } from '$core/rest/AnimationRestClient.js';
+import { AuthRestClient } from '$core/rest/AuthRestClient.js';
+import { DeviceRestClient } from '$core/rest/DeviceRestClient.js';
+import { PostProcessorRestClient } from '$core/rest/PostProcessorRestClient.js';
+import { RestClient, type RestConfig } from '$core/rest/RestClient.js';
+import { StrandRestClient } from '$core/rest/StrandRestClient.js';
 
 let restClient: RestClient | undefined;
 let animationClient: AnimationRestClient | undefined;

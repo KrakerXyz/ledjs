@@ -1,6 +1,6 @@
 
 
-import type { CodeIssue } from '$core/services/validateScript';
+import { CodeIssue } from '$core/services/validateScript.js';
 import type * as monacoType from 'monaco-editor';
 import { computed, type ComputedRef, getCurrentScope, onMounted, onScopeDispose, ref, type Ref, watch } from 'vue';
 
