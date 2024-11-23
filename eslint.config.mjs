@@ -5,6 +5,10 @@ import krakerxyz from '@krakerxyz/eslint-config';
 export default [
     ...krakerxyz,
     {
-        ignores: ['**/dist/'],
+        languageOptions: {
+            globals: {
+                'netled': 'readonly',
+            },
+        }
     }
 ];

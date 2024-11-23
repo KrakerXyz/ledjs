@@ -1,5 +1,7 @@
 import type { IArgb } from './IArgb';
 
+export { }
+
 declare global {
 
     namespace netled {
