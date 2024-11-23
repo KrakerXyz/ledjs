@@ -6,11 +6,12 @@ import path from 'path';
 import { getSchemaValidator } from './db/schema/schemaUtility.js';
 import fastifyStatic from '@fastify/static';
 import { apiRoutes } from './rest/index.js';
-import { getRequiredConfig, EnvKey } from './services/config.js';
+import { getRequiredConfig, EnvKey } from './services/getRequiredConfig.js';
 
 import { fileURLToPath } from 'url';
 import { configureDbLocal } from './db/Db.js';
 import { RequestServicesContainer } from './services/RequestServicesContainer.js';
+import { MqttClient } from './services/MqttClient.js';
 const __filename = fileURLToPath(import.meta.url); // get the resolved path to the file
 const __dirname = path.dirname(__filename); // get the name of the directory
 
@@ -48,7 +49,10 @@ server.setValidatorCompiler(req => {
     return validator;
 });
 
-server.decorateRequest('services', { getter: () => new RequestServicesContainer() });
+console.log('Creating mqtt client');
+const mqttClient = await MqttClient.createClient(getRequiredConfig(EnvKey.MqttBroker));
+
+server.decorateRequest('services', { getter: () => new RequestServicesContainer(mqttClient) });
 
 
 server.register(fastifyJWT, {

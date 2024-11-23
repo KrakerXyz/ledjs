@@ -28,6 +28,8 @@ export default defineComponent({
 export enum Icons {
     Spinner = 'progress_activity',
     Trashcan = 'delete',
+    Play = 'play_arrow',
+    Stop = 'check_box_outline_blank',
 }
 
 </script>

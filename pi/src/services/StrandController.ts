@@ -10,6 +10,7 @@ export class StrandController {
 
     private readonly _logger = getLogger('index');
     private readonly _segments: SegmentVm[] = [];
+    private _numLeds: number = 0;
     
     public async loadStrand(strandId: Id): Promise<void> {
         this._segments.length = 0;
@@ -18,6 +19,7 @@ export class StrandController {
 
         this._logger.info(`Got strand '${strand.name}' consisting of ${strand.segments.length} segments`);
 
+        this._numLeds = strand.numLeds;
         const sab = new SharedArrayBuffer(strand.numLeds * 4);
 
         try {
@@ -180,6 +182,17 @@ export class StrandController {
                 segment.controller.run(segment.settings);
             }
         }
+    }
+
+    public pause(): void {
+        for (const segment of this._segments) {
+            if (segment.type === SegmentInputType.Animation) {
+                segment.controller.pause();
+            }
+        }
+
+        const darkBuffer = Buffer.alloc(4 * (this._numLeds + 1), 0);
+        rpio.spiWrite(darkBuffer, darkBuffer.length);
     }
 }
 

@@ -1,7 +1,7 @@
 import type { RouteOptions } from 'fastify';
 import { jwtAuthentication } from '../../services/jwtAuthentication.js';
-import type { Device, DevicePost } from '../../../../core/src/rest/DeviceRestClient.js';
 import { newId } from '../../../../core/src/services/newId.js';
+import { DevicePost, Device } from '../../../../core/src/rest/model/Device.js';
 
 export const postDevice: RouteOptions = {
     method: 'POST',
@@ -26,7 +26,7 @@ export const postDevice: RouteOptions = {
             userId: req.user.sub,
             id: device.id,
             name: device.name,
-            isStopped: false,
+            isRunning: false,
             spiSpeed: device.spiSpeed,
             status: {},
             strandId: null

@@ -2,7 +2,7 @@ import type { RouteOptions } from 'fastify';
 import { OAuth2Client } from 'google-auth-library';
 import { v4 } from 'uuid';
 import { UserDb } from '../../db/UserDb.js';
-import { getRequiredConfig, EnvKey } from '../../services/config.js';
+import { getRequiredConfig, EnvKey } from '../../services/getRequiredConfig.js';
 import type { GoogleJwt } from '../../../../core/src/rest/AuthRestClient.js';
 import type { Id } from '../../../../core/src/rest/model/Id.js';
 

@@ -41,11 +41,14 @@ logger.info('Clearing leds');
 const strandController = new StrandController();
 if (device.strandId) {
     await strandController.loadStrand(device.strandId);
-    strandController.run();
+    if (device.isRunning) {
+        logger.info('Device is set to running, starting strand');
+        strandController.run();
+    }
 }
 
 logger.info('Initializing mqtt');
-const client = mqtt.connect('mqtt://10.8.0.22', { clientId: `device:${deviceId}` });
+const client = mqtt.connect('mqtt://dev.netled.io', { clientId: `device:${deviceId}` });
 client.on('connect', () => {
     logger.info('Connected to mqtt');
     client.subscribe(`netled/device/${deviceId}/#`, (err) => {
@@ -61,6 +64,16 @@ client.on('message', async (topic, message) => {
         logger.info(`Received new strand id: ${strandId}`);
         await strandController.loadStrand(strandId);
         strandController.run();
+    } else if (topic === mqttTopic(`netled/device/${deviceId}/is-running`)) {
+        logger.info('Received is-running message');
+        const isRunning = message.toString() === 'true';
+        if (isRunning) {
+            logger.info('Starting strand');
+            strandController.run();
+        } else {
+            logger.info('Pausing strand');
+            strandController.pause();
+        }
     } else {
         logger.warn(`Unknown topic: ${topic}`);
     }

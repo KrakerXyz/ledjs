@@ -1,16 +1,19 @@
 
 <template>
-    <div class="container h-100 shadow bg-white p-3">
+    <div class="container-fluid p-3">
         <div class="row">
-            <div
-                class="col-sm-6 col-lg-4 col-xxl-3 text-decoration-none"
-                v-for="d of devices"
-                :key="d.id"
-            >
-                <device-list-item :device="d" :configs="configs"></device-list-item>
+            <div class="col">
+                <div class="list-group" v-if="devices">
+                    <div
+                        class="list-group-item list-group-item-action"
+                        v-for="d of devices"
+                        :key="d.id"
+                    >
+                        <device-list-item :device="d" :configs="configs"></device-list-item>
+                    </div>
+                </div>
             </div>
         </div>
-
         <teleport to="#portal-header">
             <router-link
                 class="btn btn-primary"

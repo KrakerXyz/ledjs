@@ -29,6 +29,7 @@
         "fastify": "^5",
         "google-auth-library": "^9.14.2",
         "mongodb": "^6.10.0",
+        "mqtt": "^5.10.2",
         "uuid": "^11"
     },
     "devDependencies": {

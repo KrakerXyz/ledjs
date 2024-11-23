@@ -1,26 +1,29 @@
 <template>
-    <div class="card h-100">
-        <div class="card-header">
-            <div class="row">
-                <div class="col">
-                    <div class="card-title d-flex align-items-center">
-                        <span
-                            class="online-status d-inline-block me-2"
-                            :class="{
-                                'bg-success': (deviceCopy.status?.onlineSince ?? 0) > (deviceCopy.status?.offlineSince ?? 0),
-                                'bg-danger': (deviceCopy.status?.offlineSince ?? 0) >= (deviceCopy.status?.onlineSince ?? 0),
-                            }"
-                        ></span>
-
-                        <router-link :to="useRouteLocation(RouteName.DeviceView, { deviceId: deviceCopy.id })" class="text-body">
-                            {{ deviceCopy.name || '[Name Missing]' }}
-                        </router-link>
-                    </div>
-                </div>
-            </div>
+    <div class="row d-flex align-items-center">
+        <div class="col-auto">
+            <button
+                v-if="!deviceCopy.isRunning"
+                @click="setRunning(true)"
+                type="button"
+                class="btn btn-success"
+            >
+                <v-icon :icon="Icons.Play"></v-icon>
+            </button>
+            <button
+                v-if="deviceCopy.isRunning"
+                @click="setRunning(false)"
+                type="button"
+                class="btn btn-danger"
+            >
+                <v-icon :icon="Icons.Stop"></v-icon>
+            </button>
         </div>
-
-        <div class="card-body">
+        <div class="col-auto">
+            <router-link :to="useRouteLocation(RouteName.DeviceView, { deviceId: deviceCopy.id })" class="text-body">
+                {{ deviceCopy.name || '[Name Missing]' }}
+            </router-link>
+        </div>
+        <div class="col-4">
             <div class="form-floating">
                 <select
                     id="device-strand"
@@ -38,16 +41,27 @@
                 <label for="device-animation">Strand</label>
             </div>
         </div>
+        <div class="col"></div>
+        <div class="col-auto">
+            <span
+                class="online-status d-inline-block me-2"
+                :class="{
+                    'bg-success': (deviceCopy.status?.onlineSince ?? 0) > (deviceCopy.status?.offlineSince ?? 0),
+                    'bg-danger': (deviceCopy.status?.offlineSince ?? 0) >= (deviceCopy.status?.onlineSince ?? 0),
+                }"
+            ></span>
+        </div>
     </div>
 </template>
 
 <script lang="ts">
-import type { Device } from '$core/rest/DeviceRestClient';
+import type { Device } from '$core/rest/model/Device.js';
 import type { AnimationConfigSummary } from '$core/rest/model/AnimationConfig';
 import { deepClone } from '$core/services/deepClone';
 import { assertTrue, restApi } from '$src/services';
 import { watch, defineComponent, reactive, ref, getCurrentInstance } from 'vue';
 import { useRouteLocation, RouteName } from '$src/main.router';
+import { Icons } from '$src/components/global/Icon.vue';
 
 export default defineComponent({
     props: {
@@ -68,7 +82,12 @@ export default defineComponent({
 
         const strands = await restApi.strands.list();
 
-        return { stop, selectedStrandId, deviceCopy, useRouteLocation, RouteName, strands };
+        const setRunning = (running: boolean) => {
+            deviceCopy.isRunning = running;
+            restApi.devices.setRunning(deviceCopy.id, running);
+        };
+
+        return { stop, selectedStrandId, deviceCopy, useRouteLocation, RouteName, strands, Icons, setRunning };
     },
 });
 

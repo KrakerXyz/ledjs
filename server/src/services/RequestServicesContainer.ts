@@ -5,8 +5,13 @@ import { DeviceDb } from '../db/DeviceDb.js';
 import { PostProcessorDb } from '../db/PostProcessorDb.js';
 import { StrandDb } from '../db/StrandDb.js';
 import { UserDb } from '../db/UserDb.js';
+import { MqttClient } from './MqttClient.js';
 
 export class RequestServicesContainer {
+
+    public constructor(readonly mqtt: MqttClient) { 
+
+    }
 
     private _animationDb: AnimationDb | null = null;
     public get animationDb() {
