@@ -11,6 +11,7 @@ export class StrandController {
     private readonly _logger = getLogger('index');
     private readonly _segments: SegmentVm[] = [];
     private _numLeds: number = 0;
+    private _running = false;
     
     public async loadStrand(strandId: Id): Promise<void> {
         this._segments.length = 0;
@@ -159,6 +160,7 @@ export class StrandController {
         const brightness = 224 + Math.round(31 * .2 /* device.brightness */);
 
         lastSegment.ledSegment.addSendCallback(() => {
+            if (!this._running) { return Promise.resolve(); }
             
             for (let i = 0; i < renderSegment.length; i++) {
                 const buffPos = (i * 4) + 4; //We add in 4 to account for the leading reset bytes
@@ -177,6 +179,7 @@ export class StrandController {
     }
 
     public run(): void {
+        this._running = true;
         for (const segment of this._segments) {
             if (segment.type === SegmentInputType.Animation) {
                 segment.controller.run(segment.settings);
@@ -185,14 +188,24 @@ export class StrandController {
     }
 
     public pause(): void {
+        this._running = false;
         for (const segment of this._segments) {
             if (segment.type === SegmentInputType.Animation) {
                 segment.controller.pause();
             }
         }
-
-        const darkBuffer = Buffer.alloc(4 * (this._numLeds + 1), 0);
-        rpio.spiWrite(darkBuffer, darkBuffer.length);
+        const startFrameBytes = 4;
+        const numEndFrameBytes = Math.max(4, Math.ceil(this._numLeds / 16));
+        const buffer = Buffer.alloc((this._numLeds * 4) + startFrameBytes + numEndFrameBytes);
+        const brightness = 224 + Math.round(31 * 0 /* device.brightness */);
+        for (let i = 0; i < this._numLeds; i++) {
+            const buffPos = (i * 4) + 4; //We add in 4 to account for the leading reset bytes
+            buffer[buffPos] = brightness;
+            buffer[buffPos + 1] = 0;
+            buffer[buffPos + 2] = 0;
+            buffer[buffPos + 3] = 0;
+        }
+        rpio.spiWrite(buffer, buffer.length);
     }
 }
 

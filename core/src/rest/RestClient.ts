@@ -32,7 +32,7 @@ export class RestClient {
                 ...this.headers,
                 'Content-Type': 'application/json'
             }
-        }).then(r => r.json() as T).then(r => deepFreeze(r));
+        }).then(r => parseInt(r.headers.get('Content-Length') ?? '0') ? r.json() : undefined).then(r => deepFreeze(r) as T);
     }
 
     public delete(path: string): Promise<void> {
