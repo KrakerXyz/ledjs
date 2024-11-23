@@ -17,10 +17,8 @@
     },
     "dependencies": {
         "@babel/parser": "^7.14.8",
-        "axios": "^1",
-        "eventemitter3": "^5",
-        "uuid": "^11",
-        "ws": "^8.0.0"
+        "axios": "^1.7.7",
+        "uuid": "^11"
     },
     "devDependencies": {
         "@babel/types": "^7.14.8",

@@ -6,12 +6,12 @@ export class AuthRestClient {
     constructor(private readonly restClient: RestClient) { }
 
     public validateGoogleToken(token: GoogleToken): Promise<User> {
-        return this.restClient.post<User>('api/auth/google-token', token);
+        return this.restClient.post<User>('/api/auth/google-token', token);
     }
 
     /** Validate a JWT provided by GIS (one-tap) login */
     public validateGoogleJwt(googleJwt: GoogleJwt): Promise<User> {
-        return this.restClient.post<User>('api/auth/google-jwt', googleJwt);
+        return this.restClient.post<User>('/api/auth/google-jwt', googleJwt);
     }
 
 }

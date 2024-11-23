@@ -1,16 +1,20 @@
 
-import { LedSegment } from '../../core/src/LedSegment.js';
-import { netledGlobal } from '../../core/src/netledGlobal.js';
-import { Id } from '../../core/src/rest/model/Id.js';
-import { SegmentInputType } from '../../core/src/rest/model/Strand.js';
 import { EnvKey, getRequiredConfig } from './services/getRequiredConfig.js';
 import { getLogger } from './services/logger.js';
 import { restApi } from './services/restApi.js';
+import rpio from 'rpio';
+import { StrandController } from './services/StrandController.js';
+import mqtt from 'mqtt';
+import { Id } from '../../core/src/rest/model/Id.js';
+import { netledGlobal } from '../../core/src/netledGlobal.js';
+import { mqttTopic } from '../../core/src/iot/mqttTopic.js';
+
+(globalThis as any).netled = netledGlobal;
 
 const logger = getLogger('index');
 logger.info('Starting up');
 
-const deviceId = atob(getRequiredConfig(EnvKey.LEDJS_AUTH)).split(':')[0];
+const deviceId = atob(getRequiredConfig(EnvKey.LEDJS_AUTH)).split(':')[0] as Id;
 logger.info(`Device ID: ${deviceId}`);
 
 logger.debug('Loading device');
@@ -20,88 +24,45 @@ if(!device) { throw new Error('Device not found'); }
 
 logger.info(`Got device '${device.name}'`);
 
-if (!(globalThis as any).netled) {
-    (globalThis as any).netled = netledGlobal;
-}
+const divisor = 250 / device.spiSpeed;
+const divider = divisor - (divisor % 2);
 
-const segments: SegmentVm[] = [];
+logger.info(`Initializing SPI to ~${device.spiSpeed}mhz using divider ${divider}`);
+rpio.spiBegin();
+rpio.spiSetClockDivider(divider);
+
+//Draw an arbitrarily huge number of dark leds to clear string on startup
+logger.info('Clearing leds');
+(() => {
+    const darkBuffer = Buffer.alloc(4 * 1000, 0);
+    rpio.spiWrite(darkBuffer, darkBuffer.length);
+})();
+
+const strandController = new StrandController();
 if (device.strandId) {
-    logger.debug('Loading strand');
-    const strand = await restApi.strands.byId(device.strandId);
+    await strandController.loadStrand(device.strandId);
+    strandController.run();
+}
 
-    logger.info(`Got strand '${strand.name}' consisting of ${strand.segments.length} segments`);
+logger.info('Initializing mqtt');
+const client = mqtt.connect('mqtt://10.8.0.22', { clientId: `device:${deviceId}` });
+client.on('connect', () => {
+    logger.info('Connected to mqtt');
+    client.subscribe(`netled/device/${deviceId}/#`, (err) => {
+        if (err) { throw err; }
+        logger.info('Subscribed to device topic');
+    });
+});
 
-    const sab = new SharedArrayBuffer(strand.numLeds * 4);
-
-    for (const segment of strand.segments) {
-        let js = '';
-        let name = '';
-        let ledSegment: netled.common.ILedSegment;
-        if (segment.type === SegmentInputType.Animation) {
-            logger.debug(`Loading animation ${segment.script.id} for segment ${segment.id}`);
-            const animation = await restApi.animations.byId(segment.script.id, segment.script.version);
-            if (!animation) {
-                logger.error(`Failed to load animation ${segment.script.id}`);
-                segments.length = 0;
-                break;
-            }
-            logger.info(`Loaded animation ${animation.id}: ${animation.name}`);
-            name = animation.name;
-            js = animation.js;
-            ledSegment = new LedSegment(sab, segment.leds.num, segment.leds.offset, segment.leds.dead);
-        } else if (segment.type === SegmentInputType.PostProcess) {
-            logger.debug(`Loading post-process ${segment.script.id} for segment ${segment.id}`);
-            const postProcess = await restApi.postProcessors.byId(segment.script.id, segment.script.version);
-            if (!postProcess) {
-                logger.error(`Failed to load post-process ${segment.script.id}`);
-                segments.length = 0;
-                break;
-            }
-            logger.info(`Loaded post-process ${postProcess.id}: ${postProcess.name}`);
-            name = postProcess.name
-            js = postProcess.js;
-            ledSegment = new LedSegment(sab, segment.leds.num, segment.leds.offset);
-        } else {
-            const _: never = segment;
-            logger.error(`Unknown segment type ${(_ as any).type}`);
-            segments.length = 0;
-            break;
-        }
-
-        const script: netled.animation.IAnimation | netled.postProcessor.IPostProcessor = (await import('data:text/javascript;base64,' + btoa(js))).default;
-
-        const segmentVm = {
-            id: segment.id,
-            name,
-            type: segment.type,
-            script,
-            ledSegment,
-        } as SegmentVm;
-
-        segments.push(segmentVm);
+client.on('message', async (topic, message) => {
+    logger.info(`Received message on topic ${topic}`);
+    if (topic === mqttTopic(`netled/device/${deviceId}/strand-changed`)) {
+        const strandId = message.toString() as Id;
+        logger.info(`Received new strand id: ${strandId}`);
+        await strandController.loadStrand(strandId);
+        strandController.run();
+    } else {
+        logger.warn(`Unknown topic: ${topic}`);
     }
+});
 
-    if (segments.length > 0) {
-        logger.info(`Finished loaded scripts for ${segments.length} segments`);
-    }
-
-}
-
-
-interface SegmentVmBase {
-    id: Id,
-    name: string,
-    ledSegment: netled.common.ILedSegment,
-}
-
-interface AnimationSegmentVm extends SegmentVmBase {
-        type: SegmentInputType.Animation,
-        script: netled.animation.IAnimation
-}
-
-interface PostProcessSegmentVm extends SegmentVmBase {
-    type: SegmentInputType.PostProcess,
-    script: netled.postProcessor.IPostProcessor
-}
-
-type SegmentVm = AnimationSegmentVm | PostProcessSegmentVm;

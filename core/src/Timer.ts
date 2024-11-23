@@ -1,17 +1,10 @@
 
-export interface TimerInterval {
-    start(): void,
-    stop(): void,
-}
-
-export interface TimerOptions { started?: boolean }
-
-export class Timer {
+export class Timer implements netled.services.ITimer, Disposable {
 
     #disposed = false;
     #running: symbol | null = null;
 
-    public createInterval(interval: number, cb: () => void | Promise<void>, options: TimerOptions): TimerInterval {
+    public createInterval(interval: number, cb: () => void | Promise<void>, options: netled.services.ITimerOptions): netled.services.ITimerInterval {
         let next = 0;
         let runningCb = false;
         const run = () => {
@@ -73,8 +66,8 @@ export class Timer {
         };
 
     }
-
-    public dispose() {
+    
+    [Symbol.dispose](): void {
         this.#running = null;
         this.#disposed = true;
     }
