@@ -1,57 +1,61 @@
 
 <template>
-   <div>
-      <button
-         v-if="status === 'signedOut'"
-         class="btn btn-link nav-link"
-         @click="signIn()"
-      >
-         Sign In/Up
-      </button>
+    <div class="h-100 d-flex align-content-center">
+        <div v-show="authService.status.value === 'signedOut'">
+            <div id="google-login-button"></div>
+        </div>
 
-      <!-- I tried putting the v-if on the spinner but we get a vue error. It should work. Seems like a legitimate bug with vue at the time (3/19/2021). Try again later -->
-      <div
-         class="nav-link"
-         v-if="status === 'initializing'"
-      >
-         <v-spinner class="loading text-white"></v-spinner>
-      </div>
+        <!-- I tried putting the v-if on the spinner but we get a vue error. It should work. Seems like a legitimate bug with vue at the time (3/19/2021). Try again later -->
+        <div
+            class="nav-link"
+            v-if="authService.status.value === 'initializing'"
+        >
+            <v-icon :icon="Icons.Spinner" class="text-white"></v-icon>
+        </div>
 
-      <div
-         class="user-menu position-relative"
-         v-if="avatarUrl && status==='signedIn'"
-      >
-         <img
-            :src="avatarUrl"
-            alt="Signed In"
-         >
-
-         <ul class="d-none position-absolute list-group">
-            <button
-               class="list-group-item list-group-item-action"
-               @click="signOut()"
+        <div
+            class="user-menu position-relative"
+            v-if="authService.user.value?.avatarUrl && authService.status.value==='signedIn'"
+        >
+            <img
+                :src="authService.user.value.avatarUrl"
+                alt="Signed In"
+                crossorigin="anonymous"
             >
-               Sign out
-            </button>
-         </ul>
-      </div>
-   </div>
+
+            <ul class="d-none position-absolute list-group">
+                <button
+                    type="button"
+                    class="list-group-item list-group-item-action"
+                    @click="authService.logout()"
+                >
+                    Sign out
+                </button>
+            </ul>
+        </div>
+    </div>
 </template>
 
 <script lang="ts">
 
-   import { defineComponent } from 'vue';
-   import { useRouter } from 'vue-router';
-   import { useLoginService } from '../services';
+import { defineComponent, onMounted } from 'vue';
+import { assertTrue } from '../services';
+import { initGoogleLoginButton, useAuthService } from '$src/services/authService';
+import { Icons } from './global/Icon.vue';
 
-   export default defineComponent({
-      setup() {
-         const router = useRouter();
-         const login = useLoginService(() => router);
+export default defineComponent({
+    setup() {
+        const authService = useAuthService();
 
-         return { ...login };
-      }
-   });
+        onMounted(() => {
+            const div = document.getElementById('google-login-button') as HTMLDivElement;
+            assertTrue(div);
+            initGoogleLoginButton(div);
+        });
+
+        return { authService, Icons };
+    }
+});
 
 </script>
 

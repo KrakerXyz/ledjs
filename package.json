@@ -1,12 +1,17 @@
 {
     "name": "netled",
     "scripts": {
-        "start-web": "cd web && npm run start",
-        "start-server": "cd server && npm run start",
-        "start": "concurrently -k -n web,server -c bgBlue.black,bgGreen.black \"npm run start-web\" \"npm run start-server\""
+        "lint": "eslint **/src/**/*.{ts,vue}",
+        "lint-fix": "eslint **/src/**/*.{ts,vue} --fix"
     },
     "devDependencies": {
-        "concurrently": "^6.2.0",
+        "@krakerxyz/eslint-config": "^2.0.1",
+        "@types/node": "^22.9.0",
+        "eslint": "^9.14.0",
         "ncp": "^2.0.0"
+    },
+    "dependencies": {
+        "axios": "^1.7.7",
+        "isolated-vm": "^5.0.1"
     }
 }

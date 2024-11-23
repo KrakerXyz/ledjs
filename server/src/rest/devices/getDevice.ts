@@ -1,6 +1,6 @@
-import { RouteOptions } from 'fastify';
-import { Id } from '@krakerxyz/netled-core';
-import { jwtAuthentication } from '../../services';
+import type { RouteOptions } from 'fastify';
+import { jwtAuthentication } from '../../services/jwtAuthentication.js';
+import type { Id } from '../../../../core/src/rest/model/Id.js';
 
 export const getDevice: RouteOptions = {
     method: 'GET',
@@ -10,7 +10,7 @@ export const getDevice: RouteOptions = {
         params: {
             type: 'object',
             properties: {
-                deviceId: { type: 'string', format: 'uuid' }
+                deviceId: { type: 'string' }
             },
             required: ['deviceId']
         }
@@ -23,15 +23,15 @@ export const getDevice: RouteOptions = {
         const device = await db.byId(deviceId);
 
         if (!device) {
-            res.status(404).send('Device with that id does not exist');
+            await res.status(404).send('Device with that id does not exist');
             return;
         }
 
-        if (device.userId !== req.user.sub) {
-            res.status(403).send('User does not have access to this device');
+        if (device.userId !== req.user.sub && device.id !== req.user.sub) {
+            await res.status(403).send('User does not have access to this device');
             return;
         }
 
-        res.send(device);
+        await res.send(device);
     }
 };

@@ -1,5 +1,8 @@
-import { RouteOptions } from 'fastify';
-import { awaitAll, jwtAuthentication } from '../../services';
+
+import type { RouteOptions } from 'fastify';
+import { awaitAll } from '../../services/awaitAll.js';
+import { jwtAuthentication } from '../../services/jwtAuthentication.js';
+import type { Id } from '../../../../core/src/rest/model/Id.js';
 
 export const getConfigsByAnimationId: RouteOptions = {
     method: 'GET',
@@ -9,20 +12,17 @@ export const getConfigsByAnimationId: RouteOptions = {
         params: {
             type: 'object',
             properties: {
-                animationId: { type: 'string', format: 'uuid' }
+                animationId: { type: 'string' }
             },
             required: ['animationId']
-        },
-        querystring: {
-            version: { type: 'number', min: 0 }
         }
     },
     handler: async (req, res) => {
-        const animationId: string = (req.params as any).animationId;
+        const animationId: Id = (req.params as any).animationId;
         const version: number | undefined = (req.query as any).version;
         const db = req.services.animationConfigDb;
         const allAsync = db.byAnimationId(animationId, req.user.sub, version);
         const all = await awaitAll(allAsync);
-        res.send(all);
+        await res.send(all);
     }
 };

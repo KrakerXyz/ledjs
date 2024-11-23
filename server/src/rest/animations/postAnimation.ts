@@ -1,42 +1,48 @@
-import { RouteOptions } from 'fastify';
-import { AnimationPost, parseScript, Animation } from '@krakerxyz/netled-core';
-import { jsonSchema } from '@krakerxyz/json-schema-transformer';
-import { jwtAuthentication } from '../../services';
+import type { RouteOptions } from 'fastify';
+import { buildScript } from '../../services/buildScript.js';
+import { jwtAuthentication } from '../../services/jwtAuthentication.js';
+import type { AnimationPost, Animation } from '../../../../core/src/rest/model/Animation.js';
+import { parseAst } from '../../../../core/src/services/parseAst.js';
+import { validateScript } from '../../../../core/src/services/validateScript.js';
 
 export const postAnimation: RouteOptions = {
     method: 'POST',
     url: '/api/animations',
     preValidation: [jwtAuthentication],
-    schema: {
-        body: jsonSchema<AnimationPost>()
-    },
     handler: async (req, res) => {
         const animationPost = req.body as AnimationPost;
 
         const db = req.services.animationDb;
 
-        const parseResult = parseScript(animationPost.script);
+        const ast = parseAst(animationPost.ts);
+        
+        const codeIssues = validateScript(ast);
 
-        if (parseResult.valid === false) {
-            res.status(400).send({ error: `Script contains errors: ${JSON.stringify(parseResult.errors)}` });
+        if (codeIssues.length) {
+            await res.status(400).send({ error: `Script contains errors: ${JSON.stringify(codeIssues)}` });
             return;
         }
 
-        const existing = await db.latestById(animationPost.id, true);
+        const newJs = await buildScript(ast);
+        if (!newJs) {
+            await res.status(400).send({ error: 'JS tranpilation failed' });
+            return;
+        }
 
         const animation: Animation = {
             ...animationPost,
+            js: newJs,
             published: false,
-            version: existing?.published ? existing.version + 1 : (existing?.version ?? 0),
+            version: 'draft',
             created: Date.now(),
             author: req.user.sub
         };
 
-        await (existing ? db.replace : db.add).apply(db, [animation]);
+        const result = await db.upsert(animation);
 
-        const { script, ...animationMeta } = animation;
+        const { ts, js, ...animationMeta } = animation;
 
-        res.status(existing ? 200 : 201).send(animationMeta);
+        await res.status(result.updated ? 200 : 201).send(animationMeta);
 
     }
 };

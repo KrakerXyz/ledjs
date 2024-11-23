@@ -7,18 +7,19 @@
         {
             "type": "node",
             "request": "launch",
-            "name": "Debug IoT",
+            "name": "Debug Pi",
             "skipFiles": [
                 "<node_internals>/**"
             ],
-            "cwd": "${workspaceFolder}\\iot",
-            "program": "${workspaceFolder}\\iot\\dist\\index.js",
+            "cwd": "${workspaceFolder}/pi",
+            "program": "${workspaceFolder}/pi/dist/pi/src/index.js",
             "runtimeArgs": [
                 "--unhandled-rejections=strict",
+                "--env-file=.env"
             ],
-            "preLaunchTask": "build-iot",
+            "preLaunchTask": "build-pi",
             "outFiles": [
-                "${workspaceFolder}/iot/dist/**/*.js"
+                "${workspaceFolder}/pi/dist/**/*.js"
             ],
             "internalConsoleOptions": "openOnSessionStart"
         },
@@ -30,8 +31,9 @@
                 "<node_internals>/**"
             ],
             "cwd": "${workspaceFolder}\\server",
-            "program": "${workspaceFolder}\\server\\dist\\index.js",
+            "program": "${workspaceFolder}\\server\\dist\\server\\src\\index.js",
             "runtimeArgs": [
+                "--env-file=.env",
                 "--unhandled-rejections=strict"
             ],
             "preLaunchTask": "build-server",
@@ -40,6 +42,36 @@
             ],
             "internalConsoleOptions": "openOnSessionStart",
             "outputCapture": "std" //to capture winston console logs
+        },
+        {
+            "name": "Debug Server Tests",
+            "type": "node",
+            "request": "launch",
+            "cwd": "${workspaceFolder}\\server",
+            "runtimeArgs": [
+                "--inspect-brk",
+                "./node_modules/jest/bin/jest.js",
+                "--runInBand",
+                "--coverage",
+                "false"
+            ],
+            "console": "integratedTerminal",
+            "internalConsoleOptions": "neverOpen"
+        },
+        {
+            "name": "Debug Core Tests",
+            "type": "node",
+            "request": "launch",
+            "cwd": "${workspaceFolder}\\core",
+            "runtimeArgs": [
+                "--inspect-brk",
+                "./node_modules/jest/bin/jest.js",
+                "--runInBand",
+                "--coverage",
+                "false"
+            ],
+            "console": "integratedTerminal",
+            "internalConsoleOptions": "neverOpen"
         }
     ]
 }

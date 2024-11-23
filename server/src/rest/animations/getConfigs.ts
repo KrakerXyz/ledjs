@@ -1,6 +1,9 @@
-import { RouteOptions } from 'fastify';
-import { Animation, AnimationNamedConfig, AnimationNamedConfigSummary, Id } from '@krakerxyz/netled-core';
-import { jwtAuthentication } from '../../services';
+import type { RouteOptions } from 'fastify';
+import { jwtAuthentication } from '../../services/jwtAuthentication.js';
+import type { Animation } from '../../../../core/src/rest/model/Animation.js';
+import type { AnimationConfig, AnimationConfigSummary } from '../../../../core/src/rest/model/AnimationConfig.js';
+import type { Id } from '../../../../core/src/rest/model/Id.js';
+import type { ScriptVersion } from '../../../../core/src/rest/model/ScriptVersion.js';
 
 export const getConfigs: RouteOptions = {
     method: 'GET',
@@ -11,17 +14,17 @@ export const getConfigs: RouteOptions = {
         const animationsDb = req.services.animationDb;
         const allAsync = db.byUserId(req.user.sub);
 
-        const animationMap = new Map<`${Id}|${number}`, Promise<Animation | null>>();
+        const animationMap = new Map<`${Id}|${ScriptVersion}`, Promise<Animation | null>>();
 
-        const all: AnimationNamedConfig[] = [];
+        const all: AnimationConfig[] = [];
         for await (const c of allAsync) {
             all.push(c);
-            const key: `${Id}|${number}` = `${c.animation.id}|${c.animation.version}`;
+            const key: `${Id}|${ScriptVersion}` = `${c.animation.id}|${c.animation.version}`;
             if (animationMap.has(key)) { continue; }
             animationMap.set(key, animationsDb.byId(c.animation.id, c.animation.version));
         }
 
-        const ret: AnimationNamedConfigSummary[] = [];
+        const ret: AnimationConfigSummary[] = [];
         for (const c of all) {
             const animProm = animationMap.get(`${c.animation.id}|${c.animation.version}`);
             if (!animProm) {
@@ -39,8 +42,8 @@ export const getConfigs: RouteOptions = {
                 name: c.name,
                 userId: c.userId,
                 description: c.description,
+                animation: c.animation,
                 animationName: anim.name,
-                animationVersion: anim.version
             });
         }
 

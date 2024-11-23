@@ -1,16 +1,18 @@
-import { getLatestById } from './getLatestById';
-import { getAnimations } from './getAnimations';
-import { getConfigsByAnimationId } from './getConfigsByAnimationId';
-import { getScriptById } from './getScriptById';
-import { postAnimation } from './postAnimation';
-import { postConfig } from './postConfig';
-import { getById } from './getById';
-import { getConfigById } from './getConfigById';
-import { getConfigs } from './getConfigs';
-import { deleteById } from './deleteById';
-import { deleteConfigById } from './deleteConfigById';
+import { deleteById } from './deleteById.js';
+import { deleteConfigById } from './deleteConfigById.js';
+import { getAnimations } from './getAnimations.js';
+import { getById } from './getById.js';
+import { getConfigById } from './getConfigById.js';
+import { getConfigs } from './getConfigs.js';
+import { getConfigsByAnimationId } from './getConfigsByAnimationId.js';
+import { getLatestById } from './getLatestById.js';
+import { getScriptById } from './getScriptById.js';
+import { postAnimation } from './postAnimation.js';
+import { postConfig } from './postConfig.js';
+
 
 export const animationRoutes = [
+    getConfigs,
     getAnimations,
     getLatestById,
     getScriptById,
@@ -18,7 +20,6 @@ export const animationRoutes = [
     postConfig,
     getConfigsByAnimationId,
     getById,
-    getConfigs,
     getConfigById,
     deleteById,
     deleteConfigById

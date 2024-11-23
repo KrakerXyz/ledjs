@@ -1,42 +1,28 @@
-import { RouteOptions } from 'fastify';
-import { AnimationNamedConfig, AnimationNamedConfigPost } from '@krakerxyz/netled-core';
-import { jsonSchema } from '@krakerxyz/json-schema-transformer';
-import { jwtAuthentication } from '../../services';
+import type { RouteOptions } from 'fastify';
+import { jwtAuthentication } from '../../services/jwtAuthentication.js';
+import type { AnimationConfigPost, AnimationConfig } from '../../../../core/src/rest/model/AnimationConfig.js';
 
 export const postConfig: RouteOptions = {
     method: 'POST',
     url: '/api/animations/configs',
     preValidation: [jwtAuthentication],
-    schema: {
-        body: jsonSchema<AnimationNamedConfigPost>()
-    },
     handler: async (req, res) => {
-        const post = req.body as AnimationNamedConfigPost;
+        const post = req.body as AnimationConfigPost;
         const db = req.services.animationConfigDb;
 
         const existing = await db.byId(post.id);
         if (existing && existing.userId !== req.user.sub) {
-            res.status(401).send({ error: 'Config does not belong to you' });
+            await res.status(401).send({ error: 'Config does not belong to you' });
             return;
         }
 
-        const newConfig: AnimationNamedConfig = {
+        const newConfig: AnimationConfig = {
             ...post,
             userId: req.user.sub,
         };
 
-        await (existing ? db.replace : db.add).apply(db, [newConfig]);
+        await db.upsert(newConfig);
 
-        if (existing) {
-            const devices = req.services.deviceDb.byAnimationNamedConfigId(newConfig.id);
-            for await (const d of devices) {
-                req.services.webSocketManager.sendDeviceMessage({
-                    type: 'animationSetup',
-                    data: newConfig.animation
-                }, d.id);
-            }
-        }
-
-        res.status(existing ? 200 : 201).send(newConfig);
+        await res.status(existing ? 200 : 201).send(newConfig);
     }
 };

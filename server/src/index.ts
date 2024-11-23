@@ -1,24 +1,23 @@
 
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-require('dotenv').config();
-
 import fastify from 'fastify';
-import fastifyWebsocket from 'fastify-websocket';
-import fastifyCookie from 'fastify-cookie';
-import fastifyJWT from 'fastify-jwt';
-import fastifyStatic from 'fastify-static';
-
-import { WebSocketManager } from './services/WebSocketManager';
-import { EnvKey, getRequiredConfig } from './services/config';
-import { configureDb } from '@krakerxyz/typed-base';
-import { apiRoutes } from './rest';
-import { deviceAuthentication, jwtAuthentication, RequestServicesContainer } from './services';
-import Ajv from 'ajv';
+import fastifyCookie from '@fastify/cookie';
+import fastifyJWT from '@fastify/jwt';
 import path from 'path';
+import { getSchemaValidator } from './db/schema/schemaUtility.js';
+import fastifyStatic from '@fastify/static';
+import { apiRoutes } from './rest/index.js';
+import { getRequiredConfig, EnvKey } from './services/getRequiredConfig.js';
+
+import { fileURLToPath } from 'url';
+import { configureDbLocal } from './db/Db.js';
+import { RequestServicesContainer } from './services/RequestServicesContainer.js';
+import { MqttClient } from './services/MqttClient.js';
+const __filename = fileURLToPath(import.meta.url); // get the resolved path to the file
+const __dirname = path.dirname(__filename); // get the name of the directory
 
 console.log('Configuring db');
-configureDb({
-    dbName: 'netled',
+configureDbLocal({
+    dbName: 'netled-dev',
     uri: getRequiredConfig(EnvKey.DbConnectionString)
 });
 
@@ -27,47 +26,34 @@ console.log('Initializing Fastify');
 const server = fastify({
     logger: {
         level: 'trace',
-        prettyPrint: process.env.NODE_ENV === 'development' && {
-            translateTime: 'SYS:h:MM:ss TT Z o',
-            colorize: true,
-            ignore: 'pid,hostname'
-        },
-    }
+        transport: process.env.NODE_ENV === 'development' ? {
+            target: 'pino-pretty',
+            options: {
+                translateTime: 'SYS:h:MM:ss TT Z o',
+                colorize: true,
+                ignore: 'pid,hostname'
+            }
+        } : undefined
+    },
 });
-
-const schemaCompilers: Record<string, Ajv.Ajv> = {
-    'body': new Ajv({
-        removeAdditional: false,
-        coerceTypes: false,
-        allErrors: true
-    }),
-    'params': new Ajv({
-        removeAdditional: false,
-        coerceTypes: true,
-        allErrors: true
-    }),
-    'querystring': new Ajv({
-        removeAdditional: false,
-        coerceTypes: true,
-        allErrors: true,
-    })
-};
 
 server.setValidatorCompiler(req => {
     if (!req.httpPart) {
         throw new Error('Missing httpPart');
     }
-    const compiler = schemaCompilers[req.httpPart];
-    if (!compiler) {
-        throw new Error(`Missing compiler for ${req.httpPart}`);
+    const validator = getSchemaValidator(req.httpPart as any, req.schema);
+    if (!validator) {
+        throw new Error(`Missing validator for ${req.httpPart}`);
     }
 
-    return compiler.compile(req.schema);
+    return validator;
 });
 
-const webSocketManager = new WebSocketManager(server.log.child({ loggerName: 'WebSocketManager' }));
+console.log('Creating mqtt client');
+const mqttClient = await MqttClient.createClient(getRequiredConfig(EnvKey.MqttBroker));
 
-server.decorateRequest('services', { getter: () => new RequestServicesContainer(webSocketManager) });
+server.decorateRequest('services', { getter: () => new RequestServicesContainer(mqttClient) });
+
 
 server.register(fastifyJWT, {
     secret: getRequiredConfig(EnvKey.JwtSecret),
@@ -79,28 +65,32 @@ server.register(fastifyJWT, {
 
 server.register(fastifyCookie);
 
-server.register(fastifyWebsocket, {
-    errorHandler: (_, conn) => {
-        conn.socket.close(4001, 'Unauthorized');
-        conn.destroy();
-    }
-});
-
 server.register(fastifyStatic, {
     root: path.join(__dirname, '.web'),
     immutable: true,
-    maxAge: '1d'
+    maxAge: '1d',
+    setHeaders: res => {
+        res.setHeader('Cross-Origin-Opener-Policy', 'same-origin');
+        res.setHeader('Cross-Origin-Embedder-Policy', 'require-corp');
+    }
 });
-
-server.get('/ws/device', { websocket: true, preValidation: [deviceAuthentication] }, webSocketManager.handler);
-server.get('/ws/client', { websocket: true, preValidation: [jwtAuthentication] }, webSocketManager.handler);
 
 apiRoutes.forEach(r => server.route(r));
 
-server.setNotFoundHandler((req, res) => {
-    if (req.method !== 'GET') { return res.status(404).send(); }
-    if (req.url.startsWith('/api')) { return res.status(404).send(); }
-    return res.sendFile('index.html');
+
+server.setNotFoundHandler({}, async (req, res) => {
+    if (req.method !== 'GET') {
+        await res.status(404).send();
+        return;
+    }
+    if (req.url.startsWith('/api')) {
+        await res.status(404).send();
+        return;
+    }
+    await res.headers({
+        'Cross-Origin-Opener-Policy': 'same-origin',
+        'Cross-Origin-Embedder-Policy': 'require-corp'
+    }).sendFile('index.html');
 });
 
 server.ready(() => {
@@ -109,7 +99,7 @@ server.ready(() => {
 
 const start = async () => {
     try {
-        await server.listen(3001, '0.0.0.0');
+        await server.listen({ port: 3001, host: '::' });
     } catch (err) {
         server.log.error(err);
         process.exit(1);

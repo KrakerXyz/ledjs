@@ -1,18 +1,14 @@
-import { RouteOptions } from 'fastify';
+import type { RouteOptions } from 'fastify';
 import { OAuth2Client } from 'google-auth-library';
 import { v4 } from 'uuid';
-import { GoogleToken, Id, User } from '@krakerxyz/netled-core';
-import { UserDb } from '../../db';
-import { EnvKey, getRequiredConfig } from '../../services';
-import { jsonSchema } from '@krakerxyz/json-schema-transformer';
+import { UserDb } from '../../db/UserDb.js';
+import { getRequiredConfig, EnvKey } from '../../services/getRequiredConfig.js';
+import type { GoogleToken } from '../../../../core/src/rest/AuthRestClient.js';
+import type { Id } from '../../../../core/src/rest/model/Id.js';
 
 export const postGoogleToken: RouteOptions = {
     method: 'POST',
     url: '/api/auth/google-token',
-    schema: {
-        body: jsonSchema<GoogleToken>(),
-        response: jsonSchema<User>()
-    },
     handler: async (req, res) => {
         const googleToken = req.body as GoogleToken;
 
@@ -28,11 +24,13 @@ export const postGoogleToken: RouteOptions = {
         try {
             const ticket = await oauthClient.verifyIdToken({
                 idToken: googleToken.idToken,
-                audience: clientId
+                audience: clientId,
             });
 
             const payload = ticket.getPayload();
-            if (!payload) { throw new Error('empty payload'); }
+            if (!payload) {
+                throw new Error('empty payload');
+            }
 
             if (!payload.email) {
                 throw new Error('ticket did not contain an email address');
@@ -47,29 +45,36 @@ export const postGoogleToken: RouteOptions = {
                     id: v4() as Id,
                     email: payload.email,
                     created: Date.now(),
-                    lastSeen: Date.now()
+                    lastSeen: Date.now(),
+                    avatarUrl: payload.picture ?? null
                 };
                 await userDb.add(user);
                 req.log.info('Created new google user %s', user.id);
+            } else {
+
+                if (user.avatarUrl !== payload.picture) {
+                    user.avatarUrl = payload.picture ?? null;
+                    await userDb.replace(user);
+                }
+
+                await userDb.updateLastSeen(user.id);
             }
 
-            const token = await res.jwtSign({}, { subject: user.id, jwtid: v4() });
+            const token = await res.jwtSign({}, { sub: user.id, jti: v4() });
 
             res.setCookie('jwt', token, {
                 domain: req.hostname.split(':')[0],
                 path: '/',
                 secure: req.protocol === 'https',
                 httpOnly: true, //Prevents scripts from accessing the cookie
-                sameSite: true
+                sameSite: true,
             });
 
-            res.status(isNewUser ? 201 : 200).send(user);
-
+            await res.status(isNewUser ? 201 : 200).send(user);
         } catch (e) {
-            req.log.warn(e, 'Error validating google auth token',);
+            req.log.warn(e, 'Error validating google auth token');
             res.status(401).send('Error during token/user validation');
             return;
         }
-
-    }
+    },
 };

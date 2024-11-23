@@ -1,41 +1,44 @@
 {
-   "compilerOptions": {
-      "target": "ES2020",
-      "module": "esnext",
-      "moduleResolution": "node",
-      "strict": true,
-      "sourceMap": true,
-      "resolveJsonModule": true,
-      "esModuleInterop": true,
-      "noImplicitReturns": true,
-      "noEmitOnError": true,
-      "skipLibCheck": true,
-      "allowSyntheticDefaultImports": true,
-      "forceConsistentCasingInFileNames": true,
-      "importHelpers": true,
-      "removeComments": true,
-      "outDir": "./dist",
-      "rootDirs": [
-         "src",
-      ],
-      "lib": [
-         "esnext",
-         "DOM"
-      ],
-      "baseUrl": ".",
-      "paths": {
-         "@/*": [
-            "src/*"
-         ]
-      },
-      "types": [
-         "gapi",
-         "gapi.auth2",
-      ],
-      "plugins": [
-         {
-            "name": "@vuedx/typescript-plugin-vue"
-         }
-      ],
-   }
+    // trying to import from base json breaks the netled global used by Config.vue
+    "compilerOptions": {
+        "target": "ESNext",
+        "module": "esnext",
+        "moduleResolution": "node",
+        "strict": true,
+        "sourceMap": true,
+        "resolveJsonModule": true,
+        "esModuleInterop": true,
+        "noImplicitReturns": true,
+        "noEmitOnError": true,
+        "skipLibCheck": true,
+        "allowSyntheticDefaultImports": true,
+        "forceConsistentCasingInFileNames": true, //ensures that import casing matches physical file name 
+        "importHelpers": true,
+        "removeComments": true,
+        "outDir": "./dist",
+        "rootDirs": [
+            "src"
+        ],
+        "lib": [
+            "esnext",
+            "DOM"
+        ],
+        "baseUrl": ".",
+        "paths": {
+            "$src/*": [
+                "./src/*"
+            ],
+            "$core/*": [
+                "../core/src/*"
+            ],
+        },
+    },
+    "include": [
+        "src/**/*",
+        "../core/src/**/*",
+    ],
+    "exclude": [
+        "src/**/*.spec.ts",
+        "../core/src/**/*.spec.ts",
+    ],
 }

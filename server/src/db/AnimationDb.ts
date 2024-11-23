@@ -1,19 +1,30 @@
-import { Filter, TypedEntity } from '@krakerxyz/typed-base';
-import { Animation, AnimationMeta, Id, Writeable } from '@krakerxyz/netled-core';
+
+import { Db, type UpdateResult } from './Db.js';
+import type { Filter } from 'mongodb';
+import { jsonSchemas } from './schema/schemaUtility.js';
+import type { Animation, AnimationSummary } from '../../../core/src/rest/model/Animation.js';
+import type { ScriptVersion } from '../../../core/src/rest/model/ScriptVersion.js';
+import type { Writeable } from '../../../core/src/services/Writeable.js';
+import type { Id } from '../../../core/src/rest/model/Id.js';
+
 
 export class AnimationDb {
+    private static _entity: Db<Animation>;
 
-    private readonly entity = new TypedEntity<Animation>();
-
-    public all(): AsyncGenerator<AnimationMeta> {
-        return this.entity.find({}, c => c.project({ script: false } as any));
+    public constructor() {
+        AnimationDb._entity ??= new Db<Animation>('animations', jsonSchemas.animation);
     }
 
-    public async latestById(id: Id, includeDraft: boolean = false): Promise<Animation | null> {
-        const filter: Filter<Writeable<Animation>> = { id };
-        if (!includeDraft) { filter.published = true; }
 
-        const cur = this.entity.find(
+    public all<T extends boolean>(withScript?: T): AsyncGenerator<T extends true ? Animation : AnimationSummary> {
+        const project = withScript ? {} : { js: false, ts: false };
+        return AnimationDb._entity.find({}, c => c.project(project));
+    }
+
+    public async latestById(id: Id): Promise<Animation | null> {
+        const filter: Filter<Writeable<Animation>> = { id, published: true };
+
+        const cur = AnimationDb._entity.find(
             filter,
             c => c.sort({ version: -1 }).limit(1)
         );
@@ -21,25 +32,28 @@ export class AnimationDb {
         return null;
     }
 
-    public byId(id: Id, version: number): Promise<Animation | null> {
+    public byId(id: Id, version: ScriptVersion): Promise<Animation | null> {
         const filter: Filter<Writeable<Animation>> = { id, version };
 
-        const cur = this.entity.findOneAsync(filter);
+        const cur = AnimationDb._entity.findOneAsync(filter);
 
         return cur;
     }
 
-
     public add(animation: Animation): Promise<void> {
-        return this.entity.insertAsync(animation);
+        return AnimationDb._entity.insertAsync(animation);
     }
 
-    public replace(animation: Animation): Promise<void> {
-        return this.entity.replaceOneAsync(animation);
+    public replace(animation: Animation): Promise<UpdateResult> {
+        return AnimationDb._entity.replaceOneAsync(animation);
     }
 
-    public deleteById(animationId: Id, version: number): Promise<void> {
-        return this.entity.deleteAsync({ id: animationId, version });
+    public upsert(animation: Animation): Promise<UpdateResult> {
+        return AnimationDb._entity.replaceOneAsync(animation, { upsert: true });
+    }
+
+    public deleteById(animationId: Id, version: ScriptVersion): Promise<void> {
+        return AnimationDb._entity.deleteAsync({ id: animationId, version });
     }
 
 }

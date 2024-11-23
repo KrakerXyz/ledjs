@@ -1,0 +1,65 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string"
+    },
+    "userId": {
+      "type": "string"
+    },
+    "name": {
+      "type": "string"
+    },
+    "secret": {
+      "type": "string"
+    },
+    "created": {
+      "type": "number"
+    },
+    "spiSpeed": {
+      "type": "number"
+    },
+    "status": {
+      "type": "object",
+      "properties": {
+        "lastSeen": {
+          "type": "number"
+        },
+        "onlineSince": {
+          "type": "number"
+        },
+        "offlineSince": {
+          "type": "number"
+        },
+        "localIp": {
+          "type": "string"
+        },
+        "wanIp": {
+          "type": "string"
+        }
+      }
+    },
+    "strandId": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "isStopped": {
+      "type": "boolean"
+    }
+  },
+  "required": [
+    "id",
+    "userId",
+    "name",
+    "secret",
+    "created",
+    "spiSpeed",
+    "status",
+    "strandId",
+    "isStopped"
+  ],
+  "definitions": {}
+}

@@ -1,5 +1,7 @@
-import { animationRoutes } from './animations';
-import { authRoutes } from './auth';
-import { deviceRoutes } from './devices';
+import { animationRoutes } from './animations/index.js';
+import { authRoutes } from './auth/index.js';
+import { deviceRoutes } from './devices/index.js';
+import { postProcessorRoutes } from './post-processors/index.js';
+import { strandRoutes } from './strands/index.js';
 
-export const apiRoutes = [...deviceRoutes, ...animationRoutes, ...authRoutes];
+export const apiRoutes = [...deviceRoutes, ...animationRoutes, ...authRoutes, ...postProcessorRoutes, ...strandRoutes];

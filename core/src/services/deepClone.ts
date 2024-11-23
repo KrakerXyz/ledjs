@@ -1,4 +1,5 @@
-import { Writeable } from './Writeable';
+import type { Writeable } from './Writeable.js';
+
 
 /** Creates a deep clone of the given object. */
 export function deepClone<T>(src: T): Writeable<T> {

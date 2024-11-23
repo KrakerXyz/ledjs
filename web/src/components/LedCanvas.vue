@@ -1,36 +1,32 @@
 
 <template>
-   <div class="overflow-hidden" ref="wrapper">
-      <canvas ref="can" class="d-block"></canvas>
-   </div>
+    <div class="overflow-hidden" ref="wrapper">
+        <canvas ref="can" class="d-block"></canvas>
+    </div>
 </template>
 
 <script lang="ts">
 
-   import { Frame, rgbToHex } from '@krakerxyz/netled-core';
-   import { defineComponent, watch, ref, computed, onMounted, onUnmounted } from 'vue';
+import { defineComponent, watch, ref, onMounted, onUnmounted } from 'vue';
+import type { LedSegment } from '../../../core/src/LedSegment';
+import type { IArgb } from '$core/IArgb';
+import { rgbToHex } from '$core/color-utilities/rgbToHex';
 
+export default defineComponent({
+    emits: {
+        drawError: (e: any) => !!e
+    },
+    setup(props, { emit }) {
 
-   export default defineComponent({
-      props: {
-         frame: { type: Array as () => Frame }
-      },
-      emits: {
-         drawError: (e: any) => !!e
-      },
-      setup(props, { emit }) {
+        const wrapper = ref<HTMLDivElement>();
 
-         const frame = computed(() => props.frame ?? []);
+        const can = ref<HTMLCanvasElement>();
 
-         const wrapper = ref<HTMLDivElement>();
+        let ctx = ref<CanvasRenderingContext2D | null>();
 
-         const can = ref<HTMLCanvasElement>();
+        let canvasDimensions: [number, number] = [0, 0];
 
-         let ctx = ref<CanvasRenderingContext2D | null>();
-
-         let canvasDimensions: [number, number] = [0, 0];
-
-         const setCanvasDimension = () => {
+        const setCanvasDimension = () => {
             if (!wrapper.value) { return; }
             const style = getComputedStyle(wrapper.value);
             const width = wrapper.value.clientWidth - parseFloat(style.paddingLeft) - parseFloat(style.paddingRight);
@@ -43,60 +39,55 @@
             if (!ctx.value) { return; }
             can.value.width = width;
             can.value.height = height;
+        };
 
-            if (!frame.value || !ctx.value) { return; }
-            draw(ctx.value, frame.value, canvasDimensions);
-         };
-
-         const obs = new ResizeObserver(setCanvasDimension);
-         onMounted(() => {
+        const obs = new ResizeObserver(setCanvasDimension);
+        onMounted(() => {
             console.assert(!!wrapper.value);
             if (!wrapper.value) { return; }
             obs.observe(wrapper.value);
-         });
+        });
 
-         watch(frame, f => {
+        const render = (sab: LedSegment) => {
             if (!ctx.value) { return; }
             try {
-               draw(ctx.value, f, canvasDimensions);
+                draw(ctx.value, sab, canvasDimensions);
             } catch (e) {
-               emit('drawError', e);
+                emit('drawError', e);
             }
-         });
+        };
 
-         const canWatchStop = watch(can, () => {
+        const canWatchStop = watch(can, () => {
             if (!can.value) { return; }
             ctx.value = can.value.getContext('2d');
             canWatchStop();
-         });
+        });
 
-         onUnmounted(() => {
+        onUnmounted(() => {
             obs.disconnect();
-         });
+        });
 
-         return { can, wrapper };
-      }
-   });
+        return { can, wrapper, render };
+    }
+});
 
-   function draw(ctx: CanvasRenderingContext2D, frame: Frame, canvasDimensions: [number, number]) {
+function draw(ctx: CanvasRenderingContext2D, arr: LedSegment, canvasDimensions: [number, number]) {
 
 
-      ctx.clearRect(0, 0, canvasDimensions[0], canvasDimensions[1]);
+    ctx.clearRect(0, 0, canvasDimensions[0], canvasDimensions[1]);
 
-      if (!frame.length) { return; }
+    const ledWidth = canvasDimensions[0] / arr.length;
+    const ledWidthCeil = Math.ceil(ledWidth);
 
-      const ledWidth = canvasDimensions[0] / frame.length;
-      const ledWidthCeil = Math.ceil(ledWidth);
+    let offset = 0;
+    for (let i = 0; i < arr.length; i++) {
+        const led: IArgb = arr.getLed(i);
+        ctx.fillStyle = rgbToHex(led);
+        ctx.fillRect(offset, 0, ledWidthCeil, canvasDimensions[1]);
+        offset += ledWidth;
+    }
 
-      let offset = 0;
-      for (let i = 0; i < frame.length; i++) {
-         const led = frame[i];
-         ctx.fillStyle = rgbToHex(led);
-         ctx.fillRect(offset, 0, ledWidthCeil, canvasDimensions[1]);
-         offset += ledWidth;
-      }
-
-   }
+}
 
 
 </script>

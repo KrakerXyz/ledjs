@@ -1,4 +1,3 @@
-import axios from 'axios';
 
 type OrArray<T> = T | T[];
 type Query = Record<string, OrArray<string> | OrArray<boolean> | OrArray<number> | undefined> | null | undefined
@@ -6,38 +5,66 @@ type Query = Record<string, OrArray<string> | OrArray<boolean> | OrArray<number>
 export class RestClient {
 
     public readonly baseUrl: string;
-    private readonly axiosInstance;
+    private readonly headers: Record<string, string> = {};
 
     public constructor(config?: Partial<RestConfig>) {
         this.baseUrl = config?.baseUrl ?? 'https://netled.io';
         if (!this.baseUrl.startsWith('http')) { throw new Error('Origin should start with http'); }
         if (this.baseUrl.endsWith('/')) { throw new Error('baseUrl should not have a trailing slash'); }
 
-        this.axiosInstance = axios.create({
-            baseURL: this.baseUrl
-        });
+        if (config?.authorization) {
+            this.headers['Authorization'] = config.authorization;
+        }
     }
 
     public get<T>(path: string, query?: Query): Promise<T> {
-        return this.axiosInstance.get(path, {
-            params: query
-        }).then(r => deepFreeze(r.data));
+        const url = this.createUrl(path, query);
+        return fetch(url, { headers: this.headers }).then(r => r.json() as T).then(r => deepFreeze(r));
     }
 
     public post<T>(path: string, data: any, query?: Query): Promise<T> {
-        return this.axiosInstance.post(path, data, {
-            params: query
-        }).then(r => deepFreeze(r.data));
+
+        const url = this.createUrl(path, query);
+        return fetch(url, {
+            method: 'POST',
+            body: JSON.stringify(data),
+            headers: {
+                ...this.headers,
+                'Content-Type': 'application/json'
+            }
+        }).then(r => parseInt(r.headers.get('Content-Length') ?? '0') ? r.json() : undefined).then(r => deepFreeze(r) as T);
     }
 
     public delete(path: string): Promise<void> {
-        return this.axiosInstance.delete(path);
+        const url = this.createUrl(path);
+        return fetch(url, { method: 'DELETE', headers: this.headers }).then(() => undefined);
+    }
+
+    private createUrl(path: string, query?: Query): string {
+        const url = this.baseUrl + path;
+        if (!query) { return url; }
+
+        const params = new URLSearchParams();
+        for (const [key, value] of Object.entries(query)) {
+            if (value === undefined || value === null) { continue; }
+            if (Array.isArray(value)) {
+                for (const v of value) {
+                    params.append(key, v.toString());
+                }
+            } else {
+                params.append(key, value.toString());
+            }
+        }
+
+        return `${path}?${params.toString()}`;
     }
 
 }
 
 export interface RestConfig {
-    baseUrl: `${'http' | 'https'}://${string}`;
+    baseUrl: `${'http' | 'https'}://${string}`,
+    /** Used for IoT device authentication */
+    authorization: `device ${string}`,
 }
 
 export function deepFreeze<T>(o: T): T {

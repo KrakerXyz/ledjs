@@ -1,159 +1,103 @@
-
 <template>
-   <div class="card h-100">
-      <div class="card-header">
-         <div class="row">
-            <div class="col">
-               <div class="card-title d-flex align-items-center">
-                  <span
-                     class="online-status d-inline-block me-2"
-                     :class="{ 'bg-success': deviceCopy.status.cameOnline > deviceCopy.status.wentOffline, 'bg-danger': deviceCopy.status.wentOffline >= deviceCopy.status.cameOnline }"
-                  ></span>
-                  {{ deviceCopy.name }}
-                  <router-link
-                     :to="{ name: 'device-view', params: { deviceId: deviceCopy.id } }"
-                     class="text-body ms-2"
-                  >
-                     <i class="fal fa-pencil"></i>
-                  </router-link>
-               </div>
-            </div>
-            <div class="col-auto">
-               <button
-                  class="btn p-0 ms-2 text-success"
-                  v-if="deviceCopy.isStopped"
-                  @click.prevent="stop(deviceCopy, false)"
-               >
-                  <i class="fas fa-play fa-fw"></i>
-               </button>
-
-               <button
-                  class="btn p-0 ms-2 text-danger"
-                  v-if="!deviceCopy.isStopped"
-                  @click.prevent="stop(deviceCopy, true)"
-               >
-                  <i class="fas fa-stop fa-fw"></i>
-               </button>
-            </div>
-         </div>
-      </div>
-
-      <div class="card-body">
-         <div class="form-floating">
-            <select
-               id="device-animation"
-               class="form-select"
-               placeholder="*"
-               v-model="selectedConfigId"
+    <div class="row d-flex align-items-center">
+        <div class="col-auto">
+            <button
+                v-if="!deviceCopy.isRunning"
+                @click="setRunning(true)"
+                type="button"
+                class="btn btn-success"
             >
-               <option value>None</option>
-               <option
-                  v-for="c of configs"
-                  :key="c.id"
-                  :value="c.id"
-               >{{ c.animationName }} - {{ c.name }}</option>
-            </select>
-            <label for="device-animation">Animation</label>
-         </div>
-
-         <router-link
-            class="small"
-            v-if="selectedConfigId"
-            :to="{ name: 'animation-config', params: { configId: selectedConfigId } }"
-         >Edit Config</router-link>
-
-         <div v-if="telemetry.length" class="mt-3">
-            <div class="alert alert-primary mb-2" v-for="item of telemetry" :key="item.name">
-               <div class="row">
-                  <div class="col">{{ item.name }}</div>
-                  <div class="col-auto">{{ item.value }}</div>
-               </div>
+                <v-icon :icon="Icons.Play"></v-icon>
+            </button>
+            <button
+                v-if="deviceCopy.isRunning"
+                @click="setRunning(false)"
+                type="button"
+                class="btn btn-danger"
+            >
+                <v-icon :icon="Icons.Stop"></v-icon>
+            </button>
+        </div>
+        <div class="col-auto">
+            <router-link :to="useRouteLocation(RouteName.DeviceView, { deviceId: deviceCopy.id })" class="text-body">
+                {{ deviceCopy.name || '[Name Missing]' }}
+            </router-link>
+        </div>
+        <div class="col-4">
+            <div class="form-floating">
+                <select
+                    id="device-strand"
+                    class="form-select"
+                    placeholder="*"
+                    v-model="selectedStrandId"
+                >
+                    <option value>
+                        None
+                    </option>
+                    <option v-for="c of strands" :key="c.id" :value="c.id">
+                        {{ c.name }}
+                    </option>
+                </select>
+                <label for="device-animation">Strand</label>
             </div>
-         </div>
-      </div>
-   </div>
+        </div>
+        <div class="col"></div>
+        <div class="col-auto">
+            <span
+                class="online-status d-inline-block me-2"
+                :class="{
+                    'bg-success': (deviceCopy.status?.onlineSince ?? 0) > (deviceCopy.status?.offlineSince ?? 0),
+                    'bg-danger': (deviceCopy.status?.offlineSince ?? 0) >= (deviceCopy.status?.onlineSince ?? 0),
+                }"
+            ></span>
+        </div>
+    </div>
 </template>
 
 <script lang="ts">
-
-import { useDevicesRestClient, useWsClient } from '@/services';
-import { AnimationNamedConfigSummary, deepClone, Device, DeviceHealthData, Id } from '@krakerxyz/netled-core';
-import { computed, defineComponent, reactive, ref } from 'vue';
+import type { Device } from '$core/rest/model/Device.js';
+import type { AnimationConfigSummary } from '$core/rest/model/AnimationConfig';
+import { deepClone } from '$core/services/deepClone';
+import { assertTrue, restApi } from '$src/services';
+import { watch, defineComponent, reactive, ref, getCurrentInstance } from 'vue';
+import { useRouteLocation, RouteName } from '$src/main.router';
+import { Icons } from '$src/components/global/Icon.vue';
 
 export default defineComponent({
-   props: {
-      device: { type: Object as () => Device, required: true },
-      configs: { type: Array as () => AnimationNamedConfigSummary[], required: true }
-   },
-   setup(props) {
+    props: {
+        device: { type: Object as () => Device, required: true },
+        configs: { type: Array as () => AnimationConfigSummary[], required: true },
+    },
+    async setup(props) {
+        const componentInstance = getCurrentInstance();
+        assertTrue(componentInstance);
 
-      const devicesClient = useDevicesRestClient();
-      const ws = useWsClient();
+        const deviceCopy = reactive(deepClone(props.device));
 
-      const deviceCopy = reactive(deepClone(props.device));
+        const selectedStrandId = ref(deviceCopy.strandId);
+        watch(selectedStrandId, (newVal) => {
+            deviceCopy.strandId = newVal;
+            restApi.devices.setStrand(deviceCopy.id, newVal);
+        });
 
-      const selectedConfigId = computed({
-         get() {
-            return deviceCopy.animationNamedConfigId ?? '';
-         },
-         set(configId: string) {
-            devicesClient.setAnimationConfig({
-               deviceIds: [props.device.id],
-               configId: configId as Id || null
-            });
-            deviceCopy.animationNamedConfigId = configId as Id;
-         }
-      });
+        const strands = await restApi.strands.list();
 
-      const stop = (device: Device, value: boolean) => {
-         devicesClient.stopAnimation({ deviceIds: [device.id], stop: value });
-         //Need to clone and make the in-memory devices writeable
-         deviceCopy.isStopped = value;
-      };
+        const setRunning = (running: boolean) => {
+            deviceCopy.isRunning = running;
+            restApi.devices.setRunning(deviceCopy.id, running);
+        };
 
-      const telemetry = ref<TelementryItem[]>([]);
-
-      ws.on('deviceMessage', msg => {
-         if (msg.deviceId !== props.device.id) { return; }
-         if (msg.type === 'health') {
-            telemetry.value = Object.entries(msg.data).map(kvp => {
-               return {
-                  name: kvp[0] as keyof DeviceHealthData,
-                  value: kvp[1].toString()
-               };
-            });
-         }
-      });
-
-
-      ws.on('deviceConnection', data => {
-         if (data.deviceId !== deviceCopy.id) { return; }
-         if (data.state === 'connected') {
-            deviceCopy.status.cameOnline = Date.now();
-         } else {
-            telemetry.value = [];
-            deviceCopy.status.wentOffline = Date.now();
-         }
-      });
-
-      return { stop, selectedConfigId, deviceCopy, telemetry };
-   }
+        return { stop, selectedStrandId, deviceCopy, useRouteLocation, RouteName, strands, Icons, setRunning };
+    },
 });
-
-
-interface TelementryItem {
-   name: keyof DeviceHealthData,
-   value: string;
-}
 
 </script>
 
-
 <style lang="postcss" scoped>
-.online-status {
-   --size: 1rem;
-   height: var(--size);
-   width: var(--size);
-   border-radius: var(--size);
-}
+   .online-status {
+      --size: 1rem;
+      height: var(--size);
+      width: var(--size);
+      border-radius: var(--size);
+   }
 </style>

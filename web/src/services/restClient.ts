@@ -1,17 +1,22 @@
-
-import { AnimationRestClient, DeviceRestClient, RestClient, RestConfig } from '@krakerxyz/netled-core';
+import { AnimationRestClient } from '$core/rest/AnimationRestClient.js';
+import { AuthRestClient } from '$core/rest/AuthRestClient.js';
+import { DeviceRestClient } from '$core/rest/DeviceRestClient.js';
+import { PostProcessorRestClient } from '$core/rest/PostProcessorRestClient.js';
+import { RestClient, type RestConfig } from '$core/rest/RestClient.js';
+import { StrandRestClient } from '$core/rest/StrandRestClient.js';
 
 let restClient: RestClient | undefined;
-export function useRestClient(): RestClient {
-    return restClient ?? (restClient = new RestClient({ baseUrl: window.location.origin as RestConfig['baseUrl'] }));
-}
-
 let animationClient: AnimationRestClient | undefined;
-export function useAnimationRestClient(): AnimationRestClient {
-    return animationClient ?? (animationClient = new AnimationRestClient(useRestClient()));
-}
-
+let postProcessorClient: PostProcessorRestClient | undefined;
 let devicesClient: DeviceRestClient | undefined;
-export function useDevicesRestClient(): DeviceRestClient {
-    return devicesClient ?? (devicesClient = new DeviceRestClient(useRestClient()));
-}
+let strandsClient: StrandRestClient | undefined;
+let authClient: AuthRestClient | undefined;
+
+export const restApi = {
+    get restClient() { return restClient ?? (restClient = new RestClient({ baseUrl: window.location.origin as RestConfig['baseUrl'] })) },
+    get animations() { return animationClient ?? (animationClient = new AnimationRestClient(restApi.restClient)) },
+    get postProcessors() { return postProcessorClient ?? (postProcessorClient = new PostProcessorRestClient(restApi.restClient)) },
+    get strands() { return strandsClient ?? (strandsClient = new StrandRestClient(restApi.restClient)) },
+    get devices() { return devicesClient ?? (devicesClient = new DeviceRestClient(restApi.restClient)) },
+    get auth() { return authClient ?? (authClient = new AuthRestClient(restApi.restClient)) },
+};

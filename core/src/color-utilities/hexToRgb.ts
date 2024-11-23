@@ -1,7 +1,7 @@
-import { ARGB } from '..';
+import type { IArgb } from '../IArgb.js';
 
-/** Converts a hex value such as #ff7734eb to an ARGB array like [255, 119, 52, 235]. If given hex does not contain an Alpha (#7734eb), 255 is defaulted. If hex is malformed, [0, 0, 0, 0] is returned. */
-export function hexToRgb(hex: string): ARGB {
+/** Converts a hex value such as #ff7734eb to an IArgb array like [255, 119, 52, 235]. If given hex does not contain an Alpha (#7734eb), 255 is defaulted. If hex is malformed, [0, 0, 0, 0] is returned. */
+export function hexToRgb(hex: string): IArgb {
     if (!hex) { return [0, 0, 0, 0]; }
     if (hex.startsWith('#')) { hex = hex.substring(1); }
     if (hex.length === 6) { hex = 'ff' + hex; }

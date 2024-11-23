@@ -1,7 +1,9 @@
 
-import { RouteOptions } from 'fastify';
-import { Id } from '@krakerxyz/netled-core';
-import { jwtAuthentication } from '../../services';
+import type { RouteOptions } from 'fastify';
+import { jwtAuthentication } from '../../services/jwtAuthentication.js';
+import type { Id } from '../../../../core/src/rest/model/Id.js';
+
+interface Params { animationId: Id }
 
 export const deleteById: RouteOptions = {
     method: 'DELETE',
@@ -10,55 +12,35 @@ export const deleteById: RouteOptions = {
     schema: {
         params: {
             type: 'object',
+            required: ['animationId'],
             properties: {
                 animationId: { type: 'string', format: 'uuid' }
-            },
-            required: ['animationId']
+            }
         }
     },
     handler: async (req, res) => {
-        const animationId = (req.params as any)['animationId'] as Id;
+        const params = req.params as Params;
 
         const db = req.services.animationDb;
-        const animation = await db.latestById(animationId);
+        const animation = await db.byId(params.animationId, 'draft');
         if (!animation) {
-            res.status(404).send({ error: 'An animation with that id does not exist' });
+            await res.status(404).send({ error: `A draft animation ${params.animationId} does not exist` });
             return;
         }
 
         if (animation.author !== req.user.sub) {
-            res.status(403).send({ error: 'Animation does not belong to authorized user' });
+            await res.status(403).send({ error: 'Animation does not belong to authorized user' });
             return;
         }
 
-        if (animation.published) {
-            res.status(400).send({ error: 'Published animation cannot be deleted' });
-            return;
-        }
+        const configs = req.services.animationConfigDb.byAnimationId(params.animationId, req.user.sub, animation.version);
 
-        const configs = req.services.animationConfigDb.byAnimationId(animationId, req.user.sub, animation.version);
-
-        const deviceIdsToReset: Id[] = [];
         for await (const config of configs) {
-            const devices = req.services.deviceDb.byAnimationNamedConfigId(config.id);
-            for await (const device of devices) {
-                device.animationNamedConfigId = undefined;
-                await req.services.deviceDb.replace(device);
-                deviceIdsToReset.push(device.id);
-            }
-
             await req.services.animationConfigDb.deleteById(config.id);
-        }
-
-        if (deviceIdsToReset.length) {
-            req.services.webSocketManager.sendDeviceMessage({
-                type: 'animationSetup',
-                data: null
-            }, deviceIdsToReset[0], ...deviceIdsToReset.slice(1));
         }
 
         await db.deleteById(animation.id, animation.version);
 
-        res.status(200).send();
+        await res.status(200).send();
     }
 };

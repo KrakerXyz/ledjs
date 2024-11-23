@@ -1,26 +1,24 @@
-import { RouteOptions } from 'fastify';
+
+import type { RouteOptions } from 'fastify';
+import type { Id } from '../../../../core/src/rest/model/Id.js';
+
+interface Params { animationId: Id }
+interface Query { includeDraft?: boolean }
 
 export const getLatestById: RouteOptions = {
     method: 'GET',
     url: '/api/animations/:animationId',
-    schema: {
-        params: {
-            type: 'object',
-            properties: {
-                animationId: { type: 'string', format: 'uuid' }
-            },
-            required: ['animationId']
-        }
-    },
     handler: async (req, res) => {
-        const animationId = (req.params as any)['animationId'];
+        const params = req.params as Params;
+        const query = req.query as Query;
         const db = req.services.animationDb;
-        const animation = await db.latestById(animationId, (req.query as any)['includeDraft'] === 'true');
+        let animation = query.includeDraft ? await db.byId(params.animationId, 'draft') : null;
+        if (!animation) { animation = await db.latestById(params.animationId); }
         if (!animation) {
-            res.status(404).send({ error: 'An animation with that id does not exist' });
+            await res.status(404).send({ error: `Animation ${params.animationId} does not exist` });
             return;
         }
 
-        res.status(200).send(animation);
+        await res.status(200).send(animation);
     }
 };

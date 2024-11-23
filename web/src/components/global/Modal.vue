@@ -1,46 +1,46 @@
 
 <template>
-   <div class="modal-wrapper shadow" @click.self="shadowClick()">
-      <div
-         class="modal-content-x container-fluid p-4 shadow bg-white border rounded position-absolute col-sm-10 col-lg-8 col-xl-6 col-xxl-5"
-      >
-         <slot></slot>
-      </div>
-   </div>
+    <div class="modal-wrapper shadow" @click.self="shadowClick()">
+        <div
+            class="modal-content-x container-fluid p-4 shadow bg-white border rounded position-absolute col-sm-10 col-lg-8 col-xl-6 col-xxl-5"
+        >
+            <slot></slot>
+        </div>
+    </div>
 </template>
 
 <script lang="ts">
 import { defineComponent, onUnmounted } from 'vue';
 
 export default defineComponent({
-   emits: {
-      'close': () => true
-   },
-   setup(_, { emit }) {
+    emits: {
+        'close': () => true
+    },
+    setup(_, { emit }) {
 
-      const shadowClick = (): void => {
-         emit('close');
-      };
+        const shadowClick = (): void => {
+            emit('close');
+        };
 
-      const keyPress = (evt: KeyboardEvent) => {
-         if (evt.key !== 'Escape') { return; }
-         emit('close');
-      };
+        const keyPress = (evt: KeyboardEvent) => {
+            if (evt.key !== 'Escape') { return; }
+            emit('close');
+        };
 
-      window.addEventListener('keyup', keyPress);
+        window.addEventListener('keyup', keyPress);
 
-      onUnmounted(() => {
-         window.removeEventListener('keyup', keyPress);
-      });
+        onUnmounted(() => {
+            window.removeEventListener('keyup', keyPress);
+        });
 
-      //If we want to have .fade on the wrapper div, we need to have it hidden by default then .show it after it's rendered. This will work but it causes a vue internals error when testing with puppeteer. Disabling for now
-      // const show = ref(false);
-      // nextTick(() => show.value = true);
-      //If enabling, add this to the div
-      //:class="{'show': show }"
+        //If we want to have .fade on the wrapper div, we need to have it hidden by default then .show it after it's rendered. This will work but it causes a vue internals error when testing with puppeteer. Disabling for now
+        // const show = ref(false);
+        // nextTick(() => show.value = true);
+        //If enabling, add this to the div
+        //:class="{'show': show }"
 
-      return { shadowClick };
-   }
+        return { shadowClick };
+    }
 });
 
 </script>

@@ -1,0 +1,91 @@
+"use strict";
+
+export default class Sparkle {
+
+   static configMeta = {
+      params: {
+         sparking: {
+            type: 'number',
+            description: 'Indicates the chance (out of 255) that a spark will ignite. A higher value makes the fire more active.',
+            default: 128,
+            min: 1,
+            max: 255
+         },
+         decay: {
+            type: 'number',
+            description: 'The amount by which the sparks will diminish at each tick. Higher numbers fade quicker.',
+            default: 2,
+            min: 1,
+            max: 255
+         },
+         sideLum: {
+            type: 'number',
+            description: 'How bright to make the leds on the side of a new spark.',
+            default: 100,
+            min: 0,
+            max: 255
+         }
+      }
+   }
+
+   #frame = [];
+   #sparking = Sparkle.configMeta.params.sparking.default;
+   #sideLum = Sparkle.configMeta.params.sideLum.default;
+   #decay = Sparkle.configMeta.params.decay.default;
+
+   setNumLeds(numLeds) {
+      this.#frame = [];
+      for (let i = 0; i < numLeds; i++) {
+         this.#frame.push([255, 0, 0, 0]);
+      }
+   }
+
+   setConfig(config) {
+      this.#sparking = config.sparking ?? Sparkle.configMeta.params.sparking.default;
+      this.#sideLum = config.sideLum ?? Sparkle.configMeta.params.sideLum.default;
+      this.#decay = config.decay ?? Sparkle.configMeta.params.decay.default;
+   }
+
+   nextFrame() {
+      const sparking = this.#sparking;
+      const sideLum = this.#sideLum;
+      const decay = this.#decay;
+      const frame = this.#frame;
+
+      for (let i = 0; i < frame.length; i++) {
+         const rgb = frame[i];
+         addLum(rgb, -decay);
+      }
+
+      const numSparkles = getRandomInt(255 + 1) < sparking ? 1 : 0;
+
+      for (let i = 0; i < numSparkles; i++) {
+         const pos = getRandomInt(frame.length);
+
+         addLum(frame[pos], 255);
+         if (pos == 0) {
+            addLum(frame[frame.length - 1], sideLum);
+            addLum(frame[1], sideLum);
+         } else if (pos === frame.length - 1) {
+            addLum(frame[pos - 1], sideLum);
+            addLum(frame[0], sideLum);
+         } else {
+            addLum(frame[pos - 1], sideLum);
+            addLum(frame[pos + 1], sideLum);
+         }
+      }
+
+      return frame;
+   }
+
+}
+
+function addLum(rgb, lum) {
+   rgb[1] = Math.max(0, Math.min(255, rgb[1] + lum));
+   rgb[2] = Math.max(0, Math.min(255, rgb[2] + lum))
+   rgb[3] = Math.max(0, Math.min(255, rgb[3] + lum))
+}
+
+function getRandomInt(maxExclusive) {
+   return Math.floor(Math.random() * maxExclusive);
+}

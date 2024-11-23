@@ -1,16 +1,12 @@
-import { RouteOptions } from 'fastify';
-import { Device, DevicePost } from '@krakerxyz/netled-core';
-import { v4 } from 'uuid';
-import { jsonSchema } from '@krakerxyz/json-schema-transformer';
-import { jwtAuthentication } from '../../services';
+import type { RouteOptions } from 'fastify';
+import { jwtAuthentication } from '../../services/jwtAuthentication.js';
+import { newId } from '../../../../core/src/services/newId.js';
+import { DevicePost, Device } from '../../../../core/src/rest/model/Device.js';
 
 export const postDevice: RouteOptions = {
     method: 'POST',
     url: '/api/devices',
     preValidation: [jwtAuthentication],
-    schema: {
-        body: jsonSchema<DevicePost>()
-    },
     handler: async (req, res) => {
 
         const device = req.body as DevicePost;
@@ -20,27 +16,24 @@ export const postDevice: RouteOptions = {
         const existingDevice = await db.byId(device.id);
 
         if (existingDevice && existingDevice.userId !== req.user.sub) {
-            res.send(409).send('A device with this id has already been created');
+            await res.send(409).send('A device with this id has already been created');
             return;
         }
 
         const newDevice: Device = {
             created: Date.now(),
-            secret: v4(),
+            secret: newId(),
             userId: req.user.sub,
-            status: {
-                cameOnline: 0,
-                wentOffline: 0,
-            },
-            ...(existingDevice ?? {}),
             id: device.id,
             name: device.name,
-            isStopped: false,
-            setup: device.setup
+            isRunning: false,
+            spiSpeed: device.spiSpeed,
+            status: {},
+            strandId: null
         };
 
-        await (existingDevice ? db.replace : db.add).apply(db, [newDevice]);
+        await db.upsert(newDevice);
 
-        res.status(existingDevice ? 200 : 201).send(newDevice);
+        await res.status(existingDevice ? 200 : 201).send(newDevice);
     }
 };

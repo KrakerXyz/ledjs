@@ -1,49 +1,51 @@
 
 <template>
-   <div class="container h-100 shadow bg-white p-3">
-      <div class="row">
-         <div
-            class="col-sm-6 col-lg-4 col-xxl-3 text-decoration-none"
-            v-for="d of devices"
-            :key="d.id"
-         >
-            <device-list-item :device="d" :configs="configs"></device-list-item>
-         </div>
-      </div>
-
-      <!--:to="{ name: 'device-view', params: { deviceId: d.id } }"-->
-
-      <div class="row mt-3">
-         <div class="col">
-            <router-link :to="{ name: 'device-add' }">New Device Registration</router-link>
-         </div>
-      </div>
-   </div>
+    <div class="container-fluid p-3">
+        <div class="row">
+            <div class="col">
+                <div class="list-group" v-if="devices">
+                    <div
+                        class="list-group-item list-group-item-action"
+                        v-for="d of devices"
+                        :key="d.id"
+                    >
+                        <device-list-item :device="d" :configs="configs"></device-list-item>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <teleport to="#portal-header">
+            <router-link
+                class="btn btn-primary"
+                :to="useRouteLocation(RouteName.DeviceAdd)"
+            >
+                New Device
+            </router-link>
+        </teleport>
+    </div>
 </template>
 
 <script lang="ts">
 
-import { deepClone } from '@krakerxyz/netled-core';
 import { defineComponent } from 'vue';
-import { useAnimationRestClient, useDevicesRestClient } from '../../services';
 import DeviceListItem from './DeviceListItem.vue';
+import { useRouteLocation, RouteName } from '$src/main.router';
+import { deepClone } from '$core/services/deepClone';
+import { restApi } from '$src/services';
 
 export default defineComponent({
-   components: {
-      DeviceListItem
-   },
-   props: {
-   },
-   async setup() {
+    components: {
+        DeviceListItem
+    },
+    props: {
+    },
+    async setup() {
 
-      const devicesClient = useDevicesRestClient();
-      const animationClient = useAnimationRestClient();
+        const devices = await restApi.devices.list();
+        const configs = deepClone(await restApi.animations.config.list()).sort((a, b) => a.name.localeCompare(b.name));
 
-      const devices = await devicesClient.list(true);
-      const configs = deepClone(await animationClient.config.list()).sort((a, b) => a.name.localeCompare(b.name));
-
-      return { devices, configs };
-   }
+        return { devices, configs, useRouteLocation, RouteName };
+    }
 });
 
 </script>

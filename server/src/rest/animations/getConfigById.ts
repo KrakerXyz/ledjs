@@ -1,6 +1,6 @@
-import { RouteOptions } from 'fastify';
-import { Id } from '@krakerxyz/netled-core';
-import { jwtAuthentication } from '../../services';
+import type { RouteOptions } from 'fastify';
+import { jwtAuthentication } from '../../services/jwtAuthentication.js';
+import type { Id } from '../../../../core/src/rest/model/Id.js';
 
 export const getConfigById: RouteOptions = {
     method: 'GET',
@@ -10,7 +10,7 @@ export const getConfigById: RouteOptions = {
         params: {
             type: 'object',
             properties: {
-                configId: { type: 'string', format: 'uuid' }
+                configId: { type: 'string' }
             },
             required: ['configId']
         }
@@ -21,15 +21,15 @@ export const getConfigById: RouteOptions = {
         const config = await db.byId(configId);
 
         if (!config) {
-            res.status(404).send({ error: 'A config with that id does not exist' });
+            await res.status(404).send({ error: 'A config with that id does not exist' });
             return;
         }
 
         if (config.userId !== req.user.sub) {
-            res.status(403).send({ error: 'User does not have access to this config' });
+            await res.status(403).send({ error: 'User does not have access to this config' });
             return;
         }
 
-        res.send(config);
+        await res.send(config);
     }
 };

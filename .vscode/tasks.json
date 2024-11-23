@@ -1,22 +1,21 @@
 {
-	"version": "2.0.0",
-	"tasks": [
-		{
-			"type": "npm",
-			"script": "build",
-			"path": "iot/",
-			"group": "build",
-			"problemMatcher": [],
-			"label": "build-iot",
-			"detail": "npm run clean && tsc"
-		},
-		{
-			"type": "npm",
-			"script": "build",
-			"path": "server/",
-			"group": "build",
-			"problemMatcher": [],
-			"label": "build-server",
-		}
-	]
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "type": "npm",
+            "script": "build",
+            "path": "pi/",
+            "group": "build",
+            "problemMatcher": [],
+            "label": "build-pi",
+        },
+        {
+            "type": "npm",
+            "script": "build",
+            "path": "server/",
+            "group": "build",
+            "problemMatcher": [],
+            "label": "build-server",
+        }
+    ]
 }

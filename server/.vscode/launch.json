@@ -1,0 +1,42 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "Debug Server",
+            "skipFiles": [
+                "<node_internals>/**"
+            ],
+            "cwd": "${workspaceFolder}",
+            "program": "${workspaceFolder}\\dist\\index.js",
+            "runtimeArgs": [
+                "--unhandled-rejections=strict"
+            ],
+            "preLaunchTask": "build-server",
+            "outFiles": [
+                "${workspaceFolder}/dist/**/*.js"
+            ],
+            "internalConsoleOptions": "openOnSessionStart",
+            "outputCapture": "std" //to capture winston console logs
+        },
+        {
+            "name": "Debug Server Tests",
+            "type": "node",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "runtimeArgs": [
+                "--inspect-brk",
+                "./node_modules/jest/bin/jest.js",
+                "--runInBand",
+                "--coverage",
+                "false"
+            ],
+            "console": "integratedTerminal",
+            "internalConsoleOptions": "neverOpen"
+        }
+    ]
+}

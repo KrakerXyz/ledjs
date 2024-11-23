@@ -1,45 +1,50 @@
 {
     "cSpell.words": [
-        "ARGB",
-        "Leds",
+        "argb",
         "cooldown",
+        "deref",
         "eitmuf",
         "fastify",
         "fastled",
         "gapi",
         "googleusercontent",
         "heatramp",
+        "IArgb",
         "icdocd",
         "joshkrak",
-        "jwtid",
+        "LEDJS",
+        "Leds",
+        "middlewares",
         "multiline",
         "netled",
+        "offscreencanvas",
+        "opsz",
         "parameterless",
+        "pino",
         "prestart",
         "raspi",
         "referrerpolicy",
         "rpio",
+        "signout",
+        "singout",
+        "tranpilation",
+        "Transpiles",
         "ttsc",
         "ttypescript",
         "typecheck",
-        "vetur"
+        "upserted",
+        "vetur",
+        "vitejs",
+        "wght"
     ],
-    "typescript.tsdk": "node_modules\\typescript\\lib",
-    "html.format.wrapAttributes": "aligned-multiple",
-    "html.format.wrapLineLength": 0,
-    "typescript.preferences.quoteStyle": "single",
-    "javascript.preferences.quoteStyle": "single",
-    "vetur.format.defaultFormatter.html": "js-beautify-html",
-    "vetur.format.defaultFormatterOptions": {
-        "js-beautify-html": {
-            "wrap_attributes": "force-expand-multiline",
-            "indent_handlebars": true,
-            "indent_inner_html": true
-        }
+    "editor.codeActionsOnSave": {
+        "source.fixAll.eslint": "explicit"
     },
-    "vetur.experimental.templateInterpolationService": true,
-    "vetur.format.options.tabSize": 3,
-    "vetur.format.scriptInitialIndent": true,
-    "vetur.format.styleInitialIndent": true,
-    "vetur.format.defaultFormatter.ts": "vscode-typescript"
+    "eslint.validate": [
+        "javascript",
+        "typescript",
+        "vue",
+        "html"
+    ],
+    "typescript.tsdk": "node_modules\\typescript\\lib"
 }

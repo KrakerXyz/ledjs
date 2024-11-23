@@ -1,31 +1,24 @@
 {
+    "extends": "../tsconfig.base.json",
     "compilerOptions": {
-        "target": "ES2020",
-        "module": "CommonJS",
-        "moduleResolution": "node",
-        "strict": true,
-        "sourceMap": true,
-        "resolveJsonModule": true,
-        "esModuleInterop": true,
-        "noImplicitReturns": true,
-        "noEmitOnError": true,
-        "skipLibCheck": true,
-        "allowSyntheticDefaultImports": true,
-        "forceConsistentCasingInFileNames": true,
-        "importHelpers": true,
-        "removeComments": true,
+        //"strict": true,
+        //"sourceMap": true,
+        //"declaration": true,
+        //"noImplicitReturns": true,
+        //"noEmitOnError": true,
+        //"skipLibCheck": true,
+        //"resolveJsonModule": true, // Allows importing JSON files (used by schemas)
+        //"forceConsistentCasingInFileNames": true,
+        //"importHelpers": true,
+        //"removeComments": true,
         "outDir": "dist",
-        "plugins": [
-            {
-                "transform": "@krakerxyz/typed-base/dist/cjs/transformer/transformer",
-                "collectionNamingStrategy": "kebab"
-            },
-            {
-                "transform": "@krakerxyz/json-schema-transformer/dist/cjs/transformer/transformer"
-            }
-        ]
     },
     "include": [
-        "./src/**/*"
-    ]
+        "src/**/*",
+        "../core/src/**/*",
+    ],
+    "exclude": [
+        "src/**/*.spec.ts",
+        "../core/src/**/*.spec.ts",
+    ],
 }
