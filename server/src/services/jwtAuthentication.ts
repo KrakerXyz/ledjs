@@ -7,5 +7,9 @@ export const jwtAuthentication: preValidationHookHandler = (req, res, done) => {
         return;
     };
     
-    req.jwtVerify().then(() => done()).catch(done);
+    req.jwtVerify().then(() => {
+        req.user.authType = 'jwt';
+        req.user.userId = req.user.sub;
+        done();
+    }).catch(done);
 };

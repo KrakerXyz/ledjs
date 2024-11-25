@@ -1,9 +1,11 @@
 import type { RouteOptions } from 'fastify';
 import type { Id } from '../../../../core/src/rest/model/Id.js';
+import { jwtAuthentication } from '../../services/jwtAuthentication.js';
 
 export const getById: RouteOptions = {
     method: 'GET',
     url: '/api/strands/:strandId',
+    preValidation: [jwtAuthentication],
     schema: {
         params: {
             type: 'object',
@@ -20,6 +22,11 @@ export const getById: RouteOptions = {
         const strand = await db.byId(strandId);
         if (!strand) {
             await res.status(404).send({ error: 'An strand with that id does not exist' });
+            return;
+        }
+
+        if (strand.author !== req.user.userId) {
+            await res.status(403).send({ error: 'User does not have access to this strand' });
             return;
         }
 

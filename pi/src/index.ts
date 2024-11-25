@@ -8,17 +8,34 @@ import mqtt from 'mqtt';
 import { Id } from '../../core/src/rest/model/Id.js';
 import { netledGlobal } from '../../core/src/netledGlobal.js';
 import { mqttTopic } from '../../core/src/iot/mqttTopic.js';
+import { deepClone } from '../../core/src/services/deepClone.js';
+import * as os from 'os';
 
 (globalThis as any).netled = netledGlobal;
 
 const logger = getLogger('index');
-logger.info('Starting up');
+logger.info('Starting up.');
+if (process.argv.length > 2) {
+    logger.info(`Parsing command line arguments: ${process.argv.slice(2).join(' ')}`);
+    const hostIndex = process.argv.indexOf('--host');
+    if (hostIndex >= 0) {
+        process.env[EnvKey.LEDJS_HOST] = process.argv[hostIndex + 1];
+    }
+
+    const authIndex = process.argv.indexOf('--auth');
+    if (authIndex >= 0) {
+        process.env[EnvKey.LEDJS_AUTH] = process.argv[authIndex + 1];
+    }
+}
+
+logger.debug('Loading services');
+const services = await restApi.iot.services();
+logger.info('Service descriptors loaded');
 
 const deviceId = atob(getRequiredConfig(EnvKey.LEDJS_AUTH)).split(':')[0] as Id;
-logger.info(`Device ID: ${deviceId}`);
 
-logger.debug('Loading device');
-const device = await restApi.devices.byId(deviceId);
+logger.debug(`Loading device ${deviceId}`);
+const device = deepClone(await restApi.devices.byId(deviceId));
 
 if(!device) { throw new Error('Device not found'); }
 
@@ -48,30 +65,63 @@ if (device.strandId) {
 }
 
 logger.info('Initializing mqtt');
-const client = mqtt.connect(getRequiredConfig(EnvKey.LEDJS_MQTT), { clientId: `device:${deviceId}` });
-client.on('connect', () => {
+const client = mqtt.connect(services.mqtt, { clientId: `device:${deviceId}` });
+client.on('connect', async () => {
     logger.info('Connected to mqtt');
-    client.subscribe(`netled/device/${deviceId}/#`, (err) => {
-        if (err) { throw err; }
-        logger.info('Subscribed to device topic');
-    });
+    await client.subscribeAsync(`netled/device/${deviceId}/#`, { qos: 1 });
+
+    if(device.strandId) {
+        await client.subscribeAsync(mqttTopic(`netled/strand/${device.strandId}/updated`), { qos: 1 });
+    }
+
+    setInterval(() => {
+        const status = {
+            isRunning: device.isRunning,
+            systemCpu: os.loadavg(),
+            systemUpTime: os.uptime(),
+            processUpTime: Math.floor(process.uptime()),
+        }
+        client.publish(mqttTopic(`netled/status/${deviceId}`), JSON.stringify(status), (err) => {
+            if (err) {
+                logger.error(`Error publishing device status: ${err}`);
+            }   
+        });
+    }, 15000);
 });
 
 client.on('message', async (topic, message) => {
     logger.info(`Received message on topic ${topic}`);
     if (topic === mqttTopic(`netled/device/${deviceId}/strand-changed`)) {
         const strandId = message.toString() as Id;
-        logger.info(`Loading new strand id: ${strandId}`);
+        
+        if (device.strandId) {
+            client.unsubscribeAsync(mqttTopic(`netled/strand/${device.strandId}/updated`));
+        }
+
+        if (strandId && strandId !== device.strandId) {
+            await client.subscribeAsync(mqttTopic(`netled/strand/${strandId}/updated`), { qos: 1 });
+        }
+
+        device.strandId = strandId;
         await strandController.loadStrand(strandId);
         strandController.run();
     } else if (topic === mqttTopic(`netled/device/${deviceId}/is-running`)) {
         const isRunning = message.toString() === 'true';
+        device.isRunning = isRunning;
         if (isRunning) {
             logger.info('Starting strand');
+
             strandController.run();
         } else {
             logger.info('Pausing strand');
             strandController.pause();
+        }
+    } else if (topic === mqttTopic(`netled/strand/${device.strandId!}/updated`)) {
+        logger.info('Strand updated');
+        await strandController.loadStrand(device.strandId!);
+        if (device.isRunning) {
+            logger.info('Restarting strand');
+            strandController.run();
         }
     } else {
         logger.warn(`Unknown topic: ${topic}`);

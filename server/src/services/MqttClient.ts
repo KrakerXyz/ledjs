@@ -1,6 +1,6 @@
 import mqtt from 'mqtt';
 import { Id } from '../../../core/src/rest/model/Id.js';
-import { DeviceTopicAction } from '../../../core/src/iot/mqttTopic.js';
+import { DeviceTopicAction, mqttTopic, StrandTopicAction } from '../../../core/src/iot/mqttTopic.js';
 
 
 
@@ -20,7 +20,13 @@ export class MqttClient {
             throw new Error('Invalid payload for is-running');
         }
 
-        this._client.publish(`netled/device/${deviceId}/${action}`, payload);
+        this._client.publish(mqttTopic(`netled/device/${deviceId}/${action}`), payload);
+    }
+
+    public publishStrandAction(strandId: Id, action: StrandTopicAction): void {
+        if (!this._client) { throw new Error('MqttClient not connected'); }
+
+        this._client.publish(mqttTopic(`netled/strand/${strandId}/${action}`), '');
     }
 
     public static createClient(broker: string): Promise<MqttClient> {

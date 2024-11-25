@@ -2,11 +2,12 @@ import { deepFreeze } from './rest/RestClient.js';
 
 export type LedSegmentCallback = (ledSegment: LedSegment) => Promise<void>;
 
-export class LedSegment implements netled.common.ILedSegment {
+export class LedSegment implements netled.common.ILedSegment, Disposable {
 
     readonly #arr: Uint8ClampedArray;
     readonly #numLeds: number;
     public readonly deadLeds: number[];
+    #disposed = false;
 
     public constructor(public readonly sab: SharedArrayBuffer, numLeds: number, public readonly ledOffset: number, deadLeds: (number | `${number}-${number}`)[] = []) {
         this.#arr = new Uint8ClampedArray(sab, ledOffset * 4, numLeds * 4);
@@ -29,12 +30,14 @@ export class LedSegment implements netled.common.ILedSegment {
 
     #rawSegment: LedSegment | null = null;
     public get rawSegment(): netled.common.ILedSegment {
+        if (this.#disposed) { throw new Error('LedSegment is disposed'); }
         this.#rawSegment ??= this.deadLeds.length ? new LedSegment(this.sab, this.#numLeds, this.ledOffset) : this;
         return this.#rawSegment;
     }
 
     /** The number of writeable leds in the array */
     public get length(): number {
+        if (this.#disposed) { throw new Error('LedSegment is disposed'); }
         return this.#numLeds - this.deadLeds.length;
     }
 
@@ -52,6 +55,7 @@ export class LedSegment implements netled.common.ILedSegment {
     public getLed(index: number): netled.common.IArgb;
     public getLed(index: number, component: 0 | 1 | 2 | 3): number;
     public getLed(index: number, component?: 0 | 1 | 2 | 3): netled.common.IArgb | number {
+        if (this.#disposed) { throw new Error('LedSegment is disposed'); }
 
         if (Math.abs(index) >= this.length) {
             throw new Error(`Index ${index} is out of bounds`);
@@ -74,6 +78,7 @@ export class LedSegment implements netled.common.ILedSegment {
     public setLed(index: number, a: number, r: number, g: number, b: number): void;
     public setLed(index: number, component: 0 | 1 | 2 | 3, value: number): void;
     public setLed(index: number, ...args: any[]) {
+        if (this.#disposed) { throw new Error('LedSegment is disposed'); }
 
         if (Math.abs(index) >= this.length) {
             throw new Error(`Index ${index} is out of bounds`);
@@ -103,6 +108,7 @@ export class LedSegment implements netled.common.ILedSegment {
     /** shift LEDs to the left */
     public shift(dir: 0 | false): void;
     public shift(dir?: 0 | 1 | boolean): void {
+        if (this.#disposed) { throw new Error('LedSegment is disposed'); }
         if (this.deadLeds.length) { throw new Error('Shifting not implemented with dead leds'); }
         
         if (dir === undefined || dir) {
@@ -128,6 +134,7 @@ export class LedSegment implements netled.common.ILedSegment {
 
     /** Reverses the order of all leds in the array */
     public reverse(): void {
+        if (this.#disposed) { throw new Error('LedSegment is disposed'); }
         if (this.deadLeds.length) { throw new Error('Shifting not implemented with dead leds'); }
         
         for (let i = 0; i < this.#numLeds/ 2; i++) {
@@ -144,11 +151,13 @@ export class LedSegment implements netled.common.ILedSegment {
     
     readonly #sendCb: LedSegmentCallback[] = [];
     public addSendCallback(cb: LedSegmentCallback): void {
+        if (this.#disposed) { throw new Error('LedSegment is disposed'); }
         if (this.#sendCb.includes(cb)) { throw new Error('Callback already added'); }
         this.#sendCb.push(cb);
     }
 
     public removeSendCallback(cb: LedSegmentCallback): void {
+        if (this.#disposed) { throw new Error('LedSegment is disposed'); }
         const index = this.#sendCb.indexOf(cb);
         if (index === -1) { throw new Error('Callback not found'); }
         this.#sendCb.splice(index, 1);
@@ -156,11 +165,19 @@ export class LedSegment implements netled.common.ILedSegment {
 
     #isSending = false;
     public send = (): Promise<void> => {
+        if (this.#disposed) { throw new Error('LedSegment is disposed'); }
         if (this.#sendCb.length === 0) { return Promise.resolve(); }
         if (this.#isSending) { throw new Error('Previous send still in progress'); }
         this.#isSending = true;
         const proms = this.#sendCb.map(cb => cb(this));
         return Promise.all(proms).finally(() => this.#isSending = false) as Promise<unknown> as Promise<void>;
+    }
+
+    [Symbol.dispose](): void {
+        if (this.#disposed) { return; }
+        this.#disposed = true;
+        this.#rawSegment?.[Symbol.dispose]();
+        this.#sendCb.length = 0;
     }
 
 }

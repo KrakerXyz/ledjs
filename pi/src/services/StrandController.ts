@@ -8,14 +8,26 @@ import rpio from 'rpio';
 
 export class StrandController {
 
-    private readonly _logger = getLogger('index');
+    private readonly _logger = getLogger('StrandController');
     private readonly _segments: SegmentVm[] = [];
     private _numLeds: number = 0;
     private _running = false;
     
     public async loadStrand(strandId: Id): Promise<void> {
-        this._segments.length = 0;
-        this._logger.debug('Loading strand');
+
+        if (this._segments.length) {
+            this._logger.debug('Disposing of previous strand segments');
+            for (const s of this._segments) {
+                if (s.type === SegmentInputType.Animation) {
+                    s.controller.pause();
+                    Object.values(s.services).forEach((s: any) => s[Symbol.dispose]?.());
+                    s.ledSegment[Symbol.dispose]();
+                }
+            }
+            this._segments.length = 0;
+        }
+
+        this._logger.debug(`Loading strand ${strandId}`);
         const strand = await restApi.strands.byId(strandId);
 
         this._logger.info(`Got strand '${strand.name}' consisting of ${strand.segments.length} segments`);

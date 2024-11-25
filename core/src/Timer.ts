@@ -8,6 +8,7 @@ export class Timer implements netled.services.ITimer, Disposable {
         let next = 0;
         let runningCb = false;
         const run = () => {
+            if(this.#disposed) { return; }
             const thisRunSymbol = this.#running;
             const now = Date.now();
             const drift = now - next;
@@ -15,6 +16,7 @@ export class Timer implements netled.services.ITimer, Disposable {
             next += interval;
             //console.log(`Now ${now}, Expected ${next}, Drift ${drift}, Next Interval ${nextInterval}, Next ${next}`);
             setTimeout(() => {
+                if(this.#disposed) { return; }
                 if (this.#running !== thisRunSymbol) { return; }
                 run();
                 if (runningCb) {
@@ -50,6 +52,7 @@ export class Timer implements netled.services.ITimer, Disposable {
 
         return {
             start: () => {
+                if(this.#disposed) { throw new Error('Timer has been disposed'); }
                 if (this.#running) {
                     throw new Error('Interval is already running');
                 }
@@ -58,6 +61,7 @@ export class Timer implements netled.services.ITimer, Disposable {
                 start();
             },
             stop: () => {
+                if(this.#disposed) { throw new Error('Timer has been disposed'); }
                 if (!this.#running) {
                     throw new Error('Interval is not running');
                 }

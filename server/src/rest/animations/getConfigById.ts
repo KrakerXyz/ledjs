@@ -25,7 +25,7 @@ export const getConfigById: RouteOptions = {
             return;
         }
 
-        if (config.userId !== req.user.sub) {
+        if (config.userId !== req.user.userId) {
             await res.status(403).send({ error: 'User does not have access to this config' });
             return;
         }

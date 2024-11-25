@@ -41,23 +41,32 @@
                     <h3>Setup</h3>
                     <div class="form-floating">
                         <input
+                            id="name"
+                            class="form-control"
+                            placeholder="*"
+                            v-model.lazy="strand.name"
+                        >
+                        <label for="name">Name</label>
+                    </div>
+                    <div class="form-floating">
+                        <input
                             id="d-leds"
                             class="form-control"
                             placeholder="*"
-                            v-model.lazy.number="strandLeds"
+                            v-model.lazy.number="strand.numLeds"
                         >
                         <label for="d-leds"># LEDs</label>
                     </div>
 
-                    <template v-if="selectedStrandSegment && selectedSegmentVm">
-                        <div class="row g-0">
+                    <template v-if="selectedStrandSegment">
+                        <div class="row g-0 mt-3">
                             <div class="col">
-                                <h3>{{ selectedSegmentVm.name }}</h3>
+                                <h3>{{ selectedSegmentName }}</h3>
                             </div>
                             <div class="col-auto">
                                 <button
                                     class="btn btn-link text-danger"
-                                    @click="removeSegment(selectedSegmentVm)"
+                                    @click="removeSegment(selectedStrandSegment)"
                                 >
                                     <v-icon :icon="Icons.Trashcan"></v-icon>
                                 </button>
@@ -83,6 +92,21 @@
                             >
                             <label for="d-offset">Offset</label>
                         </div>
+
+                        <div v-if="selectedAnimationSegment && animationConfigs.length" class="form-floating">
+                            <select
+                                id="config"
+                                class="form-select"
+                                placeholder="*"
+                                v-model="selectedAnimationSegment.script.configId"
+                            >
+                                <option value=""></option>
+                                <option v-for="opt of animationConfigs" :key="opt.id" :value="opt.id">
+                                    {{ opt.name }}
+                                </option>
+                            </select>
+                            <label for="config">Config</label>
+                        </div>
                     </template>
                 </div>
 
@@ -90,6 +114,7 @@
                     <div class="col">
                         <button
                             @click="saveStrand()"
+                            :disabled="!isDirty"
                             type="button"
                             class="btn btn-primary w-100"
                         >
@@ -111,14 +136,16 @@
 
 import type { Id } from '$core/rest/model/Id';
 import { assertTrue, restApi } from '$src/services';
-import { computed, defineComponent, getCurrentInstance, reactive, ref } from 'vue';
+import { computed, defineComponent, getCurrentInstance, reactive, ref, watch, onWatcherCleanup } from 'vue';
 import SegmentVue from './Segment.vue';
 import { LedSegment } from '$core/LedSegment';
 import { RouteLocationRaw, useRoute } from 'vue-router';
-import { SegmentInputType, Segment, strandToPost } from '$core/rest/model/Strand';
+import { SegmentInputType, Segment, strandToPost, AnimationSegment } from '$core/rest/model/Strand';
 import { newId } from '$core/services/newId';
 import { useRouteLocation, RouteName } from '$src/main.router';
 import { Icons } from '../global/Icon.vue';
+import { deepEquals } from '$core/services/deepEquals';
+import { AnimationConfig } from '$core/rest/model/AnimationConfig';
 
 export default defineComponent({
     components: { Segment: SegmentVue },
@@ -136,9 +163,12 @@ export default defineComponent({
 
         const postProcessors = await restApi.postProcessors.list(true);
 
-        const strand = reactive(strandToPost(await restApi.strands.byId(props.strandId)));
+        let originalStrand = ref(await restApi.strands.byId(props.strandId));
+        const strand = reactive(strandToPost(originalStrand.value));
 
-        const strandLeds = ref(strand.numLeds);
+        const isDirty = computed(() => !deepEquals(strandToPost(originalStrand.value), strand));
+
+        const strandLeds = computed(() => strand.numLeds);
 
         const selectedId = computed(() => route.query.selectedId as Id | undefined);
         const sab = computed(() => new SharedArrayBuffer(strandLeds.value * 4));
@@ -168,7 +198,7 @@ export default defineComponent({
                     ledSegment,
                     prevLedSegment: vms.length ? vms[vms.length - 1].ledSegment : null,
                     selected,
-                    selectRoute: useRouteLocation(RouteName.StrandEditor, { strandId: props.strandId }, {  selectedId: selected ? undefined : seg.id }),
+                    selectRoute: useRouteLocation(RouteName.StrandEditor, { strandId: props.strandId }, { selectedId: selected ? undefined : seg.id }),
                 };
 
                 vms.push(vm);
@@ -207,24 +237,38 @@ export default defineComponent({
             select.value = '';
         };
 
-        const removeSegment = (seg: SegmentVm) => {
+        const removeSegment = (seg: Segment) => {
             const index = strand.segments.findIndex(x => x.id === seg.id);
             if (index === -1) { throw new Error('Segment not found'); }
             strand.segments.splice(index, 1);
         };
         
         const selectedStrandSegment = computed(() => strand.segments.find(x => x.id === selectedId.value));
-        const selectedSegmentVm = computed(() => segments.value.find(x => x.id === selectedId.value));
+        
+        const selectedAnimationSegment = computed<AnimationSegment | null>(() => selectedStrandSegment.value && selectedStrandSegment.value.type === SegmentInputType.Animation ? selectedStrandSegment.value : null);
+
+        const selectedSegmentName = computed(() => segments.value.find(x => x.id === selectedId.value)?.name);
+
+        const animationConfigs = ref<AnimationConfig[]>([]);
+        const selectedAnimationSegmentWatch = watch(selectedAnimationSegment, async vm => {
+            if (!vm || vm.type !== SegmentInputType.Animation) {
+                animationConfigs.value = [];
+                return;
+            }
+            animationConfigs.value = await restApi.animations.config.list(vm.script.id, vm.script.version);
+        }, { immediate: true });
+        onWatcherCleanup(selectedAnimationSegmentWatch);
 
         const saveStrand = async () => {
-            await restApi.strands.save(strand);
+            const newOriginal = await restApi.strands.save(strand);
+            originalStrand.value = newOriginal;
         };
 
         const deleteStrand = async () => {
             await restApi.strands.delete(strand.id);
         };
 
-        return { strandLeds, segments, newSegmentOptions, addSegment, removeSegment, selectedStrandSegment, selectedSegmentVm, Icons, saveStrand, deleteStrand };
+        return { strand, isDirty, segments, newSegmentOptions, addSegment, removeSegment, selectedStrandSegment, Icons, saveStrand, deleteStrand, animationConfigs, selectedSegmentName, selectedAnimationSegment };
     }
 });
 
@@ -244,7 +288,7 @@ export interface SegmentVm {
     ledSegment: LedSegment,
     prevLedSegment: LedSegment | null,
     selected: boolean,
-    selectRoute: RouteLocationRaw,
+    selectRoute: RouteLocationRaw
 }
 
 /*
