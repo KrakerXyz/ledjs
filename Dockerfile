@@ -1,4 +1,4 @@
-FROM node:14-slim
+FROM node:22-slim
 COPY package*.json /
 COPY dist/ /dist/
 COPY node_modules/ /node_modules/

@@ -16,6 +16,7 @@ const __filename = fileURLToPath(import.meta.url); // get the resolved path to t
 const __dirname = path.dirname(__filename); // get the name of the directory
 
 console.log('Configuring db');
+console.log(getRequiredConfig(EnvKey.DbConnectionString));
 configureDbLocal({
     dbName: 'netled-dev',
     uri: getRequiredConfig(EnvKey.DbConnectionString)
@@ -65,8 +66,9 @@ server.register(fastifyJWT, {
 
 server.register(fastifyCookie);
 
+const webPath = path.join(__dirname, '../../', '.web');
 server.register(fastifyStatic, {
-    root: path.join(__dirname, '.web'),
+    root: webPath,
     immutable: true,
     maxAge: '1d',
     setHeaders: res => {

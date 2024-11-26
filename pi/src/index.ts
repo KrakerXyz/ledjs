@@ -37,7 +37,7 @@ const deviceId = atob(getRequiredConfig(EnvKey.LEDJS_AUTH)).split(':')[0] as Id;
 logger.debug(`Loading device ${deviceId}`);
 const device = deepClone(await restApi.devices.byId(deviceId));
 
-if(!device) { throw new Error('Device not found'); }
+if (!device) { throw new Error('Device not found'); }
 
 logger.info(`Got device '${device.name}'`);
 
@@ -65,13 +65,14 @@ if (device.strandId) {
 }
 
 logger.info('Initializing mqtt');
+const mqttPrefix = services.mqttPrefix;
 const client = mqtt.connect(services.mqtt, { clientId: `device:${deviceId}` });
 client.on('connect', async () => {
     logger.info('Connected to mqtt');
-    await client.subscribeAsync(`netled/device/${deviceId}/#`, { qos: 1 });
+    await client.subscribeAsync(`${mqttPrefix}/device/${deviceId}/#`, { qos: 1 });
 
-    if(device.strandId) {
-        await client.subscribeAsync(mqttTopic(`netled/strand/${device.strandId}/updated`), { qos: 1 });
+    if (device.strandId) {
+        await client.subscribeAsync(mqttTopic(`${mqttPrefix}/strand/${device.strandId}/updated`), { qos: 1 });
     }
 
     setInterval(() => {
@@ -81,31 +82,31 @@ client.on('connect', async () => {
             systemUpTime: os.uptime(),
             processUpTime: Math.floor(process.uptime()),
         }
-        client.publish(mqttTopic(`netled/status/${deviceId}`), JSON.stringify(status), (err) => {
+        client.publish(mqttTopic(`${mqttPrefix}/status/${deviceId}`), JSON.stringify(status), (err) => {
             if (err) {
                 logger.error(`Error publishing device status: ${err}`);
-            }   
+            }
         });
     }, 15000);
 });
 
 client.on('message', async (topic, message) => {
     logger.info(`Received message on topic ${topic}`);
-    if (topic === mqttTopic(`netled/device/${deviceId}/strand-changed`)) {
+    if (topic === mqttTopic(`${mqttPrefix}/device/${deviceId}/strand-changed`)) {
         const strandId = message.toString() as Id;
-        
+
         if (device.strandId) {
-            client.unsubscribeAsync(mqttTopic(`netled/strand/${device.strandId}/updated`));
+            client.unsubscribeAsync(mqttTopic(`${mqttPrefix}/strand/${device.strandId}/updated`));
         }
 
         if (strandId && strandId !== device.strandId) {
-            await client.subscribeAsync(mqttTopic(`netled/strand/${strandId}/updated`), { qos: 1 });
+            await client.subscribeAsync(mqttTopic(`${mqttPrefix}/strand/${strandId}/updated`), { qos: 1 });
         }
 
         device.strandId = strandId;
         await strandController.loadStrand(strandId);
         strandController.run();
-    } else if (topic === mqttTopic(`netled/device/${deviceId}/is-running`)) {
+    } else if (topic === mqttTopic(`${mqttPrefix}/device/${deviceId}/is-running`)) {
         const isRunning = message.toString() === 'true';
         device.isRunning = isRunning;
         if (isRunning) {
@@ -116,7 +117,7 @@ client.on('message', async (topic, message) => {
             logger.info('Pausing strand');
             strandController.pause();
         }
-    } else if (topic === mqttTopic(`netled/strand/${device.strandId!}/updated`)) {
+    } else if (topic === mqttTopic(`${mqttPrefix}/strand/${device.strandId!}/updated`)) {
         logger.info('Strand updated');
         await strandController.loadStrand(device.strandId!);
         if (device.isRunning) {

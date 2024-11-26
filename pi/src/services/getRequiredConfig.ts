@@ -9,3 +9,7 @@ export function getRequiredConfig(key: EnvKey): string {
     if (!value) { throw new Error(`Missing config for ${key}`); }
     return value;
 }
+
+export function getOptionalConfig<T extends string | undefined = undefined>(key: EnvKey, defaultValue?: T): string | T {
+    return (process.env[key] ?? defaultValue) as T;
+}
