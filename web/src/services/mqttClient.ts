@@ -3,6 +3,7 @@ import mqtt from 'mqtt';
 import { onUnmounted } from 'vue';
 import { assertTrue } from './assert';
 import { useAuthService } from './authService';
+import { Topic } from '$core/iot/mqttTopic';
 
 let client: mqtt.MqttClient | null = null;
 let useCount = 0;
@@ -14,6 +15,8 @@ export function useMqttClient() {
 
     useCount++;
     if (!client) {
+        console.debug('Connecting to mqtt');
+
         const mqttService = useAuthService().userServices.value?.mqtt;
         if (!mqttService) { throw new Error('Missing mqtt services'); }
         
@@ -27,6 +30,26 @@ export function useMqttClient() {
 
         client.on('connect', async () => {
             console.debug('Connected to mqtt');
+        });
+
+        client.on('error', (err) => {
+            console.error('Mqtt error', err);
+        });
+
+        client.on('reconnect', () => {
+            console.debug('Reconnecting to mqtt');
+        });
+
+        client.on('close', () => {
+            console.info('Mqtt connection closed');
+        });
+
+        client.on('offline', () => {
+            console.debug('Mqtt offline');
+        });
+
+        client.on('end', () => {
+            console.debug('Mqtt connection ended');
         });
     }
 
@@ -61,7 +84,7 @@ export function useMqttClient() {
     });
 
     return {
-        subscribe: (topic: string, callback: SubscriptionCallback) => {
+        subscribe: (topic: Topic, callback: SubscriptionCallback) => {
             if(subscriptions.has(topic)) { throw new Error(`Already subscribed to topic ${topic}`); }
             assertTrue(client);
             subscriptions.set(topic, callback);

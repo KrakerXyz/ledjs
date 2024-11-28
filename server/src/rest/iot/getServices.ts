@@ -12,7 +12,7 @@ export const getServices: RouteOptions = {
         const services: IotServices = {
             mqtt: {
                 url: getRequiredConfig(EnvKey.MqttBroker),
-                prefix: getOptionalConfig(EnvKey.MqttPrefix, 'netled') as NetledPrefix,
+                env: getOptionalConfig(EnvKey.MqttEnv) as NetledPrefix,
                 username: 'netled-device',
                 password: getRequiredConfig(EnvKey.MqttIotPassword),
             }

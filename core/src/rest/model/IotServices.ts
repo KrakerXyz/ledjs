@@ -1,4 +1,3 @@
-import { NetledPrefix } from "../../iot/mqttTopic.js";
 
 export interface IotServices {
     mqtt: {
@@ -6,7 +5,6 @@ export interface IotServices {
         url: string,
         username: string,
         password: string,
-        /** String to prefix all topics with */
-        prefix: NetledPrefix,
+        env: string,
     }
 }

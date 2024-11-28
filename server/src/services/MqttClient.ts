@@ -14,7 +14,7 @@ export class MqttClient {
     private constructor(client: mqtt.MqttClient) {
         MqttClient._instance = this;
         this._client = client;
-        this._prefix = getOptionalConfig(EnvKey.MqttPrefix, 'netled') as NetledPrefix;
+        this._prefix = `netled${getOptionalConfig(EnvKey.MqttEnv, '')}`;
     }
 
     public publishDeviceAction(deviceId: Id, action: DeviceTopicAction, payload: string): void {
@@ -38,7 +38,7 @@ export class MqttClient {
 
         return new Promise<MqttClient>((resolve, reject) => {
             const client = mqtt.connect(broker, {
-                clientId: getOptionalConfig(EnvKey.MqttClientId, 'netled-server'),
+                clientId: `netled${getOptionalConfig(EnvKey.MqttEnv)}-server`,
                 username: 'netled-server',
                 password: 'Nru5.`^D2ktHC3z+p-g[X$',
                 rejectUnauthorized: false,

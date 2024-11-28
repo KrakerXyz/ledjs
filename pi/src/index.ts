@@ -7,7 +7,7 @@ import { StrandController } from './services/StrandController.js';
 import mqtt from 'mqtt';
 import { Id } from '../../core/src/rest/model/Id.js';
 import { netledGlobal } from '../../core/src/netledGlobal.js';
-import { mqttTopic } from '../../core/src/iot/mqttTopic.js';
+import { mqttTopic, NetledPrefix } from '../../core/src/iot/mqttTopic.js';
 import { deepClone } from '../../core/src/services/deepClone.js';
 import * as os from 'os';
 
@@ -65,9 +65,9 @@ if (device.strandId) {
 }
 
 logger.info('Initializing mqtt');
-const mqttPrefix = services.mqtt.prefix;
+const mqttPrefix = `netled${services.mqtt.env}` as NetledPrefix;
 const client = mqtt.connect(services.mqtt.url, {
-    clientId: `netled-device:${deviceId}`,
+    clientId: `netled${services.mqtt.env}-device:${deviceId}`,
     username: services.mqtt.username,
     password: services.mqtt.password,
     rejectUnauthorized: false,
