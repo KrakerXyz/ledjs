@@ -7,6 +7,8 @@ export const enum EnvKey {
     MqttBrokerWs = 'MQTT_BROKER_WS',
     MqttPrefix = 'MQTT_PREFIX',
     MqttClientId = 'MQTT_CLIENT_ID',
+    MqttIotPassword = 'MQTT_IOT_PASSWORD',
+    MqttUserPassword = 'MQTT_USER_PASSWORD'
 }
 
 /** Gets value from process.env or throws exception if empty */

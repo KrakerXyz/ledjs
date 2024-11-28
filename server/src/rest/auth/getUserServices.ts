@@ -8,7 +8,7 @@ export function getUserServices(userId: Id): UserServices {
         mqtt: {
             url: getRequiredConfig(EnvKey.MqttBrokerWs),
             username: 'netled-client',
-            password: 'rx&[v"guP}M*-:2J)@FAV5',
+            password: getRequiredConfig(EnvKey.MqttUserPassword),
             clientId: `netled-ui:${userId}`,
         }
     };

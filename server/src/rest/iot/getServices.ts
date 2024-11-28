@@ -14,7 +14,7 @@ export const getServices: RouteOptions = {
                 url: getRequiredConfig(EnvKey.MqttBroker),
                 prefix: getOptionalConfig(EnvKey.MqttPrefix, 'netled') as NetledPrefix,
                 username: 'netled-device',
-                password: 'WsE@53J+aht="D2<bAe,?>'
+                password: getRequiredConfig(EnvKey.MqttIotPassword),
             }
         }
         await res.status(200).send(services);
