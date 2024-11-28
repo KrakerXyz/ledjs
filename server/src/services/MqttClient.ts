@@ -9,12 +9,12 @@ export class MqttClient {
 
     private static _instance: MqttClient | null = null;
     private _client: mqtt.MqttClient | null = null;
-    private readonly _prefx: NetledPrefix;
+    private readonly _prefix: NetledPrefix;
 
     private constructor(client: mqtt.MqttClient) {
         MqttClient._instance = this;
         this._client = client;
-        this._prefx = getOptionalConfig(EnvKey.MqttPrefix, 'netled') as NetledPrefix;
+        this._prefix = getOptionalConfig(EnvKey.MqttPrefix, 'netled') as NetledPrefix;
     }
 
     public publishDeviceAction(deviceId: Id, action: DeviceTopicAction, payload: string): void {
@@ -24,20 +24,26 @@ export class MqttClient {
             throw new Error('Invalid payload for is-running');
         }
 
-        this._client.publish(mqttTopic(`${this._prefx}/device/${deviceId}/${action}`), payload);
+        this._client.publish(mqttTopic(`${this._prefix}/device/${deviceId}/${action}`), payload);
     }
 
     public publishStrandAction(strandId: Id, action: StrandTopicAction): void {
         if (!this._client) { throw new Error('MqttClient not connected'); }
 
-        this._client.publish(mqttTopic(`${this._prefx}/strand/${strandId}/${action}`), '');
+        this._client.publish(mqttTopic(`${this._prefix}/strand/${strandId}/${action}`), '');
     }
 
     public static createClient(broker: string): Promise<MqttClient> {
         if (MqttClient._instance) { throw new Error('MqttClient already created'); }
 
         return new Promise<MqttClient>((resolve, reject) => {
-            const client = mqtt.connect(broker);
+            const client = mqtt.connect(broker, {
+                clientId: getOptionalConfig(EnvKey.MqttClientId, 'netled-server'),
+                username: 'netled-server',
+                password: 'Nru5.`^D2ktHC3z+p-g[X$',
+                rejectUnauthorized: false,
+                protocolVersion: 5
+            });
 
             const timeout = setTimeout(() => {
                 client.end();

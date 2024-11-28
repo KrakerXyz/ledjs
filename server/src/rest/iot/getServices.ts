@@ -10,8 +10,12 @@ export const getServices: RouteOptions = {
     preValidation: [jwtAuthentication],
     handler: async (req, res) => {
         const services: IotServices = {
-            mqtt: getRequiredConfig(EnvKey.MqttBroker),
-            mqttPrefix: getOptionalConfig(EnvKey.MqttPrefix, 'netled') as NetledPrefix,
+            mqtt: {
+                url: getRequiredConfig(EnvKey.MqttBroker),
+                prefix: getOptionalConfig(EnvKey.MqttPrefix, 'netled') as NetledPrefix,
+                username: 'netled-device',
+                password: 'WsE@53J+aht="D2<bAe,?>'
+            }
         }
         await res.status(200).send(services);
     }

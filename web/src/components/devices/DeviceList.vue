@@ -1,24 +1,16 @@
-
 <template>
     <div class="container-fluid p-3">
         <div class="row">
             <div class="col">
                 <div class="list-group" v-if="devices">
-                    <div
-                        class="list-group-item list-group-item-action"
-                        v-for="d of devices"
-                        :key="d.id"
-                    >
+                    <div class="list-group-item list-group-item-action" v-for="d of devices" :key="d.id">
                         <device-list-item :device="d" :configs="configs"></device-list-item>
                     </div>
                 </div>
             </div>
         </div>
         <teleport to="#portal-header">
-            <router-link
-                class="btn btn-primary"
-                :to="useRouteLocation(RouteName.DeviceAdd)"
-            >
+            <router-link class="btn btn-primary" :to="useRouteLocation(RouteName.DeviceAdd)">
                 New Device
             </router-link>
         </teleport>

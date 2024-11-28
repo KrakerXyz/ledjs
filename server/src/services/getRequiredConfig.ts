@@ -4,7 +4,9 @@ export const enum EnvKey {
     GoogleClientId = 'GOOGLE_CLIENT_ID',
     JwtSecret = 'JWT_SECRET',
     MqttBroker = 'MQTT_BROKER',
+    MqttBrokerWs = 'MQTT_BROKER_WS',
     MqttPrefix = 'MQTT_PREFIX',
+    MqttClientId = 'MQTT_CLIENT_ID',
 }
 
 /** Gets value from process.env or throws exception if empty */

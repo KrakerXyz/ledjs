@@ -2,13 +2,14 @@ import { ref } from 'vue';
 import Cookies from 'js-cookie';
 import { computed } from 'vue';
 import { loginRedirect, logoutRedirect } from '$src/main.router';
-import { type User, type GoogleJwt } from '$core/rest/AuthRestClient';
+import { type User, type GoogleJwt, AuthResult, UserServices } from '$core/rest/AuthRestClient';
 import { restApi } from './restClient';
 
 let initResolver: (() => void) | null = null;
 const initPromise = new Promise<void>(r => initResolver = r);
 const status = ref<'signedOut' | 'initializing' | 'signedIn'>('initializing');
 const user = ref<User>();
+const userServices = ref<UserServices>();
 
 const GoogleJwtCookieName = 'g-jwt';
 const NetLedJwtCookieName = 'jwt';
@@ -23,7 +24,9 @@ export async function initGoogleLoginButton(container: HTMLDivElement) {
     if (cookieJwt) {
         try {
             console.debug('Loading user from existing g-jwt');
-            user.value = await verifyToken(cookieJwt);
+            const result = await verifyToken(cookieJwt);
+            user.value = result.user;
+            userServices.value = result.services;
             status.value = 'signedIn';
             console.debug('Loaded user from existing g-jwt', user);
             loginRedirect();
@@ -71,7 +74,9 @@ async function handleCredentialResponse(response: google.accounts.id.CredentialR
     status.value = 'initializing';
     console.debug('Got GIS JWT. Validating');
     try {
-        user.value = await verifyToken(response.credential);
+        const result = await verifyToken(response.credential);
+        user.value = result.user;
+        userServices.value = result.services;
         Cookies.set(GoogleJwtCookieName, response.credential, {
             secure: window.location.protocol === 'https',
             sameSite: 'strict',
@@ -89,15 +94,15 @@ async function handleCredentialResponse(response: google.accounts.id.CredentialR
     }
 }
 
-async function verifyToken(jwt: string): Promise<User> {
+async function verifyToken(jwt: string): Promise<AuthResult> {
     const googleJwt: GoogleJwt = {
         jwt,
     };
 
     try {
 
-        const user = await restApi.auth.validateGoogleJwt(googleJwt);
-        return user;
+        const result = await restApi.auth.validateGoogleJwt(googleJwt);
+        return result;
     } catch {
         throw new Error('Error validating token');
     }
@@ -106,6 +111,7 @@ async function verifyToken(jwt: string): Promise<User> {
 const authService = Object.freeze({
     status: computed(() => status.value),
     user: computed(() => user.value),
+    userServices: computed(() => userServices.value),
     initialized: initPromise,
     logout: () => {
         google.accounts.id.disableAutoSelect();

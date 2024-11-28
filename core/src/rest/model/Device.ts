@@ -13,24 +13,9 @@ export interface Device {
     readonly created: number,
     /** Speed in MHz to run the SPI interface at */
     spiSpeed: number,
-    /** Various status details for the device. */
-    readonly status: DeviceStatus,
     readonly strandId: Id | null
     /** Last stop/start state of the animation on the device */
     readonly isRunning: boolean,
 }
 
 export type DevicePost = Pick<Device, 'id' | 'name' | 'spiSpeed'>;
-
-export interface DeviceStatus {
-    /** Last time the device made a call to the server */
-    readonly lastSeen?: number,
-    /** Timestamp of when the device last connected */
-    readonly onlineSince?: number,
-    /** Timestamp of when the device last disconnected */
-    readonly offlineSince?: number,
-    /** The LAN IP of the device */
-    readonly localIp?: string,
-    /** The WAN IP address the device connected from */
-    readonly wanIp?: string,
-}

@@ -65,8 +65,16 @@ if (device.strandId) {
 }
 
 logger.info('Initializing mqtt');
-const mqttPrefix = services.mqttPrefix;
-const client = mqtt.connect(services.mqtt, { clientId: `device:${deviceId}` });
+const mqttPrefix = services.mqtt.prefix;
+const client = mqtt.connect(services.mqtt.url, {
+    clientId: `netled-device:${deviceId}`,
+    username: services.mqtt.username,
+    password: services.mqtt.password,
+    rejectUnauthorized: false,
+    protocolVersion: 5
+});
+
+let statusInterval: NodeJS.Timeout | null = null;
 client.on('connect', async () => {
     logger.info('Connected to mqtt');
     await client.subscribeAsync(`${mqttPrefix}/device/${deviceId}/#`, { qos: 1 });
@@ -75,18 +83,27 @@ client.on('connect', async () => {
         await client.subscribeAsync(mqttTopic(`${mqttPrefix}/strand/${device.strandId}/updated`), { qos: 1 });
     }
 
-    setInterval(() => {
+    statusInterval ??= setInterval(() => {
         const status = {
             isRunning: device.isRunning,
             systemCpu: os.loadavg(),
-            systemUpTime: os.uptime(),
+            systemUpTime: Math.floor(os.uptime()),
             processUpTime: Math.floor(process.uptime()),
         }
-        client.publish(mqttTopic(`${mqttPrefix}/status/${deviceId}`), JSON.stringify(status), (err) => {
-            if (err) {
-                logger.error(`Error publishing device status: ${err}`);
-            }
-        });
+        client.publish(
+            mqttTopic(`${mqttPrefix}/status/${deviceId}`),
+            JSON.stringify(status),
+            {
+                retain: true,
+                properties: {
+                    messageExpiryInterval: 17   
+                }
+            },
+            (err) => {
+                if (err) {
+                    logger.error(`Error publishing device status: ${err}`);
+                }
+            });
     }, 15000);
 });
 
