@@ -3,10 +3,10 @@ import type { PostProcessor, PostProcessorSummary, PostProcessorPost } from './m
 import type { ScriptVersion } from './model/ScriptVersion.js';
 import type { RestClient } from './RestClient.js';
 
-
 export class PostProcessorRestClient {
 
-    constructor(private readonly restClient: RestClient) { }
+    constructor(private readonly restClient: RestClient) {
+    }
 
     /** Returns a list of all published postProcessors. Optionally include unpublished versions of your own scripts. */
     public list<T extends boolean = false>(withScript?: T): Promise<T extends true ? PostProcessor[] : PostProcessorSummary[]> {
@@ -37,7 +37,6 @@ export class PostProcessorRestClient {
     public deleteDraft(postProcessorId: Id): Promise<void> {
         return this.restClient.delete(`/api/post-processors/${postProcessorId}`);
     }
-
 
 }
 
