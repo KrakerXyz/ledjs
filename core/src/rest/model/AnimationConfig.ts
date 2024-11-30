@@ -17,7 +17,7 @@ export interface AnimationConfig {
     /** Description for the configuration */
     description?: string | null,
     /** Configuration data for the animation */
-    config: Record<string, number | string>,
+    config: Record<string, number | string | boolean>,
 }
 
 export interface AnimationConfigSummary extends Omit<AnimationConfig, 'config'> {

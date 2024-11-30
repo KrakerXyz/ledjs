@@ -1,25 +1,31 @@
 
 <template>
-    <div class="mt-n3">
-        <div v-for="e of Object.entries(config)" :key="e[0]" class="row mt-3">
-            <div class="col">
-                <div class="form-floating">
-                    <input
-                        :id="e[0]"
-                        class="form-control"
-                        placeholder="*"
-                        :value="settings[e[0]]"
-                        @change="event => setValue(e[0], e[1], event.target)"
-                    >
-                    <label :for="e[0]">{{ e[1].name }}</label>
-                    <div v-if="e[1].description" class="form-text">
-                        {{ e[1].description }}
+    <div :class="{ 'mt-n3': !savedConfigOnly }">
+        <template v-if="!savedConfigOnly">
+            <div
+                v-for="e of Object.entries(config)"
+                :key="e[0]"
+                class="row mt-3"
+            >
+                <div class="col">
+                    <div class="form-floating">
+                        <input
+                            :id="e[0]"
+                            class="form-control"
+                            placeholder="*"
+                            :value="settings[e[0]]"
+                            @change="event => setValue(e[0], e[1], event.target)"
+                        >
+                        <label :for="e[0]">{{ e[1].name }}</label>
+                        <div v-if="e[1].description" class="form-text">
+                            {{ e[1].description }}
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
+        </template>
 
-        <h6 class="mt-3">
+        <h6 v-if="!savedConfigOnly" class="mt-3">
             {{ readonly ? 'Load config' : 'Save/load config' }}
         </h6>
         <div>
@@ -76,7 +82,9 @@ export default defineComponent({
     props: {
         animation: { type: Object as () => { id: Id, version: ScriptVersion }, required: true },
         config: { type: Object as () => netled.common.IConfig, required: true },
-        readonly: { type: Boolean, required: false }
+        readonly: { type: Boolean, required: false },
+        /** When true, only configs can be selected */
+        savedConfigOnly: { type: Boolean, required: false }
     },
     emits: {
         'update:settings': (s: netled.common.ISettings) => !!s
@@ -99,12 +107,14 @@ export default defineComponent({
             }
 
             const input  = target as HTMLInputElement;
-            let value: string | number = input.value || e.default;
+            let value: string | number | boolean = input.value || e.default;
 
             if (e.type === 'int') {
                 value = parseInt(value.toString());
             } else if (e.type === 'decimal') {
                 value = parseFloat(value.toString());
+            } else if(e.type === 'boolean') {
+                value = value === 'true';
             }
 
             (settings.value as any)[key] = value;

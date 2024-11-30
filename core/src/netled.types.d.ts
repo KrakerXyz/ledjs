@@ -74,7 +74,6 @@ declare global {
             type IConfigField = {
                 name: string,
                 description?: string,
-
             } & (
                 {
                     type: 'int' | 'decimal',
@@ -85,6 +84,10 @@ declare global {
                 | {
                     type: 'color',
                     default: `#${string}`,
+                }
+                | {
+                    type: 'boolean',
+                    default: boolean,
                 }
                 | IFieldSelect
             );

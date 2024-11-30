@@ -50,13 +50,14 @@
 
                     <div v-if="animationConfig && selectedAnimation" class="flex-grow-1">
                         <h3 class="mt-3">
-                            Config
+                            Animation Config
                         </h3>
                         <config
                             :animation="{ id: selectedAnimation.id, version: selectedAnimation.version }"
                             :config="animationConfig"
                             @update:settings="s => animationSettings = s"
                             :readonly="true"
+                            :saved-config-only="true"
                         ></config>
                     </div>
                 </div>
