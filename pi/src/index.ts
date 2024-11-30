@@ -64,14 +64,21 @@ if (device.strandId) {
     }
 }
 
-logger.info('Initializing mqtt');
+const clientId = `netled${services.mqtt.env}-device:${deviceId}`;
 const mqttPrefix = `netled${services.mqtt.env}` as NetledPrefix;
+
+logger.info(`Connecting to mqtt ${services.mqtt.username}@${services.mqtt.url}`);
+
 const client = mqtt.connect(services.mqtt.url, {
-    clientId: `netled${services.mqtt.env}-device:${deviceId}`,
+    clientId ,
     username: services.mqtt.username,
     password: services.mqtt.password,
     rejectUnauthorized: false,
     protocolVersion: 5
+});
+
+client.on('error', (err) => {
+    logger.error(`Error connecting to mqtt: ${err}`);
 });
 
 let statusInterval: NodeJS.Timeout | null = null;

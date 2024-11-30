@@ -71,10 +71,11 @@ server.register(fastifyStatic, {
     root: webPath,
     immutable: true,
     maxAge: '1d',
-    // setHeaders: res => {
-    //     res.setHeader('Cross-Origin-Opener-Policy', 'same-origin');
-    //     res.setHeader('Cross-Origin-Embedder-Policy', 'require-corp');
-    // }
+    setHeaders: res => {
+        // Required to use SharedArrayBuffer
+        res.setHeader('Cross-Origin-Opener-Policy', 'same-origin');
+        res.setHeader('Cross-Origin-Embedder-Policy', 'require-corp');
+    }
 });
 
 apiRoutes.forEach(r => server.route(r));
@@ -89,11 +90,7 @@ server.setNotFoundHandler({}, async (req, res) => {
         await res.status(404).send();
         return;
     }
-    await res.headers({
-        // Required to use SharedArrayBuffer
-        'Cross-Origin-Opener-Policy': 'same-origin',
-        'Cross-Origin-Embedder-Policy': 'require-corp'
-    }).sendFile('index.html');
+    await res.sendFile('index.html', {cacheControl: false});
 });
 
 server.ready(() => {
