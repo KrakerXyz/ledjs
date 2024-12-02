@@ -1,21 +1,25 @@
+
 import type { RouteOptions } from 'fastify';
 import { jwtAuthentication } from '../../services/jwtAuthentication.js';
 import type { Id } from '../../../../core/src/rest/model/Id.js';
+import type { ScriptType } from '../../../../core/src/rest/model/ScriptConfig.js';
 
 export const getConfigById: RouteOptions = {
     method: 'GET',
-    url: '/api/animations/configs/:configId',
+    url: '/api/configs/:type/:configId',
     preValidation: [jwtAuthentication],
     schema: {
         params: {
             type: 'object',
             properties: {
+                type: { type: 'string', enum: ['animation', 'post-processor'] },
                 configId: { type: 'string' }
             },
-            required: ['configId']
+            required: ['type', 'configId']
         }
     },
     handler: async (req, res) => {
+        const type = (req.params as any).type as ScriptType;
         const configId: Id = (req.params as any).configId;
         const db = req.services.scriptConfigDb;
         const config = await db.byId(configId);
@@ -25,7 +29,12 @@ export const getConfigById: RouteOptions = {
             return;
         }
 
-        if (config.userId !== req.user.userId) {
+        if (config.type !== type) {
+            await res.status(404).send({ error: 'Config type does not match URL type' });
+            return;
+        }
+
+        if (config.userId !== req.user.sub) {
             await res.status(403).send({ error: 'User does not have access to this config' });
             return;
         }
