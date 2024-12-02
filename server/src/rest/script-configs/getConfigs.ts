@@ -8,19 +8,31 @@ import { ScriptConfig, ScriptConfigSummary, ScriptType } from '../../../../core/
 
 export const getConfigs: RouteOptions = {
     method: 'GET',
-    url: '/api/configs/:type',
+    url: '/api/configs',
     preValidation: [jwtAuthentication],
     schema: {
-        params: {
+        querystring: {
             type: 'object',
             properties: {
-                type: { type: 'string', enum: ['animation', 'post-processor'] }
+                type: { type: 'string', enum: ['animation', 'post-processor'] },
+                scriptId: { type: 'string' },
+                version: { "anyOf": [
+                    {
+                        type: "number"
+                    },
+                    {
+                        type: "string",
+                        const: "draft"
+                    }
+                ]}
             },
             required: ['type']
         }
     },
     handler: async (req, res) => {
-        const type = (req.params as any).type as ScriptType;
+        const type = (req.query as any).type as ScriptType;
+        const scriptId = (req.query as any).scriptId as Id | undefined;
+        const version = (req.query as any).version as ScriptVersion | undefined;
         const db = req.services.scriptConfigDb;
         const scriptDb = type === 'animation' ? req.services.animationDb : req.services.postProcessorDb;
         const allAsync = db.byUserId(type, req.user.sub);
@@ -29,6 +41,10 @@ export const getConfigs: RouteOptions = {
         const all: ScriptConfig[] = [];
         
         for await (const c of allAsync) {
+
+            if (scriptId && c.script.id !== scriptId) { continue; }
+            if (version && c.script.version !== version) { continue; }
+
             all.push(c);
             const key: `${Id}|${ScriptVersion}` = `${c.script.id}|${c.script.version}`;
             if (scriptMap.has(key)) { continue; }
@@ -56,6 +72,7 @@ export const getConfigs: RouteOptions = {
                 description: c.description,
                 script: c.script,
                 scriptName: script.name,
+                config: c.config
             });
         }
 

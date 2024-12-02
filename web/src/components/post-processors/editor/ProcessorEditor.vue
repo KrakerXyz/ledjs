@@ -53,7 +53,8 @@
                             Animation Config
                         </h3>
                         <config
-                            :animation="{ id: selectedAnimation.id, version: selectedAnimation.version }"
+                            type="animation"    
+                            :script="{ id: selectedAnimation.id, version: selectedAnimation.version }"
                             :config="animationConfig"
                             @update:settings="s => animationSettings = s"
                             :readonly="true"

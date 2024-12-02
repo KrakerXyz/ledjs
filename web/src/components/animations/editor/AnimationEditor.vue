@@ -37,7 +37,12 @@
                         <h3 class="mt-3">
                             Config
                         </h3>
-                        <config :animation="{ id: animationId, version: 'draft' }" :config="animationConfig" @update:settings="s => animationSettings = s"></config>
+                        <config
+                            type="animation"
+                            :script="{ id: animationId, version: 'draft' }"
+                            :config="animationConfig"
+                            @update:settings="s => animationSettings = s"
+                        ></config>
                     </div>
                 </div>
 

@@ -6,7 +6,7 @@ import type { ScriptType } from '../../../../core/src/rest/model/ScriptConfig.js
 
 export const getConfigById: RouteOptions = {
     method: 'GET',
-    url: '/api/configs/:type/:configId',
+    url: '/api/configs/:configId',
     preValidation: [jwtAuthentication],
     schema: {
         params: {

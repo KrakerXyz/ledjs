@@ -1,6 +1,6 @@
 
 type OrArray<T> = T | T[];
-type Query = Record<string, OrArray<string> | OrArray<boolean> | OrArray<number> | undefined> | null | undefined
+type Query = Record<string, OrArray<string> | OrArray<boolean> | OrArray<number> | undefined> | URLSearchParams | null | undefined
 
 export class RestClient {
 
@@ -44,19 +44,26 @@ export class RestClient {
         const url = this.baseUrl + path;
         if (!query) { return url; }
 
-        const params = new URLSearchParams();
-        for (const [key, value] of Object.entries(query)) {
-            if (value === undefined || value === null) { continue; }
-            if (Array.isArray(value)) {
-                for (const v of value) {
-                    params.append(key, v.toString());
+        let qs = '';
+
+        if (query instanceof URLSearchParams) {
+            qs = query.toString();
+        } else {
+            const params = new URLSearchParams();
+            for (const [key, value] of Object.entries(query)) {
+                if (value === undefined || value === null) { continue; }
+                if (Array.isArray(value)) {
+                    for (const v of value) {
+                        params.append(key, v.toString());
+                    }
+                } else {
+                    params.append(key, value.toString());
                 }
-            } else {
-                params.append(key, value.toString());
             }
+            qs = params.toString();
         }
 
-        return `${path}?${params.toString()}`;
+        return `${path}?${qs}`;
     }
 
 }

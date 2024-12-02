@@ -17,7 +17,7 @@ export interface ScriptConfig {
     config: Record<string, number | string | boolean>;
 }
 
-export interface ScriptConfigSummary extends Omit<ScriptConfig, 'config'> {
+export interface ScriptConfigSummary extends ScriptConfig {
     scriptName: string;
 }
 

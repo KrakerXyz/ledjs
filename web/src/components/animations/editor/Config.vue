@@ -68,8 +68,8 @@
 
 <script lang="ts">
 
-import type { AnimationConfigPost } from '$core/rest/model/AnimationConfig.js';
 import type { Id } from '$core/rest/model/Id';
+import { ScriptConfigPost, ScriptType } from '$core/rest/model/ScriptConfig';
 import type { ScriptVersion } from '$core/rest/model/ScriptVersion';
 import { deepClone } from '$core/services/deepClone';
 import { newId } from '$core/services/newId';
@@ -80,7 +80,8 @@ interface SelectOption { text: string, value: Id | 'new' }
 
 export default defineComponent({
     props: {
-        animation: { type: Object as () => { id: Id, version: ScriptVersion }, required: true },
+        type: { type: String as () => ScriptType, required: true },
+        script: { type: Object as () => { id: Id, version: ScriptVersion }, required: true },
         config: { type: Object as () => netled.common.IConfig, required: true },
         readonly: { type: Boolean, required: false },
         /** When true, only configs can be selected */
@@ -90,6 +91,8 @@ export default defineComponent({
         'update:settings': (s: netled.common.ISettings) => !!s
     },
     async setup(props, { emit }) {
+
+        const type = 'animation';
             
         let settings = ref<netled.common.ISettings>({});
 
@@ -133,7 +136,7 @@ export default defineComponent({
             emit('update:settings', { ...settings.value });
         });
 
-        const existingConfigs = deepClone(await restApi.animations.config.list(props.animation.id, props.animation.version));
+        let existingConfigs = deepClone(await restApi.scriptConfigs.list(type, props.script.id, props.script.version));
         const savedConfigs = ref<SelectOption[]>(existingConfigs.map(x => ({ text: x.name, value: x.id })).sort((a, b) => a.text.localeCompare(b.text)));
 
         const newConfigName = ref<string>();
@@ -149,17 +152,19 @@ export default defineComponent({
         
             const existingConfig = savedConfigs.value.find(x => x.value === selectedConfigId.value);
 
-            const newConfig: AnimationConfigPost = {
+            const newConfig: ScriptConfigPost = {
                 id: selectedConfigId.value === 'new' ? newId() : selectedConfigId.value!,
                 name: selectedConfigId.value === 'new' ? newConfigName.value! : existingConfig!.text,
-                animation: props.animation,
+                type,
+                script: props.script,
                 config: settings.value,
             };
 
-            await restApi.animations.config.save(newConfig);
+            await restApi.scriptConfigs.save(newConfig);
             if (!existingConfig) {
                 savedConfigs.value = [{ text: newConfig.name, value: newConfig.id }, ...savedConfigs.value].sort((a,b) => a.text.localeCompare(b.text));
             }
+            existingConfigs = deepClone(await restApi.scriptConfigs.list(type, props.script.id, props.script.version));
             selectedConfigId.value = newConfig.id;
             newConfigName.value = undefined;
         };

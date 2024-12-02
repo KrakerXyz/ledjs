@@ -10,24 +10,31 @@ export class ScriptConfigRestClient {
     ) {}
 
     public list(type: ScriptType): Promise<ScriptConfigSummary[]>;
-    public list(type: ScriptType, scriptId: Id): Promise<ScriptConfig[]>;
-    public list(type: ScriptType, scriptId: Id, version: ScriptVersion): Promise<ScriptConfig[]>;
-    public list(type: ScriptType, scriptId?: Id, version?: ScriptVersion): Promise<ScriptConfig[] | ScriptConfigSummary[]> {
+    public list(type: ScriptType, scriptId: Id): Promise<ScriptConfigSummary[]>;
+    public list(type: ScriptType, scriptId: Id, version: ScriptVersion): Promise<ScriptConfigSummary[]>;
+    public list(type: ScriptType, scriptId?: Id, version?: ScriptVersion): Promise<ScriptConfigSummary[]> {
+
+        const urlParams = new URLSearchParams();
+        urlParams.append('type', type);
         if (scriptId) {
-            return this.restClient.get(`/api/configs/${type}/${scriptId}`, { version });
+            urlParams.append('scriptId', scriptId);
         }
-        return this.restClient.get(`/api/configs/${type}`);
+        if (version) {
+            urlParams.append('version', version.toString());
+        }
+
+        return this.restClient.get(`/api/configs`, urlParams);
     }
 
-    public byId(type: ScriptType, configId: Id): Promise<ScriptConfig> {
-        return this.restClient.get(`/api/configs/${type}/${configId}`);
+    public byId(configId: Id): Promise<ScriptConfig> {
+        return this.restClient.get(`/api/configs/${configId}`);
     }
 
     public save(config: ScriptConfigPost): Promise<ScriptConfig> {
-        return this.restClient.post(`/api/configs/${config.type}`, config);
+        return this.restClient.post('/api/configs', config);
     }
 
-    public delete(type: ScriptType, configId: Id): Promise<void> {
-        return this.restClient.delete(`/api/configs/${type}/${configId}`);
+    public delete(configId: Id): Promise<void> {
+        return this.restClient.delete(`/api/configs/${configId}`);
     }
 }
