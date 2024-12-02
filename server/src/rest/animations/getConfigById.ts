@@ -17,7 +17,7 @@ export const getConfigById: RouteOptions = {
     },
     handler: async (req, res) => {
         const configId: Id = (req.params as any).configId;
-        const db = req.services.animationConfigDb;
+        const db = req.services.scriptConfigDb;
         const config = await db.byId(configId);
 
         if (!config) {

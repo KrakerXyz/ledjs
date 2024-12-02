@@ -1,14 +1,14 @@
 import type { RouteOptions } from 'fastify';
 import { jwtAuthentication } from '../../services/jwtAuthentication.js';
-import type { AnimationConfigPost, AnimationConfig } from '../../../../core/src/rest/model/AnimationConfig.js';
+import type { ScriptConfigPost, ScriptConfig } from '../../../../core/src/rest/model/ScriptConfig.js';
 
 export const postConfig: RouteOptions = {
     method: 'POST',
     url: '/api/animations/configs',
     preValidation: [jwtAuthentication],
     handler: async (req, res) => {
-        const post = req.body as AnimationConfigPost;
-        const db = req.services.animationConfigDb;
+        const post = req.body as ScriptConfigPost;
+        const db = req.services.scriptConfigDb;
 
         const existing = await db.byId(post.id);
         if (existing && existing.userId !== req.user.sub) {
@@ -16,7 +16,7 @@ export const postConfig: RouteOptions = {
             return;
         }
 
-        const newConfig: AnimationConfig = {
+        const newConfig: ScriptConfig = {
             ...post,
             userId: req.user.sub,
         };

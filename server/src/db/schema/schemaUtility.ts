@@ -42,7 +42,7 @@ const ajvCompilers: Record<'body' | 'params' | 'querystring' | 'entity', Ajv.def
 
 export const jsonSchemas = {
     animation: await import('./Animation.schema.json', { with: { type: 'json' } }).then(x => x.default),
-    animationConfig: await import('./AnimationConfig.schema.json', { with: { type: 'json' } }).then(x => x.default),
+    scriptConfig: await import('./ScriptConfig.schema.json', { with: { type: 'json' } }).then(x => x.default),
     device: await import('./Device.schema.json', { with: { type: 'json' } }).then(x => x.default),
     postProcessor: await import('./PostProcessor.schema.json', { with: { type: 'json' } }).then(x => x.default),
     postProcessorPost: await import('./PostProcessorPost.schema.json', { with: { type: 'json' } }).then(x => x.default),

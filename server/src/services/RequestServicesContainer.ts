@@ -1,8 +1,8 @@
 
-import { AnimationConfigDb } from '../db/AnimationConfigDb.js';
 import { AnimationDb } from '../db/AnimationDb.js';
 import { DeviceDb } from '../db/DeviceDb.js';
 import { PostProcessorDb } from '../db/PostProcessorDb.js';
+import { ScriptConfigDb } from '../db/ScriptConfigDb.js';
 import { StrandDb } from '../db/StrandDb.js';
 import { UserDb } from '../db/UserDb.js';
 import { MqttClient } from './MqttClient.js';
@@ -16,11 +16,6 @@ export class RequestServicesContainer {
     private _animationDb: AnimationDb | null = null;
     public get animationDb() {
         return this._animationDb ?? (this._animationDb = new AnimationDb());
-    }
-
-    private _animationConfigDb: AnimationConfigDb | null = null;
-    public get animationConfigDb() {
-        return this._animationConfigDb ?? (this._animationConfigDb = new AnimationConfigDb());
     }
 
     private _postProcessorDb: PostProcessorDb | null = null;
@@ -41,6 +36,11 @@ export class RequestServicesContainer {
     private _strandDb: StrandDb | null = null;
     public get strandDb() {
         return this._strandDb ?? (this._strandDb = new StrandDb());
+    }
+
+    private _scriptConfigDb: ScriptConfigDb | null = null;
+    public get scriptConfigDb() {
+        return this._scriptConfigDb ?? (this._scriptConfigDb = new ScriptConfigDb());
     }
 
 }

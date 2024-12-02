@@ -3,7 +3,7 @@ import { writeFileSync } from 'fs';
 
 const dbSchemas = {
     '../core/src/rest/model/Animation': ['Animation'],
-    '../core/src/rest/model/AnimationConfig': ['AnimationConfig'],
+    '../core/src/rest/model/ScriptConfig': ['ScriptConfig'],
     '../core/src/rest/model/Device': ['Device'],
     '../core/src/rest/model/PostProcessor': ['PostProcessor', 'PostProcessorPost'],
     '../core/src/rest/model/User': ['User'],

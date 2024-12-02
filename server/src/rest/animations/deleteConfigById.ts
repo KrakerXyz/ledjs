@@ -19,7 +19,7 @@ export const deleteConfigById: RouteOptions = {
     handler: async (req, res) => {
         const configId = (req.params as any)['configId'] as Id;
 
-        const config = await req.services.animationConfigDb.byId(configId);
+        const config = await req.services.scriptConfigDb.byId(configId);
         if (!config) {
             await res.status(404).send({ error: 'A config with that id does not exist' });
             return;
@@ -30,7 +30,7 @@ export const deleteConfigById: RouteOptions = {
             return;
         }
 
-        await req.services.animationConfigDb.deleteById(config.id);
+        await req.services.scriptConfigDb.deleteById(config.id);
 
         await res.status(200).send();
     }

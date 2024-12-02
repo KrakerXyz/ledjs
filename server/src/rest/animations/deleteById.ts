@@ -33,10 +33,10 @@ export const deleteById: RouteOptions = {
             return;
         }
 
-        const configs = req.services.animationConfigDb.byAnimationId(params.animationId, req.user.sub, animation.version);
+        const configs = req.services.scriptConfigDb.byScriptId('animation', params.animationId, req.user.sub, animation.version);
 
         for await (const config of configs) {
-            await req.services.animationConfigDb.deleteById(config.id);
+            await req.services.scriptConfigDb.deleteById(config.id);
         }
 
         await db.deleteById(animation.id, animation.version);

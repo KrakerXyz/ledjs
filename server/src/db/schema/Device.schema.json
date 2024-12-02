@@ -20,33 +20,13 @@
     "spiSpeed": {
       "type": "number"
     },
-    "status": {
-      "type": "object",
-      "properties": {
-        "lastSeen": {
-          "type": "number"
-        },
-        "onlineSince": {
-          "type": "number"
-        },
-        "offlineSince": {
-          "type": "number"
-        },
-        "localIp": {
-          "type": "string"
-        },
-        "wanIp": {
-          "type": "string"
-        }
-      }
-    },
     "strandId": {
       "type": [
         "string",
         "null"
       ]
     },
-    "isStopped": {
+    "isRunning": {
       "type": "boolean"
     }
   },
@@ -57,9 +37,8 @@
     "secret",
     "created",
     "spiSpeed",
-    "status",
     "strandId",
-    "isStopped"
+    "isRunning"
   ],
   "definitions": {}
 }
