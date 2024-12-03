@@ -31,7 +31,17 @@
                             placeholder="*"
                             v-model.lazy.number="numLeds"
                         >
-                        <label for="d-leds"># LEDs</label>
+                        <label for="d-leds">Strand Leds</label>
+                    </div>
+                    
+                    <div class="form-floating">
+                        <input
+                            id="d-anim-leds"
+                            class="form-control"
+                            placeholder="*"
+                            v-model.lazy.number="animationLeds"
+                        >
+                        <label for="d-anim-leds">Animation Leds</label>
                     </div>
 
                     <div class="form-floating">
@@ -102,6 +112,7 @@ import { usePostProcessorWorkerAsync } from '$src/services/animation/postProcess
 import { LedSegment } from '$core/LedSegment';
 import { Icons } from '$src/components/global/Icon.vue';
 import { assertTrue, useMonacoEditor, restApi } from '$src/services';
+import { IArgb } from '$core/IArgb';
 
 export default defineComponent({
     components: { config },
@@ -183,28 +194,43 @@ export default defineComponent({
             return a;
         });
 
-        const sab = computed(() => new SharedArrayBuffer(numLeds.value * 4));
 
         const canvasContainer = ref<HTMLDivElement>();
         const canvasRenderer = useCanvasRenderer(canvasContainer);
 
+        const sabPost = computed(() => new SharedArrayBuffer(numLeds.value * 4));
         const ledArrRend = computed(() => {
-            const ls = new LedSegment(sab.value, numLeds.value, 0);
+            const ls = new LedSegment(sabPost.value, numLeds.value, 0);
             ls.addSendCallback(canvasRenderer);
             return ls;
         });
 
         const ledSegmentPost = computed(() => {
-            const ls = new LedSegment(sab.value, numLeds.value, 0);
+            const ls = new LedSegment(sabPost.value, numLeds.value, 0);
             ls.addSendCallback(ledArrRend.value.send);
             return ls;
         });
 
         const postContext = await usePostProcessorWorkerAsync(javascript, ledSegmentPost);
 
+        const animationLeds = ref(numLeds.value);
         const ledSegmentAnim = computed(() => {
-            const ls = new LedSegment(sab.value, numLeds.value, 0);
-            ls.addSendCallback(postContext.ledSegmentInput);
+            const sab = new SharedArrayBuffer(animationLeds.value * 4);
+            const ls = new LedSegment(sab, animationLeds.value, 0);
+            const black: IArgb = [0, 0, 0, 0];
+            ls.addSendCallback(s => {
+                const postLs = ledSegmentPost.value;
+                for (let i = 0; i < postLs.length; i++) {
+                    if (i < s.length) {
+                        const l = s.getLed(i);
+                        postLs.setLed(i, l);
+                    } else {
+                        postLs.setLed(i, black);
+                    }
+                }
+
+                return postContext.ledSegmentInput(s);
+            });
             return ls;
         });
         const animationContext = await useAnimationWorkerAsync(animationJavascript, ledSegmentAnim);
@@ -214,7 +240,7 @@ export default defineComponent({
             postContext.dispose();
         }, componentInstance);
 
-        return { numLeds, canvasContainer, animationConfig: animationContext.animationConfig, processor, saveScript, deleteScript, issues, animations, selectedAnimationId, selectedAnimation, animationSettings: animationContext.animationSettings, Icons };
+        return { numLeds, canvasContainer, animationConfig: animationContext.animationConfig, processor, saveScript, deleteScript, issues, animations, selectedAnimationId, selectedAnimation, animationSettings: animationContext.animationSettings, Icons, animationLeds };
     }
 });
 

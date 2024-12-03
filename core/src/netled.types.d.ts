@@ -51,14 +51,6 @@ declare global {
                 /** Gets byte of specified color component (0: Alpha, 1: Red, 2: Green, 3: Blue) of LED at given index */
                 getLed(index: number, component: 0 | 1 | 2 | 3): number,
 
-                /** Shift LEDs to the right */
-                shift(dir?: 1 | true): void,
-                /** shift LEDs to the left */
-                shift(dir: 0 | false): void,
-
-                /** Reverses the order of all leds in the array */
-                reverse(): void, 
-
                 /** Output the current array to the leds or the next stage in the pipeline */
                 send(): Promise<void>,
             }

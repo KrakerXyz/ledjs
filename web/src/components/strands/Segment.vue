@@ -51,7 +51,6 @@ export default defineComponent({
                 seg.prevLedSegment?.addSendCallback(pp.ledSegmentInput);
             });
 
-            
             onUnmounted(() => {
                 ppProm.then(pp => {
                     console.log('Disposing post processor worker');

@@ -31,7 +31,7 @@
         "monaco-editor": "^0.52.0",
         "postcss-nested": "^7",
         "typescript": "^5",
-        "vite": "^5",
+        "vite": "^6.0.2",
         "vite-plugin-full-reload": "^1.2.0",
         "vite-plugin-vue-devtools": "^7.6.4",
         "vue-tsc": "^2"

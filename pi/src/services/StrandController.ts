@@ -52,7 +52,7 @@ export class StrandController {
                     let settings: netled.common.ISettings | null = {};
                     if (segment.script.configId) {
                         this._logger.debug(`Loading animation config ${segment.script.configId} for animation ${animation.id}`);
-                        const animationConfig = await restApi.animations.config.byId(segment.script.configId);
+                        const animationConfig = await restApi.scriptConfigs.byId(segment.script.configId);
                         if (!animationConfig) {
                             throw new Error(`Failed to load animation config ${segment.script.configId}`);
                         }

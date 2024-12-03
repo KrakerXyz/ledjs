@@ -145,7 +145,7 @@ import { newId } from '$core/services/newId';
 import { useRouteLocation, RouteName } from '$src/main.router';
 import { Icons } from '../global/Icon.vue';
 import { deepEquals } from '$core/services/deepEquals';
-import { AnimationConfig } from '$core/rest/model/AnimationConfig';
+import { ScriptConfig } from '$core/rest/model/ScriptConfig';
 
 export default defineComponent({
     components: { Segment: SegmentVue },
@@ -249,13 +249,13 @@ export default defineComponent({
 
         const selectedSegmentName = computed(() => segments.value.find(x => x.id === selectedId.value)?.name);
 
-        const animationConfigs = ref<AnimationConfig[]>([]);
+        const animationConfigs = ref<ScriptConfig[]>([]);
         const selectedAnimationSegmentWatch = watch(selectedAnimationSegment, async vm => {
             if (!vm || vm.type !== SegmentInputType.Animation) {
                 animationConfigs.value = [];
                 return;
             }
-            animationConfigs.value = await restApi.animations.config.list(vm.script.id, vm.script.version);
+            animationConfigs.value = await restApi.scriptConfigs.list('animation', vm.script.id, vm.script.version);
         }, { immediate: true });
         onWatcherCleanup(selectedAnimationSegmentWatch);
 

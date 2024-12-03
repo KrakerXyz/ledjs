@@ -102,52 +102,6 @@ export class LedSegment implements netled.common.ILedSegment, Disposable {
             throw new Error('Invalid number of arguments');
         }
     }
-
-    /** Shift LEDs to the right */
-    public shift(dir?: 1 | true): void;
-    /** shift LEDs to the left */
-    public shift(dir: 0 | false): void;
-    public shift(dir?: 0 | 1 | boolean): void {
-        if (this.#disposed) { throw new Error('LedSegment is disposed'); }
-        if (this.deadLeds.length) { throw new Error('Shifting not implemented with dead leds'); }
-        
-        if (dir === undefined || dir) {
-            let iter = 4;
-            while (iter--) {
-                const endByte = this.#arr.at(-1);
-                for (let i = this.#arr.length - 2; i > -1; i--) {
-                    this.#arr[i + 1] = this.#arr[i];
-                }
-                this.#arr[0] = endByte!;
-            }
-        } else {
-            let iter = 4;
-            while (iter--) {
-                const startByte = this.#arr[0];
-                for (let i = 0; i < this.#arr.length - 1; i++) {
-                    this.#arr[i] = this.#arr[i + 1];
-                }
-                this.#arr[this.#arr.length - 1] = startByte;
-            }
-        }
-    } 
-
-    /** Reverses the order of all leds in the array */
-    public reverse(): void {
-        if (this.#disposed) { throw new Error('LedSegment is disposed'); }
-        if (this.deadLeds.length) { throw new Error('Shifting not implemented with dead leds'); }
-        
-        for (let i = 0; i < this.#numLeds/ 2; i++) {
-            const endPos = this.#numLeds - i - 1;
-
-            const startLed = this.getLed(i);
-            const endLed = this.getLed(endPos);
-
-            this.setLed(i, endLed);
-            this.setLed(endPos, startLed);
-        }
-    }
-
     
     readonly #sendCb: LedSegmentCallback[] = [];
     public addSendCallback(cb: LedSegmentCallback): void {
