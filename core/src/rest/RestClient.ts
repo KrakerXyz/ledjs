@@ -17,9 +17,14 @@ export class RestClient {
         }
     }
 
+    private async throwNon200(response: Response): Promise<Response> {
+        if (response.status >= 200 && response.status < 300) { return response; }
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+    }
+
     public get<T>(path: string, query?: Query): Promise<T> {
         const url = this.createUrl(path, query);
-        return fetch(url, { headers: this.headers }).then(r => r.json() as T).then(r => deepFreeze(r));
+        return fetch(url, { headers: this.headers }).then(this.throwNon200).then(r => r.json() as T).then(r => deepFreeze(r));
     }
 
     public post<T>(path: string, data: any, query?: Query): Promise<T> {
@@ -32,12 +37,12 @@ export class RestClient {
                 ...this.headers,
                 'Content-Type': 'application/json'
             }
-        }).then(r => parseInt(r.headers.get('Content-Length') ?? '0') ? r.json() : undefined).then(r => deepFreeze(r) as T);
+        }).then(this.throwNon200).then(r => parseInt(r.headers.get('Content-Length') ?? '0') ? r.json() : undefined).then(r => deepFreeze(r) as T);
     }
 
     public delete(path: string): Promise<void> {
         const url = this.createUrl(path);
-        return fetch(url, { method: 'DELETE', headers: this.headers }).then(() => undefined);
+        return fetch(url, { method: 'DELETE', headers: this.headers }).then(this.throwNon200).then(() => undefined);
     }
 
     private createUrl(path: string, query?: Query): string {
