@@ -3,8 +3,9 @@ import { OAuth2Client } from 'google-auth-library';
 import { v4 } from 'uuid';
 import { UserDb } from '../../db/UserDb.js';
 import { getRequiredConfig, EnvKey } from '../../services/getRequiredConfig.js';
-import type { GoogleJwt } from '../../../../core/src/rest/AuthRestClient.js';
+import type { AuthResult, GoogleJwt } from '../../../../core/src/rest/AuthRestClient.js';
 import type { Id } from '../../../../core/src/rest/model/Id.js';
+import { getUserServices } from './getUserServices.js';
 
 export const postGoogleJwt: RouteOptions = {
     method: 'POST',
@@ -65,7 +66,12 @@ export const postGoogleJwt: RouteOptions = {
                 sameSite: true,
             });
 
-            await res.status(isNewUser ? 201 : 200).send(user);
+            const authResult: AuthResult = {
+                user,
+                services: getUserServices(user.id)
+            };
+
+            await res.status(isNewUser ? 201 : 200).send(authResult);
         } catch (e) {
             req.log.warn(e, 'Error validating google jwt');
             res.status(401).send('Error during google jwt/user validation');

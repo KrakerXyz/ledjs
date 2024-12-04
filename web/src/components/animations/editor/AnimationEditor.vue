@@ -37,7 +37,12 @@
                         <h3 class="mt-3">
                             Config
                         </h3>
-                        <config :animation="{ id: animationId, version: 'draft' }" :config="animationConfig" @update:settings="s => animationSettings = s"></config>
+                        <config
+                            type="animation"
+                            :script="{ id: animationId, version: 'draft' }"
+                            :config="animationConfig"
+                            @update:settings="s => animationSettings = s"
+                        ></config>
                     </div>
                 </div>
 
@@ -107,8 +112,7 @@ export default defineComponent({
         const canvasRenderer = useCanvasRenderer(canvasContainer);
 
         const ledSegment = computed(() => {
-            const sab = new SharedArrayBuffer(numLeds.value * 4);
-            const ls = new LedSegment(sab, numLeds.value, 0);
+            const ls = new LedSegment(numLeds.value);
             ls.addSendCallback(canvasRenderer);
             return ls;
         });

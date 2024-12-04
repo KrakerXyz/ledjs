@@ -1,23 +1,24 @@
+
 import type { RouteOptions } from 'fastify';
 import { jwtAuthentication } from '../../services/jwtAuthentication.js';
 import type { Id } from '../../../../core/src/rest/model/Id.js';
 
 export const getConfigById: RouteOptions = {
     method: 'GET',
-    url: '/api/animations/configs/:configId',
+    url: '/api/configs/:configId',
     preValidation: [jwtAuthentication],
     schema: {
         params: {
             type: 'object',
             properties: {
-                configId: { type: 'string' }
+                configId: { type: 'string', format: 'uuid' }
             },
             required: ['configId']
         }
     },
     handler: async (req, res) => {
         const configId: Id = (req.params as any).configId;
-        const db = req.services.animationConfigDb;
+        const db = req.services.scriptConfigDb;
         const config = await db.byId(configId);
 
         if (!config) {

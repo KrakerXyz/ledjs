@@ -27,7 +27,7 @@ export const getDevice: RouteOptions = {
             return;
         }
 
-        if (device.userId !== req.user.sub && device.id !== req.user.sub) {
+        if (device.userId !== req.user.sub) {
             await res.status(403).send('User does not have access to this device');
             return;
         }

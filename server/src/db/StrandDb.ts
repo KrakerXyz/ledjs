@@ -12,8 +12,8 @@ export class StrandDb {
         StrandDb._entity ??= new Db<Strand>('strands', jsonSchemas.strand);
     }
 
-    public all(): AsyncGenerator<Strand> {
-        return StrandDb._entity.find({}, c => c.project({ js: false, ts: false } as any));
+    public all(author: Id): AsyncGenerator<Strand> {
+        return StrandDb._entity.find({author}, c => c.project({ js: false, ts: false } as any));
     }
 
     public byId(id: Id): Promise<Strand | null> {

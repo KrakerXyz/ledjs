@@ -41,14 +41,14 @@ const ajvCompilers: Record<'body' | 'params' | 'querystring' | 'entity', Ajv.def
 };
 
 export const jsonSchemas = {
-    animation: await import('./Animation.schema.json', { assert: { type: 'json' } }).then(x => x.default),
-    animationConfig: await import('./AnimationConfig.schema.json', { assert: { type: 'json' } }).then(x => x.default),
-    device: await import('./Device.schema.json', { assert: { type: 'json' } }).then(x => x.default),
-    postProcessor: await import('./PostProcessor.schema.json', { assert: { type: 'json' } }).then(x => x.default),
-    postProcessorPost: await import('./PostProcessorPost.schema.json', { assert: { type: 'json' } }).then(x => x.default),
-    user: await import('./User.schema.json', { assert: { type: 'json' } }).then(x => x.default),
-    strand: await import('./Strand.schema.json', { assert: { type: 'json' } }).then(x => x.default),
-    strandPost: await import('./StrandPost.schema.json', { assert: { type: 'json' } }).then(x => x.default),
+    animation: await import('./Animation.schema.json', { with: { type: 'json' } }).then(x => x.default),
+    scriptConfig: await import('./ScriptConfig.schema.json', { with: { type: 'json' } }).then(x => x.default),
+    device: await import('./Device.schema.json', { with: { type: 'json' } }).then(x => x.default),
+    postProcessor: await import('./PostProcessor.schema.json', { with: { type: 'json' } }).then(x => x.default),
+    postProcessorPost: await import('./PostProcessorPost.schema.json', { with: { type: 'json' } }).then(x => x.default),
+    user: await import('./User.schema.json', { with: { type: 'json' } }).then(x => x.default),
+    strand: await import('./Strand.schema.json', { with: { type: 'json' } }).then(x => x.default),
+    strandPost: await import('./StrandPost.schema.json', { with: { type: 'json' } }).then(x => x.default),
 };
 
 const validators = new Map<string, ValidateFunction>();

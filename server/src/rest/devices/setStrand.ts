@@ -21,13 +21,13 @@ export const setStrand: RouteOptions = {
         const db = req.services.deviceDb;
         const device = await db.byId(deviceId);
 
-        if (!device) {
-            await res.status(404).send({ error: 'Device not found' });
+        if (!device || device.userId !== req.user.sub) {
+            await res.status(404).send({ error: 'Device not found for user' });
             return;
         }
 
-        if (device.userId !== req.user.sub) {
-            await res.status(401).send({ error: 'Device does not belong to you' });
+        if (strandId === device.strandId) {
+            await res.status(400).send({ error: `Strand ${strandId} is already set` });
             return;
         }
 
@@ -42,6 +42,8 @@ export const setStrand: RouteOptions = {
 
         device.strandId = strandId;
         await db.upsert(device);
+
+        req.services.mqtt.publishDeviceAction(deviceId, 'strand-changed', strandId ?? '');
 
         await res.status(200).send();
     }

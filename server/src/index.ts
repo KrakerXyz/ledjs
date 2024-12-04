@@ -16,6 +16,7 @@ const __filename = fileURLToPath(import.meta.url); // get the resolved path to t
 const __dirname = path.dirname(__filename); // get the name of the directory
 
 console.log('Configuring db');
+console.log(getRequiredConfig(EnvKey.DbConnectionString));
 configureDbLocal({
     dbName: 'netled-dev',
     uri: getRequiredConfig(EnvKey.DbConnectionString)
@@ -65,11 +66,13 @@ server.register(fastifyJWT, {
 
 server.register(fastifyCookie);
 
+const webPath = path.join(__dirname, '../../', '.web');
 server.register(fastifyStatic, {
-    root: path.join(__dirname, '.web'),
+    root: webPath,
     immutable: true,
     maxAge: '1d',
     setHeaders: res => {
+        // Required to use SharedArrayBuffer
         res.setHeader('Cross-Origin-Opener-Policy', 'same-origin');
         res.setHeader('Cross-Origin-Embedder-Policy', 'require-corp');
     }
@@ -87,10 +90,7 @@ server.setNotFoundHandler({}, async (req, res) => {
         await res.status(404).send();
         return;
     }
-    await res.headers({
-        'Cross-Origin-Opener-Policy': 'same-origin',
-        'Cross-Origin-Embedder-Policy': 'require-corp'
-    }).sendFile('index.html');
+    await res.sendFile('index.html', {cacheControl: false});
 });
 
 server.ready(() => {

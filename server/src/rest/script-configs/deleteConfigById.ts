@@ -2,26 +2,34 @@
 import type { RouteOptions } from 'fastify';
 import { jwtAuthentication } from '../../services/jwtAuthentication.js';
 import type { Id } from '../../../../core/src/rest/model/Id.js';
+import type { ScriptType } from '../../../../core/src/rest/model/ScriptConfig.js';
 
 export const deleteConfigById: RouteOptions = {
     method: 'DELETE',
-    url: '/api/animations/configs/:configId',
+    url: '/api/configs/:type/:configId',
     preValidation: [jwtAuthentication],
     schema: {
         params: {
             type: 'object',
             properties: {
+                type: { type: 'string', enum: ['animation', 'post-processor'] },
                 configId: { type: 'string', format: 'uuid' }
             },
-            required: ['configId']
+            required: ['type', 'configId']
         }
     },
     handler: async (req, res) => {
-        const configId = (req.params as any)['configId'] as Id;
+        const type = (req.params as any).type as ScriptType;
+        const configId = (req.params as any).configId as Id;
+        const config = await req.services.scriptConfigDb.byId(configId);
 
-        const config = await req.services.animationConfigDb.byId(configId);
         if (!config) {
             await res.status(404).send({ error: 'A config with that id does not exist' });
+            return;
+        }
+
+        if (config.type !== type) {
+            await res.status(404).send({ error: 'Config type does not match URL type' });
             return;
         }
 
@@ -30,8 +38,7 @@ export const deleteConfigById: RouteOptions = {
             return;
         }
 
-        await req.services.animationConfigDb.deleteById(config.id);
-
+        await req.services.scriptConfigDb.deleteById(config.id);
         await res.status(200).send();
     }
 };

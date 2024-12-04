@@ -46,8 +46,8 @@
             <span
                 class="online-status d-inline-block me-2"
                 :class="{
-                    'bg-success': (deviceCopy.status?.onlineSince ?? 0) > (deviceCopy.status?.offlineSince ?? 0),
-                    'bg-danger': (deviceCopy.status?.offlineSince ?? 0) >= (deviceCopy.status?.onlineSince ?? 0),
+                    'bg-success': isOnline,
+                    'bg-danger': !isOnline,
                 }"
             ></span>
         </div>
@@ -62,6 +62,7 @@ import { assertTrue, restApi } from '$src/services';
 import { watch, defineComponent, reactive, ref, getCurrentInstance } from 'vue';
 import { useRouteLocation, RouteName } from '$src/main.router';
 import { Icons } from '$src/components/global/Icon.vue';
+import { useMqttClient } from '$src/services/mqttClient';
 
 export default defineComponent({
     props: {
@@ -71,6 +72,20 @@ export default defineComponent({
     async setup(props) {
         const componentInstance = getCurrentInstance();
         assertTrue(componentInstance);
+
+        const mqtt = useMqttClient();
+        const isOnline = ref(false);
+        let offlineTimeout: number | null = null;
+        mqtt.subscribe(`netled-dev/status/${props.device.id}`, () => {
+            isOnline.value = true;
+            if (offlineTimeout) {
+                clearTimeout(offlineTimeout);
+            }
+            offlineTimeout = setTimeout(() => {
+                isOnline.value = false;
+                offlineTimeout = null;
+            }, 17_000) as unknown as number;
+        });
 
         const deviceCopy = reactive(deepClone(props.device));
 
@@ -87,7 +102,7 @@ export default defineComponent({
             restApi.devices.setRunning(deviceCopy.id, running);
         };
 
-        return { stop, selectedStrandId, deviceCopy, useRouteLocation, RouteName, strands, Icons, setRunning };
+        return { stop, selectedStrandId, deviceCopy, useRouteLocation, RouteName, strands, Icons, setRunning, isOnline };
     },
 });
 

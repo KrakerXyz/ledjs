@@ -31,7 +31,17 @@
                             placeholder="*"
                             v-model.lazy.number="numLeds"
                         >
-                        <label for="d-leds"># LEDs</label>
+                        <label for="d-leds">Strand Leds</label>
+                    </div>
+                    
+                    <div class="form-floating">
+                        <input
+                            id="d-anim-leds"
+                            class="form-control"
+                            placeholder="*"
+                            v-model.lazy.number="animationLeds"
+                        >
+                        <label for="d-anim-leds">Animation Leds</label>
                     </div>
 
                     <div class="form-floating">
@@ -50,13 +60,15 @@
 
                     <div v-if="animationConfig && selectedAnimation" class="flex-grow-1">
                         <h3 class="mt-3">
-                            Config
+                            Animation Config
                         </h3>
                         <config
-                            :animation="{ id: selectedAnimation.id, version: selectedAnimation.version }"
+                            type="animation"    
+                            :script="{ id: selectedAnimation.id, version: selectedAnimation.version }"
                             :config="animationConfig"
                             @update:settings="s => animationSettings = s"
                             :readonly="true"
+                            :saved-config-only="true"
                         ></config>
                     </div>
                 </div>
@@ -181,28 +193,26 @@ export default defineComponent({
             return a;
         });
 
-        const sab = computed(() => new SharedArrayBuffer(numLeds.value * 4));
 
         const canvasContainer = ref<HTMLDivElement>();
         const canvasRenderer = useCanvasRenderer(canvasContainer);
 
-        const ledArrRend = computed(() => {
-            const ls = new LedSegment(sab.value, numLeds.value, 0);
-            ls.addSendCallback(canvasRenderer);
-            return ls;
-        });
-
         const ledSegmentPost = computed(() => {
-            const ls = new LedSegment(sab.value, numLeds.value, 0);
-            ls.addSendCallback(ledArrRend.value.send);
+            const ls = new LedSegment(numLeds.value);
+            ls.addSendCallback(canvasRenderer);
             return ls;
         });
 
         const postContext = await usePostProcessorWorkerAsync(javascript, ledSegmentPost);
 
+        const animationLeds = ref(numLeds.value);
         const ledSegmentAnim = computed(() => {
-            const ls = new LedSegment(sab.value, numLeds.value, 0);
-            ls.addSendCallback(postContext.ledSegmentInput);
+            const ls = new LedSegment(animationLeds.value);
+            ls.addSendCallback(s => {
+                ledSegmentPost.value.blackOut();
+                s.copyTo(ledSegmentPost.value, 0);
+                return postContext.execTrigger();
+            });
             return ls;
         });
         const animationContext = await useAnimationWorkerAsync(animationJavascript, ledSegmentAnim);
@@ -212,7 +222,7 @@ export default defineComponent({
             postContext.dispose();
         }, componentInstance);
 
-        return { numLeds, canvasContainer, animationConfig: animationContext.animationConfig, processor, saveScript, deleteScript, issues, animations, selectedAnimationId, selectedAnimation, animationSettings: animationContext.animationSettings, Icons };
+        return { numLeds, canvasContainer, animationConfig: animationContext.animationConfig, processor, saveScript, deleteScript, issues, animations, selectedAnimationId, selectedAnimation, animationSettings: animationContext.animationSettings, Icons, animationLeds };
     }
 });
 

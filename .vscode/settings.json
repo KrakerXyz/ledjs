@@ -15,6 +15,7 @@
         "LEDJS",
         "Leds",
         "middlewares",
+        "mqtt",
         "multiline",
         "netled",
         "offscreencanvas",

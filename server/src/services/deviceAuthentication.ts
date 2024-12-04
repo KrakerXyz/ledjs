@@ -29,6 +29,9 @@ export const deviceAuthentication: preValidationHookHandler = async (req, res) =
     }
 
     req.user = {
-        sub: device.id
+        sub: device.userId,
+        userId: device.userId,
+        authType: 'device',
+        deviceId: device.id,
     };
 };

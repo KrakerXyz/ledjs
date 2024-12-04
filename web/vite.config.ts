@@ -16,6 +16,7 @@ export default defineConfig({
                 server.middlewares.use((req, res, next) => {
                     const originalUrl: string = req.originalUrl ?? '';
                     if (originalUrl.startsWith('/user/') || originalUrl.includes('worker_file')) {
+                        // Required to use SharedArrayBuffer
                         res.setHeader('Cross-Origin-Opener-Policy', 'same-origin');
                         res.setHeader('Cross-Origin-Embedder-Policy', 'require-corp');
                     }

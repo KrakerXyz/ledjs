@@ -28,7 +28,6 @@ export const postDevice: RouteOptions = {
             name: device.name,
             isRunning: false,
             spiSpeed: device.spiSpeed,
-            status: {},
             strandId: null
         };
 

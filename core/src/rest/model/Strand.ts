@@ -26,7 +26,7 @@ interface SegmentBase {
     },
 }
 
-interface AnimationSegment extends SegmentBase {
+export interface AnimationSegment extends SegmentBase {
     type: SegmentInputType.Animation,
     script: {
         id: Id,
@@ -38,7 +38,7 @@ interface AnimationSegment extends SegmentBase {
     }
 }
 
-interface PostProcessSegment extends SegmentBase {
+export interface PostProcessSegment extends SegmentBase {
     type: SegmentInputType.PostProcess,
     script: {
         id: Id,

@@ -8,20 +8,31 @@ import rpio from 'rpio';
 
 export class StrandController {
 
-    private readonly _logger = getLogger('index');
+    private readonly _logger = getLogger('StrandController');
     private readonly _segments: SegmentVm[] = [];
     private _numLeds: number = 0;
     private _running = false;
     
     public async loadStrand(strandId: Id): Promise<void> {
-        this._segments.length = 0;
-        this._logger.debug('Loading strand');
+
+        if (this._segments.length) {
+            this._logger.debug('Disposing of previous strand segments');
+            for (const s of this._segments) {
+                if (s.type === SegmentInputType.Animation) {
+                    s.controller.pause();
+                    Object.values(s.services).forEach((s: any) => s[Symbol.dispose]?.());
+                    s.ledSegment[Symbol.dispose]();
+                }
+            }
+            this._segments.length = 0;
+        }
+
+        this._logger.debug(`Loading strand ${strandId}`);
         const strand = await restApi.strands.byId(strandId);
 
         this._logger.info(`Got strand '${strand.name}' consisting of ${strand.segments.length} segments`);
 
         this._numLeds = strand.numLeds;
-        const sab = new SharedArrayBuffer(strand.numLeds * 4);
 
         try {
             for (const segment of strand.segments) {
@@ -40,7 +51,7 @@ export class StrandController {
                     let settings: netled.common.ISettings | null = {};
                     if (segment.script.configId) {
                         this._logger.debug(`Loading animation config ${segment.script.configId} for animation ${animation.id}`);
-                        const animationConfig = await restApi.animations.config.byId(segment.script.configId);
+                        const animationConfig = await restApi.scriptConfigs.byId(segment.script.configId);
                         if (!animationConfig) {
                             throw new Error(`Failed to load animation config ${segment.script.configId}`);
                         }
@@ -56,7 +67,7 @@ export class StrandController {
                         }
                     }
 
-                    const ledSegment = new LedSegment(sab, segment.leds.num, segment.leds.offset, segment.leds.dead);
+                    const ledSegment = new LedSegment(segment.leds.num, segment.leds.dead);
 
                     const services: Partial<netled.services.IServices> = {};
                     for (const service of script.services ?? []) {
@@ -77,6 +88,7 @@ export class StrandController {
                         services,
                         controller,
                         ledSegment,
+                        offset: segment.leds.offset,
                     });
 
                 } else if (segment.type === SegmentInputType.PostProcess) {
@@ -87,7 +99,7 @@ export class StrandController {
                     }
                     this._logger.info(`Loaded post-process ${postProcess.id}: ${postProcess.name}`);
 
-                    const ledSegment = new LedSegment(sab, segment.leds.num, segment.leds.offset);
+                    const ledSegment = new LedSegment(segment.leds.num);
                 
                     const script: netled.postProcessor.IPostProcessor = (await import('data:text/javascript;base64,' + btoa(postProcess.js))).default;
 
@@ -107,6 +119,7 @@ export class StrandController {
                         script,
                         controller,
                         ledSegment,
+                        offset: segment.leds.offset,
                     });
                 } else {
                     const _: never = segment;
@@ -131,21 +144,39 @@ export class StrandController {
         }
 
         const animations: AnimationSegmentVm[] = [];
+        let firstProcessor = false;
         for (let i = 0; i < this._segments.length; i++) {
             const segment = this._segments[i];
-            if(segment.type === SegmentInputType.Animation) {
+            if (segment.type === SegmentInputType.Animation) {
+                if (firstProcessor) { throw new Error('Animation segment found after processor(s)'); }
                 animations.push(segment);
                 continue;
             }
 
-        
+            if (!firstProcessor) {
+                firstProcessor = true;
+                // when any animation triggers, we need to black out the first processor then copy from each animation to the processor
+                const trigger = () => {
+                    segment.ledSegment.blackOut();
+                    for (const animation of animations) {
+                        animation.ledSegment.copyTo(segment.ledSegment, segment.offset);
+                    }
+                    return segment.controller.exec();
+                }
+
+                for (const animation of animations) {
+                    animation.ledSegment.addSendCallback(trigger);
+                }
+                
+                continue;
+            }
+
             const prevSegment = this._segments[i - 1];
-            prevSegment.ledSegment.addSendCallback(segment.controller.exec);
-            let prevCount = 2;
-            while (prevSegment.type === SegmentInputType.Animation && this._segments[i - prevCount]?.type === SegmentInputType.Animation) {
-                this._segments[i-prevCount].ledSegment.addSendCallback(segment.controller.exec);
-                prevCount++;
-            } 
+            prevSegment.ledSegment.addSendCallback((s) => {
+                segment.ledSegment.blackOut();
+                s.copyTo(segment.ledSegment, segment.offset);
+                return segment.controller.exec();
+            });
         }
 
         const lastSegment = this._segments[this._segments.length - 1];
@@ -213,6 +244,7 @@ interface SegmentVmBase {
     id: Id,
     name: string,
     ledSegment: LedSegment,
+    offset: number,
 }
 
 interface AnimationSegmentVm extends SegmentVmBase {
