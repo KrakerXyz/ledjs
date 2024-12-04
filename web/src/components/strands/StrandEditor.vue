@@ -185,7 +185,7 @@ export default defineComponent({
                 if (!animOrPost) { throw new Error(`${seg.type} not found`); }
 
                 const deadLeds = seg.type === SegmentInputType.Animation ? seg.leds.dead : undefined
-                const ledSegment = new LedSegment(sab.value, seg.leds.num, seg.leds.offset, deadLeds);
+                const ledSegment = new LedSegment(seg.leds.num, deadLeds, sab.value);
                 const style = { width: `${seg.leds.num / strandLeds.value * 100}%`, 'margin-left': `${seg.leds.offset / strandLeds.value * 100}%` };
                 const selected = selectedId.value === seg.id;
                 const vm: SegmentVm = { 

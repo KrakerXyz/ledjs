@@ -30,7 +30,7 @@ onmessage = async (e: MessageEvent<ClientMessage>) => {
                 return;
             }
 
-            ledSegment = new LedSegment(e.data.sab, e.data.numLeds, e.data.arrayOffset, e.data.deadLeds);
+            ledSegment = new LedSegment(e.data.numLeds, e.data.deadLeds, e.data.sab);
             ledSegment.addSendCallback(async () => {
                 postMessage({ type: 'ledSegmentSend' });
             });

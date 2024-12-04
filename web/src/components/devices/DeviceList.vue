@@ -34,7 +34,7 @@ export default defineComponent({
     async setup() {
 
         const devices = await restApi.devices.list();
-        const configs = deepClone(await restApi.animations.config.list()).sort((a, b) => a.name.localeCompare(b.name));
+        const configs = deepClone(await restApi.scriptConfigs.list('animation')).sort((a, b) => a.name.localeCompare(b.name));
 
         return { devices, configs, useRouteLocation, RouteName };
     }

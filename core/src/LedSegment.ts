@@ -7,10 +7,12 @@ export class LedSegment implements netled.common.ILedSegment, Disposable {
     readonly #arr: Uint8ClampedArray;
     readonly #numLeds: number;
     public readonly deadLeds: number[];
+    public readonly sab: SharedArrayBuffer;
     #disposed = false;
 
-    public constructor(public readonly sab: SharedArrayBuffer, numLeds: number, public readonly ledOffset: number, deadLeds: (number | `${number}-${number}`)[] = []) {
-        this.#arr = new Uint8ClampedArray(sab, ledOffset * 4, numLeds * 4);
+    public constructor(numLeds: number, deadLeds: (number | `${number}-${number}`)[] = [], sab?: SharedArrayBuffer) {
+        this.sab = sab ?? new SharedArrayBuffer(numLeds * 4);
+        this.#arr = new Uint8ClampedArray(this.sab);
         this.#numLeds = numLeds;
 
         this.deadLeds = [];
@@ -31,7 +33,7 @@ export class LedSegment implements netled.common.ILedSegment, Disposable {
     #rawSegment: LedSegment | null = null;
     public get rawSegment(): netled.common.ILedSegment {
         if (this.#disposed) { throw new Error('LedSegment is disposed'); }
-        this.#rawSegment ??= this.deadLeds.length ? new LedSegment(this.sab, this.#numLeds, this.ledOffset) : this;
+        this.#rawSegment ??= this.deadLeds.length ? new LedSegment(this.#numLeds, undefined, this.sab) : this;
         return this.#rawSegment;
     }
 
@@ -100,6 +102,24 @@ export class LedSegment implements netled.common.ILedSegment, Disposable {
             this.#arr[pos + component] = value;
         } else {
             throw new Error('Invalid number of arguments');
+        }
+    }
+
+    public blackOut(): void {
+        if (this.#disposed) { throw new Error('LedSegment is disposed'); }
+        this.#arr.fill(0);
+    }
+
+    public copyTo(segment: netled.common.ILedSegment, offset: number): void {
+        if (this.#disposed) { throw new Error('LedSegment is disposed'); }
+        if (offset < 0 || offset >= this.#numLeds) {
+            throw new Error(`Offset ${offset} is out of bounds`);
+        }
+
+        const raw = this.rawSegment;
+        for (let i = 0; i < raw.length; i++) {
+            const rawLed = raw.getLed(i);
+            segment.setLed(i + offset, rawLed);
         }
     }
     

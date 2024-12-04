@@ -112,7 +112,6 @@ import { usePostProcessorWorkerAsync } from '$src/services/animation/postProcess
 import { LedSegment } from '$core/LedSegment';
 import { Icons } from '$src/components/global/Icon.vue';
 import { assertTrue, useMonacoEditor, restApi } from '$src/services';
-import { IArgb } from '$core/IArgb';
 
 export default defineComponent({
     components: { config },
@@ -198,16 +197,9 @@ export default defineComponent({
         const canvasContainer = ref<HTMLDivElement>();
         const canvasRenderer = useCanvasRenderer(canvasContainer);
 
-        const sabPost = computed(() => new SharedArrayBuffer(numLeds.value * 4));
-        const ledArrRend = computed(() => {
-            const ls = new LedSegment(sabPost.value, numLeds.value, 0);
-            ls.addSendCallback(canvasRenderer);
-            return ls;
-        });
-
         const ledSegmentPost = computed(() => {
-            const ls = new LedSegment(sabPost.value, numLeds.value, 0);
-            ls.addSendCallback(ledArrRend.value.send);
+            const ls = new LedSegment(numLeds.value);
+            ls.addSendCallback(canvasRenderer);
             return ls;
         });
 
@@ -215,21 +207,11 @@ export default defineComponent({
 
         const animationLeds = ref(numLeds.value);
         const ledSegmentAnim = computed(() => {
-            const sab = new SharedArrayBuffer(animationLeds.value * 4);
-            const ls = new LedSegment(sab, animationLeds.value, 0);
-            const black: IArgb = [0, 0, 0, 0];
+            const ls = new LedSegment(animationLeds.value);
             ls.addSendCallback(s => {
-                const postLs = ledSegmentPost.value;
-                for (let i = 0; i < postLs.length; i++) {
-                    if (i < s.length) {
-                        const l = s.getLed(i);
-                        postLs.setLed(i, l);
-                    } else {
-                        postLs.setLed(i, black);
-                    }
-                }
-
-                return postContext.ledSegmentInput(s);
+                ledSegmentPost.value.blackOut();
+                s.copyTo(ledSegmentPost.value, 0);
+                return postContext.execTrigger();
             });
             return ls;
         });

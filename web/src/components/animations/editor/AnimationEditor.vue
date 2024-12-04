@@ -112,8 +112,7 @@ export default defineComponent({
         const canvasRenderer = useCanvasRenderer(canvasContainer);
 
         const ledSegment = computed(() => {
-            const sab = new SharedArrayBuffer(numLeds.value * 4);
-            const ls = new LedSegment(sab, numLeds.value, 0);
+            const ls = new LedSegment(numLeds.value);
             ls.addSendCallback(canvasRenderer);
             return ls;
         });

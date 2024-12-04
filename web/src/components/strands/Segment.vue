@@ -48,7 +48,7 @@ export default defineComponent({
             console.log(`Starting new post processor worker for ${seg.name}`);
             const ppProm = usePostProcessorWorkerAsync(ref(seg.js), computed(() => seg.ledSegment));
             ppProm.then(pp => {
-                seg.prevLedSegment?.addSendCallback(pp.ledSegmentInput);
+                seg.prevLedSegment?.addSendCallback(pp.execTrigger);
             });
 
             onUnmounted(() => {
