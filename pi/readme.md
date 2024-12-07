@@ -62,6 +62,12 @@ Restart
 sudo systemctl restart netled.service
 ```
 
+stop
+
+```
+sudo systemctl stop netled.service
+```
+
 # Testing isolated-vm
 
 ```ts

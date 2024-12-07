@@ -249,7 +249,14 @@ export class StrandController {
             
             rpio.spiWrite(buffer, buffer.length);
             return Promise.resolve();
-        });   
+        });  
+        
+        if (this._running) {
+            this._logger.info('Restarting strand');
+            this.run();
+        }
+
+        this._logger.info('Finished loading strand');
     }
 
     public run(): void {

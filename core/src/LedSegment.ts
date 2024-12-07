@@ -141,7 +141,10 @@ export class LedSegment implements netled.common.ILedSegment, Disposable {
     public send = (): Promise<void> => {
         if (this.#disposed) { throw new Error('LedSegment is disposed'); }
         if (this.#sendCb.length === 0) { return Promise.resolve(); }
-        if (this.#isSending) { throw new Error('Previous send still in progress'); }
+        if (this.#isSending) {
+            console.warn('Previous send still in progress. Skipping frame');
+            return Promise.resolve();
+        }
         this.#isSending = true;
         const proms = this.#sendCb.map(cb => cb(this));
         return Promise.all(proms).finally(() => this.#isSending = false) as Promise<unknown> as Promise<void>;

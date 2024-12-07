@@ -1,7 +1,7 @@
 {
     "name": "netled-device-pi",
     "description": "",
-    "version": "0.0.28",
+    "version": "0.0.31",
     "author": {
         "name": "Josh Kraker",
         "email": "joshkrak@gmail.com"
