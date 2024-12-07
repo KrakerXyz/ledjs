@@ -70,9 +70,8 @@ await new Promise((res, rej) => {
     });
 });
 
-//We can't yet enable this because it re-symlinks core and then for some reason, removes all the dependencies
-// console.log('Pruning node_modules')
-// execSync('npm prune --omit=dev', { cwd: buildDir, stdio: 'inherit' });
+console.log('Pruning node_modules')
+execSync('npm prune --omit=dev', { cwd: buildDir, stdio: 'inherit' });
 
 console.log('Copy web to build');
 await new Promise((res, rej) => {

@@ -35,7 +35,7 @@ export const setRunning: RouteOptions = {
             device.isRunning = running;
             await db.upsert(device);
 
-            req.services.mqtt.publishDeviceAction(deviceId, 'is-running', running.toString());
+            req.services.mqtt.publish(`device/${deviceId}/is-running`, running.toString());
         }
 
         await res.status(200).send();

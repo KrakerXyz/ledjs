@@ -56,18 +56,18 @@
 
 <script lang="ts">
 import type { Device } from '$core/rest/model/Device.js';
-import type { AnimationConfigSummary } from '$core/rest/model/AnimationConfig';
 import { deepClone } from '$core/services/deepClone';
 import { assertTrue, restApi } from '$src/services';
 import { watch, defineComponent, reactive, ref, getCurrentInstance } from 'vue';
 import { useRouteLocation, RouteName } from '$src/main.router';
 import { Icons } from '$src/components/global/Icon.vue';
 import { useMqttClient } from '$src/services/mqttClient';
+import { ScriptConfigSummary } from '$core/rest/model/ScriptConfig';
 
 export default defineComponent({
     props: {
         device: { type: Object as () => Device, required: true },
-        configs: { type: Array as () => AnimationConfigSummary[], required: true },
+        configs: { type: Array as () => ScriptConfigSummary[], required: true },
     },
     async setup(props) {
         const componentInstance = getCurrentInstance();
@@ -76,7 +76,7 @@ export default defineComponent({
         const mqtt = useMqttClient();
         const isOnline = ref(false);
         let offlineTimeout: number | null = null;
-        mqtt.subscribe(`netled-dev/status/${props.device.id}`, () => {
+        mqtt.subscribe(`status/${props.device.id}`, () => {
             isOnline.value = true;
             if (offlineTimeout) {
                 clearTimeout(offlineTimeout);

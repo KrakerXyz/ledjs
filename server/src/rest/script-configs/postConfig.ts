@@ -31,7 +31,12 @@ export const postConfig: RouteOptions = {
             userId: req.user.sub,
         };
 
-        await db.upsert(newConfig);
+        const result = await db.upsert(newConfig);
+
+        if (result.updated) {
+            req.services.mqtt.publish(`script-config/${post.id}/updated`);
+        }
+        
         await res.status(existing ? 200 : 201).send(newConfig);
     }
 };

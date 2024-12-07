@@ -4,12 +4,11 @@ import { getLogger } from './services/logger.js';
 import { restApi } from './services/restApi.js';
 import rpio from 'rpio';
 import { StrandController } from './services/StrandController.js';
-import mqtt from 'mqtt';
 import { Id } from '../../core/src/rest/model/Id.js';
 import { netledGlobal } from '../../core/src/netledGlobal.js';
-import { mqttTopic, NetledPrefix } from '../../core/src/iot/mqttTopic.js';
 import { deepClone } from '../../core/src/services/deepClone.js';
 import * as os from 'os';
+import { Mqtt } from './services/Mqtt.js';
 
 (globalThis as any).netled = netledGlobal;
 
@@ -55,101 +54,55 @@ logger.info('Clearing leds');
     rpio.spiWrite(darkBuffer, darkBuffer.length);
 })();
 
-const strandController = new StrandController();
+const clientId = `${services.mqtt.prefix}-device:${deviceId}`;
+const mqttPrefix = services.mqtt.prefix;
+
+logger.info(`Connecting to mqtt ${services.mqtt.username}@${services.mqtt.url}`);
+const mqtt = await Mqtt.connect(services.mqtt.url, services.mqtt.username, services.mqtt.password, clientId, mqttPrefix);
+
+logger.info('Mqtt connected. Starting device status update interval');
+setInterval(() => {
+    const status = {
+        isRunning: device.isRunning,
+        systemCpu: os.loadavg(),
+        systemUpTime: Math.floor(os.uptime()),
+        processUpTime: Math.floor(process.uptime()),
+    }
+
+    mqtt.publish(`status/${deviceId}`,
+        JSON.stringify(status),
+        {
+            retain: true,
+            properties: {
+                messageExpiryInterval: 17
+            }
+        });
+}, 15000);
+
+await mqtt.subscribeAsync(`device/${deviceId}/strand-changed`, async (message) => {
+    const strandId = message as Id;
+    device.strandId = strandId;
+    await strandController.loadStrandAsync(strandId);
+    strandController.run();
+}, { qos: 1 });
+
+await mqtt.subscribeAsync(`device/${deviceId}/is-running`, async (message) => {
+    const isRunning = message === 'true';
+    device.isRunning = isRunning;
+    if (isRunning) {
+        logger.info('Starting strand');
+        strandController.run();
+    } else {
+        logger.info('Pausing strand');
+        strandController.pause();
+    }
+}, { qos: 1 });
+
+const strandController = new StrandController(mqtt);
 if (device.strandId) {
-    await strandController.loadStrand(device.strandId);
+    await strandController.loadStrandAsync(device.strandId);
     if (device.isRunning) {
         logger.info('Device is set to running, starting strand');
         strandController.run();
     }
 }
-
-const clientId = `netled${services.mqtt.env}-device:${deviceId}`;
-const mqttPrefix = `netled${services.mqtt.env}` as NetledPrefix;
-
-logger.info(`Connecting to mqtt ${services.mqtt.username}@${services.mqtt.url}`);
-
-const client = mqtt.connect(services.mqtt.url, {
-    clientId ,
-    username: services.mqtt.username,
-    password: services.mqtt.password,
-    rejectUnauthorized: false,
-    protocolVersion: 5
-});
-
-client.on('error', (err) => {
-    logger.error(`Error connecting to mqtt: ${err}`);
-});
-
-let statusInterval: NodeJS.Timeout | null = null;
-client.on('connect', async () => {
-    logger.info('Connected to mqtt');
-    await client.subscribeAsync(`${mqttPrefix}/device/${deviceId}/#`, { qos: 1 });
-
-    if (device.strandId) {
-        await client.subscribeAsync(mqttTopic(`${mqttPrefix}/strand/${device.strandId}/updated`), { qos: 1 });
-    }
-
-    statusInterval ??= setInterval(() => {
-        const status = {
-            isRunning: device.isRunning,
-            systemCpu: os.loadavg(),
-            systemUpTime: Math.floor(os.uptime()),
-            processUpTime: Math.floor(process.uptime()),
-        }
-        client.publish(
-            mqttTopic(`${mqttPrefix}/status/${deviceId}`),
-            JSON.stringify(status),
-            {
-                retain: true,
-                properties: {
-                    messageExpiryInterval: 17   
-                }
-            },
-            (err) => {
-                if (err) {
-                    logger.error(`Error publishing device status: ${err}`);
-                }
-            });
-    }, 15000);
-});
-
-client.on('message', async (topic, message) => {
-    logger.info(`Received message on topic ${topic}`);
-    if (topic === mqttTopic(`${mqttPrefix}/device/${deviceId}/strand-changed`)) {
-        const strandId = message.toString() as Id;
-
-        if (device.strandId) {
-            client.unsubscribeAsync(mqttTopic(`${mqttPrefix}/strand/${device.strandId}/updated`));
-        }
-
-        if (strandId && strandId !== device.strandId) {
-            await client.subscribeAsync(mqttTopic(`${mqttPrefix}/strand/${strandId}/updated`), { qos: 1 });
-        }
-
-        device.strandId = strandId;
-        await strandController.loadStrand(strandId);
-        strandController.run();
-    } else if (topic === mqttTopic(`${mqttPrefix}/device/${deviceId}/is-running`)) {
-        const isRunning = message.toString() === 'true';
-        device.isRunning = isRunning;
-        if (isRunning) {
-            logger.info('Starting strand');
-
-            strandController.run();
-        } else {
-            logger.info('Pausing strand');
-            strandController.pause();
-        }
-    } else if (topic === mqttTopic(`${mqttPrefix}/strand/${device.strandId!}/updated`)) {
-        logger.info('Strand updated');
-        await strandController.loadStrand(device.strandId!);
-        if (device.isRunning) {
-            logger.info('Restarting strand');
-            strandController.run();
-        }
-    } else {
-        logger.warn(`Unknown topic: ${topic}`);
-    }
-});
-

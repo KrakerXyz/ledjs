@@ -5,18 +5,25 @@ import { Timer } from '../../../core/src/Timer.js';
 import { getLogger } from './logger.js';
 import { restApi } from './restApi.js';
 import rpio from 'rpio';
+import { Mqtt } from './Mqtt.js';
+import { IDisposable } from '../../../core/src/Disposable.js';
 
 export class StrandController {
+
+    public constructor(private readonly _mqtt: Mqtt) { }
 
     private readonly _logger = getLogger('StrandController');
     private readonly _segments: SegmentVm[] = [];
     private _numLeds: number = 0;
     private _running = false;
-    
-    public async loadStrand(strandId: Id): Promise<void> {
 
+    private _strandId: Id | null = null;
+    private _strandMqttSubs: IDisposable[] = [];
+    
+    public async loadStrandAsync(strandId: Id): Promise<void> {
+        this._logger.info(`Starting loading process for strand ${strandId}`);
         if (this._segments.length) {
-            this._logger.debug('Disposing of previous strand segments');
+            this._logger.info('Disposing of previous strand segments');
             for (const s of this._segments) {
                 if (s.type === SegmentInputType.Animation) {
                     s.controller.pause();
@@ -27,10 +34,27 @@ export class StrandController {
             this._segments.length = 0;
         }
 
-        this._logger.debug(`Loading strand ${strandId}`);
+        if (this._strandMqttSubs.length) {
+            this._logger.info('Unsubscribing from previous strand updates');
+            for (const disposable of this._strandMqttSubs) {
+                disposable.dispose();
+            }
+            this._strandMqttSubs.length = 0;
+        }
+
+        this._strandId = strandId;
+        
+        //Need to keep track of the disposable and add subscripts for animation and post - processor updates.
+
+        this._strandMqttSubs.push(await this._mqtt.subscribeAsync(`strand/${strandId}/updated`, () => {
+            if(this._strandId !== strandId) { return; }
+            this.loadStrandAsync(strandId);
+        }, { qos: 1 }));
+
+        this._logger.info(`Loading strand ${strandId}`);
         const strand = await restApi.strands.byId(strandId);
 
-        this._logger.info(`Got strand '${strand.name}' consisting of ${strand.segments.length} segments`);
+        this._logger.debug(`Got strand '${strand.name}' consisting of ${strand.segments.length} segments`);
 
         this._numLeds = strand.numLeds;
 
@@ -38,23 +62,36 @@ export class StrandController {
             for (const segment of strand.segments) {
             
                 if (segment.type === SegmentInputType.Animation) {
-                    this._logger.debug(`Loading animation ${segment.script.id} for segment ${segment.id}`);
+                    this._logger.info(`Loading animation ${segment.script.id} for segment ${segment.id}`);
                     const animation = await restApi.animations.byId(segment.script.id, segment.script.version);
                     if (!animation) {
                         throw new Error(`Failed to load animation ${segment.script.id}`);
                     }
 
+                    this._strandMqttSubs.push(await this._mqtt.subscribeAsync(`animation/${segment.script.id}/updated`, () => {
+                        if(this._strandId !== strandId) { return; }
+                        this._logger.info(`Animation ${segment.script.id} updated. Reloading strand ${strandId}`);
+                        this.loadStrandAsync(strandId);
+                    }, { qos: 1 }));
+
                     const script: netled.animation.IAnimation = (await import('data:text/javascript;base64,' + btoa(animation.js))).default;
 
-                    this._logger.info(`Loaded animation ${animation.id}: ${animation.name}`);
+                    this._logger.debug(`Loaded animation ${animation.id}: ${animation.name}`);
 
                     let settings: netled.common.ISettings | null = {};
                     if (segment.script.configId) {
-                        this._logger.debug(`Loading animation config ${segment.script.configId} for animation ${animation.id}`);
+                        this._logger.info(`Loading animation config ${segment.script.configId} for animation ${animation.id}`);
                         const animationConfig = await restApi.scriptConfigs.byId(segment.script.configId);
                         if (!animationConfig) {
                             throw new Error(`Failed to load animation config ${segment.script.configId}`);
                         }
+
+                        this._strandMqttSubs.push(await this._mqtt.subscribeAsync(`script-config/${segment.script.configId}/updated`, () => {
+                            if(this._strandId !== strandId) { return; }
+                            this._logger.info(`Animation config ${segment.script.configId} updated. Reloading strand ${strandId}`);
+                            this.loadStrandAsync(strandId);
+                        }, { qos: 1 }));
+
                         settings = animationConfig.config;
                     } else {
                         const config = script.config;
@@ -92,12 +129,18 @@ export class StrandController {
                     });
 
                 } else if (segment.type === SegmentInputType.PostProcess) {
-                    this._logger.debug(`Loading post-process ${segment.script.id} for segment ${segment.id}`);
+                    this._logger.info(`Loading post-process ${segment.script.id} for segment ${segment.id}`);
                     const postProcess = await restApi.postProcessors.byId(segment.script.id, segment.script.version);
                     if (!postProcess) {
                         throw new Error(`Failed to load post-process ${segment.script.id}`);
                     }
-                    this._logger.info(`Loaded post-process ${postProcess.id}: ${postProcess.name}`);
+                    this._logger.debug(`Loaded post-process ${postProcess.id}: ${postProcess.name}`);
+
+                    this._strandMqttSubs.push(await this._mqtt.subscribeAsync(`post-processor/${segment.script.id}/updated`, () => {
+                        if(this._strandId !== strandId) { return; }
+                        this._logger.info(`Post-process ${segment.script.id} updated. Reloading strand ${strandId}`);
+                        this.loadStrandAsync(strandId);
+                    }, { qos: 1 }));
 
                     const ledSegment = new LedSegment(segment.leds.num);
                 

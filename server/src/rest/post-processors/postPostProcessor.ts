@@ -44,6 +44,10 @@ export const postPostProcessor: RouteOptions = {
 
         const result = await db.upsert(postProcessor);
 
+        if (result.updated) {
+            req.services.mqtt.publish(`post-processor/${postProcessor.id}/updated`);
+        }
+
         const { ts, js, ...postProcessorMeta } = postProcessor;
 
         await res.status(result.updated ? 200 : 201).send(postProcessorMeta);

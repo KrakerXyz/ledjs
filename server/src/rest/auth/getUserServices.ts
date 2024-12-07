@@ -10,6 +10,7 @@ export function getUserServices(userId: Id): UserServices {
             username: 'netled-client',
             password: getRequiredConfig(EnvKey.MqttUserPassword),
             clientId: `netled${getOptionalConfig(EnvKey.MqttEnv)}-ui:${userId}`,
+            prefix: `netled${getOptionalConfig(EnvKey.MqttEnv, '')}`,
         }
     };
 }

@@ -43,7 +43,7 @@ export const setStrand: RouteOptions = {
         device.strandId = strandId;
         await db.upsert(device);
 
-        req.services.mqtt.publishDeviceAction(deviceId, 'strand-changed', strandId ?? '');
+        req.services.mqtt.publish(`device/${deviceId}/strand-changed`, strandId ?? '');
 
         await res.status(200).send();
     }

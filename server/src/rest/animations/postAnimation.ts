@@ -40,6 +40,10 @@ export const postAnimation: RouteOptions = {
 
         const result = await db.upsert(animation);
 
+        if (result.updated) {
+            req.services.mqtt.publish(`animation/${animation.id}/updated`);
+        }
+        
         const { ts, js, ...animationMeta } = animation;
 
         await res.status(result.updated ? 200 : 201).send(animationMeta);

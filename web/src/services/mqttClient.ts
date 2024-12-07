@@ -3,13 +3,14 @@ import mqtt from 'mqtt';
 import { onUnmounted } from 'vue';
 import { assertTrue } from './assert';
 import { useAuthService } from './authService';
-import { Topic } from '$core/iot/mqttTopic';
+import { NetledPrefix, Topic, TopicWithPrefix } from '$core/iot/mqttTopic';
 
 let client: mqtt.MqttClient | null = null;
+let prefix: NetledPrefix = 'netled';
 let useCount = 0;
 
 export type SubscriptionCallback = (topic: string, message: string) => void;
-const globalSubscriptions: Map<string, { subCount: number }> = new Map();
+const globalSubscriptions: Map<TopicWithPrefix, { subCount: number }> = new Map();
 
 export function useMqttClient() {
 
@@ -20,6 +21,8 @@ export function useMqttClient() {
         const mqttService = useAuthService().userServices.value?.mqtt;
         if (!mqttService) { throw new Error('Missing mqtt services'); }
         
+        prefix = mqttService.prefix
+
         client = mqtt.connect('wss://dev-mqtt-ws.netled.io/mqtt', {
             clientId: mqttService.clientId,
             username: mqttService.username,
@@ -53,9 +56,9 @@ export function useMqttClient() {
         });
     }
 
-    const subscriptions: Map<string, SubscriptionCallback> = new Map();
+    const subscriptions: Map<TopicWithPrefix, SubscriptionCallback> = new Map();
     const onMessage: mqtt.OnMessageCallback = (topic, message) => {
-        const callback = subscriptions.get(topic);
+        const callback = subscriptions.get(topic as TopicWithPrefix);
         callback?.(topic, message.toString());
     }
 
@@ -85,13 +88,14 @@ export function useMqttClient() {
 
     return {
         subscribe: (topic: Topic, callback: SubscriptionCallback) => {
-            if(subscriptions.has(topic)) { throw new Error(`Already subscribed to topic ${topic}`); }
+            const fullTopic: TopicWithPrefix = `${prefix}/${topic}`;
+            if(subscriptions.has(fullTopic)) { throw new Error(`Already subscribed to topic ${topic}`); }
             assertTrue(client);
-            subscriptions.set(topic, callback);
-            const subCount = globalSubscriptions.get(topic)?.subCount ?? 0;
-            globalSubscriptions.set(topic, { subCount: subCount + 1 });
+            subscriptions.set(fullTopic, callback);
+            const subCount = globalSubscriptions.get(fullTopic)?.subCount ?? 0;
+            globalSubscriptions.set(fullTopic, { subCount: subCount + 1 });
             if (!subCount) {
-                client.subscribe(topic);
+                client.subscribe(fullTopic);
             }
         }
     };

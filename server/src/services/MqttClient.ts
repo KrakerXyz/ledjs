@@ -1,6 +1,5 @@
 import mqtt from 'mqtt';
-import { Id } from '../../../core/src/rest/model/Id.js';
-import { DeviceTopicAction, mqttTopic, NetledPrefix, StrandTopicAction } from '../../../core/src/iot/mqttTopic.js';
+import { mqttTopic, NetledPrefix, Topic } from '../../../core/src/iot/mqttTopic.js';
 import { EnvKey, getOptionalConfig } from './getRequiredConfig.js';
 
 
@@ -17,20 +16,12 @@ export class MqttClient {
         this._prefix = `netled${getOptionalConfig(EnvKey.MqttEnv, '')}`;
     }
 
-    public publishDeviceAction(deviceId: Id, action: DeviceTopicAction, payload: string): void {
+    public publish(topic: Topic): void;
+    public publish(topic: Topic, message: string): void;
+    public publish(topic: Topic, message?: string): void {
         if (!this._client) { throw new Error('MqttClient not connected'); }
 
-        if (action === 'is-running' && payload !== 'true' && payload !== 'false') {
-            throw new Error('Invalid payload for is-running');
-        }
-
-        this._client.publish(mqttTopic(`${this._prefix}/device/${deviceId}/${action}`), payload);
-    }
-
-    public publishStrandAction(strandId: Id, action: StrandTopicAction): void {
-        if (!this._client) { throw new Error('MqttClient not connected'); }
-
-        this._client.publish(mqttTopic(`${this._prefix}/strand/${strandId}/${action}`), '');
+        this._client.publish(mqttTopic(`${this._prefix}/${topic}`), message ?? '');
     }
 
     public static createClient(broker: string): Promise<MqttClient> {

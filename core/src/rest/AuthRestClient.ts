@@ -1,4 +1,5 @@
 
+import { NetledPrefix } from '../iot/mqttTopic.js';
 import type { Id } from './model/Id.js';
 import type { RestClient } from './RestClient.js';
 
@@ -42,6 +43,7 @@ export interface UserServices {
         username: string,
         password: string,
         clientId: string,
+        prefix: NetledPrefix,
     }
 }
 

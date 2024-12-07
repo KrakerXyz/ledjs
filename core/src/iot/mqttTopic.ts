@@ -5,17 +5,19 @@ export type NetledPrefix = `netled${string}`;
 export type DeviceTopicAction =
     'strand-changed' // sent by server when device.strandId has been updated
     | 'is-running' // sent by server when device.isRunning has been updated
-export type DeviceTopic = `${NetledPrefix}/device/${Id}/${DeviceTopicAction}`;
+export type DeviceTopic = `device/${Id}/${DeviceTopicAction}`;
 
-export type AnimationTopic = `${NetledPrefix}/animation/${Id}/updated`;
+export type AnimationTopic = `animation/${Id}/updated`;
+export type PostProcessorTopic = `post-processor/${Id}/updated`;
+export type ScriptConfigTopic = `script-config/${Id}/updated`;
 
-export type StrandTopicAction = 'updated';
-export type StrandTopic = `${NetledPrefix}/strand/${Id}/${StrandTopicAction}`;
+export type StrandTopic = `strand/${Id}/updated`;
 
-export type StatusTopic = `${NetledPrefix}/status/${Id}` // sent by devices
+export type StatusTopic = `status/${Id}` // sent by devices
 
-export type Topic = DeviceTopic | AnimationTopic | StrandTopic | StatusTopic;
+export type Topic = DeviceTopic | AnimationTopic | PostProcessorTopic | ScriptConfigTopic | StrandTopic | StatusTopic;
+export type TopicWithPrefix = `${NetledPrefix}/${Topic}`;
 
-export function mqttTopic<T extends Topic>(topic: T): T {
+export function mqttTopic<T extends TopicWithPrefix>(topic: T): T {
     return topic;
 }

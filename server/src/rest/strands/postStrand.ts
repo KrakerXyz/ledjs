@@ -23,7 +23,7 @@ export const postStrand: RouteOptions = {
         const result = await db.upsert(strand);
 
         if (result.updated) {
-            req.services.mqtt.publishStrandAction(strand.id, 'updated');
+            req.services.mqtt.publish(`strand/${strand.id}/updated`);
         }
 
         await res.status(result.updated ? 200 : 201).send(strand);
