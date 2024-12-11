@@ -42,7 +42,6 @@ export function renderCanvas(ctx: OffscreenCanvasRenderingContext2D | CanvasRend
 
     const ledWidth = canvasDimensions[0] / ledSegment.length;
     const ledWidthCeil = Math.ceil(ledWidth);
-
     let offset = 0;
     for (let i = 0; i < ledSegment.length; i++) {
         const led: IArgb = ledSegment.getLed(i);

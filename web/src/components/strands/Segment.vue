@@ -21,6 +21,7 @@ import { SegmentVm } from './StrandEditor.vue';
 import { useAnimationWorkerAsync } from '$src/services/animation/animationWorker';
 import { usePostProcessorWorkerAsync } from '$src/services/animation/postProcessorWorker';
 import { SegmentInputType } from '$core/rest/model/Strand';
+import { LedSegment } from '$core/LedSegment';
 
 export default defineComponent({
     props: {
@@ -31,8 +32,6 @@ export default defineComponent({
 
         const canvasContainer = useTemplateRef<HTMLDivElement>('canvasContainer');
         const canvasRenderer = useCanvasRenderer(canvasContainer);
-
-        seg.ledSegment.addSendCallback(canvasRenderer);
 
         // At first this was using awaits to get the worker results before registering the unMounted but if it was sometimes leaving behind a worker when we deleted all but the last segment
         if (seg.type === SegmentInputType.Animation) {
@@ -48,7 +47,15 @@ export default defineComponent({
             console.log(`Starting new post processor worker for ${seg.name}`);
             const ppProm = usePostProcessorWorkerAsync(ref(seg.js), computed(() => seg.ledSegment));
             ppProm.then(pp => {
-                seg.prevLedSegment?.addSendCallback(pp.execTrigger);
+
+                const copyAndExec = (s: LedSegment) => {
+                    seg.ledSegment.blackOut();
+                    s.copyTo(seg.ledSegment, 0);
+                    return pp.execTrigger();
+                }
+
+                seg.prevLedSegment?.addSendCallback(copyAndExec);
+                
             });
 
             onUnmounted(() => {
@@ -58,6 +65,8 @@ export default defineComponent({
                 });
             });
         }
+
+        seg.ledSegment.addSendCallback(canvasRenderer);
 
         return {
         }

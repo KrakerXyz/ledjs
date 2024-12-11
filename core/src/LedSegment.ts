@@ -128,6 +128,7 @@ export class LedSegment implements netled.common.ILedSegment, Disposable {
         if (this.#disposed) { throw new Error('LedSegment is disposed'); }
         if (this.#sendCb.includes(cb)) { throw new Error('Callback already added'); }
         this.#sendCb.push(cb);
+        cb(this);
     }
 
     public removeSendCallback(cb: LedSegmentCallback): void {

@@ -136,7 +136,7 @@
 
 import type { Id } from '$core/rest/model/Id';
 import { assertTrue, restApi } from '$src/services';
-import { computed, defineComponent, getCurrentInstance, reactive, ref, watch, onWatcherCleanup } from 'vue';
+import { computed, defineComponent, getCurrentInstance, reactive, ref, watch, onUnmounted } from 'vue';
 import SegmentVue from './Segment.vue';
 import { LedSegment } from '$core/LedSegment';
 import { RouteLocationRaw, useRoute } from 'vue-router';
@@ -171,7 +171,6 @@ export default defineComponent({
         const strandLeds = computed(() => strand.numLeds);
 
         const selectedId = computed(() => route.query.selectedId as Id | undefined);
-        const sab = computed(() => new SharedArrayBuffer(strandLeds.value * 4));
 
         const segments = computed(() => {
             const vms: SegmentVm[] = [];
@@ -185,7 +184,7 @@ export default defineComponent({
                 if (!animOrPost) { throw new Error(`${seg.type} not found`); }
 
                 const deadLeds = seg.type === SegmentInputType.Animation ? seg.leds.dead : undefined
-                const ledSegment = new LedSegment(seg.leds.num, deadLeds, sab.value);
+                const ledSegment = new LedSegment(seg.leds.num, deadLeds);
                 const style = { width: `${seg.leds.num / strandLeds.value * 100}%`, 'margin-left': `${seg.leds.offset / strandLeds.value * 100}%` };
                 const selected = selectedId.value === seg.id;
                 const vm: SegmentVm = { 
@@ -257,7 +256,7 @@ export default defineComponent({
             }
             animationConfigs.value = await restApi.scriptConfigs.list('animation', vm.script.id, vm.script.version);
         }, { immediate: true });
-        onWatcherCleanup(selectedAnimationSegmentWatch);
+        onUnmounted(selectedAnimationSegmentWatch, componentInstance);
 
         const saveStrand = async () => {
             const newOriginal = await restApi.strands.save(strand);
