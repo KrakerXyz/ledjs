@@ -24,15 +24,15 @@ interface SegmentBase {
         offset: number,
         num: number,
     },
-}
-
-export interface AnimationSegment extends SegmentBase {
-    type: SegmentInputType.Animation,
     script: {
         id: Id,
         version: ScriptVersion,
         configId?: Id,
     },
+}
+
+export interface AnimationSegment extends SegmentBase {
+    type: SegmentInputType.Animation,
     leds: SegmentBase['leds'] & {
         dead?: (number | `${number}-${number}`)[],
     }
@@ -40,10 +40,6 @@ export interface AnimationSegment extends SegmentBase {
 
 export interface PostProcessSegment extends SegmentBase {
     type: SegmentInputType.PostProcess,
-    script: {
-        id: Id,
-        version: ScriptVersion,
-    }
 }
 
 export type Segment = AnimationSegment | PostProcessSegment;

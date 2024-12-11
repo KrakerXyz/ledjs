@@ -86,6 +86,8 @@ export class StrandController {
                             throw new Error(`Failed to load animation config ${segment.script.configId}`);
                         }
 
+                        this._logger.debug(`Loaded animation config ${animationConfig.id}: ${animationConfig.name}`);
+
                         this._strandMqttSubs.push(await this._mqtt.subscribeAsync(`script-config/${segment.script.configId}/updated`, () => {
                             if(this._strandId !== strandId) { return; }
                             this._logger.info(`Animation config ${segment.script.configId} updated. Reloading strand ${strandId}`);
@@ -146,11 +148,28 @@ export class StrandController {
                 
                     const script: netled.postProcessor.IPostProcessor = (await import('data:text/javascript;base64,' + btoa(postProcess.js))).default;
 
-                    const settings: netled.common.ISettings = {};
-                    if (script.config) {
-                        for (const key of Object.keys(script.config)) {
-                            settings[key] = script.config[key].default
+                    let settings: netled.common.ISettings = {};
+                    if (segment.script.configId) {
+                        this._logger.info(`Loading post-process config ${segment.script.configId} for post-process ${postProcess.id}`);
+                        const postProcessConfig = await restApi.scriptConfigs.byId(segment.script.configId);
+                        if (!postProcessConfig) {
+                            throw new Error(`Failed to load post-process config ${segment.script.configId}`);
                         }
+                        this._logger.debug(`Loaded post-process config ${postProcessConfig.id}: ${postProcessConfig.name}`);
+
+                        this._strandMqttSubs.push(await this._mqtt.subscribeAsync(`script-config/${segment.script.configId}/updated`, () => {
+                            if(this._strandId !== strandId) { return; }
+                            this._logger.info(`Post-process config ${segment.script.configId} updated. Reloading strand ${strandId}`);
+                            this.loadStrandAsync(strandId);
+                        }, { qos: 1 }));
+
+                        settings = postProcessConfig.config;
+                    } else if(script.config) {
+                        for (const key of Object.keys(script.config)) {
+                            settings[key] = script.config[key].default;
+                        }
+                        this._logger.debug('No post-process config specified. Using default settings');
+                        
                     }
 
                     const controller = script.construct(ledSegment, settings);

@@ -91,8 +91,6 @@ export default defineComponent({
         'update:settings': (s: netled.common.ISettings) => !!s
     },
     async setup(props, { emit }) {
-
-        const type = 'animation';
             
         let settings = ref<netled.common.ISettings>({});
 
@@ -136,7 +134,7 @@ export default defineComponent({
             emit('update:settings', { ...settings.value });
         });
 
-        let existingConfigs = deepClone(await restApi.scriptConfigs.list(type, props.script.id, props.script.version));
+        let existingConfigs = deepClone(await restApi.scriptConfigs.list(props.type, props.script.id, props.script.version));
         const savedConfigs = ref<SelectOption[]>(existingConfigs.map(x => ({ text: x.name, value: x.id })).sort((a, b) => a.text.localeCompare(b.text)));
 
         const newConfigName = ref<string>();
@@ -155,7 +153,7 @@ export default defineComponent({
             const newConfig: ScriptConfigPost = {
                 id: selectedConfigId.value === 'new' ? newId() : selectedConfigId.value!,
                 name: selectedConfigId.value === 'new' ? newConfigName.value! : existingConfig!.text,
-                type,
+                type: props.type,
                 script: props.script,
                 config: settings.value,
             };
@@ -164,7 +162,7 @@ export default defineComponent({
             if (!existingConfig) {
                 savedConfigs.value = [{ text: newConfig.name, value: newConfig.id }, ...savedConfigs.value].sort((a,b) => a.text.localeCompare(b.text));
             }
-            existingConfigs = deepClone(await restApi.scriptConfigs.list(type, props.script.id, props.script.version));
+            existingConfigs = deepClone(await restApi.scriptConfigs.list(props.type, props.script.id, props.script.version));
             selectedConfigId.value = newConfig.id;
             newConfigName.value = undefined;
         };

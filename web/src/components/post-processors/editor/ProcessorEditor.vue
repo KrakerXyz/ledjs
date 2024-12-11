@@ -33,16 +33,22 @@
                         >
                         <label for="d-leds">Strand Leds</label>
                     </div>
-                    
-                    <div class="form-floating">
-                        <input
-                            id="d-anim-leds"
-                            class="form-control"
-                            placeholder="*"
-                            v-model.lazy.number="animationLeds"
-                        >
-                        <label for="d-anim-leds">Animation Leds</label>
+
+                    <div v-if="postProcessorConfig">
+                        <h3 class="mt-3">
+                            Config
+                        </h3>
+                        <config
+                            type="post-processor"
+                            :script="{ id: processor.id, version: processor.version }"
+                            :config="postProcessorConfig"
+                            @update:settings="s => postProcessorSettings = s"
+                        ></config>
                     </div>
+                    
+                    <h3 class="mt-3">
+                        Animation
+                    </h3>
 
                     <div class="form-floating">
                         <select
@@ -57,11 +63,18 @@
                         </select>
                         <label for="source-animation-id">Source Animation</label>
                     </div>
+                    
+                    <div class="form-floating mt-2">
+                        <input
+                            id="d-anim-leds"
+                            class="form-control"
+                            placeholder="*"
+                            v-model.lazy.number="animationLeds"
+                        >
+                        <label for="d-anim-leds">Animation Leds</label>
+                    </div>
 
-                    <div v-if="animationConfig && selectedAnimation" class="flex-grow-1">
-                        <h3 class="mt-3">
-                            Animation Config
-                        </h3>
+                    <div v-if="animationConfig && selectedAnimation" class="flex-grow-1 mt-2">
                         <config
                             type="animation"    
                             :script="{ id: selectedAnimation.id, version: selectedAnimation.version }"
@@ -222,7 +235,7 @@ export default defineComponent({
             postContext.dispose();
         }, componentInstance);
 
-        return { numLeds, canvasContainer, animationConfig: animationContext.animationConfig, processor, saveScript, deleteScript, issues, animations, selectedAnimationId, selectedAnimation, animationSettings: animationContext.animationSettings, Icons, animationLeds };
+        return { numLeds, canvasContainer, animationConfig: animationContext.animationConfig, processor, saveScript, deleteScript, issues, animations, selectedAnimationId, selectedAnimation, animationSettings: animationContext.animationSettings, Icons, animationLeds, postProcessorConfig: postContext.postProcessorConfig, postProcessorSettings: postContext.postProcessorSettings };
     }
 });
 
