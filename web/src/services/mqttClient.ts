@@ -3,7 +3,7 @@ import mqtt from 'mqtt';
 import { onUnmounted } from 'vue';
 import { assertTrue } from './assert';
 import { useAuthService } from './authService';
-import { NetledPrefix, Topic, TopicWithPrefix } from '$core/iot/mqttTopic';
+import { type NetledPrefix, type Topic, type TopicWithPrefix } from '$core/iot/mqttTopic';
 
 let client: mqtt.MqttClient | null = null;
 let prefix: NetledPrefix = 'netled';

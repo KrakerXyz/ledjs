@@ -1,4 +1,4 @@
-import { Id } from '../rest/model/Id.js';
+import { type Id } from '../rest/model/Id.js';
 
 export type NetledPrefix = `netled${string}`;
 

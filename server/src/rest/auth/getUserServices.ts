@@ -1,6 +1,6 @@
 
-import { UserServices } from '../../../../core/src/rest/AuthRestClient.js';
-import { Id } from '../../../../core/src/rest/model/Id.js';
+import { type UserServices } from '../../../../core/src/rest/AuthRestClient.js';
+import { type Id } from '../../../../core/src/rest/model/Id.js';
 import { getRequiredConfig, EnvKey, getOptionalConfig } from '../../services/getRequiredConfig.js';
 
 export function getUserServices(userId: Id): UserServices {

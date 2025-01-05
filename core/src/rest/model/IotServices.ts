@@ -1,4 +1,4 @@
-import { NetledPrefix } from '../../iot/mqttTopic.js';
+import { type NetledPrefix } from '../../iot/mqttTopic.js';
 
 export interface IotServices {
     mqtt: {

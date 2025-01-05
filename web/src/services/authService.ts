@@ -2,7 +2,7 @@ import { ref } from 'vue';
 import Cookies from 'js-cookie';
 import { computed } from 'vue';
 import { loginRedirect, logoutRedirect } from '$src/main.router';
-import { type User, type GoogleJwt, AuthResult, UserServices } from '$core/rest/AuthRestClient';
+import { type User, type GoogleJwt, type AuthResult, type UserServices } from '$core/rest/AuthRestClient';
 import { restApi } from './restClient';
 
 let initResolver: (() => void) | null = null;

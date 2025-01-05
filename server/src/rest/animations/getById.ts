@@ -1,6 +1,6 @@
 import type { RouteOptions } from 'fastify';
 import type { Id } from '../../../../core/src/rest/model/Id.js';
-import { ScriptVersion } from '../../../../core/src/rest/model/ScriptVersion.js';
+import { type ScriptVersion } from '../../../../core/src/rest/model/ScriptVersion.js';
 
 export const getById: RouteOptions = {
     method: 'GET',

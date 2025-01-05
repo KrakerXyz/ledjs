@@ -1,5 +1,5 @@
-import { IotServices } from './model/IotServices.js';
-import { RestClient } from './RestClient.js';
+import { type IotServices } from './model/IotServices.js';
+import { type RestClient } from './RestClient.js';
 
 export class IotRestClient {
     constructor(private readonly restClient: RestClient) { }

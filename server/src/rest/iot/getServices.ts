@@ -1,6 +1,6 @@
-import { RouteOptions } from 'fastify';
+import { type RouteOptions } from 'fastify';
 import { jwtAuthentication } from '../../services/jwtAuthentication.js';
-import { IotServices } from '../../../../core/src/rest/model/IotServices.js';
+import { type IotServices } from '../../../../core/src/rest/model/IotServices.js';
 import { EnvKey, getOptionalConfig, getRequiredConfig } from '../../services/getRequiredConfig.js';
 
 export const getServices: RouteOptions = {

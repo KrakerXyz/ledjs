@@ -17,11 +17,11 @@
 
 import { useCanvasRenderer } from '$src/services/animation/renderCanvas';
 import { computed, defineComponent, onUnmounted, ref, useTemplateRef } from 'vue';
-import { SegmentVm } from './StrandEditor.vue';
+import { type SegmentVm } from './StrandEditor.vue';
 import { useAnimationWorkerAsync } from '$src/services/animation/animationWorker';
 import { usePostProcessorWorkerAsync } from '$src/services/animation/postProcessorWorker';
 import { SegmentInputType } from '$core/rest/model/Strand';
-import { LedSegment } from '$core/LedSegment';
+import { type LedSegment } from '$core/LedSegment';
 
 export default defineComponent({
     props: {

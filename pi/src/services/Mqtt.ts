@@ -1,7 +1,7 @@
 
-import { connect, IClientPublishOptions, MqttClient } from 'mqtt';
-import { NetledPrefix, Topic, TopicWithPrefix } from '../../../core/src/iot/mqttTopic.js';
-import { IDisposable } from '../../../core/src/Disposable.js';
+import { connect, type IClientPublishOptions, type MqttClient } from 'mqtt';
+import { type NetledPrefix, type Topic, type TopicWithPrefix } from '../../../core/src/iot/mqttTopic.js';
+import { type IDisposable } from '../../../core/src/Disposable.js';
 import { getLogger } from './logger.js';
 
 export class Mqtt {

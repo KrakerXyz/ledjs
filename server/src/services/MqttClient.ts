@@ -1,5 +1,5 @@
 import mqtt from 'mqtt';
-import { mqttTopic, NetledPrefix, Topic } from '../../../core/src/iot/mqttTopic.js';
+import { mqttTopic, type NetledPrefix, type Topic } from '../../../core/src/iot/mqttTopic.js';
 import { EnvKey, getOptionalConfig } from './getRequiredConfig.js';
 
 

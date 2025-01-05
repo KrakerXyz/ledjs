@@ -1,5 +1,5 @@
 
-import { Device, DevicePost } from './model/Device.js';
+import { type Device, type DevicePost } from './model/Device.js';
 import type { Id } from './model/Id.js';
 import type { RestClient } from './RestClient.js';
 

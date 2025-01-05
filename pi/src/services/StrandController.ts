@@ -1,12 +1,12 @@
 import { LedSegment } from '../../../core/src/LedSegment.js';
-import { Id } from '../../../core/src/rest/model/Id.js';
+import { type Id } from '../../../core/src/rest/model/Id.js';
 import { SegmentInputType } from '../../../core/src/rest/model/Strand.js';
 import { Timer } from '../../../core/src/Timer.js';
 import { getLogger } from './logger.js';
 import { restApi } from './restApi.js';
 import rpio from 'rpio';
-import { Mqtt } from './Mqtt.js';
-import { IDisposable } from '../../../core/src/Disposable.js';
+import { type Mqtt } from './Mqtt.js';
+import { type IDisposable } from '../../../core/src/Disposable.js';
 
 export class StrandController {
 

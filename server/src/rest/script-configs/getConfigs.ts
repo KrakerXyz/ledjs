@@ -4,7 +4,7 @@ import { jwtAuthentication } from '../../services/jwtAuthentication.js';
 import type { Animation } from '../../../../core/src/rest/model/Animation.js';
 import type { Id } from '../../../../core/src/rest/model/Id.js';
 import type { ScriptVersion } from '../../../../core/src/rest/model/ScriptVersion.js';
-import { ScriptConfig, ScriptConfigSummary, ScriptType } from '../../../../core/src/rest/model/ScriptConfig.js';
+import { type ScriptConfig, type ScriptConfigSummary, type ScriptType } from '../../../../core/src/rest/model/ScriptConfig.js';
 
 export const getConfigs: RouteOptions = {
     method: 'GET',

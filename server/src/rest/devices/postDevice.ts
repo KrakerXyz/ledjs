@@ -1,7 +1,7 @@
 import type { RouteOptions } from 'fastify';
 import { jwtAuthentication } from '../../services/jwtAuthentication.js';
 import { newId } from '../../../../core/src/services/newId.js';
-import { DevicePost, Device } from '../../../../core/src/rest/model/Device.js';
+import { type DevicePost, type Device } from '../../../../core/src/rest/model/Device.js';
 
 export const postDevice: RouteOptions = {
     method: 'POST',

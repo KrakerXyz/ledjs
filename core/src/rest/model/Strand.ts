@@ -1,6 +1,6 @@
 import { deepClone } from '../../services/deepClone.js';
-import { Id } from './Id.js';
-import { ScriptVersion } from './ScriptVersion.js';
+import { type Id } from './Id.js';
+import { type ScriptVersion } from './ScriptVersion.js';
 
 export enum SegmentInputType {
     Animation = 'animation',

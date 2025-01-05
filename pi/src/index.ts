@@ -4,7 +4,7 @@ import { getLogger } from './services/logger.js';
 import { restApi } from './services/restApi.js';
 import rpio from 'rpio';
 import { StrandController } from './services/StrandController.js';
-import { Id } from '../../core/src/rest/model/Id.js';
+import { type Id } from '../../core/src/rest/model/Id.js';
 import { netledGlobal } from '../../core/src/netledGlobal.js';
 import { deepClone } from '../../core/src/services/deepClone.js';
 import * as os from 'os';

@@ -44,6 +44,8 @@ declare module 'monaco-editor/esm/vs/language/typescript/ts.worker?worker' {
 }
 
 declare global {
+    // eslint-disable-next-line @typescript-eslint/consistent-type-imports
     const google: typeof import('google.accounts');
+    // eslint-disable-next-line @typescript-eslint/consistent-type-imports
     const gapi: typeof import('gapi.auth2');
 }

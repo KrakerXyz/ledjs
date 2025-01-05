@@ -1,5 +1,5 @@
 
-import { Device } from '../../../core/src/rest/model/Device.js';
+import { type Device } from '../../../core/src/rest/model/Device.js';
 import type { Id } from '../../../core/src/rest/model/Id.js';
 import type { Writeable } from '../../../core/src/services/Writeable.js';
 import { Db, type UpdateResult } from './Db.js';

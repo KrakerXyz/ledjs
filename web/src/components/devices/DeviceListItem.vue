@@ -62,7 +62,7 @@ import { watch, defineComponent, reactive, ref, getCurrentInstance } from 'vue';
 import { useRouteLocation, RouteName } from '$src/main.router';
 import { Icons } from '$src/components/global/Icon.vue';
 import { useMqttClient } from '$src/services/mqttClient';
-import { ScriptConfigSummary } from '$core/rest/model/ScriptConfig';
+import { type ScriptConfigSummary } from '$core/rest/model/ScriptConfig';
 
 export default defineComponent({
     props: {

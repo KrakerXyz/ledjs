@@ -139,13 +139,13 @@ import { assertTrue, restApi } from '$src/services';
 import { computed, defineComponent, getCurrentInstance, reactive, ref, watch, onUnmounted } from 'vue';
 import SegmentVue from './Segment.vue';
 import { LedSegment } from '$core/LedSegment';
-import { RouteLocationRaw, useRoute } from 'vue-router';
-import { SegmentInputType, Segment, strandToPost, AnimationSegment } from '$core/rest/model/Strand';
+import { type RouteLocationRaw, useRoute } from 'vue-router';
+import { SegmentInputType, type Segment, strandToPost, type AnimationSegment } from '$core/rest/model/Strand';
 import { newId } from '$core/services/newId';
 import { useRouteLocation, RouteName } from '$src/main.router';
 import { Icons } from '../global/Icon.vue';
 import { deepEquals } from '$core/services/deepEquals';
-import { ScriptConfig } from '$core/rest/model/ScriptConfig';
+import { type ScriptConfig } from '$core/rest/model/ScriptConfig';
 
 export default defineComponent({
     components: { Segment: SegmentVue },

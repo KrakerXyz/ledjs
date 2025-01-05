@@ -1,4 +1,4 @@
-import { Id } from './Id.js';
+import { type Id } from './Id.js';
 
 export interface Device {
     /** GUID id of the device */

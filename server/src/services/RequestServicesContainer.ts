@@ -5,7 +5,7 @@ import { PostProcessorDb } from '../db/PostProcessorDb.js';
 import { ScriptConfigDb } from '../db/ScriptConfigDb.js';
 import { StrandDb } from '../db/StrandDb.js';
 import { UserDb } from '../db/UserDb.js';
-import { MqttClient } from './MqttClient.js';
+import { type MqttClient } from './MqttClient.js';
 
 export class RequestServicesContainer {
 

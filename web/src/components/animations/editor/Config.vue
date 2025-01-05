@@ -69,7 +69,7 @@
 <script lang="ts">
 
 import type { Id } from '$core/rest/model/Id';
-import { ScriptConfigPost, ScriptType } from '$core/rest/model/ScriptConfig';
+import { type ScriptConfigPost, type ScriptType } from '$core/rest/model/ScriptConfig';
 import type { ScriptVersion } from '$core/rest/model/ScriptVersion';
 import { deepClone } from '$core/services/deepClone';
 import { newId } from '$core/services/newId';

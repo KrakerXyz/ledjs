@@ -1,5 +1,5 @@
 
-import { NetledPrefix } from '../iot/mqttTopic.js';
+import { type NetledPrefix } from '../iot/mqttTopic.js';
 import type { Id } from './model/Id.js';
 import type { RestClient } from './RestClient.js';
 
